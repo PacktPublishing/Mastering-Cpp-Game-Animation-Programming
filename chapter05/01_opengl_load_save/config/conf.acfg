@@ -1,0 +1,25 @@
+# Application viewer config file
+version: 1
+
+settings:
+  selected-model: 1
+  selected-instance: 1
+  highlight-selection: false
+
+camera:
+  camera-position: [5, 5, 5]
+  camera-elevation: -17.5000076
+  camera-azimuth: 296.400055
+
+models:
+  - model-name: Woman.gltf
+    model-file: assets/woman/Woman.gltf
+
+instances:
+  - model-file: Woman.gltf
+    position: [0, 0, 0]
+    rotation: [0, 0, 0]
+    scale: 1
+    swap-axes: false
+    anim-clip-number: 0
+    anim-clip-speed: 1
