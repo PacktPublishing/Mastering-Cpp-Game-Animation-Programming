@@ -22,7 +22,7 @@ OGLRenderer::OGLRenderer(GLFWwindow *window) {
 
 bool OGLRenderer::init(unsigned int width, unsigned int height) {
   /* randomize rand() */
-  std::srand(static_cast<int>(time(NULL)));
+  std::srand(static_cast<int>(time(nullptr)));
 
   /* save orig window title, add current mode */
   mOrigWindowTitle = getWindowTitle();
@@ -494,7 +494,7 @@ void OGLRenderer::handleMouseButtonEvents(int button, int action, int mods) {
     }
   }
 
-  /* move camera voew while right button is hold   */
+  /* move camera view while right button is hold   */
   if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
     mMouseLock = true;
   }

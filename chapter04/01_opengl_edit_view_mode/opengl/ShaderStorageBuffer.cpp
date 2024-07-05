@@ -7,7 +7,7 @@ void ShaderStorageBuffer::init(size_t bufferSize) {
   glGenBuffers(1, &mShaderStorageBuffer);
 
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, mShaderStorageBuffer);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, mBufferSize, NULL, GL_DYNAMIC_COPY);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, mBufferSize, nullptr, GL_DYNAMIC_COPY);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 

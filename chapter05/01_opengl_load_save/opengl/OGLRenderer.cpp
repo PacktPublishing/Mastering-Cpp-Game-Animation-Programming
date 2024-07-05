@@ -23,7 +23,7 @@ OGLRenderer::OGLRenderer(GLFWwindow *window) {
 
 bool OGLRenderer::init(unsigned int width, unsigned int height) {
   /* randomize rand() */
-  std::srand(static_cast<int>(time(NULL)));
+  std::srand(static_cast<int>(time(nullptr)));
 
   /* save orig window title, add current mode */
   mOrigWindowTitle = getWindowTitle();
@@ -122,12 +122,12 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
 
   /* register callbacks */
   mModelInstData.miModelCheckCallbackFunction = [this](std::string fileName) { return hasModel(fileName); };
-  mModelInstData.miModelAddCallbackFunction = [this](std::string fileName) { return addModel(fileName); };
-  mModelInstData.miModelDeleteCallbackFunction = [this](std::string modelName) { deleteModel(modelName); };
+  mModelInstData.miModelAddCallbackFunction = [this](std::string fileName, bool initialInstance, bool withUndo) { return addModel(fileName, initialInstance, withUndo); };
+  mModelInstData.miModelDeleteCallbackFunction = [this](std::string modelName, bool withUndo) { deleteModel(modelName, withUndo); };
 
   mModelInstData.miInstanceAddCallbackFunction = [this](std::shared_ptr<AssimpModel> model) { return addInstance(model); };
   mModelInstData.miInstanceAddManyCallbackFunction = [this](std::shared_ptr<AssimpModel> model, int numInstances) { addInstances(model, numInstances); };
-  mModelInstData.miInstanceDeleteCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { deleteInstance(instance) ;};
+  mModelInstData.miInstanceDeleteCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, bool withUndo) { deleteInstance(instance, withUndo) ;};
   mModelInstData.miInstanceCloneCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { cloneInstance(instance); };
   mModelInstData.miInstanceCloneManyCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, int numClones) { cloneInstances(instance, numClones); };
 
@@ -166,19 +166,10 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
     return false;
   }
 
-  const std::string versionString = "version";
-  if (!parser.hasKey(versionString)) {
-    Logger::log(1, "%s error: cold not find version string in YAML config file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
+  if (!parser.checkFileVersion()) {
+    Logger::log(1, "%s error: could not check file version of YAML config file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
     return false;
   }
-
-  int versionNumber = -1;
-  if (!parser.getValue(versionString, versionNumber)) {
-    Logger::log(1, "%s error: could not get version number from YAML config file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
-    return false;
-  }
-
-  Logger::log(1, "%s: found config version %i\n", __FUNCTION__, versionNumber);
 
   /* we delete all models and instances at this point, the requesting dialog has been confirmed */
   removeAllModelsAndInstances();
@@ -190,7 +181,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   }
 
   for (const auto& modelFile : modelFileNames) {
-    if (!addModel(modelFile, false)) {
+    if (!addModel(modelFile, false, false)) {
       return false;
     }
   }
@@ -202,7 +193,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   }
 
   for (const auto& instance : instances) {
-    std::shared_ptr<AssimpInstance> newInstance = addInstance(getModel(instance.isModelFile));
+    std::shared_ptr<AssimpInstance> newInstance = addInstance(getModel(instance.isModelFile), false);
     newInstance->setInstanceSettings(instance);
   }
 
@@ -248,30 +239,34 @@ void OGLRenderer::doExitApplication() {
 }
 
 void OGLRenderer::undoLastOperation() {
+  if (mModelInstData.miSettingsContainer->getUndoSize() == 0) {
+    return;
+  }
+
   mModelInstData.miSettingsContainer->undo();
   /* we need to update the index numbers in case instances were deleted,
    * and the settings files still contain the old index number */
   enumerateInstances();
 
-  const auto currentUndoInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
-  const auto instancePos = std::find_if(mModelInstData.miAssimpInstances.begin(), mModelInstData.miAssimpInstances.end(),
-    [currentUndoInstance] (std::shared_ptr<AssimpInstance> instance) { return currentUndoInstance == instance; });
-  if (instancePos != mModelInstData.miAssimpInstances.end()) {
-    mModelInstData.miSelectedInstance = (*instancePos)->getInstanceSettings().isInstanceIndexPosition;
+  int selectedInstace = mModelInstData.miSettingsContainer->getCurrentInstance();
+  if (selectedInstace < mModelInstData.miAssimpInstances.size()) {
+    mModelInstData.miSelectedInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
   } else {
     mModelInstData.miSelectedInstance = 0;
   }
 }
 
 void OGLRenderer::redoLastOperation() {
+  if (mModelInstData.miSettingsContainer->getRedoSize() == 0) {
+    return;
+  }
+
   mModelInstData.miSettingsContainer->redo();
   enumerateInstances();
 
-  const auto currentRedoInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
-  const auto instancePos = std::find_if(mModelInstData.miAssimpInstances.begin(), mModelInstData.miAssimpInstances.end(),
-    [currentRedoInstance] (std::shared_ptr<AssimpInstance> instance) { return currentRedoInstance == instance; });
-  if (instancePos != mModelInstData.miAssimpInstances.end()) {
-    mModelInstData.miSelectedInstance = (*instancePos)->getInstanceSettings().isInstanceIndexPosition;
+  int selectedInstace = mModelInstData.miSettingsContainer->getCurrentInstance();
+  if (selectedInstace < mModelInstData.miAssimpInstances.size()) {
+    mModelInstData.miSelectedInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
   } else {
     mModelInstData.miSelectedInstance = 0;
   }
@@ -287,7 +282,31 @@ void OGLRenderer::addNullModelAndInstance(){
   mModelInstData.miAssimpInstances.emplace_back(nullInstance);
 
   /* init the central settings container */
+  mModelInstData.miSettingsContainer.reset();
   mModelInstData.miSettingsContainer = std::make_shared<AssimpSettingsContainer>(nullInstance);
+
+  /* add callbacks */
+  mModelInstData.miSettingsContainer->getSelectedModelCallbackFunction = [this]() {return mModelInstData.miSelectedModel; };
+  mModelInstData.miSettingsContainer->setSelectedModelCallbackFunction = [this](int modelId) { mModelInstData.miSelectedModel = modelId; };
+
+  mModelInstData.miSettingsContainer->modelDeleteCallbackFunction = [this](std::string modelFileName, bool withUndo) { deleteModel(modelFileName, withUndo); };
+  mModelInstData.miSettingsContainer->modelAddCallbackFunction = [this](std::string modelFileName, bool initialInstance, bool withUndo) { return addModel(modelFileName, initialInstance, withUndo); };
+  mModelInstData.miSettingsContainer->modelAddExistingCallbackFunction = [this](std::shared_ptr<AssimpModel> model, int indexPos) { addExistingModel(model, indexPos); };
+
+
+  mModelInstData.miSettingsContainer->getSelectedInstanceCallbackFunction = [this]() { return mModelInstData.miSelectedInstance; };
+  mModelInstData.miSettingsContainer->setSelectedInstanceCallbackFunction = [this](int instanceId) { mModelInstData.miSelectedInstance = instanceId; };
+
+  mModelInstData.miSettingsContainer->getInstanceEditModeCallbackFunction = [this]() { return mRenderData.rdInstanceEditMode; };
+  mModelInstData.miSettingsContainer->setInstanceEditModeCallbackFunction = [this](instanceEditMode mode) { mRenderData.rdInstanceEditMode = mode; };
+
+  mModelInstData.miSettingsContainer->instanceGetModelCallbackFunction = [this](std::string fileName) { return getModel(fileName); };
+  mModelInstData.miSettingsContainer->instanceAddCallbackFunction = [this](std::shared_ptr<AssimpModel> model) { return addInstance(model); };
+  mModelInstData.miSettingsContainer->instanceAddExistingCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, int indexPos) { addExistingInstance(instance, indexPos); };
+  mModelInstData.miSettingsContainer->instanceDeleteCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, bool withUndo) { deleteInstance(instance, withUndo) ;};
+
+  /* kill undo and redo stacks too */
+  mModelInstData.miSettingsContainer->removeStacks();
 }
 
 void OGLRenderer::removeAllModelsAndInstances() {
@@ -300,9 +319,6 @@ void OGLRenderer::removeAllModelsAndInstances() {
 
   /* re-add null model and instance */
   addNullModelAndInstance();
-
-  /* kill undo and redo stacks too */
-  mModelInstData.miSettingsContainer->removeStacks();
 
   updateTriangleCount();
 }
@@ -325,7 +341,7 @@ std::shared_ptr<AssimpModel> OGLRenderer::getModel(std::string modelFileName) {
   return nullptr;
 }
 
-bool OGLRenderer::addModel(std::string modelFileName, bool addInitialInstance) {
+bool OGLRenderer::addModel(std::string modelFileName, bool addInitialInstance, bool withUndo) {
   if (hasModel(modelFileName)) {
     Logger::log(1, "%s warning: model '%s' already existed, skipping\n", __FUNCTION__, modelFileName.c_str());
     return false;
@@ -339,25 +355,47 @@ bool OGLRenderer::addModel(std::string modelFileName, bool addInitialInstance) {
 
   mModelInstData.miModelList.emplace_back(model);
 
+  int prevSelectedModelId = mModelInstData.miSelectedModel;
+  int prevSelectedInstanceId = mModelInstData.miSelectedInstance;
+
+  std::shared_ptr<AssimpInstance> firstInstance;
   if (addInitialInstance) {
-    /* also add a new instance here to see the model*/
-    if (!addInstance(model)) {
+    /* also add a new instance here to see the model, but skip undo recording the new instance */
+    firstInstance = addInstance(model, false);
+    if (!firstInstance) {
       Logger::log(1, "%s error: could not add initial instance for model '%s'\n", __FUNCTION__, modelFileName.c_str());
       return false;
     }
 
     /* center the first real model instance */
     if (mModelInstData.miAssimpInstances.size() == 2) {
-      std::shared_ptr<AssimpInstance> firstInstance = mModelInstData.miAssimpInstances.at(1);
       centerInstance(firstInstance);
     }
+  }
+
+  /* select new model and new instance */
+  mModelInstData.miSelectedModel = mModelInstData.miModelList.size() - 1;
+  mModelInstData.miSelectedInstance = mModelInstData.miAssimpInstances.size() - 1;
+
+  if (withUndo) {
+    mModelInstData.miSettingsContainer->applyLoadModel(model, mModelInstData.miSelectedModel, firstInstance,
+                                                       mModelInstData.miSelectedModel, prevSelectedModelId,
+                                                       mModelInstData.miSelectedInstance, prevSelectedInstanceId);
   }
 
   return true;
 }
 
-void OGLRenderer::deleteModel(std::string modelFileName) {
+void OGLRenderer::addExistingModel(std::shared_ptr<AssimpModel> model, int indexPos) {
+  Logger::log(2, "%s: inserting model %s on pos %i\n", __FUNCTION__, model->getModelFileName().c_str(), indexPos);
+  mModelInstData.miModelList.insert(mModelInstData.miModelList.begin() + indexPos, model);
+}
+
+void OGLRenderer::deleteModel(std::string modelFileName, bool withUndo) {
   std::string shortModelFileName = std::filesystem::path(modelFileName).filename().generic_string();
+
+  int prevSelectedModelId = mModelInstData.miSelectedModel;
+  int prevSelectedInstanceId = mModelInstData.miSelectedInstance;
 
   mModelInstData.miAssimpInstances.erase(
     std::remove_if(
@@ -367,9 +405,20 @@ void OGLRenderer::deleteModel(std::string modelFileName) {
     ), mModelInstData.miAssimpInstances.end()
   );
 
+  std::vector<std::shared_ptr<AssimpInstance>> deletedInstances;
+  std::shared_ptr<AssimpModel> model = getModel(modelFileName);
+
+  auto modelIndex = std::find_if(mModelInstData.miModelList.begin(), mModelInstData.miModelList.end(),
+      [modelFileName](std::shared_ptr<AssimpModel> model) { return model->getModelFileName() == modelFileName; }
+  );
+
+  size_t indexPos = mModelInstData.miModelList.size() - 1;
+  if (modelIndex != mModelInstData.miModelList.end()) {
+    indexPos = modelIndex - mModelInstData.miModelList.begin();
+  }
+
   if (mModelInstData.miAssimpInstancesPerModel.count(shortModelFileName) > 0) {
-    mModelInstData.miAssimpInstancesPerModel[shortModelFileName].clear();
-    mModelInstData.miAssimpInstancesPerModel.erase(shortModelFileName);
+    deletedInstances.swap(mModelInstData.miAssimpInstancesPerModel[shortModelFileName]);
   }
 
   mModelInstData.miModelList.erase(
@@ -380,14 +429,53 @@ void OGLRenderer::deleteModel(std::string modelFileName) {
     )
   );
 
+  /* decrement selected model index to point to model that is in list before the deleted one */
+  if (mModelInstData.miSelectedModel > 1) {
+    mModelInstData.miSelectedModel -= 1;
+  }
+
+  /* reset model instance to first instance */
+  if (mModelInstData.miAssimpInstances.size() > 1) {
+    mModelInstData.miSelectedInstance = 1;
+  }
+
+  /* if we have only the null instance left, disable selection */
+  if (mModelInstData.miAssimpInstances.size() == 1) {
+    mModelInstData.miSelectedInstance = 0;
+    mRenderData.rdHighlightSelectedInstance = false;
+  }
+
+  if (withUndo) {
+    mModelInstData.miSettingsContainer->applyDeleteModel(model, indexPos, deletedInstances,
+                                                         mModelInstData.miSelectedModel, prevSelectedModelId,
+                                                         mModelInstData.miSelectedInstance, prevSelectedInstanceId);
+  }
+
   enumerateInstances();
   updateTriangleCount();
 }
 
-std::shared_ptr<AssimpInstance> OGLRenderer::addInstance(std::shared_ptr<AssimpModel> model) {
+std::shared_ptr<AssimpInstance> OGLRenderer::getInstanceById(int instanceId) {
+  if (instanceId < mModelInstData.miAssimpInstances.size()) {
+    return mModelInstData.miAssimpInstances.at(instanceId);
+  } else {
+    Logger::log(1, "%s error: instance id %i out of range, we only have %i instances\n", __FUNCTION__, instanceId,  mModelInstData.miAssimpInstances.size());
+    return mModelInstData.miAssimpInstances.at(0);
+  }
+}
+
+std::shared_ptr<AssimpInstance> OGLRenderer::addInstance(std::shared_ptr<AssimpModel> model, bool withUndo) {
   std::shared_ptr<AssimpInstance> newInstance = std::make_shared<AssimpInstance>(model);
   mModelInstData.miAssimpInstances.emplace_back(newInstance);
   mModelInstData.miAssimpInstancesPerModel[model->getModelFileName()].emplace_back(newInstance);
+
+  int prevSelectedInstanceId = mModelInstData.miSelectedInstance;
+
+  /* select new instance */
+  mModelInstData.miSelectedInstance = mModelInstData.miAssimpInstances.size() - 1;
+  if (withUndo) {
+    mModelInstData.miSettingsContainer->applyNewInstance(newInstance, mModelInstData.miSelectedInstance, prevSelectedInstanceId);
+  }
 
   enumerateInstances();
   updateTriangleCount();
@@ -395,8 +483,18 @@ std::shared_ptr<AssimpInstance> OGLRenderer::addInstance(std::shared_ptr<AssimpM
   return newInstance;
 }
 
+void OGLRenderer::addExistingInstance(std::shared_ptr<AssimpInstance> instance, int indexPos) {
+  Logger::log(2, "%s: inserting instance on pos %i\n", __FUNCTION__, indexPos);
+  mModelInstData.miAssimpInstances.insert(mModelInstData.miAssimpInstances.begin() + indexPos, instance);
+  mModelInstData.miAssimpInstancesPerModel[instance->getModel()->getModelFileName()].emplace_back(instance);
+
+  enumerateInstances();
+  updateTriangleCount();
+}
+
 void OGLRenderer::addInstances(std::shared_ptr<AssimpModel> model, int numInstances) {
   size_t animClipNum = model->getAnimClips().size();
+  std::vector<std::shared_ptr<AssimpInstance>> newInstances;
   for (int i = 0; i < numInstances; ++i) {
     int xPos = std::rand() % 50 - 25;
     int zPos = std::rand() % 50 - 25;
@@ -411,16 +509,22 @@ void OGLRenderer::addInstances(std::shared_ptr<AssimpModel> model, int numInstan
       instSettings.isAnimSpeedFactor = animSpeed;
       newInstance->setInstanceSettings(instSettings);
     }
-
+    newInstances.emplace_back(newInstance);
     mModelInstData.miAssimpInstances.emplace_back(newInstance);
     mModelInstData.miAssimpInstancesPerModel[model->getModelFileName()].emplace_back(newInstance);
   }
+
+  int prevSelectedInstanceId = mModelInstData.miSelectedInstance;
+
+  /* select new instance */
+  mModelInstData.miSelectedInstance = mModelInstData.miAssimpInstances.size() - 1;
+  mModelInstData.miSettingsContainer->applyNewMultiInstance(newInstances, mModelInstData.miSelectedInstance, prevSelectedInstanceId);
 
   enumerateInstances();
   updateTriangleCount();
 }
 
-void OGLRenderer::deleteInstance(std::shared_ptr<AssimpInstance> instance) {
+void OGLRenderer::deleteInstance(std::shared_ptr<AssimpInstance> instance, bool withUndo) {
   std::shared_ptr<AssimpModel> currentModel = instance->getModel();
   std::string currentModelName = currentModel->getModelFileName();
 
@@ -428,14 +532,26 @@ void OGLRenderer::deleteInstance(std::shared_ptr<AssimpInstance> instance) {
     std::remove_if(
       mModelInstData.miAssimpInstances.begin(),
       mModelInstData.miAssimpInstances.end(),
-      [instance](std::shared_ptr<AssimpInstance> inst) { return inst == instance; }));
-
+      [instance](std::shared_ptr<AssimpInstance> inst) { return inst == instance; }),
+      mModelInstData.miAssimpInstances.end());
 
   mModelInstData.miAssimpInstancesPerModel[currentModelName].erase(
     std::remove_if(
       mModelInstData.miAssimpInstancesPerModel[currentModelName].begin(),
       mModelInstData.miAssimpInstancesPerModel[currentModelName].end(),
-      [instance](std::shared_ptr<AssimpInstance> inst) { return inst == instance; }));
+      [instance](std::shared_ptr<AssimpInstance> inst) { return inst == instance; }),
+      mModelInstData.miAssimpInstancesPerModel[currentModelName].end());
+
+  int prevSelectedInstanceId = mModelInstData.miSelectedInstance;
+
+  /* reset to last element if I was last */
+  if (mModelInstData.miSelectedInstance > 1) {
+    mModelInstData.miSelectedInstance -= 1;
+  }
+
+  if (withUndo) {
+    mModelInstData.miSettingsContainer->applyDeleteInstance(instance, mModelInstData.miSelectedInstance, prevSelectedInstanceId);
+  }
 
   enumerateInstances();
   updateTriangleCount();
@@ -453,6 +569,12 @@ void OGLRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
   mModelInstData.miAssimpInstances.emplace_back(newInstance);
   mModelInstData.miAssimpInstancesPerModel[currentModel->getModelFileName()].emplace_back(newInstance);
 
+  int prevSelectedInstanceId = mModelInstData.miSelectedInstance;
+
+  /* select new instance */
+  mModelInstData.miSelectedInstance = mModelInstData.miAssimpInstances.size() - 1;
+  mModelInstData.miSettingsContainer->applyNewInstance(newInstance, mModelInstData.miSelectedInstance, prevSelectedInstanceId);
+
   enumerateInstances();
   updateTriangleCount();
 }
@@ -461,6 +583,7 @@ void OGLRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
 void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int numClones){
   std::shared_ptr<AssimpModel> model = instance->getModel();
   size_t animClipNum = model->getAnimClips().size();
+  std::vector<std::shared_ptr<AssimpInstance>> newInstances;
   for (int i = 0; i < numClones; ++i) {
     int xPos = std::rand() % 50 - 25;
     int zPos = std::rand() % 50 - 25;
@@ -480,9 +603,16 @@ void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int n
 
     newInstance->setInstanceSettings(instSettings);
 
+    newInstances.emplace_back(newInstance);
     mModelInstData.miAssimpInstances.emplace_back(newInstance);
     mModelInstData.miAssimpInstancesPerModel[model->getModelFileName()].emplace_back(newInstance);
   }
+
+  int prevSelectedInstanceId = mModelInstData.miSelectedInstance;
+
+  /* select new instance */
+  mModelInstData.miSelectedInstance = mModelInstData.miAssimpInstances.size() - 1;
+  mModelInstData.miSettingsContainer->applyNewMultiInstance(newInstances, mModelInstData.miSelectedInstance, prevSelectedInstanceId);
 
   enumerateInstances();
   updateTriangleCount();
@@ -524,6 +654,16 @@ void OGLRenderer::setSize(unsigned int width, unsigned int height) {
 }
 
 void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
+  /* forward to ImGui only when in edit mode */
+  if (mRenderData.rdApplicationMode == appMode::edit) {
+    ImGuiIO& io = ImGui::GetIO();
+
+    /* hide from application if above ImGui window */
+    if (io.WantCaptureKeyboard || io.WantTextInput) {
+      return;
+    }
+  }
+
   /* toggle between edit and view mode by pressing F10 */
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_F10) == GLFW_PRESS) {
     mRenderData.rdApplicationMode = mRenderData.rdApplicationMode == appMode::edit ? appMode::view : appMode::edit;
@@ -532,13 +672,19 @@ void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
 
   /* instance edit modes */
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_1) == GLFW_PRESS) {
+    instanceEditMode oldMode = mRenderData.rdInstanceEditMode;
     mRenderData.rdInstanceEditMode = instanceEditMode::move;
+    mModelInstData.miSettingsContainer->applyChangeEditMode(mRenderData.rdInstanceEditMode, oldMode);
   }
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_2) == GLFW_PRESS) {
+    instanceEditMode oldMode = mRenderData.rdInstanceEditMode;
     mRenderData.rdInstanceEditMode = instanceEditMode::rotate;
+    mModelInstData.miSettingsContainer->applyChangeEditMode(mRenderData.rdInstanceEditMode, oldMode);
   }
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_3) == GLFW_PRESS) {
+    instanceEditMode oldMode = mRenderData.rdInstanceEditMode;
     mRenderData.rdInstanceEditMode = instanceEditMode::scale;
+    mModelInstData.miSettingsContainer->applyChangeEditMode(mRenderData.rdInstanceEditMode, oldMode);
   }
 
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_F11) == GLFW_PRESS) {
@@ -602,7 +748,7 @@ void OGLRenderer::toggleFullscreen() {
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
     glfwSetWindowMonitor(mRenderData.rdWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
   } else {
-    glfwSetWindowMonitor(mRenderData.rdWindow, NULL, xPos, yPos, width, height, 0);
+    glfwSetWindowMonitor(mRenderData.rdWindow, nullptr, xPos, yPos, width, height, 0);
   }
 }
 
@@ -615,7 +761,7 @@ void OGLRenderer::handleMouseButtonEvents(int button, int action, int mods) {
     }
 
     /* hide from application if above ImGui window */
-    if (io.WantCaptureMouse && io.WantCaptureMouseUnlessPopupClose) {
+    if (io.WantCaptureMouse || io.WantTextInput) {
       return;
     }
   }
@@ -624,7 +770,7 @@ void OGLRenderer::handleMouseButtonEvents(int button, int action, int mods) {
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE
       && mRenderData.rdApplicationMode == appMode::edit) {
     mMousePick = true;
-    mRenderData.rdInstanceEditMode = instanceEditMode::move;
+    mSavedSelectedInstanceId = mModelInstData.miSelectedInstance;
   }
 
   /* move instance around with middle button pressed */
@@ -650,11 +796,11 @@ void OGLRenderer::handleMouseButtonEvents(int button, int action, int mods) {
     if (mModelInstData.miSelectedInstance > 0) {
       std::shared_ptr<AssimpInstance> instance = mModelInstData.miAssimpInstances.at(mModelInstData.miSelectedInstance);
       InstanceSettings settings = instance->getInstanceSettings();
-      mModelInstData.miSettingsContainer->apply(instance, settings, mSavedInstanceSettings);
+      mModelInstData.miSettingsContainer->applyEditInstanceSettings(instance, settings, mSavedInstanceSettings);
     }
   }
 
-  /* move camera voew while right button is hold   */
+  /* move camera view while right button is hold   */
   if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
     mMouseLock = true;
   }
@@ -680,7 +826,7 @@ void OGLRenderer::handleMousePositionEvents(double xPos, double yPos) {
     io.AddMousePosEvent((float)xPos, (float)yPos);
 
     /* hide from application if above ImGui window */
-    if (io.WantCaptureMouse && io.WantCaptureMouseUnlessPopupClose) {
+    if (io.WantCaptureMouse || io.WantTextInput) {
       return;
     }
   }
@@ -781,9 +927,14 @@ void OGLRenderer::handleMousePositionEvents(double xPos, double yPos) {
 }
 
 void OGLRenderer::handleMovementKeys() {
-  /* kinda global way to stop movement keys, for dialogs etc. */
-  if (mRenderData.rdSuppressMovementKeys) {
-    return;
+  /* forward to ImGui only when in edit mode */
+  if (mRenderData.rdApplicationMode == appMode::edit) {
+    ImGuiIO& io = ImGui::GetIO();
+
+    /* hide from application if above ImGui window */
+    if (io.WantCaptureKeyboard || io.WantTextInput) {
+      return;
+    }
   }
 
   mRenderData.rdMoveForward = 0;
@@ -1064,6 +1215,7 @@ bool OGLRenderer::draw(float deltaTime) {
       } else {
         mModelInstData.miSelectedInstance = 0;
       }
+      mModelInstData.miSettingsContainer->applySelectInstance(mModelInstData.miSelectedInstance, mSavedSelectedInstanceId);
       mMousePick = false;
     }
   }

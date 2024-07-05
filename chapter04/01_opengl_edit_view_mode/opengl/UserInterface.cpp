@@ -390,7 +390,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       ImGui::OpenPopup("Delete Model?");
     }
 
-    if (ImGui::BeginPopupModal("Delete Model?", NULL, ImGuiChildFlags_AlwaysAutoResize)) {
+    if (ImGui::BeginPopupModal("Delete Model?", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
       ImGui::Text("Delete Model '%s'?", modInstData.miModelList.at(modInstData.miSelectedModel)->getModelFileName().c_str());
 
       /* cheating a bit to get buttons more to the center */
@@ -625,7 +625,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       savedInstanceSettings = settings;
     }
 
-    if (ImGui::Button("Reset Valuesto Zero")) {
+    if (ImGui::Button("Reset Values to Zero")) {
       modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
         settings, savedInstanceSettings);
       InstanceSettings defaultSettings{};

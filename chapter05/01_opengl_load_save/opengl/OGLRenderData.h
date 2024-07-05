@@ -4,7 +4,6 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
-#include <functional>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -13,6 +12,9 @@
 #include <GLFW/glfw3.h>
 
 #include <assimp/material.h>
+
+#include "Enums.h"
+#include "Callbacks.h"
 
 #pragma pack(push, 1) // exact fit to match std430
 struct OGLVertex {
@@ -45,19 +47,6 @@ struct NodeTransformData {
   glm::vec4 scale = glm::vec4(1.0f);
   glm::vec4 rotation = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // this is a quaternion
 };
-
-enum class appMode {
-  edit = 0,
-  view
-};
-
-enum class instanceEditMode {
-  move = 0,
-  rotate,
-  scale
-};
-
-using AppExitCallback = std::function<void(void)>;
 
 struct OGLRenderData {
   GLFWwindow *rdWindow = nullptr;
@@ -94,6 +83,4 @@ struct OGLRenderData {
 
   AppExitCallback rdAppExitCallback;
   bool rdRequestApplicationExit = false;
-
-  bool rdSuppressMovementKeys = false;
 };

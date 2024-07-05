@@ -1,5 +1,5 @@
 # Application viewer config file
-version: 1
+version: 1.0
 
 settings:
   selected-model: 1

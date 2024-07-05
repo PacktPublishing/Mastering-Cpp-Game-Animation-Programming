@@ -13,6 +13,7 @@ class YamlParser {
     /* loading */
     bool loadYamlFile(std::string fileName);
     std::string getFileName();
+    bool checkFileVersion();
 
     std::vector<std::string> getModelFileNames();
     std::vector<InstanceSettings> getInstanceConfigs();
@@ -30,10 +31,13 @@ class YamlParser {
 
     /* misc */
     bool hasKey(std::string key);
-    bool getValue(std::string key, int& value);
+    bool getValue(std::string key, std::string& value);
 
   private:
     std::string mYamlFileName;
     YAML::Node mYamlNode{};
     YAML::Emitter mYamlEmit{};
+
+    const std::string mYamlConfigFileVersion = "1.0";
+    std::string mYamlFileVersion;
 };

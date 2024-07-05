@@ -7,7 +7,7 @@ void UniformBuffer::init(size_t bufferSize) {
   glGenBuffers(1, &mUboBuffer);
 
   glBindBuffer(GL_UNIFORM_BUFFER, mUboBuffer);
-  glBufferData(GL_UNIFORM_BUFFER, mBufferSize, NULL, GL_STATIC_DRAW);
+  glBufferData(GL_UNIFORM_BUFFER, mBufferSize, nullptr, GL_STATIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

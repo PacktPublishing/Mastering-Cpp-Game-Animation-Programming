@@ -227,7 +227,7 @@ add_custom_command(TARGET ImGuiIniFile POST_BUILD
 # FindAssimp.cmake sets ASSIMP_LIBRARY and ASSIMP_ZLIB_LIBRARY under Windows, reuse the value for Linux
 if(UNIX)
   set(ASSIMP_LIBRARY assimp)
-  set(ASSIMP_ZLIB_LIBRARY minizip z)
+  set(ASSIMP_ZLIB_LIBRARY z)
 endif()
 
 # enable experimental GLM functions globally

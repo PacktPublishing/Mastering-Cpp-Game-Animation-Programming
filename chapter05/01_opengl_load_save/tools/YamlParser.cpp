@@ -48,6 +48,22 @@ std::string YamlParser::getFileName() {
   return mYamlFileName;
 }
 
+bool YamlParser::checkFileVersion() {
+  const std::string versionString = "version";
+  if (!hasKey(versionString)) {
+    Logger::log(1, "%s error: cold not find version string in YAML config file '%s'\n", __FUNCTION__, getFileName().c_str());
+    return false;
+  }
+
+  if (!getValue(versionString, mYamlFileVersion)) {
+    Logger::log(1, "%s error: could not get version number from YAML config file '%s'\n", __FUNCTION__, getFileName().c_str());
+    return false;
+  }
+
+  Logger::log(1, "%s: found config version %s\n", __FUNCTION__, mYamlFileVersion.c_str());
+  return true;
+}
+
 std::vector<std::string> YamlParser::getModelFileNames() {
   std::vector<std::string> modelFileNames;
 
@@ -226,7 +242,7 @@ bool YamlParser::createConfigFile(OGLRenderData renderData, ModelAndInstanceData
   mYamlEmit << YAML::Comment("Application viewer config file");
   mYamlEmit << YAML::BeginMap;
   mYamlEmit << YAML::Key << "version";
-  mYamlEmit << YAML::Value << 1.0f;
+  mYamlEmit << YAML::Value << mYamlConfigFileVersion;
   mYamlEmit << YAML::EndMap;
 
   mYamlEmit << YAML::Newline;
@@ -341,10 +357,10 @@ bool YamlParser::hasKey(const std::string key) {
   return false;
 }
 
-bool YamlParser::getValue(const std::string key, int& value) {
+bool YamlParser::getValue(const std::string key, std::string& value) {
   try {
     if (mYamlNode[key]) {
-      value = mYamlNode[key].as<int>();
+      value = mYamlNode[key].as<std::string>();
       return true;
     } else {
       Logger::log(1, "%s error: could not read key '%s' in file '%s'\n", __FUNCTION__, key.c_str(), mYamlFileName.c_str());
@@ -355,4 +371,3 @@ bool YamlParser::getValue(const std::string key, int& value) {
 
   return false;
 }
-

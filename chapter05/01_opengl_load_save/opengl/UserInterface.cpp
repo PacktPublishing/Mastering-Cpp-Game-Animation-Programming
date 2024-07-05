@@ -82,7 +82,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       if (modInstData.miModelList.size() == 1) {
         ImGui::EndDisabled();
       }
-      ImGui::MenuItem("Exit", NULL, &renderData.rdRequestApplicationExit);
+      ImGui::MenuItem("Exit", nullptr, &renderData.rdRequestApplicationExit);
       ImGui::EndMenu();
     }
 
@@ -123,7 +123,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::OpenPopup("Do you want to quit?");
   }
 
-  if (ImGui::BeginPopupModal("Do you want to quit?", NULL, ImGuiChildFlags_AlwaysAutoResize)) {
+  if (ImGui::BeginPopupModal("Do you want to quit?", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
     ImGui::Text("  Exit Application?  ");
 
     /* cheating a bit to get buttons more to the center */
@@ -168,7 +168,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::OpenPopup("Load Error!");
   }
 
-  if (ImGui::BeginPopupModal("Load Error!", NULL, ImGuiChildFlags_AlwaysAutoResize)) {
+  if (ImGui::BeginPopupModal("Load Error!", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
     ImGui::Text("Error loading config!");
     ImGui::Text("Check console output!");
 
@@ -209,7 +209,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::OpenPopup("Save Error!");
   }
 
-  if (ImGui::BeginPopupModal("Save Error!", NULL, ImGuiChildFlags_AlwaysAutoResize)) {
+  if (ImGui::BeginPopupModal("Save Error!", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
     ImGui::Text("Error saving config!");
     ImGui::Text("Check console output!");
 
@@ -248,20 +248,11 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       /* Windows does understand forward slashes, but std::filesystem preferres backslashes... */
       std::replace(filePathName.begin(), filePathName.end(), '\\', '/');
 
-      if (modInstData.miModelAddCallbackFunction(filePathName)) {
-        /* select new model and new instance */
-        modInstData.miSelectedModel = modInstData.miModelList.size() - 1;
-        modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
+      if (!modInstData.miModelAddCallbackFunction(filePathName, true, true)) {
+        Logger::log(1, "%s error: unable to load model file '%s', unnown error \n", __FUNCTION__, filePathName.c_str());
       }
     }
     ImGuiFileDialog::Instance()->Close();
-  }
-
-  /* stop moving while text may be entered */
-  if (ImGuiFileDialog::Instance()->IsOpened()) {
-    renderData.rdSuppressMovementKeys = true;
-  } else {
-    renderData.rdSuppressMovementKeys = false;
   }
 
   static float newFps = 0.0f;
@@ -530,30 +521,14 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       ImGui::OpenPopup("Delete Model?");
     }
 
-    if (ImGui::BeginPopupModal("Delete Model?", NULL, ImGuiChildFlags_AlwaysAutoResize)) {
+    if (ImGui::BeginPopupModal("Delete Model?", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
       ImGui::Text("Delete Model '%s'?", modInstData.miModelList.at(modInstData.miSelectedModel)->getModelFileName().c_str());
 
       /* cheating a bit to get buttons more to the center */
       ImGui::Indent();
       ImGui::Indent();
       if (ImGui::Button("OK")) {
-        modInstData.miModelDeleteCallbackFunction(modInstData.miModelList.at(modInstData.miSelectedModel)->getModelFileName().c_str());
-
-        /* decrement selected model index to point to model that is in list before the deleted one */
-        if (modInstData.miSelectedModel > 1) {
-          modInstData.miSelectedModel -= 1;
-        }
-
-        /* reset model instance to first instance */
-        if (modInstData.miAssimpInstances.size() > 1) {
-          modInstData.miSelectedInstance = 1;
-        }
-
-        /* if we have only the null instance left, disable selection */
-        if (modInstData.miAssimpInstances.size() == 1) {
-          modInstData.miSelectedInstance = 0;
-          renderData.rdHighlightSelectedInstance = false;
-        }
+        modInstData.miModelDeleteCallbackFunction(modInstData.miModelList.at(modInstData.miSelectedModel)->getModelFileName().c_str(), true);
 
         ImGui::CloseCurrentPopup();
       }
@@ -575,7 +550,6 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     if (ImGui::Button("Create Multiple Instances")) {
       std::shared_ptr<AssimpModel> currentModel = modInstData.miModelList[modInstData.miSelectedModel];
       modInstData.miInstanceAddManyCallbackFunction(currentModel, manyInstanceCreateNum);
-      modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
     }
     ImGui::SameLine();
     ImGui::SliderInt("##MassInstanceCreation", &manyInstanceCreateNum, 1, 100, "%d", flags);
@@ -673,12 +647,8 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
 
     ImGui::SameLine();
     if (ImGui::Button("Delete Instance")) {
-      modInstData.miInstanceDeleteCallbackFunction(currentInstance);
+      modInstData.miInstanceDeleteCallbackFunction(currentInstance, true);
 
-      /* hard reset for now */
-      if (modInstData.miSelectedInstance > 1) {
-        modInstData.miSelectedInstance -= 1;
-      }
       settings = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)->getInstanceSettings();
     }
 
@@ -699,9 +669,6 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     static int manyInstanceCloneNum = 1;
     if (ImGui::Button("Create Multiple Clones")) {
       modInstData.miInstanceCloneManyCallbackFunction(currentInstance, manyInstanceCloneNum);
-
-      /* reset to last position for now */
-      modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
 
       /* read back settings for UI */
       settings = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)->getInstanceSettings();
@@ -730,7 +697,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::SameLine();
     ImGui::Checkbox("##ModelAxisSwap", &settings.isSwapYZAxis);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
+      modInstData.miSettingsContainer->applyEditInstanceSettings(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
         settings, savedInstanceSettings);
       savedInstanceSettings = settings;
     }
@@ -740,7 +707,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::SliderFloat3("##ModelPos", glm::value_ptr(settings.isWorldPosition),
       -75.0f, 75.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
+      modInstData.miSettingsContainer->applyEditInstanceSettings(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
         settings, savedInstanceSettings);
       savedInstanceSettings = settings;
     }
@@ -750,7 +717,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::SliderFloat3("##ModelRot", glm::value_ptr(settings.isWorldRotation),
       -180.0f, 180.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
+      modInstData.miSettingsContainer->applyEditInstanceSettings(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
         settings, savedInstanceSettings);
       savedInstanceSettings = settings;
     }
@@ -760,13 +727,13 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::SliderFloat("##ModelScale", &settings.isScale,
       0.001f, 10.0f, "%.4f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
+      modInstData.miSettingsContainer->applyEditInstanceSettings(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
         settings, savedInstanceSettings);
       savedInstanceSettings = settings;
     }
 
-    if (ImGui::Button("Reset Valuesto Zero")) {
-      modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
+    if (ImGui::Button("Reset Values to Zero")) {
+      modInstData.miSettingsContainer->applyEditInstanceSettings(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
         settings, savedInstanceSettings);
       InstanceSettings defaultSettings{};
       settings = defaultSettings;
@@ -813,7 +780,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
           if (ImGui::Selectable(animClips.at(i)->getClipName().c_str(), isSelected)) {
             settings.isAnimClipNr = i;
             /* save for undo */
-            modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
+            modInstData.miSettingsContainer->applyEditInstanceSettings(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
               settings, savedInstanceSettings);
             savedInstanceSettings = settings;
           }
@@ -829,7 +796,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       ImGui::SameLine();
       ImGui::SliderFloat("##ClipSpeed", &settings.isAnimSpeedFactor, 0.0f, 2.0f, "%.3f", flags);
       if (ImGui::IsItemDeactivatedAfterEdit()) {
-        modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
+        modInstData.miSettingsContainer->applyEditInstanceSettings(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
           settings, savedInstanceSettings);
         savedInstanceSettings = settings;
       }

@@ -51,14 +51,17 @@ class OGLRenderer {
 
     bool hasModel(std::string modelFileName);
     std::shared_ptr<AssimpModel> getModel(std::string modelFileName);
-    bool addModel(std::string modelFileName, bool addInitialInstance = true);
-    void deleteModel(std::string modelFileName);
+    bool addModel(std::string modelFileName, bool addInitialInstance = true, bool withUndo = true);
+    void addExistingModel(std::shared_ptr<AssimpModel> model, int indexPos);
+    void deleteModel(std::string modelFileName, bool withUnd = true);
 
-    std::shared_ptr<AssimpInstance> addInstance(std::shared_ptr<AssimpModel> model);
+    std::shared_ptr<AssimpInstance> addInstance(std::shared_ptr<AssimpModel> model, bool withUndo = true);
+    void addExistingInstance(std::shared_ptr<AssimpInstance> instance, int indexPos);
     void addInstances(std::shared_ptr<AssimpModel> model, int numInstances);
-    void deleteInstance(std::shared_ptr<AssimpInstance> instance);
+    void deleteInstance(std::shared_ptr<AssimpInstance> instance, bool withUndo = true);
     void cloneInstance(std::shared_ptr<AssimpInstance> instance);
     void cloneInstances(std::shared_ptr<AssimpInstance> instance, int numClones);
+    std::shared_ptr<AssimpInstance> getInstanceById(int instanceId);
 
     void centerInstance(std::shared_ptr<AssimpInstance> instance);
 
@@ -124,6 +127,7 @@ class OGLRenderer {
     int mMouseXPos = 0;
     int mMouseYPos = 0;
     bool mMousePick = false;
+    int mSavedSelectedInstanceId = 0;
 
     bool mMouseMove = false;
     bool mMouseMoveVertical = false;

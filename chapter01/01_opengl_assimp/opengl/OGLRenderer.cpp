@@ -20,7 +20,7 @@ OGLRenderer::OGLRenderer(GLFWwindow *window) {
 
 bool OGLRenderer::init(unsigned int width, unsigned int height) {
   /* randomize rand() */
-  std::srand(static_cast<int>(time(NULL)));
+  std::srand(static_cast<int>(time(nullptr)));
 
   /* required for perspective */
   mRenderData.rdWidth = width;
