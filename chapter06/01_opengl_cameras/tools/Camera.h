@@ -51,6 +51,7 @@ class Camera {
 
   private:
     void updateCameraView(OGLRenderData& renderData, const float deltaTime);
+    void updateCameraPosition(OGLRenderData& renderData, const float deltaTime);
 
     CameraSettings mCamSettings{};
 

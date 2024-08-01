@@ -80,23 +80,23 @@ if(NOT stbi_POPULATED)
   add_subdirectory(${stbi_SOURCE_DIR} EXCLUDE_FROM_ALL)
 endif()
 
-# yaml-cpp
-FetchContent_Declare(
-  yaml-cpp
-  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
-  GIT_TAG 0.8.0
-)
-
-FetchContent_MakeAvailable(yaml-cpp)
-
-FetchContent_GetProperties(yaml-cpp)
-if(NOT yaml-cpp_POPULATED)
-  FetchContent_Populate(yaml-cpp)
-  add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
-
-# get GLFW3 and GLM via FetchContent on Windows systems
+# get YAML-CPP, GLFW3 and GLM via FetchContent on Windows systems
 if(WIN32)
+  # yaml-cpp
+  FetchContent_Declare(
+    yaml-cpp
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
+    GIT_TAG 0.8.0
+  )
+
+  FetchContent_MakeAvailable(yaml-cpp)
+
+  FetchContent_GetProperties(yaml-cpp)
+  if(NOT yaml-cpp_POPULATED)
+    FetchContent_Populate(yaml-cpp)
+    add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
+  endif()
+
   # get and build GLFW3
   FetchContent_Declare(
     glfw3

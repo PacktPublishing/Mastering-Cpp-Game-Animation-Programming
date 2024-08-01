@@ -43,10 +43,19 @@ void UserInterface::init(OGLRenderData &renderData) {
   mUiDrawValues.resize(mNumUiDrawValues);
 }
 
-void UserInterface::createFrame() {
+void UserInterface::createFrame(OGLRenderData& renderData) {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
+
+  static float newFps = 0.0f;
+  /* avoid inf values (division by zero) */
+  if (renderData.rdFrameTime > 0.0) {
+    newFps = 1.0f / renderData.rdFrameTime * 1000.f;
+  }
+  /* make an averge value to avoid jumps */
+  mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * newFps;
+
 }
 
 void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanceCamData& modInstCamData, const bool hideMouse) {
@@ -370,14 +379,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGuiFileDialog::Instance()->Close();
   }
 
-  static float newFps = 0.0f;
-  /* avoid inf values (division by zero) */
-  if (renderData.rdFrameTime > 0.0) {
-    newFps = 1.0f / renderData.rdFrameTime * 1000.f;
-  }
-  /* make an averge value to avoid jumps */
-  mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * newFps;
-
   /* clamp manual input on all sliders to min/max */
   ImGuiSliderFlags flags = ImGuiSliderFlags_AlwaysClamp;
 
@@ -421,9 +422,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     updateTime += 1.0 / 30.0;
   }
 
-  ImGui::BeginGroup();
-  ImGui::Text("FPS: %s", std::to_string(mFramesPerSecond).c_str());
-  ImGui::EndGroup();
+  ImGui::Text("FPS: %10.4f", mFramesPerSecond);
 
   if (ImGui::IsItemHovered()) {
     ImGui::BeginTooltip();
@@ -466,9 +465,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
 
   if (ImGui::CollapsingHeader("Timers")) {
-    ImGui::BeginGroup();
     ImGui::Text("Frame Time:             %10.4f ms", renderData.rdFrameTime);
-    ImGui::EndGroup();
 
     if (ImGui::IsItemHovered()) {
       ImGui::BeginTooltip();
@@ -486,9 +483,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::EndTooltip();
     }
 
-    ImGui::BeginGroup();
     ImGui::Text("Model Upload Time:      %10.4f ms", renderData.rdUploadToVBOTime);
-    ImGui::EndGroup();
 
     if (ImGui::IsItemHovered()) {
       ImGui::BeginTooltip();
@@ -506,9 +501,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::EndTooltip();
     }
 
-    ImGui::BeginGroup();
     ImGui::Text("Matrix Generation Time: %10.4f ms", renderData.rdMatrixGenerateTime);
-    ImGui::EndGroup();
 
     if (ImGui::IsItemHovered()) {
       ImGui::BeginTooltip();
@@ -544,9 +537,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::EndTooltip();
     }
 
-    ImGui::BeginGroup();
     ImGui::Text("UI Generation Time:     %10.4f ms", renderData.rdUIGenerateTime);
-    ImGui::EndGroup();
 
     if (ImGui::IsItemHovered()) {
       ImGui::BeginTooltip();
@@ -564,9 +555,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::EndTooltip();
     }
 
-    ImGui::BeginGroup();
     ImGui::Text("UI Draw Time:           %10.4f ms", renderData.rdUIDrawTime);
-    ImGui::EndGroup();
 
     if (ImGui::IsItemHovered()) {
       ImGui::BeginTooltip();
@@ -1013,7 +1002,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SliderInt("##MassInstanceCreation", &manyInstanceCreateNum, 1, 100, "%d", flags);
     ImGui::PopItemWidth();
     ImGui::SameLine();
-    if (ImGui::Button("Go!")) {
+    if (ImGui::Button("Go!##Create")) {
       std::shared_ptr<AssimpModel> currentModel = modInstCamData.micModelList[modInstCamData.micSelectedModel];
       modInstCamData.micInstanceAddManyCallbackFunction(currentModel, manyInstanceCreateNum);
     }
@@ -1140,7 +1129,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SliderInt("##MassInstanceCloning", &manyInstanceCloneNum, 1, 100, "%d", flags);
     ImGui::PopItemWidth();
     ImGui::SameLine();
-    if (ImGui::Button("Go!")) {
+    if (ImGui::Button("Go!##Clone")) {
       modInstCamData.micInstanceCloneManyCallbackFunction(currentInstance, manyInstanceCloneNum);
 
       /* read back settings for UI */
@@ -1313,7 +1302,7 @@ void UserInterface::createStatusBar(OGLRenderData& renderData, ModelInstanceCamD
 
   ImGui::Begin("Status", nullptr, statusBarFlags);
 
-  ImGui::Text("Status | Active Camera:  %10s |", modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName().c_str());
+  ImGui::Text("Status | Active Camera:  %16s | FPS:  %7.2f |", modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName().c_str(), mFramesPerSecond);
 
   ImGui::End();
 }

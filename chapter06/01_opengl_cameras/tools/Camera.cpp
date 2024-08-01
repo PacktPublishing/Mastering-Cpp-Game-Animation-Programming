@@ -31,6 +31,7 @@ void Camera::updateCamera(OGLRenderData& renderData, float deltaTime) {
   /* default handling is free camera if nothing has been locked  */
   if (!mCamSettings.csInstanceToFollow.lock()) {
     updateCameraView(renderData, deltaTime);
+    updateCameraPosition(renderData, deltaTime);
     return;
   }
 
@@ -115,13 +116,16 @@ void Camera::updateCameraView(OGLRenderData& renderData, const float deltaTime) 
   /* calculate right and up direction */
   mRightDirection = glm::normalize(glm::cross(mViewDirection, mWorldUpVector));
   mUpDirection = glm::normalize(glm::cross(mRightDirection, mViewDirection));
+}
 
+void Camera::updateCameraPosition(OGLRenderData& renderData, const float deltaTime){
   /* update camera position depending on desired movement */
   mCamSettings.csWorldPosition +=
     renderData.rdMoveForward * deltaTime * mViewDirection
     + renderData.rdMoveRight * deltaTime * mRightDirection
     + renderData.rdMoveUp * deltaTime * mUpDirection;
 }
+
 
 void Camera::moveCameraTo(glm::vec3 position) {
   mCamSettings.csWorldPosition = position;

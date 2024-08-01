@@ -363,8 +363,9 @@ void OGLRenderer::addNullModelAndInstance(){
   /* init the central settings container */
   mModelInstCamData.micSettingsContainer.reset();
   mModelInstCamData.micSettingsContainer = std::make_shared<AssimpSettingsContainer>(nullInstance);
+}
 
-  /* add callbacks */
+void OGLRenderer::createSettingsContainerCallbacks() {
   mModelInstCamData.micSettingsContainer->getSelectedModelCallbackFunction = [this]() {return mModelInstCamData.micSelectedModel; };
   mModelInstCamData.micSettingsContainer->setSelectedModelCallbackFunction = [this](int modelId) { mModelInstCamData.micSelectedModel = modelId; };
 
@@ -383,8 +384,9 @@ void OGLRenderer::addNullModelAndInstance(){
   mModelInstCamData.micSettingsContainer->instanceAddExistingCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, int indexPos, int indexPerModelPos)
     { addExistingInstance(instance, indexPos, indexPerModelPos); };
   mModelInstCamData.micSettingsContainer->instanceDeleteCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, bool withUndo) { deleteInstance(instance, withUndo) ;};
+}
 
-  /* kill undo and redo stacks too */
+void OGLRenderer::clearUndoRedoStacks() {
   mModelInstCamData.micSettingsContainer->removeStacks();
 }
 
@@ -401,6 +403,12 @@ void OGLRenderer::removeAllModelsAndInstances() {
 
   /* re-add null model and instance */
   addNullModelAndInstance();
+
+  /* add callbacks */
+  createSettingsContainerCallbacks();
+
+  /* kill undo and redo stacks too */
+  clearUndoRedoStacks();
 
   updateTriangleCount();
 }
@@ -1283,6 +1291,34 @@ bool OGLRenderer::draw(float deltaTime) {
   mFramebuffer.bind();
   mFramebuffer.clearTextures();
 
+  /* camera update */
+  mMatrixGenerateTimer.start();
+  cam->updateCamera(mRenderData, deltaTime);
+
+  if (camSettings.csCamProjection == cameraProjection::perspective) {
+    mProjectionMatrix = glm::perspective(
+      glm::radians(static_cast<float>(camSettings.csFieldOfView)),
+      static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight),
+      0.01f, 500.0f);
+  } else {
+    float orthoScaling = camSettings.csOrthoScale;
+    float aspect = static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight) * orthoScaling;
+    float leftRight = 1.0f * orthoScaling;
+    float nearFar = 75.0f * orthoScaling;
+    mProjectionMatrix = glm::ortho(-aspect, aspect, -leftRight, leftRight, -nearFar, nearFar);
+  }
+
+  mViewMatrix = cam->getViewMatrix();
+
+  mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
+
+  mUploadToUBOTimer.start();
+  std::vector<glm::mat4> matrixData;
+  matrixData.emplace_back(mViewMatrix);
+  matrixData.emplace_back(mProjectionMatrix);
+  mUniformBuffer.uploadUboData(matrixData, 0);
+  mRenderData.rdUploadToUBOTime = mUploadToUBOTimer.stop();
+
   /* save the selected instance for color highlight */
   std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
   if (mRenderData.rdApplicationMode == appMode::edit) {
@@ -1522,34 +1558,6 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mFramebuffer.unbind();
 
-  /* camera update */
-  mMatrixGenerateTimer.start();
-  cam->updateCamera(mRenderData, deltaTime);
-
-  if (camSettings.csCamProjection == cameraProjection::perspective) {
-    mProjectionMatrix = glm::perspective(
-      glm::radians(static_cast<float>(camSettings.csFieldOfView)),
-      static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight),
-      0.01f, 500.0f);
-  } else {
-    float orthoScaling = camSettings.csOrthoScale;
-    float aspect = static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight) * orthoScaling;
-    float leftRight = 1.0f * orthoScaling;
-    float nearFar = 75.0f * orthoScaling;
-    mProjectionMatrix = glm::ortho(-aspect, aspect, -leftRight, leftRight, -nearFar, nearFar);
-  }
-
-  mViewMatrix = cam->getViewMatrix();
-
-  mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
-
-  mUploadToUBOTimer.start();
-  std::vector<glm::mat4> matrixData;
-  matrixData.emplace_back(mViewMatrix);
-  matrixData.emplace_back(mProjectionMatrix);
-  mUniformBuffer.uploadUboData(matrixData, 0);
-  mRenderData.rdUploadToUBOTime = mUploadToUBOTimer.stop();
-
   /* blit color buffer to screen */
   /* XXX: enable sRGB ONLY for the final framebuffer draw */
   glEnable(GL_FRAMEBUFFER_SRGB);
@@ -1558,7 +1566,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   /* create user interface */
   mUIGenerateTimer.start();
-  mUserInterface.createFrame();
+  mUserInterface.createFrame(mRenderData);
   mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
 
   if (mRenderData.rdApplicationMode == appMode::edit) {
