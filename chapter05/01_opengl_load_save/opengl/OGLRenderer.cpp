@@ -284,8 +284,9 @@ void OGLRenderer::addNullModelAndInstance(){
   /* init the central settings container */
   mModelInstData.miSettingsContainer.reset();
   mModelInstData.miSettingsContainer = std::make_shared<AssimpSettingsContainer>(nullInstance);
+}
 
-  /* add callbacks */
+void OGLRenderer::createSettingsContainerCallbacks() {
   mModelInstData.miSettingsContainer->getSelectedModelCallbackFunction = [this]() {return mModelInstData.miSelectedModel; };
   mModelInstData.miSettingsContainer->setSelectedModelCallbackFunction = [this](int modelId) { mModelInstData.miSelectedModel = modelId; };
 
@@ -304,8 +305,9 @@ void OGLRenderer::addNullModelAndInstance(){
   mModelInstData.miSettingsContainer->instanceAddCallbackFunction = [this](std::shared_ptr<AssimpModel> model) { return addInstance(model); };
   mModelInstData.miSettingsContainer->instanceAddExistingCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, int indexPos) { addExistingInstance(instance, indexPos); };
   mModelInstData.miSettingsContainer->instanceDeleteCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, bool withUndo) { deleteInstance(instance, withUndo) ;};
+}
 
-  /* kill undo and redo stacks too */
+void OGLRenderer::clearUndoRedoStacks() {
   mModelInstData.miSettingsContainer->removeStacks();
 }
 
@@ -319,6 +321,12 @@ void OGLRenderer::removeAllModelsAndInstances() {
 
   /* re-add null model and instance */
   addNullModelAndInstance();
+
+  /* add callbacks */
+  createSettingsContainerCallbacks();
+
+  /* kill undo and redo stacks too */
+  clearUndoRedoStacks();
 
   updateTriangleCount();
 }

@@ -306,9 +306,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     updateTime += 1.0 / 30.0;
   }
 
-  ImGui::BeginGroup();
-  ImGui::Text("FPS: %s", std::to_string(mFramesPerSecond).c_str());
-  ImGui::EndGroup();
+  ImGui::Text("FPS: %10.4f", mFramesPerSecond);
 
   if (ImGui::IsItemHovered()) {
     ImGui::BeginTooltip();
@@ -351,9 +349,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
 
 
   if (ImGui::CollapsingHeader("Timers")) {
-    ImGui::BeginGroup();
     ImGui::Text("Frame Time:             %10.4f ms", renderData.rdFrameTime);
-    ImGui::EndGroup();
 
     if (ImGui::IsItemHovered()) {
       ImGui::BeginTooltip();
@@ -371,9 +367,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       ImGui::EndTooltip();
     }
 
-    ImGui::BeginGroup();
     ImGui::Text("Model Upload Time:      %10.4f ms", renderData.rdUploadToVBOTime);
-    ImGui::EndGroup();
 
     if (ImGui::IsItemHovered()) {
       ImGui::BeginTooltip();
@@ -391,9 +385,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       ImGui::EndTooltip();
     }
 
-    ImGui::BeginGroup();
     ImGui::Text("Matrix Generation Time: %10.4f ms", renderData.rdMatrixGenerateTime);
-    ImGui::EndGroup();
 
     if (ImGui::IsItemHovered()) {
       ImGui::BeginTooltip();
@@ -429,9 +421,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       ImGui::EndTooltip();
     }
 
-    ImGui::BeginGroup();
     ImGui::Text("UI Generation Time:     %10.4f ms", renderData.rdUIGenerateTime);
-    ImGui::EndGroup();
 
     if (ImGui::IsItemHovered()) {
       ImGui::BeginTooltip();
@@ -449,9 +439,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       ImGui::EndTooltip();
     }
 
-    ImGui::BeginGroup();
     ImGui::Text("UI Draw Time:           %10.4f ms", renderData.rdUIDrawTime);
-    ImGui::EndGroup();
 
     if (ImGui::IsItemHovered()) {
       ImGui::BeginTooltip();

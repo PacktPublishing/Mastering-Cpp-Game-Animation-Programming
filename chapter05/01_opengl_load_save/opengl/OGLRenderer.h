@@ -152,6 +152,9 @@ class OGLRenderer {
     void undoLastOperation();
     void redoLastOperation();
 
+    void createSettingsContainerCallbacks();
+    void clearUndoRedoStacks();
+
     const std::string mDefaultConfigFileName = "config/conf.acfg";
     bool loadConfigFile(std::string configFileName);
     bool saveConfigFile(std::string configFileName);
