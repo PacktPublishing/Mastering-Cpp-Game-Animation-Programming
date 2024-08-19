@@ -1,0 +1,4949 @@
+# Application viewer config file
+version: 5.0
+
+settings:
+  selected-model: 2
+  selected-instance: 227
+  selected-camera: 2
+  highlight-selection: false
+
+cameras:
+  - camera-name: FreeCam
+    position: [1.97273159, 4.21149445, 7.94569349]
+    view-azimuth: 71.8998108
+    view-elevation: -29.6000385
+    camera-type: 0
+    camera-projection: 0
+    field-of-view: 90
+  - camera-name: OrthoCam
+    position: [-0.0973121524, 8.39158821, 2.11331558]
+    view-azimuth: 4.69999981
+    view-elevation: -18.2000122
+    camera-type: 0
+    camera-projection: 1
+    ortho-scale: 20
+  - camera-name: ThirdPersonCam
+    position: [-47.8087196, 4.87495565, -27.4315338]
+    view-azimuth: 37.0988159
+    view-elevation: -19.4999828
+    camera-type: 2
+    camera-projection: 0
+    field-of-view: 91
+    3rd-person-view-distance: 5
+    3rd-person-height-offset: 0
+  - camera-name: FollowCam
+    position: [3.76401448, 5.73458576, -5.39343214]
+    view-azimuth: 17.7307777
+    view-elevation: -41.3437805
+    camera-type: 4
+    camera-projection: 0
+    field-of-view: 90
+  - camera-name: FirstPersonCam
+    position: [-1.29458642, 3.02700853, 0.104812443]
+    view-azimuth: 227.727203
+    view-elevation: -24.237175
+    camera-type: 1
+    camera-projection: 0
+    field-of-view: 90
+    1st-person-view-lock: true
+    1st-person-bone-to-follow: 5
+    1st-person-view-offsets: [0.518999994, 0.222000003, 0]
+
+models:
+  - model-name: Woman.gltf
+    model-file: assets/woman/Woman.gltf
+    idle-walk-run-clips:
+      - 255:
+          idle-clip: 4
+          idle-clip-speed: 2
+          walk-clip: 7
+          walk-clip-speed: 8
+          run-clip: 0
+          run-clip-speed: 10
+    action-clips:
+      - 3:
+          clip: 8
+          clip-speed: 5
+      - 4:
+          clip: 1
+          clip-speed: 5
+      - 5:
+          clip: 5
+          clip-speed: 6
+      - 6:
+          clip: 2
+          clip-speed: 2
+    action-sequences:
+      - 0: 3
+      - 0: 5
+      - 0: 6
+      - 1: 4
+      - 2: 4
+    bounding-sphere-adjustments:
+      - [0, -0.31400001, 0, 0.876100004]
+      - [0, 0, 0, 3.03270006]
+      - [0, 0, 0, 2.43779993]
+      - [0, 0, 0, 2.29999995]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0.300000012, 0, 3]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1]
+      - [0, -0.00999999978, 0, 1]
+      - [0, 0.200000003, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, -0.00999999978, 0, 1]
+      - [0, 0.200000003, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, -0.200000003, 0, 3]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 0.75]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, -0.200000003, -0, 3]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 0.75]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+  - model-name: Man.gltf
+    model-file: assets/man/Man.gltf
+    idle-walk-run-clips:
+      - 0:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 22
+          walk-clip-speed: 1.5
+          run-clip: 17
+          run-clip-speed: 1.5
+      - 1:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 22
+          walk-clip-speed: 2
+          run-clip: 17
+          run-clip-speed: 3
+      - 2:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 16
+          walk-clip-speed: 2
+          run-clip: 16
+          run-clip-speed: 3
+      - 4:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 19
+          walk-clip-speed: 1
+          run-clip: 19
+          run-clip-speed: 3
+      - 8:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 18
+          walk-clip-speed: 1
+          run-clip: 18
+          run-clip-speed: 3
+    action-clips:
+      - 5:
+          clip: 14
+          clip-speed: 1.5
+      - 7:
+          clip: 15
+          clip-speed: 1.20000005
+      - 8:
+          clip: 12
+          clip-speed: 1.20000005
+      - 9:
+          clip: 10
+          clip-speed: 1.20000005
+      - 10:
+          clip: 23
+          clip-speed: 1.20000005
+    action-sequences:
+      - 0: 5
+      - 0: 8
+      - 0: 9
+      - 0: 10
+      - 1: 7
+      - 2: 7
+    bounding-sphere-adjustments:
+      - [0, 0, 0, 1.00160003]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 2.8592]
+      - [0, 0, 0, 1.91719997]
+      - [0, 0, 0, 1.47259998]
+      - [0, 0.207000002, 0, 0.877699971]
+      - [0, 0.430000007, -0.0329999998, 3.35489988]
+      - [0, 0, 0, 0.00999999978]
+      - [0.150000006, 0, 0.0500000007, 2]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1.39999998]
+      - [0, 0, 0, 0.778500021]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1.52209997]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [-0.0340000018, 0, -0.149000004, 2]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1.39999998]
+      - [0, 0, 0, 0.752099991]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1.57009995]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 0.90079999]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 0.90079999]
+      - [0, 0, 0, 1.10000002]
+      - [0, 0, 0, 1.10000002]
+
+instances:
+  - model-file: Woman.gltf
+    position: [38.2243958, -0.4941082, 14.8676615]
+    rotation: [0, 285, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.5
+    anim-blend-factor: 1.25
+    target-of-cameras:
+      - FirstPersonCam
+  - model-file: Woman.gltf
+    position: [113.439781, 0, 1.78969133]
+    rotation: [0, 355, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.22000027
+    anim-blend-factor: 0.870000005
+  - model-file: Woman.gltf
+    position: [14.2833786, 0, -126.373642]
+    rotation: [0, 176, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1599998
+    anim-blend-factor: 1.07999992
+  - model-file: Woman.gltf
+    position: [-67.8710098, 0, 97.7668304]
+    rotation: [0, 200, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.53999996
+    anim-blend-factor: 0.269999981
+  - model-file: Woman.gltf
+    position: [126.225845, 0, 67.1994705]
+    rotation: [0, 210.200836, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.23999977
+    anim-blend-factor: 0.620000005
+  - model-file: Woman.gltf
+    position: [89.9136353, 0, 35.0378418]
+    rotation: [0, 283, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.53999996
+    anim-blend-factor: 0.590000033
+  - model-file: Woman.gltf
+    position: [-21.6927872, 0, -97.29245]
+    rotation: [0, 305, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.77999973
+    anim-blend-factor: 0.889999986
+  - model-file: Woman.gltf
+    position: [-53.3077049, 0, -13.9009762]
+    rotation: [0, 203, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.30000019
+    anim-blend-factor: 0.550000012
+  - model-file: Woman.gltf
+    position: [79.5741043, 0, -65.7386856]
+    rotation: [0, 76, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.60000038
+    anim-blend-factor: 0.799999952
+  - model-file: Woman.gltf
+    position: [-6.40219975, 0, 60.8420525]
+    rotation: [0, 86, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.19999981
+    anim-blend-factor: 0.699999988
+  - model-file: Woman.gltf
+    position: [105.866722, 0, -83.8975449]
+    rotation: [0, 36, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.35999966
+    anim-blend-factor: 0.679999948
+  - model-file: Woman.gltf
+    position: [-107.818893, 0, -20.3769455]
+    rotation: [0, 313, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6800003
+    anim-blend-factor: 1.34000015
+  - model-file: Woman.gltf
+    position: [-30.1958771, 0, -53.4313316]
+    rotation: [0, 40, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.03999996
+    anim-blend-factor: 0.0199999809
+  - model-file: Woman.gltf
+    position: [68.678688, 0, -55.8998871]
+    rotation: [0, 184, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.24000025
+    anim-blend-factor: 0.540000021
+  - model-file: Woman.gltf
+    position: [-80.0642242, 0, 54.5378036]
+    rotation: [0, 108, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.7399998
+    anim-blend-factor: 1.36999989
+  - model-file: Woman.gltf
+    position: [-109.540245, 0, -107.022789]
+    rotation: [0, 247, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.18000031
+    anim-blend-factor: 0.0899999142
+  - model-file: Woman.gltf
+    position: [-14.1514816, 0, 4.68087006]
+    rotation: [0, 80, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.76000023
+    anim-blend-factor: 0.879999995
+  - model-file: Woman.gltf
+    position: [-40.9835892, 0, 61.4851379]
+    rotation: [0, 248, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.01999998
+    anim-blend-factor: 0.670000017
+  - model-file: Woman.gltf
+    position: [-121.653046, 0, 38.6408043]
+    rotation: [0, 58, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.17999983
+    anim-blend-factor: 0.529999971
+  - model-file: Woman.gltf
+    position: [-97.9765167, 0, 112.878174]
+    rotation: [0, 153, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.57999992
+    anim-blend-factor: 0.930000007
+  - model-file: Woman.gltf
+    position: [-68.2558212, 0, 81.9923553]
+    rotation: [0, 154, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.15999985
+    anim-blend-factor: 0.0799999237
+  - model-file: Woman.gltf
+    position: [94.0657349, 0, 69.887886]
+    rotation: [0, 320, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.81999969
+    anim-blend-factor: 0.410000086
+  - model-file: Woman.gltf
+    position: [-82.5224533, 0, 52.1480904]
+    rotation: [0, 195, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.72000027
+    anim-blend-factor: 0.360000014
+  - model-file: Woman.gltf
+    position: [-4.34917402, 0, 87.9375763]
+    rotation: [0, 231, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.34000015
+    anim-blend-factor: 0.170000076
+  - model-file: Woman.gltf
+    position: [-116.241058, 0, -5.96317244]
+    rotation: [0, 71, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.03999996
+    anim-blend-factor: 0.0199999809
+  - model-file: Woman.gltf
+    position: [-76.3639679, 0, -70.9005051]
+    rotation: [0, 307, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.30000019
+    anim-blend-factor: 0.649999976
+  - model-file: Woman.gltf
+    position: [126.704163, 0, 90.773941]
+    rotation: [0, 185, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.44000006
+    anim-blend-factor: 0.74000001
+  - model-file: Woman.gltf
+    position: [-77.3063431, 0, -127.576569]
+    rotation: [0, 172, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.9800005
+    anim-blend-factor: 0.830000043
+  - model-file: Woman.gltf
+    position: [110.229843, 0, -36.1471786]
+    rotation: [0, 258, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.94000053
+    anim-blend-factor: 0.970000029
+  - model-file: Woman.gltf
+    position: [76.4027786, 0, 104.509964]
+    rotation: [0, 90, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.46000004
+    anim-blend-factor: 0.230000019
+  - model-file: Woman.gltf
+    position: [26.4270172, 0, -67.3725433]
+    rotation: [0, 42, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.03999996
+    anim-blend-factor: 0.519999981
+  - model-file: Woman.gltf
+    position: [-1.39573085, 0, -59.4647026]
+    rotation: [0, 251, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.47999954
+    anim-blend-factor: 0.24000001
+  - model-file: Woman.gltf
+    position: [-13.2737284, 0, 107.85553]
+    rotation: [0, 162, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.23999977
+    anim-blend-factor: 0.120000005
+  - model-file: Woman.gltf
+    position: [-92.050354, 0, -44.3206863]
+    rotation: [0, 77, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.22000027
+    anim-blend-factor: 0.110000014
+    target-of-cameras:
+      - ThirdPersonCam
+  - model-file: Woman.gltf
+    position: [-86.6023788, 0, 87.3558426]
+    rotation: [0, 275, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.0200005
+    anim-blend-factor: 1.00999999
+  - model-file: Woman.gltf
+    position: [60.8949585, 0, 16.2458]
+    rotation: [0, 327, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.52000046
+    anim-blend-factor: 0.75999999
+  - model-file: Woman.gltf
+    position: [67.3862534, 0, 128.808716]
+    rotation: [0, 206, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.32000017
+    anim-blend-factor: 0.720000029
+  - model-file: Woman.gltf
+    position: [-125.181229, 0, 33.0430908]
+    rotation: [0, 97, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.5199995
+    anim-blend-factor: 0.919999957
+  - model-file: Woman.gltf
+    position: [87.8441696, 0, 111.322983]
+    rotation: [0, 81, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.61999989
+    anim-blend-factor: 0.809999943
+  - model-file: Woman.gltf
+    position: [-72.728157, 0, 88.9314957]
+    rotation: [0, 115, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.04
+    anim-blend-factor: 1.01999998
+  - model-file: Woman.gltf
+    position: [5.13565445, 0, 82.8650284]
+    rotation: [0, 345, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.84000015
+    anim-blend-factor: 0.639999986
+  - model-file: Woman.gltf
+    position: [37.8224182, 0, 26.0739975]
+    rotation: [0, 312.75, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+  - model-file: Woman.gltf
+    position: [82.6635818, 0, 102.485107]
+    rotation: [0, 150, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.76000023
+    anim-blend-factor: 0.379999995
+  - model-file: Woman.gltf
+    position: [124.927666, 0, -42.5456314]
+    rotation: [0, 90, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.07999992
+    anim-blend-factor: 0.680000007
+  - model-file: Woman.gltf
+    position: [28.8150558, 0, 126.27977]
+    rotation: [0, 8, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.36000013
+    anim-blend-factor: 0.560000002
+  - model-file: Woman.gltf
+    position: [-33.7135468, 0, 106.754959]
+    rotation: [0, 18, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.52000046
+    anim-blend-factor: 0.25999999
+  - model-file: Woman.gltf
+    position: [-107.047211, 0, -116.459335]
+    rotation: [0, 217, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.53999996
+    anim-blend-factor: 0.269999981
+  - model-file: Woman.gltf
+    position: [67.6364746, 0, -61.7178764]
+    rotation: [0, 166, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.92000008
+    anim-blend-factor: 0.460000038
+  - model-file: Woman.gltf
+    position: [-60.5864067, 0, -118.852913]
+    rotation: [0, 225, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.69999981
+    anim-blend-factor: 0.949999988
+  - model-file: Woman.gltf
+    position: [-79.518074, 0, 111.879608]
+    rotation: [0, 54, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.92000008
+    anim-blend-factor: 0.819999993
+  - model-file: Woman.gltf
+    position: [-31.2941208, 0, -112.459282]
+    rotation: [0, 55, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.81999969
+    anim-blend-factor: 0.410000086
+  - model-file: Woman.gltf
+    position: [119.755928, 0, 14.5682964]
+    rotation: [0, 179, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.05999947
+    anim-blend-factor: 0.529999971
+    target-of-cameras:
+      - FollowCam
+  - model-file: Woman.gltf
+    position: [-28.4522057, 0, 109.600418]
+    rotation: [0, 186, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.47999954
+    anim-blend-factor: 0.74000001
+  - model-file: Woman.gltf
+    position: [102.476242, 0, 11.8448887]
+    rotation: [0, 212, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.57999992
+    anim-blend-factor: 0.789999962
+  - model-file: Woman.gltf
+    position: [1.89997947, 0, -58.2903442]
+    rotation: [0, 0, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.4200001
+    anim-blend-factor: 1.21000004
+  - model-file: Woman.gltf
+    position: [-3.7238934, 0, 48.7381287]
+    rotation: [0, 190, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.5200005
+    anim-blend-factor: 1.25999999
+  - model-file: Man.gltf
+    position: [112.631279, -0.149022669, 59.2654877]
+    rotation: [0, 207.400421, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.949999988
+  - model-file: Woman.gltf
+    position: [11.8409519, 0, -18.5032501]
+    rotation: [0, 96, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.94000053
+    anim-blend-factor: 0.970000029
+  - model-file: Woman.gltf
+    position: [50.1353226, 0, 39.7045746]
+    rotation: [0, 177, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.53999996
+    anim-blend-factor: 0.590000033
+  - model-file: Woman.gltf
+    position: [122.454468, 0, 89.9673996]
+    rotation: [0, 234, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.88000011
+    anim-blend-factor: 0.940000057
+  - model-file: Woman.gltf
+    position: [46.0560837, 0, -120.062393]
+    rotation: [0, 230, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.4400005
+    anim-blend-factor: 1.22000003
+  - model-file: Woman.gltf
+    position: [11.9334927, 0, 34.6333542]
+    rotation: [0, 141, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.27999973
+    anim-blend-factor: 0.139999986
+  - model-file: Woman.gltf
+    position: [104.969475, 0, -89.6537399]
+    rotation: [0, 265, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.13999987
+    anim-blend-factor: 0.689999998
+  - model-file: Woman.gltf
+    position: [12.1618166, 0, -36.9840393]
+    rotation: [0, 15, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.10000038
+    anim-blend-factor: 0.850000024
+  - model-file: Woman.gltf
+    position: [119.022377, 0, 96.7368851]
+    rotation: [0, 304, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.53999996
+    anim-blend-factor: 0.269999981
+  - model-file: Woman.gltf
+    position: [-84.2004089, 0, 82.9407349]
+    rotation: [0, 185, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.44000053
+    anim-blend-factor: 0.720000029
+  - model-file: Woman.gltf
+    position: [-18.7678738, 0, 27.2833538]
+    rotation: [0, 88, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.2200003
+    anim-blend-factor: 1.11000013
+  - model-file: Woman.gltf
+    position: [107.05291, 0, -51.2882538]
+    rotation: [0, 106, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.97999954
+    anim-blend-factor: 0.49000001
+  - model-file: Woman.gltf
+    position: [41.424572, 0, 12.1112957]
+    rotation: [0, 191, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.34000015
+    anim-blend-factor: 0.669999957
+  - model-file: Woman.gltf
+    position: [20.739687, 0, -9.13809967]
+    rotation: [0, 179, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.69999981
+    anim-blend-factor: 0.949999988
+  - model-file: Woman.gltf
+    position: [-34.8826103, 0, 56.6236458]
+    rotation: [0, 352, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.24000025
+    anim-blend-factor: 0.540000021
+  - model-file: Woman.gltf
+    position: [-70.8184509, 0, -20.8466415]
+    rotation: [0, 18, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.65999985
+    anim-blend-factor: 0.329999924
+  - model-file: Woman.gltf
+    position: [-29.7907829, 0, 41.1536827]
+    rotation: [0, 313, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.89999962
+    anim-blend-factor: 0.450000048
+  - model-file: Woman.gltf
+    position: [-32.3358765, 0, 84.3279419]
+    rotation: [0, 219, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.63999987
+    anim-blend-factor: 0.939999998
+  - model-file: Woman.gltf
+    position: [-28.8240891, 0, 10.64884]
+    rotation: [0, 345, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.03999996
+    anim-blend-factor: 0.519999981
+  - model-file: Woman.gltf
+    position: [69.0735168, 0, 21.8346825]
+    rotation: [0, 33, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.05999947
+    anim-blend-factor: 0.0299999714
+  - model-file: Woman.gltf
+    position: [43.0127525, 0, -23.0507202]
+    rotation: [0, 87, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.39999962
+    anim-blend-factor: 0.700000048
+  - model-file: Woman.gltf
+    position: [-121.749107, 0, 59.5725861]
+    rotation: [0, 131, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.61999989
+    anim-blend-factor: 0.809999943
+  - model-file: Woman.gltf
+    position: [52.8219948, 0, 20.4080029]
+    rotation: [0, 285, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.97999954
+    anim-blend-factor: 0.99000001
+  - model-file: Woman.gltf
+    position: [-78.2988815, 0, 66.5000839]
+    rotation: [0, 270, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3000002
+    anim-blend-factor: 1.1500001
+  - model-file: Woman.gltf
+    position: [-33.1821442, 0, -107.378265]
+    rotation: [0, 106, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.2799997
+    anim-blend-factor: 1.13999987
+  - model-file: Woman.gltf
+    position: [-48.3714828, 0, 55.6418724]
+    rotation: [0, 199, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.39999962
+    anim-blend-factor: 0.899999976
+  - model-file: Woman.gltf
+    position: [-126.30365, 0, 122.769821]
+    rotation: [0, 152, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.38000011
+    anim-blend-factor: 0.190000057
+  - model-file: Woman.gltf
+    position: [-115.650047, 0, 62.5902748]
+    rotation: [0, 109, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.76000023
+    anim-blend-factor: 0.379999995
+  - model-file: Woman.gltf
+    position: [-28.4966755, 0, 56.4324265]
+    rotation: [0, 348, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.44000053
+    anim-blend-factor: 0.720000029
+  - model-file: Woman.gltf
+    position: [-33.3973732, 0, -121.901764]
+    rotation: [0, 271, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.8400002
+    anim-blend-factor: 1.42000008
+  - model-file: Woman.gltf
+    position: [37.7984848, 0, -100.502296]
+    rotation: [0, 190, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.27999973
+    anim-blend-factor: 0.139999986
+  - model-file: Woman.gltf
+    position: [5.58327246, 0, -34.677021]
+    rotation: [0, 158, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3400002
+    anim-blend-factor: 1.17000008
+  - model-file: Woman.gltf
+    position: [106.587166, 0, 20.066658]
+    rotation: [0, 75, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.77999973
+    anim-blend-factor: 0.889999986
+  - model-file: Woman.gltf
+    position: [-37.205677, 0, 80.7280502]
+    rotation: [0, 354, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.5
+    anim-blend-factor: 0.75
+  - model-file: Woman.gltf
+    position: [112.208496, 0, 56.8560486]
+    rotation: [0, 209, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.26000023
+    anim-blend-factor: 0.129999995
+  - model-file: Woman.gltf
+    position: [-60.2379532, 0, -65.0505676]
+    rotation: [0, 255, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.23999977
+    anim-blend-factor: 0.620000005
+  - model-file: Woman.gltf
+    position: [-25.3881321, 0, -37.7005234]
+    rotation: [0, 218, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.46000004
+    anim-blend-factor: 0.909999967
+  - model-file: Woman.gltf
+    position: [16.9392834, 0, 90.3214264]
+    rotation: [0, 122, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.03999996
+    anim-blend-factor: 0.840000033
+  - model-file: Woman.gltf
+    position: [-114.496262, 0, 119.031326]
+    rotation: [0, 79, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.97999954
+    anim-blend-factor: 0.49000001
+  - model-file: Woman.gltf
+    position: [-6.7019558, 0, 97.2573624]
+    rotation: [0, 276, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.39999962
+    anim-blend-factor: 0.200000048
+  - model-file: Woman.gltf
+    position: [-38.8418922, 0, -52.0936852]
+    rotation: [0, 91, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1400003
+    anim-blend-factor: 1.07000017
+  - model-file: Woman.gltf
+    position: [-106.194298, 0, 104.364525]
+    rotation: [0, 177, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.19999981
+    anim-blend-factor: 0.100000024
+  - model-file: Woman.gltf
+    position: [-4.3072648, 0, 75.1468048]
+    rotation: [0, 182, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.44000053
+    anim-blend-factor: 0.720000029
+  - model-file: Woman.gltf
+    position: [-117.334732, 0, -54.5430679]
+    rotation: [0, 196, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.55999994
+    anim-blend-factor: 0.75999999
+  - model-file: Woman.gltf
+    position: [-96.0742722, 0, 106.292801]
+    rotation: [0, 130, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.10000038
+    anim-blend-factor: 0.549999952
+  - model-file: Woman.gltf
+    position: [-64.487793, 0, 110.644836]
+    rotation: [0, 130, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.52000046
+    anim-blend-factor: 0.75999999
+  - model-file: Woman.gltf
+    position: [-73.2663269, 0, -51.0526619]
+    rotation: [0, 196, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.18000031
+    anim-blend-factor: 0.590000033
+  - model-file: Woman.gltf
+    position: [-99.7534332, 0, 123.472794]
+    rotation: [0, 15, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.04
+    anim-blend-factor: 1.01999998
+  - model-file: Woman.gltf
+    position: [-56.6846237, 0, 57.9487076]
+    rotation: [0, 310, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.44000053
+    anim-blend-factor: 0.720000029
+  - model-file: Woman.gltf
+    position: [-100.850182, 0, -72.8076248]
+    rotation: [0, 185, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.65999985
+    anim-blend-factor: 0.610000014
+  - model-file: Woman.gltf
+    position: [5.2747488, 0, 26.4675617]
+    rotation: [0, 36, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1400003
+    anim-blend-factor: 1.07000017
+  - model-file: Woman.gltf
+    position: [67.4433289, 0, -121.672043]
+    rotation: [0, 282, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.57999992
+    anim-blend-factor: 0.930000007
+  - model-file: Woman.gltf
+    position: [-83.3566666, 0, 111.76532]
+    rotation: [0, 147, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.85999966
+    anim-blend-factor: 0.929999948
+  - model-file: Woman.gltf
+    position: [16.6793156, 0, 115.720238]
+    rotation: [0, 10, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.11999989
+    anim-blend-factor: 0.559999943
+  - model-file: Woman.gltf
+    position: [-7.96521425, 0, 86.6615982]
+    rotation: [0, 261, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.48000002
+    anim-blend-factor: 0.579999983
+  - model-file: Woman.gltf
+    position: [-64.6540604, 0, 83.3077621]
+    rotation: [0, 281, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.14000034
+    anim-blend-factor: 0.570000052
+  - model-file: Woman.gltf
+    position: [127.762718, 0, 43.2650719]
+    rotation: [0, 93, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.97999954
+    anim-blend-factor: 0.49000001
+  - model-file: Woman.gltf
+    position: [-17.4261093, 0, 105.676636]
+    rotation: [0, 5, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.53999996
+    anim-blend-factor: 0.269999981
+  - model-file: Woman.gltf
+    position: [101.819283, 0, 128.18956]
+    rotation: [0, 128, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.94000053
+    anim-blend-factor: 0.970000029
+  - model-file: Woman.gltf
+    position: [-87.1369476, 0, 42.544693]
+    rotation: [0, 181, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.25999975
+    anim-blend-factor: 0.709999979
+  - model-file: Woman.gltf
+    position: [-85.5956421, 0, -126.902466]
+    rotation: [0, 183, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.25999975
+    anim-blend-factor: 0.709999979
+  - model-file: Woman.gltf
+    position: [85.6402588, 0, -81.1654587]
+    rotation: [0, 156, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.65999985
+    anim-blend-factor: 0.610000014
+  - model-file: Woman.gltf
+    position: [56.3178902, 0, 81.3016052]
+    rotation: [0, 112, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.80000019
+    anim-blend-factor: 0.899999976
+  - model-file: Woman.gltf
+    position: [83.8144073, 0, 76.7313538]
+    rotation: [0, 117, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.2200003
+    anim-blend-factor: 1.11000013
+  - model-file: Woman.gltf
+    position: [-45.458786, 0, -106.647629]
+    rotation: [0, 48, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.7600002
+    anim-blend-factor: 1.38000011
+  - model-file: Woman.gltf
+    position: [47.7527771, 0, -3.61284852]
+    rotation: [0, 215, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.17999983
+    anim-blend-factor: 0.529999971
+  - model-file: Woman.gltf
+    position: [99.562027, 0, -36.8646431]
+    rotation: [0, 299, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.5
+    anim-blend-factor: 0.75
+  - model-file: Woman.gltf
+    position: [-92.5580292, 0, -78.553421]
+    rotation: [0, 276, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6400003
+    anim-blend-factor: 1.32000017
+  - model-file: Woman.gltf
+    position: [-101.335403, 0, -86.1289673]
+    rotation: [0, 314, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.27999973
+    anim-blend-factor: 0.879999995
+  - model-file: Woman.gltf
+    position: [-43.7579117, 0, -91.7561874]
+    rotation: [0, 180, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.47999954
+    anim-blend-factor: 0.74000001
+  - model-file: Woman.gltf
+    position: [113.112343, 0, 86.0300751]
+    rotation: [0, 356, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.03999996
+    anim-blend-factor: 0.0199999809
+  - model-file: Woman.gltf
+    position: [-25.4966602, 0, 119.407242]
+    rotation: [0, 125, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.94000053
+    anim-blend-factor: 0.970000029
+  - model-file: Woman.gltf
+    position: [-45.6160736, 0, -42.783783]
+    rotation: [0, 42, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.72000027
+    anim-blend-factor: 0.860000014
+  - model-file: Woman.gltf
+    position: [-5.98397303, 0, 13.1762009]
+    rotation: [0, 238, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.4799995
+    anim-blend-factor: 1.24000001
+  - model-file: Woman.gltf
+    position: [74.0240173, 0, 57.4281197]
+    rotation: [0, 67, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.46
+    anim-blend-factor: 1.23000002
+  - model-file: Woman.gltf
+    position: [39.8065948, 0, 120.690239]
+    rotation: [0, 274, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.8800001
+    anim-blend-factor: 1.44000006
+  - model-file: Woman.gltf
+    position: [-3.79630923, 0, -112.724937]
+    rotation: [0, 149, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.03999996
+    anim-blend-factor: 0.0199999809
+  - model-file: Woman.gltf
+    position: [114.302498, 0, 33.7714996]
+    rotation: [0, 180, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.03999996
+    anim-blend-factor: 0.840000033
+  - model-file: Woman.gltf
+    position: [7.36449385, 0, 121.002197]
+    rotation: [0, 87, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.92000008
+    anim-blend-factor: 0.960000038
+  - model-file: Woman.gltf
+    position: [10.2766695, 0, 35.1057663]
+    rotation: [0, 239, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.5
+    anim-blend-factor: 1.25
+  - model-file: Woman.gltf
+    position: [-62.3412361, 0, -12.4958878]
+    rotation: [0, 26, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.76000023
+    anim-blend-factor: 0.960000038
+  - model-file: Woman.gltf
+    position: [-41.404789, 0, 9.7063446]
+    rotation: [0, 227, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.07999992
+    anim-blend-factor: 0.539999962
+  - model-file: Woman.gltf
+    position: [-31.1521225, 0, -96.9774246]
+    rotation: [0, 36, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.07999992
+    anim-blend-factor: 0.680000007
+  - model-file: Woman.gltf
+    position: [19.8867645, 0, -53.6884308]
+    rotation: [0, 30, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.81999969
+    anim-blend-factor: 0.909999967
+  - model-file: Woman.gltf
+    position: [-33.9554672, 0, 118.117653]
+    rotation: [0, 77, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.2399998
+    anim-blend-factor: 1.11999989
+  - model-file: Woman.gltf
+    position: [50.6615868, 0, -4.00007057]
+    rotation: [0, 291, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.5599995
+    anim-blend-factor: 1.27999997
+  - model-file: Woman.gltf
+    position: [50.7192116, 0, 48.5028687]
+    rotation: [0, 307, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5
+    anim-blend-factor: 0.5
+  - model-file: Woman.gltf
+    position: [-39.0287437, 0, -72.5968475]
+    rotation: [0, 66, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.77999973
+    anim-blend-factor: 0.629999995
+  - model-file: Woman.gltf
+    position: [60.4562531, 0, -69.2535553]
+    rotation: [0, 322, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.48000002
+    anim-blend-factor: 0.579999983
+  - model-file: Woman.gltf
+    position: [15.1464682, 0, 53.9107056]
+    rotation: [0, 0, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.94000053
+    anim-blend-factor: 0.970000029
+  - model-file: Woman.gltf
+    position: [-31.9009399, 0, 113.00869]
+    rotation: [0, 340, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.7200003
+    anim-blend-factor: 1.36000013
+  - model-file: Woman.gltf
+    position: [-79.4307327, 0, 4.68233538]
+    rotation: [0, 28, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.73999977
+    anim-blend-factor: 0.789999962
+  - model-file: Man.gltf
+    position: [-13.8044777, 0, -40.5026855]
+    rotation: [0, 153, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.600000024
+  - model-file: Man.gltf
+    position: [84.6308823, 0, -3.19634724]
+    rotation: [0, 240, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.75999999
+  - model-file: Man.gltf
+    position: [-48.5850143, 0, -20.6246681]
+    rotation: [0, 317, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.919999957
+  - model-file: Man.gltf
+    position: [-118.178848, 0, 42.1022949]
+    rotation: [0, 339, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1
+  - model-file: Man.gltf
+    position: [-90.3561401, 0, -96.4443893]
+    rotation: [0, 91, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.319999933
+  - model-file: Man.gltf
+    position: [8.95087242, 0, 100.087181]
+    rotation: [0, 5, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.17000008
+  - model-file: Man.gltf
+    position: [-28.4085732, 0, 116.64299]
+    rotation: [0, 162, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.819999993
+  - model-file: Man.gltf
+    position: [121.113998, 0, 73.6481247]
+    rotation: [0, 220, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.220000029
+  - model-file: Man.gltf
+    position: [0.954200506, 0, -18.0639]
+    rotation: [0, 250, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.930000007
+  - model-file: Man.gltf
+    position: [-91.9343719, 0, -84.5481491]
+    rotation: [0, 163, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.350000024
+  - model-file: Man.gltf
+    position: [95.4043198, 0, -72.8744278]
+    rotation: [0, 313, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.689999998
+  - model-file: Man.gltf
+    position: [-19.6203575, 0, 8.81983376]
+    rotation: [0, 72, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.29999995
+  - model-file: Man.gltf
+    position: [-100.293533, 0, 77.4779587]
+    rotation: [0, 158, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.610000014
+  - model-file: Man.gltf
+    position: [5.64783478, 0, -94.5098343]
+    rotation: [0, 191, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.940000057
+  - model-file: Man.gltf
+    position: [20.2069359, 0, -10.2984924]
+    rotation: [0, 329, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.24000001
+  - model-file: Man.gltf
+    position: [-96.3754959, 0, 98.3533554]
+    rotation: [0, 249, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.139999986
+  - model-file: Man.gltf
+    position: [115.527695, 0, -46.1536674]
+    rotation: [0, 280, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.27999997
+  - model-file: Man.gltf
+    position: [26.2540588, 0, -43.0500221]
+    rotation: [0, 100, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.220000029
+  - model-file: Man.gltf
+    position: [92.963562, 0, 110.307945]
+    rotation: [0, 19, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.889999986
+  - model-file: Man.gltf
+    position: [-82.1785889, 0, 102.624016]
+    rotation: [0, 91, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.74000001
+  - model-file: Man.gltf
+    position: [67.5925064, 0, -54.7889671]
+    rotation: [0, 151, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.779999971
+  - model-file: Man.gltf
+    position: [-10.2525835, 0, -35.5633507]
+    rotation: [0, 209, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.590000033
+  - model-file: Man.gltf
+    position: [-79.418457, 0, 27.6620102]
+    rotation: [0, 20, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.669999957
+  - model-file: Man.gltf
+    position: [-34.4994926, 0, 95.9065247]
+    rotation: [0, 177, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.930000007
+  - model-file: Man.gltf
+    position: [-7.52460432, 0, -75.8695068]
+    rotation: [0, 160, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.36999989
+  - model-file: Man.gltf
+    position: [-112.636337, 0, 82.3402176]
+    rotation: [0, 344, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.669999957
+  - model-file: Man.gltf
+    position: [-5.68557453, 0, -44.7790527]
+    rotation: [0, 55, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.0599999428
+  - model-file: Man.gltf
+    position: [-72.7039566, 0, 123.353371]
+    rotation: [0, 127, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.50000012
+    anim-blend-factor: 1.45000005
+  - model-file: Man.gltf
+    position: [23.2329597, 0, 46.6990356]
+    rotation: [0, 86, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.139999986
+  - model-file: Man.gltf
+    position: [-55.6064415, 0, 69.4039383]
+    rotation: [0, 175, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.50000012
+    anim-blend-factor: 1.45000005
+  - model-file: Man.gltf
+    position: [50.6973228, 0, -67.1197662]
+    rotation: [0, 180, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.75
+  - model-file: Man.gltf
+    position: [65.3973083, 0, 100.976334]
+    rotation: [0, 129, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.24000001
+  - model-file: Man.gltf
+    position: [-16.0222569, 0, -92.8756409]
+    rotation: [0, 27, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.710000038
+  - model-file: Man.gltf
+    position: [96.9634857, 0, 34.3174591]
+    rotation: [0, 336, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.17000008
+  - model-file: Man.gltf
+    position: [-96.460022, 0, -7.433815]
+    rotation: [0, 356, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.75
+  - model-file: Man.gltf
+    position: [-87.6301575, 0, -87.6975784]
+    rotation: [0, 215, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.04999995
+  - model-file: Man.gltf
+    position: [-86.0805664, 0, 13.5509233]
+    rotation: [0, 103, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.370000005
+  - model-file: Man.gltf
+    position: [62.9454575, 0, 47.4364281]
+    rotation: [0, 137, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.590000033
+  - model-file: Man.gltf
+    position: [50.3934479, 0, -73.0905075]
+    rotation: [0, 329, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.769999981
+  - model-file: Man.gltf
+    position: [111.209824, 0, 83.1940155]
+    rotation: [0, 92, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.799999952
+  - model-file: Man.gltf
+    position: [-112.757248, 0, -6.60944939]
+    rotation: [0, 76, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.440000057
+  - model-file: Man.gltf
+    position: [-63.2043457, 0, 125.183487]
+    rotation: [0, 109, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.960000038
+  - model-file: Man.gltf
+    position: [-108.87175, 0, 100.210274]
+    rotation: [0, 13, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.600000024
+  - model-file: Man.gltf
+    position: [71.7572479, 0, 107.259201]
+    rotation: [0, 243, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.0799999237
+  - model-file: Man.gltf
+    position: [37.1201172, 0, 104.879715]
+    rotation: [0, 196, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.919999957
+  - model-file: Man.gltf
+    position: [-26.894268, 0, 21.8714924]
+    rotation: [0, 5, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.860000014
+  - model-file: Man.gltf
+    position: [-6.97413969, 0, -127.832504]
+    rotation: [0, 335, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.720000029
+  - model-file: Man.gltf
+    position: [-39.8978577, 0, 19.1382484]
+    rotation: [0, 76, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.710000038
+  - model-file: Man.gltf
+    position: [15.5320244, 0, 116.842339]
+    rotation: [0, 358, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.590000033
+  - model-file: Man.gltf
+    position: [-101.108757, 0, -7.84970617]
+    rotation: [0, 181, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.629999995
+  - model-file: Man.gltf
+    position: [-124.45134, 0, -75.1346588]
+    rotation: [0, 205, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.470000029
+  - model-file: Man.gltf
+    position: [-123.850883, 0, -108.103043]
+    rotation: [0, 261, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.38999987
+  - model-file: Man.gltf
+    position: [35.1181755, 0, 126.814392]
+    rotation: [0, 233, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.720000029
+  - model-file: Man.gltf
+    position: [-123.258698, 0, -18.9678764]
+    rotation: [0, 182, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.649999976
+  - model-file: Man.gltf
+    position: [100.647697, 0, 86.0684509]
+    rotation: [0, 7, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.819999993
+  - model-file: Man.gltf
+    position: [9.84406376, 0, 100.008041]
+    rotation: [0, 2, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.110000014
+  - model-file: Man.gltf
+    position: [-113.127609, 0, -60.9049873]
+    rotation: [0, 35, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.820000052
+  - model-file: Man.gltf
+    position: [100.505753, 0, -90.9270554]
+    rotation: [0, 234, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.909999967
+  - model-file: Man.gltf
+    position: [-109.554733, 0, 127.170021]
+    rotation: [0, 90, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.0699999332
+  - model-file: Man.gltf
+    position: [-109.681458, 0, 60.3095551]
+    rotation: [0, 0, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.99000001
+  - model-file: Man.gltf
+    position: [-9.89798832, 0, -101.051926]
+    rotation: [0, 327, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.860000014
+  - model-file: Man.gltf
+    position: [-119.650803, 0, 72.082077]
+    rotation: [0, 49, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.840000033
+  - model-file: Man.gltf
+    position: [93.9306335, 0, -23.008522]
+    rotation: [0, 212, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.25
+  - model-file: Man.gltf
+    position: [-125.89563, 0, -78.3623199]
+    rotation: [0, 292, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.07000017
+  - model-file: Man.gltf
+    position: [91.3563843, 0, -8.01692963]
+    rotation: [0, 338, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.02999997
+  - model-file: Man.gltf
+    position: [20.288908, 0, 33.6943054]
+    rotation: [0, 27, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.0199999809
+  - model-file: Man.gltf
+    position: [-34.4806747, 0, 74.4577789]
+    rotation: [0, 158, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.149999976
+  - model-file: Man.gltf
+    position: [-29.4687099, 0, -3.13110447]
+    rotation: [0, 89, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.899999976
+  - model-file: Man.gltf
+    position: [-81.066246, 0, -73.0909195]
+    rotation: [0, 38, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.120000005
+  - model-file: Man.gltf
+    position: [102.891373, 0, -12.0795231]
+    rotation: [0, 288, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.420000076
+  - model-file: Man.gltf
+    position: [-64.5788422, 0, 87.5340729]
+    rotation: [0, 257, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.730000019
+  - model-file: Man.gltf
+    position: [120.046555, 0, -58.436615]
+    rotation: [0, 279, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.580000043
+  - model-file: Man.gltf
+    position: [127.221909, 0, 95.909729]
+    rotation: [0, 137, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.410000086
+  - model-file: Man.gltf
+    position: [110.827888, 0, 62.8871765]
+    rotation: [0, 82, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.3499999
+  - model-file: Man.gltf
+    position: [1.48306537, 0, 71.2158279]
+    rotation: [0, 315, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.15999985
+  - model-file: Man.gltf
+    position: [40.5834618, 0, 85.6535797]
+    rotation: [0, 131, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.830000043
+  - model-file: Man.gltf
+    position: [53.6397972, 0, 92.2007141]
+    rotation: [0, 152, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.720000029
+  - model-file: Man.gltf
+    position: [-8.14902306, 0, 122.525681]
+    rotation: [0, 227, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.899999976
+  - model-file: Man.gltf
+    position: [-44.9069519, 0, -31.0913486]
+    rotation: [0, 313, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.03999996
+  - model-file: Man.gltf
+    position: [43.9127388, 0, -75.5206528]
+    rotation: [0, 91, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.329999924
+  - model-file: Man.gltf
+    position: [45.0053291, 0, 112.946678]
+    rotation: [0, 33, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 1.02999997
+  - model-file: Man.gltf
+    position: [-80.1694336, 0, 48.9267883]
+    rotation: [0, 96, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.540000021
+  - model-file: Man.gltf
+    position: [-40.407196, 0, 24.4625359]
+    rotation: [0, 77, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.220000029
+  - model-file: Man.gltf
+    position: [102.591805, 0, 11.9691105]
+    rotation: [0, 73, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.25
+  - model-file: Man.gltf
+    position: [-103.214973, 0, -48.0574951]
+    rotation: [0, 192, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.689999998
+  - model-file: Man.gltf
+    position: [107.605225, 0, -40.2988472]
+    rotation: [0, 306, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.549999952
+  - model-file: Man.gltf
+    position: [19.0638466, 0, 59.9164772]
+    rotation: [0, 4, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.389999986
+  - model-file: Man.gltf
+    position: [97.9913712, 0, -116.695412]
+    rotation: [0, 105, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.529999971
+  - model-file: Man.gltf
+    position: [-112.320801, 0, -45.4476776]
+    rotation: [0, 118, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.960000038
+  - model-file: Man.gltf
+    position: [-49.1074677, 0, -56.6065445]
+    rotation: [0, 149, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.480000019
+  - model-file: Man.gltf
+    position: [-57.741478, 0, -36.0953064]
+    rotation: [0, 255, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.540000021
+  - model-file: Woman.gltf
+    position: [-116.548851, 0, -76.887291]
+    rotation: [0, 223, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6400003
+    anim-blend-factor: 1.32000017
+  - model-file: Woman.gltf
+    position: [21.358408, 0, -123.28727]
+    rotation: [0, 357, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.64000034
+    anim-blend-factor: 0.820000052
+  - model-file: Woman.gltf
+    position: [-126.844788, 0, -38.6353111]
+    rotation: [0, 20, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.60000038
+    anim-blend-factor: 0.299999952
+  - model-file: Woman.gltf
+    position: [-16.72925, 0, 29.7707787]
+    rotation: [0, 262, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.81999969
+    anim-blend-factor: 0.410000086
+  - model-file: Woman.gltf
+    position: [-32.3719978, 0, -85.0609436]
+    rotation: [0, 180, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.22000027
+    anim-blend-factor: 0.870000005
+  - model-file: Woman.gltf
+    position: [115.886765, 0, -112.944763]
+    rotation: [0, 272, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.68000031
+    anim-blend-factor: 0.339999914
+  - model-file: Woman.gltf
+    position: [-60.8425293, 0, -69.9299393]
+    rotation: [0, 153, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.15999985
+    anim-blend-factor: 0.580000043
+  - model-file: Woman.gltf
+    position: [-106.964027, 0, -80.6645126]
+    rotation: [0, 152, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.55999947
+    anim-blend-factor: 0.279999971
+  - model-file: Woman.gltf
+    position: [8.71689796, 0, -118.538017]
+    rotation: [0, 191, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.96000004
+    anim-blend-factor: 0.480000019
+  - model-file: Woman.gltf
+    position: [-26.6307068, 0, 62.2472038]
+    rotation: [0, 357, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.05999994
+    anim-blend-factor: 0.50999999
+  - model-file: Woman.gltf
+    position: [-86.9222717, 0, 107.845108]
+    rotation: [0, 243, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.0599995
+    anim-blend-factor: 1.02999997
+  - model-file: Woman.gltf
+    position: [0.882740319, 0, 105.15538]
+    rotation: [0, 189, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.42000008
+    anim-blend-factor: 0.569999993
+  - model-file: Woman.gltf
+    position: [118.135422, 0, -12.0477676]
+    rotation: [0, 20, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.84000015
+    anim-blend-factor: 0.420000076
+  - model-file: Woman.gltf
+    position: [6.35948658, 0, 0.832174122]
+    rotation: [0, 182, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.76000023
+    anim-blend-factor: 0.879999995
+  - model-file: Woman.gltf
+    position: [-118.923828, 0, -11.0789108]
+    rotation: [0, 275, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.5
+    anim-blend-factor: 0.75
+  - model-file: Woman.gltf
+    position: [33.7667389, 0, -44.4556885]
+    rotation: [0, 59, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.53999996
+    anim-blend-factor: 0.269999981
+  - model-file: Woman.gltf
+    position: [103.635483, 0, -33.9895744]
+    rotation: [0, 13, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.23999977
+    anim-blend-factor: 0.620000005
+  - model-file: Woman.gltf
+    position: [124.859512, 0, -104.622604]
+    rotation: [0, 126, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3199997
+    anim-blend-factor: 1.15999985
+  - model-file: Woman.gltf
+    position: [44.6076546, 0, -42.6890259]
+    rotation: [0, 48, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6800003
+    anim-blend-factor: 1.34000015
+  - model-file: Woman.gltf
+    position: [-85.8979492, 0, 64.0863953]
+    rotation: [0, 339, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.8999996
+    anim-blend-factor: 1.45000005
+  - model-file: Woman.gltf
+    position: [68.8565521, 0, 20.5655594]
+    rotation: [0, 232, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.38000011
+    anim-blend-factor: 0.690000057
+  - model-file: Woman.gltf
+    position: [-52.0565033, 0, 29.3373833]
+    rotation: [0, 157, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.7600002
+    anim-blend-factor: 1.38000011
+  - model-file: Woman.gltf
+    position: [-102.81591, 0, 54.3109398]
+    rotation: [0, 175, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.19999981
+    anim-blend-factor: 0.699999988
+  - model-file: Woman.gltf
+    position: [-115.075493, 0, -11.8264484]
+    rotation: [0, 177, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.94000053
+    anim-blend-factor: 0.970000029
+  - model-file: Woman.gltf
+    position: [80.915863, 0, 30.9739132]
+    rotation: [0, 261, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1800003
+    anim-blend-factor: 1.09000015
+  - model-file: Woman.gltf
+    position: [99.3352051, 0, -27.9058437]
+    rotation: [0, 84, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.53999996
+    anim-blend-factor: 0.269999981
+  - model-file: Woman.gltf
+    position: [45.756752, 0, 62.4545898]
+    rotation: [0, 86, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.7600002
+    anim-blend-factor: 1.38000011
+  - model-file: Woman.gltf
+    position: [-97.397049, 0, 101.620956]
+    rotation: [0, 308, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.84000015
+    anim-blend-factor: 0.639999986
+  - model-file: Woman.gltf
+    position: [119.248734, 0, -123.15432]
+    rotation: [0, 1, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.5
+    anim-blend-factor: 1.25
+  - model-file: Woman.gltf
+    position: [112.730484, 0, 78.537674]
+    rotation: [0, 216, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.72000027
+    anim-blend-factor: 0.360000014
+  - model-file: Woman.gltf
+    position: [71.2762909, 0, -44.7642517]
+    rotation: [0, 346, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.13999987
+    anim-blend-factor: 0.689999998
+  - model-file: Woman.gltf
+    position: [-17.085247, 0, -39.7206993]
+    rotation: [0, 165, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.18000031
+    anim-blend-factor: 0.590000033
+  - model-file: Woman.gltf
+    position: [-11.2971611, 0, -111.844688]
+    rotation: [0, 251, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.07999992
+    anim-blend-factor: 0.680000007
+  - model-file: Woman.gltf
+    position: [-81.354248, 0, 121.646179]
+    rotation: [0, 157, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.02000046
+    anim-blend-factor: 0.00999999046
+  - model-file: Woman.gltf
+    position: [20.6265774, 0, 85.8961487]
+    rotation: [0, 65, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.04
+    anim-blend-factor: 1.01999998
+  - model-file: Woman.gltf
+    position: [81.1026917, 0, 110.82074]
+    rotation: [0, 173, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.42000008
+    anim-blend-factor: 0.569999993
+  - model-file: Woman.gltf
+    position: [40.4758606, 0, -28.4844761]
+    rotation: [0, 100, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.73999977
+    anim-blend-factor: 0.370000005
+  - model-file: Woman.gltf
+    position: [-71.2091446, 0, -74.1558151]
+    rotation: [0, 197, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.22000027
+    anim-blend-factor: 0.110000014
+  - model-file: Woman.gltf
+    position: [122.502365, 0, -49.9799576]
+    rotation: [0, 165, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.22000027
+    anim-blend-factor: 0.870000005
+  - model-file: Woman.gltf
+    position: [11.1897993, 0, -88.6867981]
+    rotation: [0, 9, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.7200003
+    anim-blend-factor: 1.36000013
+  - model-file: Woman.gltf
+    position: [-23.0560646, 0, 55.1729622]
+    rotation: [0, 158, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.23999977
+    anim-blend-factor: 0.120000005
+  - model-file: Woman.gltf
+    position: [115.79496, 0, 80.4824982]
+    rotation: [0, 337, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.8000002
+    anim-blend-factor: 1.4000001
+  - model-file: Woman.gltf
+    position: [-37.0028992, 0, 61.3232727]
+    rotation: [0, 258, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.89999962
+    anim-blend-factor: 0.950000048
+  - model-file: Woman.gltf
+    position: [43.5613251, 0, -2.87413621]
+    rotation: [0, 206, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.11999989
+    anim-blend-factor: 0.559999943
+  - model-file: Woman.gltf
+    position: [17.940506, 0, 80.4773712]
+    rotation: [0, 274, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.57999992
+    anim-blend-factor: 0.789999962
+  - model-file: Woman.gltf
+    position: [-34.6140327, 0, 17.8101082]
+    rotation: [0, 211, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.39999962
+    anim-blend-factor: 0.200000048
+  - model-file: Woman.gltf
+    position: [77.031868, 0, 24.3163033]
+    rotation: [0, 298, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6599998
+    anim-blend-factor: 1.32999992
+  - model-file: Woman.gltf
+    position: [31.7645969, 0, -31.1276016]
+    rotation: [0, 182, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.8599997
+    anim-blend-factor: 1.42999983
+  - model-file: Woman.gltf
+    position: [30.0773926, 0, 120.451706]
+    rotation: [0, 324, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.7600002
+    anim-blend-factor: 1.38000011
+  - model-file: Woman.gltf
+    position: [72.5612411, 0, 101.650948]
+    rotation: [0, 46, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3400002
+    anim-blend-factor: 1.17000008
+  - model-file: Woman.gltf
+    position: [-34.0810165, 0, -73.2874222]
+    rotation: [0, 250, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.7799997
+    anim-blend-factor: 1.38999987
+  - model-file: Woman.gltf
+    position: [-84.3118896, 0, 98.0771179]
+    rotation: [0, 346, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.19999981
+    anim-blend-factor: 0.100000024
+  - model-file: Woman.gltf
+    position: [0.326258868, 0, 40.7240295]
+    rotation: [0, 177, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.14000034
+    anim-blend-factor: 0.570000052
+  - model-file: Woman.gltf
+    position: [-24.9249954, 0, 24.3640862]
+    rotation: [0, 184, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.2200003
+    anim-blend-factor: 1.11000013
+  - model-file: Woman.gltf
+    position: [-77.0126648, 0, -58.4870872]
+    rotation: [0, 123, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1800003
+    anim-blend-factor: 1.09000015
+  - model-file: Woman.gltf
+    position: [-7.84819603, 0, -83.4108887]
+    rotation: [0, 317, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.31999969
+    anim-blend-factor: 0.160000086
+  - model-file: Woman.gltf
+    position: [-116.695328, 0, 63.0841942]
+    rotation: [0, 119, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.27999973
+    anim-blend-factor: 0.879999995
+  - model-file: Woman.gltf
+    position: [123.863205, 0, 8.47456932]
+    rotation: [0, 81, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.94000053
+    anim-blend-factor: 0.970000029
+  - model-file: Woman.gltf
+    position: [-24.5795727, 0, 57.5651894]
+    rotation: [0, 206, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.9800005
+    anim-blend-factor: 0.830000043
+  - model-file: Woman.gltf
+    position: [-33.6076088, 0, -18.7842369]
+    rotation: [0, 278, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.77999973
+    anim-blend-factor: 0.629999995
+  - model-file: Woman.gltf
+    position: [80.6671066, 0, 110.206543]
+    rotation: [0, 1, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.9800005
+    anim-blend-factor: 0.830000043
+  - model-file: Woman.gltf
+    position: [-104.532997, 0, 115.675934]
+    rotation: [0, 177, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.24000025
+    anim-blend-factor: 0.540000021
+  - model-file: Woman.gltf
+    position: [-97.6112061, 0, -127.762306]
+    rotation: [0, 182, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.44000053
+    anim-blend-factor: 0.720000029
+  - model-file: Woman.gltf
+    position: [97.1952515, 0, -7.97806406]
+    rotation: [0, 277, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.17999983
+    anim-blend-factor: 0.529999971
+  - model-file: Woman.gltf
+    position: [-31.0043182, 0, -84.1849976]
+    rotation: [0, 74, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.10000038
+    anim-blend-factor: 0.0499999523
+  - model-file: Woman.gltf
+    position: [4.52274323, 0, 26.9644279]
+    rotation: [0, 35, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.47999954
+    anim-blend-factor: 0.24000001
+  - model-file: Woman.gltf
+    position: [-17.2734661, 0, -65.05439]
+    rotation: [0, 261, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.60000038
+    anim-blend-factor: 0.600000024
+  - model-file: Woman.gltf
+    position: [50.6492004, 0, -78.0689011]
+    rotation: [0, 242, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.88000011
+    anim-blend-factor: 0.440000057
+  - model-file: Woman.gltf
+    position: [-94.6786194, 0, -24.8760681]
+    rotation: [0, 5, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.69999981
+    anim-blend-factor: 0.850000024
+  - model-file: Woman.gltf
+    position: [-117.007523, 0, -67.9197998]
+    rotation: [0, 87, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.88000011
+    anim-blend-factor: 0.980000019
+  - model-file: Woman.gltf
+    position: [-61.8893394, 0, -111.111916]
+    rotation: [0, 266, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.60000038
+    anim-blend-factor: 0.299999952
+  - model-file: Woman.gltf
+    position: [73.6992188, 0, -108.924408]
+    rotation: [0, 173, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.97999954
+    anim-blend-factor: 0.99000001
+  - model-file: Woman.gltf
+    position: [76.6198654, 0, 7.3941946]
+    rotation: [0, 225, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.8000002
+    anim-blend-factor: 1.4000001
+  - model-file: Woman.gltf
+    position: [18.95368, 0, 102.874512]
+    rotation: [0, 272, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.5
+    anim-blend-factor: 0.75
+  - model-file: Woman.gltf
+    position: [-24.9282799, 0, -34.2942047]
+    rotation: [0, 184, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.10000038
+    anim-blend-factor: 0.0499999523
+  - model-file: Woman.gltf
+    position: [35.8366928, 0, 89.0753555]
+    rotation: [0, 225, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.38000011
+    anim-blend-factor: 0.690000057
+  - model-file: Woman.gltf
+    position: [57.1896019, 0, -90.0925217]
+    rotation: [0, 98, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.88000011
+    anim-blend-factor: 0.980000019
+  - model-file: Woman.gltf
+    position: [83.9388733, 0, 95.6977234]
+    rotation: [0, 300, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.8199997
+    anim-blend-factor: 1.40999985
+  - model-file: Woman.gltf
+    position: [-14.8433418, 0, 57.3666306]
+    rotation: [0, 37, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.30000019
+    anim-blend-factor: 0.149999976
+  - model-file: Woman.gltf
+    position: [-122.962738, 0, 84.6150055]
+    rotation: [0, 329, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.7600002
+    anim-blend-factor: 1.38000011
+  - model-file: Woman.gltf
+    position: [98.6832962, 0, -27.5671959]
+    rotation: [0, 97, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1599998
+    anim-blend-factor: 1.07999992
+  - model-file: Woman.gltf
+    position: [44.6756134, 0, -112.24144]
+    rotation: [0, 287, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.07999992
+    anim-blend-factor: 0.0399999619
+  - model-file: Woman.gltf
+    position: [30.2462502, 0, -99.5109711]
+    rotation: [0, 323, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.88000011
+    anim-blend-factor: 0.980000019
+  - model-file: Woman.gltf
+    position: [-72.2389069, 0, 53.6274643]
+    rotation: [0, 297, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.07999992
+    anim-blend-factor: 0.680000007
+  - model-file: Woman.gltf
+    position: [16.5282898, 0, -117.580704]
+    rotation: [0, 135, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3400002
+    anim-blend-factor: 1.17000008
+  - model-file: Woman.gltf
+    position: [82.5919724, 0, -108.711304]
+    rotation: [0, 317, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.42000008
+    anim-blend-factor: 0.569999993
+  - model-file: Woman.gltf
+    position: [-108.5569, 0, -116.392372]
+    rotation: [0, 301, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.68000031
+    anim-blend-factor: 0.339999914
+  - model-file: Woman.gltf
+    position: [-11.3704653, 0, 116.082489]
+    rotation: [0, 111, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.30000019
+    anim-blend-factor: 0.550000012
+  - model-file: Woman.gltf
+    position: [73.3658676, 0, 83.0467224]
+    rotation: [0, 156, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.11999989
+    anim-blend-factor: 0.559999943
+  - model-file: Woman.gltf
+    position: [-116.732605, 0, 77.6823349]
+    rotation: [0, 107, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.34000015
+    anim-blend-factor: 0.669999957
+  - model-file: Woman.gltf
+    position: [47.6449585, 0, -97.4569473]
+    rotation: [0, 269, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3999996
+    anim-blend-factor: 1.20000005
+  - model-file: Woman.gltf
+    position: [42.0501137, 0, -46.9169846]
+    rotation: [0, 10, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.81999969
+    anim-blend-factor: 0.410000086
+  - model-file: Woman.gltf
+    position: [1.64423108, 0, 51.1183777]
+    rotation: [0, 171, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.42000008
+    anim-blend-factor: 0.710000038
+  - model-file: Woman.gltf
+    position: [-100.941162, 0, -58.2406616]
+    rotation: [0, 53, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.84000015
+    anim-blend-factor: 0.420000076
+  - model-file: Woman.gltf
+    position: [-70.9140472, 0, -69.0220795]
+    rotation: [0, 325, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.88000011
+    anim-blend-factor: 0.440000057
+  - model-file: Woman.gltf
+    position: [-72.6941681, 0, -92.4332581]
+    rotation: [0, 128, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.55999947
+    anim-blend-factor: 0.779999971
+  - model-file: Woman.gltf
+    position: [-66.6835327, 0, -41.9981499]
+    rotation: [0, 154, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.35999966
+    anim-blend-factor: 0.679999948
+  - model-file: Woman.gltf
+    position: [109.734451, 0, 96.661499]
+    rotation: [0, 218, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.13999939
+    anim-blend-factor: 0.0699999332
+  - model-file: Woman.gltf
+    position: [-97.2911224, 0, 11.8828173]
+    rotation: [0, 22, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.38000011
+    anim-blend-factor: 0.730000019
+  - model-file: Woman.gltf
+    position: [82.7103119, 0, 113.210342]
+    rotation: [0, 258, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.36000013
+    anim-blend-factor: 0.560000002
+  - model-file: Woman.gltf
+    position: [-0.55845958, 0, 122.120155]
+    rotation: [0, 7, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.10000038
+    anim-blend-factor: 0.549999952
+  - model-file: Woman.gltf
+    position: [55.7635956, 0, 73.4186707]
+    rotation: [0, 163, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.10000038
+    anim-blend-factor: 0.0499999523
+  - model-file: Woman.gltf
+    position: [-80.7153397, 0, 20.5921097]
+    rotation: [0, 44, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1000004
+    anim-blend-factor: 1.04999995
+  - model-file: Woman.gltf
+    position: [124.53936, 0, -91.9271927]
+    rotation: [0, 156, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.89999962
+    anim-blend-factor: 0.450000048
+  - model-file: Woman.gltf
+    position: [53.6616745, 0, 114.915512]
+    rotation: [0, 122, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.9800005
+    anim-blend-factor: 0.830000043
+  - model-file: Woman.gltf
+    position: [-42.2303314, 0, 63.3765907]
+    rotation: [0, 275, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.2600002
+    anim-blend-factor: 1.13000011
+  - model-file: Woman.gltf
+    position: [58.6652412, 0, 81.5065231]
+    rotation: [0, 60, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3400002
+    anim-blend-factor: 1.17000008
+  - model-file: Woman.gltf
+    position: [95.5582123, 0, 109.302818]
+    rotation: [0, 248, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.9800005
+    anim-blend-factor: 0.830000043
+  - model-file: Woman.gltf
+    position: [125.333824, 0, -29.7695351]
+    rotation: [0, 278, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.0799999
+    anim-blend-factor: 1.03999996
+  - model-file: Woman.gltf
+    position: [-59.699379, 0, 2.05463266]
+    rotation: [0, 268, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.92000008
+    anim-blend-factor: 0.819999993
+  - model-file: Woman.gltf
+    position: [122.36866, 0, -121.060875]
+    rotation: [0, 176, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.25999975
+    anim-blend-factor: 0.709999979
+  - model-file: Woman.gltf
+    position: [68.7626343, 0, 69.9067078]
+    rotation: [0, 148, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.23999977
+    anim-blend-factor: 0.620000005
+  - model-file: Woman.gltf
+    position: [-23.5539188, 0, 95.3211746]
+    rotation: [0, 43, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.27999973
+    anim-blend-factor: 0.879999995
+  - model-file: Woman.gltf
+    position: [-99.2554932, 0, -105.443909]
+    rotation: [0, 276, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.32000017
+    anim-blend-factor: 0.720000029
+  - model-file: Woman.gltf
+    position: [-100.041763, 0, -91.5354004]
+    rotation: [0, 129, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.60000038
+    anim-blend-factor: 0.799999952
+  - model-file: Woman.gltf
+    position: [39.2863083, 0, 50.5534897]
+    rotation: [0, 0, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1400003
+    anim-blend-factor: 1.07000017
+  - model-file: Woman.gltf
+    position: [62.9246979, 0, -105.42205]
+    rotation: [0, 275, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.73999977
+    anim-blend-factor: 0.789999962
+  - model-file: Woman.gltf
+    position: [-97.5506058, 0, 61.0614929]
+    rotation: [0, 227, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3400002
+    anim-blend-factor: 1.17000008
+  - model-file: Woman.gltf
+    position: [52.4866829, 0, 27.1411057]
+    rotation: [0, 10, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.2399998
+    anim-blend-factor: 1.11999989
+  - model-file: Woman.gltf
+    position: [10.6393356, 0, 42.6840401]
+    rotation: [0, 317, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.76000023
+    anim-blend-factor: 0.379999995
+  - model-file: Woman.gltf
+    position: [48.1174965, 0, 11.4330597]
+    rotation: [0, 99, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.15999985
+    anim-blend-factor: 0.860000014
+  - model-file: Woman.gltf
+    position: [-112.31031, 0, 2.13981485]
+    rotation: [0, 94, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.64000034
+    anim-blend-factor: 0.820000052
+  - model-file: Woman.gltf
+    position: [-7.12957048, 0, 39.5327492]
+    rotation: [0, 280, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.5799999
+    anim-blend-factor: 1.28999996
+  - model-file: Woman.gltf
+    position: [11.2872429, 0, -99.7630157]
+    rotation: [0, 173, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.19999981
+    anim-blend-factor: 0.600000024
+  - model-file: Woman.gltf
+    position: [38.0422668, 0, -91.4883728]
+    rotation: [0, 186, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.5200005
+    anim-blend-factor: 1.25999999
+  - model-file: Woman.gltf
+    position: [-123.728897, 0, 58.4588928]
+    rotation: [0, 144, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.47999954
+    anim-blend-factor: 0.24000001
+  - model-file: Woman.gltf
+    position: [41.4856682, 0, 38.4757843]
+    rotation: [0, 127, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.8000002
+    anim-blend-factor: 1.4000001
+  - model-file: Woman.gltf
+    position: [-106.073067, 0, -73.8868561]
+    rotation: [0, 57, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.88000011
+    anim-blend-factor: 0.440000057
+  - model-file: Woman.gltf
+    position: [-77.9306641, 0, -26.9423618]
+    rotation: [0, 37, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.65999985
+    anim-blend-factor: 0.329999924
+  - model-file: Woman.gltf
+    position: [16.2095165, 0, -60.7372589]
+    rotation: [0, 356, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3000002
+    anim-blend-factor: 1.1500001
+  - model-file: Woman.gltf
+    position: [-73.7677078, 0, -95.1032028]
+    rotation: [0, 174, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.03999996
+    anim-blend-factor: 0.0199999809
+  - model-file: Woman.gltf
+    position: [-122.452866, 0, 107.029083]
+    rotation: [0, 170, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.80000019
+    anim-blend-factor: 0.899999976
+  - model-file: Woman.gltf
+    position: [-51.5906525, 0, -127.340576]
+    rotation: [0, 357, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.25999975
+    anim-blend-factor: 0.709999979
+  - model-file: Woman.gltf
+    position: [7.4019413, 0, 4.02953672]
+    rotation: [0, 254, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.48000002
+    anim-blend-factor: 0.579999983
+  - model-file: Woman.gltf
+    position: [73.4647293, 0, -90.0070953]
+    rotation: [0, 23, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.10000038
+    anim-blend-factor: 0.850000024
+  - model-file: Woman.gltf
+    position: [-38.5236778, 0, -1.87205553]
+    rotation: [0, 289, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.36000013
+    anim-blend-factor: 0.560000002
+  - model-file: Woman.gltf
+    position: [-43.0879059, 0, 24.3035145]
+    rotation: [0, 296, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.4200001
+    anim-blend-factor: 1.21000004
+  - model-file: Woman.gltf
+    position: [-80.8531342, 0, -95.6908951]
+    rotation: [0, 172, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.0799999
+    anim-blend-factor: 1.03999996
+  - model-file: Woman.gltf
+    position: [3.7920711, 0, -37.0788803]
+    rotation: [0, 182, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.34000015
+    anim-blend-factor: 0.889999986
+  - model-file: Woman.gltf
+    position: [127.195915, 0, 97.5104218]
+    rotation: [0, 52, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.5
+    anim-blend-factor: 0.75
+  - model-file: Woman.gltf
+    position: [107.893433, 0, 61.4124184]
+    rotation: [0, 12, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.76000023
+    anim-blend-factor: 0.879999995
+  - model-file: Woman.gltf
+    position: [-123.911995, 0, 48.3148956]
+    rotation: [0, 259, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.72000027
+    anim-blend-factor: 0.620000005
+  - model-file: Woman.gltf
+    position: [-10.1294327, 0, -5.56960249]
+    rotation: [0, 100, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.7799997
+    anim-blend-factor: 1.38999987
+  - model-file: Woman.gltf
+    position: [-1.29495108, 0, -88.0911255]
+    rotation: [0, 39, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.55999947
+    anim-blend-factor: 0.779999971
+  - model-file: Woman.gltf
+    position: [-105.91713, 0, 38.447773]
+    rotation: [0, 286, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.03999996
+    anim-blend-factor: 0.840000033
+  - model-file: Woman.gltf
+    position: [-67.5997391, 0, 70.8588028]
+    rotation: [0, 335, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.44000053
+    anim-blend-factor: 0.220000029
+  - model-file: Woman.gltf
+    position: [26.883091, 0, -122.831505]
+    rotation: [0, 14, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.69999981
+    anim-blend-factor: 0.350000024
+  - model-file: Woman.gltf
+    position: [89.2597351, 0, 107.107254]
+    rotation: [0, 89, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.96000004
+    anim-blend-factor: 0.659999967
+  - model-file: Woman.gltf
+    position: [54.0347404, 0, 65.3372421]
+    rotation: [0, 84, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.8199997
+    anim-blend-factor: 1.40999985
+  - model-file: Woman.gltf
+    position: [6.24642324, 0, 117.983704]
+    rotation: [0, 88, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.9799995
+    anim-blend-factor: 1.49000001
+  - model-file: Woman.gltf
+    position: [126.755569, 0, -36.2838287]
+    rotation: [0, 215, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.07999992
+    anim-blend-factor: 0.539999962
+  - model-file: Woman.gltf
+    position: [30.2837353, 0, -90.1392059]
+    rotation: [0, 221, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.61999989
+    anim-blend-factor: 0.769999981
+  - model-file: Woman.gltf
+    position: [-43.1419983, 0, -86.8218918]
+    rotation: [0, 165, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.61999989
+    anim-blend-factor: 0.809999943
+  - model-file: Woman.gltf
+    position: [-71.1746597, 0, -43.602562]
+    rotation: [0, 92.2319946, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.10000038
+    anim-blend-factor: 0.850000024
+  - model-file: Woman.gltf
+    position: [-36.4591217, 0, 59.6456261]
+    rotation: [0, 121, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.77999973
+    anim-blend-factor: 0.389999986
+  - model-file: Woman.gltf
+    position: [-49.5699539, 0, 83.1981659]
+    rotation: [0, 138, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.18000031
+    anim-blend-factor: 0.0899999142
+  - model-file: Woman.gltf
+    position: [-16.3191414, 0, 58.9839706]
+    rotation: [0, 257, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.18000031
+    anim-blend-factor: 0.590000033
+  - model-file: Woman.gltf
+    position: [29.6105843, 0, 75.7454147]
+    rotation: [0, 322, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.60000038
+    anim-blend-factor: 0.299999952
+  - model-file: Woman.gltf
+    position: [-31.6234055, 0, -101.650986]
+    rotation: [0, 71, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.0799999
+    anim-blend-factor: 1.03999996
+  - model-file: Woman.gltf
+    position: [-12.0441275, 0, 91.1893005]
+    rotation: [0, 296, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.88000011
+    anim-blend-factor: 0.940000057
+  - model-file: Woman.gltf
+    position: [-91.9642029, 0, -45.061554]
+    rotation: [0, 328, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.69999981
+    anim-blend-factor: 0.949999988
+  - model-file: Woman.gltf
+    position: [-96.0690765, 0, 113.335266]
+    rotation: [0, 125, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.36000013
+    anim-blend-factor: 0.560000002
+  - model-file: Woman.gltf
+    position: [80.6864929, 0, -40.7677536]
+    rotation: [0, 88, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.68000031
+    anim-blend-factor: 0.339999914
+  - model-file: Woman.gltf
+    position: [34.610054, 0, 35.0119095]
+    rotation: [0, 178, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.07999992
+    anim-blend-factor: 0.680000007
+  - model-file: Woman.gltf
+    position: [63.5730553, 0, 80.0450058]
+    rotation: [0, 123, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3199997
+    anim-blend-factor: 1.15999985
+  - model-file: Woman.gltf
+    position: [45.567009, 0, -64.8676376]
+    rotation: [0, 83, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.44000053
+    anim-blend-factor: 0.220000029
+  - model-file: Woman.gltf
+    position: [-11.1250763, 0, -28.8403339]
+    rotation: [0, 252, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.44000006
+    anim-blend-factor: 0.74000001
+  - model-file: Woman.gltf
+    position: [29.5894318, 0, 125.282181]
+    rotation: [0, 353, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.77999973
+    anim-blend-factor: 0.389999986
+  - model-file: Woman.gltf
+    position: [-98.3801956, 0, -23.2404861]
+    rotation: [0, 161, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.55999994
+    anim-blend-factor: 0.75999999
+  - model-file: Woman.gltf
+    position: [-71.8026657, 0, 19.9265499]
+    rotation: [0, 0, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.89999962
+    anim-blend-factor: 0.649999976
+  - model-file: Woman.gltf
+    position: [-38.1754303, 0, -86.9279556]
+    rotation: [0, 184, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.84000015
+    anim-blend-factor: 0.639999986
+  - model-file: Woman.gltf
+    position: [22.5440388, 0, 14.6330872]
+    rotation: [0, 167, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.34000015
+    anim-blend-factor: 0.669999957
+  - model-file: Woman.gltf
+    position: [-45.7374191, 0, 110.47435]
+    rotation: [0, 84, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.67999983
+    anim-blend-factor: 0.779999971
+  - model-file: Woman.gltf
+    position: [-17.5383835, 0, 117.105217]
+    rotation: [0, 272, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1199999
+    anim-blend-factor: 1.05999994
+  - model-file: Woman.gltf
+    position: [-123.785439, 0, -68.0404587]
+    rotation: [0, 104, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.9400005
+    anim-blend-factor: 1.47000003
+  - model-file: Woman.gltf
+    position: [-5.43070936, 0, 4.50444412]
+    rotation: [0, 159, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.84000015
+    anim-blend-factor: 0.639999986
+  - model-file: Woman.gltf
+    position: [-115.158432, 0, 8.27548504]
+    rotation: [0, 266, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.67999983
+    anim-blend-factor: 0.779999971
+  - model-file: Woman.gltf
+    position: [68.2181702, 0, -27.2668934]
+    rotation: [0, 132, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.65999985
+    anim-blend-factor: 0.329999924
+  - model-file: Woman.gltf
+    position: [18.6762199, 0, 4.71710634]
+    rotation: [0, 273, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.80000019
+    anim-blend-factor: 0.800000012
+  - model-file: Woman.gltf
+    position: [127.746872, 0, 123.338875]
+    rotation: [0, 89, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.4200001
+    anim-blend-factor: 1.21000004
+  - model-file: Woman.gltf
+    position: [-65.5118103, 0, 16.0189495]
+    rotation: [0, 110, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.63999939
+    anim-blend-factor: 0.319999933
+  - model-file: Woman.gltf
+    position: [36.2261238, 0, 16.9743271]
+    rotation: [0, 344, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.72000027
+    anim-blend-factor: 0.360000014
+  - model-file: Woman.gltf
+    position: [115.198578, 0, 85.0258408]
+    rotation: [0, 13, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.96
+    anim-blend-factor: 1.48000002
+  - model-file: Woman.gltf
+    position: [-41.264328, 0, -22.0385189]
+    rotation: [0, 86, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3199997
+    anim-blend-factor: 1.15999985
+  - model-file: Woman.gltf
+    position: [-125.931183, 0, -18.7340469]
+    rotation: [0, 63, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.44000053
+    anim-blend-factor: 0.720000029
+  - model-file: Woman.gltf
+    position: [-85.2127533, 0, -8.9247303]
+    rotation: [0, 102, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.39999962
+    anim-blend-factor: 0.899999976
+  - model-file: Woman.gltf
+    position: [4.95020962, 0, 110.482643]
+    rotation: [0, 83, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.5
+    anim-blend-factor: 0.75
+  - model-file: Woman.gltf
+    position: [106.692696, 0, 16.3329544]
+    rotation: [0, 97, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6599998
+    anim-blend-factor: 1.32999992
+  - model-file: Woman.gltf
+    position: [-1.09126115, 0, -106.957077]
+    rotation: [0, 198, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.39999962
+    anim-blend-factor: 0.700000048
+  - model-file: Woman.gltf
+    position: [125.075943, 0, 53.6955605]
+    rotation: [0, 323, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.61999989
+    anim-blend-factor: 0.809999943
+  - model-file: Woman.gltf
+    position: [-40.1358604, 0, -41.1241379]
+    rotation: [0, 67, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.55999947
+    anim-blend-factor: 0.779999971
+  - model-file: Woman.gltf
+    position: [25.4382038, 0, 125.505127]
+    rotation: [0, 71, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3000002
+    anim-blend-factor: 1.1500001
+  - model-file: Woman.gltf
+    position: [15.7991924, 0, 51.346981]
+    rotation: [0, 299, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.80000019
+    anim-blend-factor: 0.399999976
+  - model-file: Woman.gltf
+    position: [57.9630432, 0, -56.3998985]
+    rotation: [0, 272, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.72000027
+    anim-blend-factor: 0.620000005
+  - model-file: Woman.gltf
+    position: [-74.5026169, 0, -40.4649391]
+    rotation: [0, 344, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6800003
+    anim-blend-factor: 1.34000015
+  - model-file: Woman.gltf
+    position: [-101.860527, 0, -54.0053902]
+    rotation: [0, 186, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.48000002
+    anim-blend-factor: 0.579999983
+  - model-file: Woman.gltf
+    position: [35.3802643, 0, -56.5649986]
+    rotation: [0, 243, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.68000031
+    anim-blend-factor: 0.339999914
+  - model-file: Woman.gltf
+    position: [-68.8074493, 0, -75.0108414]
+    rotation: [0, 1, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.48000002
+    anim-blend-factor: 0.579999983
+  - model-file: Woman.gltf
+    position: [45.5119476, 0, -31.1212692]
+    rotation: [0, 87, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.96000004
+    anim-blend-factor: 0.480000019
+  - model-file: Woman.gltf
+    position: [-122.002579, 0, -20.9444103]
+    rotation: [0, 212, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.26000023
+    anim-blend-factor: 0.129999995
+  - model-file: Woman.gltf
+    position: [7.98373032, 0, 60.7076607]
+    rotation: [0, 353, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.5200005
+    anim-blend-factor: 1.25999999
+  - model-file: Woman.gltf
+    position: [-19.1153717, 0, 36.7765198]
+    rotation: [0, 93, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.23999977
+    anim-blend-factor: 0.620000005
+  - model-file: Woman.gltf
+    position: [54.1234131, 0, -126.888992]
+    rotation: [0, 213, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6000004
+    anim-blend-factor: 1.29999995
+  - model-file: Woman.gltf
+    position: [84.0856705, 0, 55.0796661]
+    rotation: [0, 74, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.24000025
+    anim-blend-factor: 0.540000021
+  - model-file: Woman.gltf
+    position: [-28.6851883, 0, 79.1377716]
+    rotation: [0, 6, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.19999981
+    anim-blend-factor: 0.699999988
+  - model-file: Woman.gltf
+    position: [104.147385, 0, -108.098984]
+    rotation: [0, 242, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.54
+    anim-blend-factor: 1.26999998
+  - model-file: Woman.gltf
+    position: [-115.174553, 0, 56.084259]
+    rotation: [0, 354, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.07999992
+    anim-blend-factor: 0.680000007
+  - model-file: Woman.gltf
+    position: [114.4786, 0, 92.620018]
+    rotation: [0, 26, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.88000011
+    anim-blend-factor: 0.980000019
+  - model-file: Woman.gltf
+    position: [-40.9632111, 0, 32.2157021]
+    rotation: [0, 14, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.72000027
+    anim-blend-factor: 0.620000005
+  - model-file: Woman.gltf
+    position: [-87.878624, 0, 2.94470239]
+    rotation: [0, 212, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.05999994
+    anim-blend-factor: 0.50999999
+  - model-file: Woman.gltf
+    position: [-53.0899887, 0, 25.8399277]
+    rotation: [0, 161, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.4200001
+    anim-blend-factor: 1.21000004
+  - model-file: Woman.gltf
+    position: [120.652481, 0, 63.2314262]
+    rotation: [0, 3, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.82000017
+    anim-blend-factor: 0.970000029
+  - model-file: Woman.gltf
+    position: [-85.7911682, 0, -90.5002975]
+    rotation: [0, 54, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.73999977
+    anim-blend-factor: 0.370000005
+  - model-file: Woman.gltf
+    position: [-97.3806763, 0, -116.255608]
+    rotation: [0, 26, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3999996
+    anim-blend-factor: 1.20000005
+  - model-file: Woman.gltf
+    position: [70.6610107, 0, 66.1067886]
+    rotation: [0, 297, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.77999973
+    anim-blend-factor: 0.629999995
+  - model-file: Woman.gltf
+    position: [-65.4672318, 0, 123.717545]
+    rotation: [0, 173, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.53999996
+    anim-blend-factor: 0.590000033
+  - model-file: Woman.gltf
+    position: [-60.826828, 0, -63.6362915]
+    rotation: [0, 189, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.2399998
+    anim-blend-factor: 1.11999989
+  - model-file: Woman.gltf
+    position: [-63.8977318, 0, 83.2503662]
+    rotation: [0, 161, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.8000002
+    anim-blend-factor: 1.4000001
+  - model-file: Woman.gltf
+    position: [-79.4304962, 0, 79.6293259]
+    rotation: [0, 244, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.89999962
+    anim-blend-factor: 0.950000048
+  - model-file: Woman.gltf
+    position: [-51.2889328, 0, 39.0257492]
+    rotation: [0, 287, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.63999939
+    anim-blend-factor: 0.319999933
+  - model-file: Woman.gltf
+    position: [-122.778816, 0, -18.144043]
+    rotation: [0, 241, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.47999954
+    anim-blend-factor: 0.24000001
+  - model-file: Woman.gltf
+    position: [-19.8812218, 0, 34.2584305]
+    rotation: [0, 297, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.46000004
+    anim-blend-factor: 0.230000019
+  - model-file: Woman.gltf
+    position: [-62.5893898, 0, -101.081596]
+    rotation: [0, 358, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.82000017
+    anim-blend-factor: 0.970000029
+  - model-file: Woman.gltf
+    position: [47.9952393, 0, -27.0614967]
+    rotation: [0, 82, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.2799997
+    anim-blend-factor: 1.13999987
+  - model-file: Woman.gltf
+    position: [-66.1273575, 0, 62.3329506]
+    rotation: [0, 285, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.69999981
+    anim-blend-factor: 0.350000024
+  - model-file: Woman.gltf
+    position: [36.7734947, 0, 91.5955887]
+    rotation: [0, 9, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6599998
+    anim-blend-factor: 1.32999992
+  - model-file: Woman.gltf
+    position: [-6.07486916, 0, 84.0880203]
+    rotation: [0, 44, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.4400005
+    anim-blend-factor: 1.22000003
+  - model-file: Woman.gltf
+    position: [-24.5939293, 0, -25.8328075]
+    rotation: [0, 103, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.44000053
+    anim-blend-factor: 0.720000029
+  - model-file: Woman.gltf
+    position: [77.315834, 0, -115.752365]
+    rotation: [0, 355, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.88000011
+    anim-blend-factor: 0.940000057
+  - model-file: Woman.gltf
+    position: [-9.99236298, 0, 61.1608276]
+    rotation: [0, 88, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.39999962
+    anim-blend-factor: 0.200000048
+  - model-file: Woman.gltf
+    position: [-93.6155396, 0, 13.2671719]
+    rotation: [0, 263, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6999998
+    anim-blend-factor: 1.3499999
+  - model-file: Woman.gltf
+    position: [95.9104691, 0, -63.4041405]
+    rotation: [0, 307, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.39999962
+    anim-blend-factor: 0.700000048
+  - model-file: Woman.gltf
+    position: [-2.27571964, 0, -83.8471985]
+    rotation: [0, 157, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.69999981
+    anim-blend-factor: 0.850000024
+  - model-file: Woman.gltf
+    position: [-48.0693855, 0, 119.459229]
+    rotation: [0, 324, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.34000015
+    anim-blend-factor: 0.669999957
+  - model-file: Woman.gltf
+    position: [83.4693146, 0, -43.4259415]
+    rotation: [0, 81, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.52000046
+    anim-blend-factor: 0.25999999
+  - model-file: Woman.gltf
+    position: [61.5552444, 0, -104.86898]
+    rotation: [0, 249, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1000004
+    anim-blend-factor: 1.04999995
+  - model-file: Woman.gltf
+    position: [96.1870956, 0, 25.2277985]
+    rotation: [0, 214, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.76000023
+    anim-blend-factor: 0.960000038
+  - model-file: Woman.gltf
+    position: [-71.2757721, 0, -111.92025]
+    rotation: [0, 192, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.88000011
+    anim-blend-factor: 0.440000057
+  - model-file: Woman.gltf
+    position: [-104.589218, 0, 30.1137505]
+    rotation: [0, 222, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1199999
+    anim-blend-factor: 1.05999994
+  - model-file: Woman.gltf
+    position: [111.002846, 0, -16.3901062]
+    rotation: [0, 267, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.65999985
+    anim-blend-factor: 0.610000014
+  - model-file: Woman.gltf
+    position: [109.621094, 0, 125.495728]
+    rotation: [0, 230, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.82000017
+    anim-blend-factor: 0.970000029
+  - model-file: Woman.gltf
+    position: [64.58564, 0, -12.9872208]
+    rotation: [0, 322, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.53999996
+    anim-blend-factor: 0.769999981
+  - model-file: Woman.gltf
+    position: [27.4840126, 0, -88.6246185]
+    rotation: [0, 5, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.15999985
+    anim-blend-factor: 0.0799999237
+  - model-file: Woman.gltf
+    position: [117.165451, 0, 24.9625969]
+    rotation: [0, 0, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.69999981
+    anim-blend-factor: 0.850000024
+  - model-file: Woman.gltf
+    position: [48.4915886, 0, -19.1716843]
+    rotation: [0, 176, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.94000006
+    anim-blend-factor: 0.99000001
+  - model-file: Woman.gltf
+    position: [-127.229996, 0, 102.853165]
+    rotation: [0, 118, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.38000011
+    anim-blend-factor: 0.730000019
+  - model-file: Woman.gltf
+    position: [-52.2922478, 0, -39.6722565]
+    rotation: [0, 28, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.92000008
+    anim-blend-factor: 0.460000038
+  - model-file: Woman.gltf
+    position: [100.73558, 0, -0.649771392]
+    rotation: [0, 161, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.65999985
+    anim-blend-factor: 0.610000014
+  - model-file: Woman.gltf
+    position: [2.40999866, 0, -77.4366302]
+    rotation: [0, 214, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3000002
+    anim-blend-factor: 1.1500001
+  - model-file: Woman.gltf
+    position: [124.735291, 0, -2.89362121]
+    rotation: [0, 265, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.46000004
+    anim-blend-factor: 0.909999967
+  - model-file: Woman.gltf
+    position: [-82.8929062, 0, -90.3418884]
+    rotation: [0, 12, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.86000061
+    anim-blend-factor: 0.430000067
+  - model-file: Woman.gltf
+    position: [97.6251602, 0, -106.77327]
+    rotation: [0, 155, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.34000015
+    anim-blend-factor: 0.889999986
+  - model-file: Woman.gltf
+    position: [113.007439, 0, 40.0503998]
+    rotation: [0, 131, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.27999973
+    anim-blend-factor: 0.639999986
+  - model-file: Woman.gltf
+    position: [65.572113, 0, 15.6683578]
+    rotation: [0, 105, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.86000061
+    anim-blend-factor: 0.430000067
+  - model-file: Woman.gltf
+    position: [117.838303, 0, -34.1789818]
+    rotation: [0, 185, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.1000004
+    anim-blend-factor: 1.04999995
+  - model-file: Woman.gltf
+    position: [51.5672607, 0, -71.788353]
+    rotation: [0, 272, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.04
+    anim-blend-factor: 1.01999998
+  - model-file: Woman.gltf
+    position: [-61.2278976, 0, 28.242363]
+    rotation: [0, 213, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.52000046
+    anim-blend-factor: 0.25999999
+  - model-file: Woman.gltf
+    position: [-125.735504, 0, -89.4325943]
+    rotation: [0, 189, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.55999947
+    anim-blend-factor: 0.779999971
+  - model-file: Woman.gltf
+    position: [65.4117966, 0, 53.7687073]
+    rotation: [0, 201, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.55999994
+    anim-blend-factor: 0.75999999
+  - model-file: Woman.gltf
+    position: [-123.802551, 0, -55.9525986]
+    rotation: [0, 222, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.4400005
+    anim-blend-factor: 1.22000003
+  - model-file: Woman.gltf
+    position: [-10.3268404, 0, 53.9458923]
+    rotation: [0, 64, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10
+    anim-blend-factor: 1
+  - model-file: Woman.gltf
+    position: [73.560585, 0, -86.0650406]
+    rotation: [0, 134, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.2600002
+    anim-blend-factor: 1.13000011
+  - model-file: Woman.gltf
+    position: [-18.2688961, 0, 17.0619659]
+    rotation: [0, 269, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.84000015
+    anim-blend-factor: 0.420000076
+  - model-file: Woman.gltf
+    position: [123.286125, 0, -13.9457512]
+    rotation: [0, 324, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.22000027
+    anim-blend-factor: 0.870000005
+  - model-file: Woman.gltf
+    position: [95.9404831, 0, 97.4932327]
+    rotation: [0, 13, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.92000008
+    anim-blend-factor: 0.819999993
+  - model-file: Woman.gltf
+    position: [23.6452847, 0, -68.8062515]
+    rotation: [0, 272, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.3599997
+    anim-blend-factor: 1.17999983
+  - model-file: Woman.gltf
+    position: [0.307445347, 0, -5.56219292]
+    rotation: [0, 342, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.89999962
+    anim-blend-factor: 0.950000048
+  - model-file: Woman.gltf
+    position: [-22.8146954, 0, -72.0403137]
+    rotation: [0, 19, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 6.80000019
+    anim-blend-factor: 0.800000012
+  - model-file: Woman.gltf
+    position: [55.4416733, 0, 74.2894592]
+    rotation: [0, 330, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 5.89999962
+    anim-blend-factor: 0.649999976
+  - model-file: Woman.gltf
+    position: [-22.5228252, 0, -10.5332384]
+    rotation: [0, 249, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.02000046
+    anim-blend-factor: 0.50999999
+  - model-file: Woman.gltf
+    position: [-127.90638, 0, 78.3621902]
+    rotation: [0, 245, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.46000004
+    anim-blend-factor: 0.909999967
+  - model-file: Woman.gltf
+    position: [-111.369171, 0, -61.6703148]
+    rotation: [0, 88, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.23999977
+    anim-blend-factor: 0.120000005
+  - model-file: Woman.gltf
+    position: [-32.5103073, 0, 79.3438721]
+    rotation: [0, 165, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6000004
+    anim-blend-factor: 1.29999995
+  - model-file: Woman.gltf
+    position: [46.7518463, 0, 122.500046]
+    rotation: [0, 136, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.02000046
+    anim-blend-factor: 0.00999999046
+  - model-file: Woman.gltf
+    position: [-109.135857, 0, -26.9575996]
+    rotation: [0, 94, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.97999954
+    anim-blend-factor: 0.99000001
+  - model-file: Woman.gltf
+    position: [-49.7207603, 0, -15.9479141]
+    rotation: [0, 39, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.6400003
+    anim-blend-factor: 1.32000017
+  - model-file: Woman.gltf
+    position: [41.2179184, 0, -28.1483173]
+    rotation: [0, 114, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 8.47999954
+    anim-blend-factor: 0.24000001
+  - model-file: Woman.gltf
+    position: [38.1748123, 0, -18.0904369]
+    rotation: [0, 181, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.96
+    anim-blend-factor: 1.48000002
+  - model-file: Woman.gltf
+    position: [8.40764141, 0, -66.2767563]
+    rotation: [0, 167, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 9.89999962
+    anim-blend-factor: 0.950000048
+  - model-file: Woman.gltf
+    position: [-65.3138351, 0, -112.159996]
+    rotation: [0, 272, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 7
+    2nd-anim-clip-number: 0
+    anim-clip-speed: 10.8400002
+    anim-blend-factor: 1.42000008
+  - model-file: Woman.gltf
+    position: [-99.2119446, 0, 124.156509]
+    rotation: [0, 4, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.34000015
+    anim-blend-factor: 0.889999986
+  - model-file: Woman.gltf
+    position: [36.6976547, 0, -47.9079552]
+    rotation: [0, 232, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 7
+    anim-clip-speed: 7.34000015
+    anim-blend-factor: 0.889999986
