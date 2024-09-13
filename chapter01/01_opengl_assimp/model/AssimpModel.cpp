@@ -163,8 +163,14 @@ void AssimpModel::processNode(std::shared_ptr<AssimpNode> node, aiNode* aNode, c
       mModelMeshes.emplace_back(mesh.getMesh());
       mTextures.merge(mesh.getTextures());
 
+      /* avoid inserting duplicate bone Ids - meshes can reference the same bones */
       std::vector<std::shared_ptr<AssimpBone>> flatBones = mesh.getBoneList();
-      mBoneList.insert(mBoneList.end(), flatBones.begin(), flatBones.end());
+      for (const auto& bone : flatBones) {
+        const auto iter = std::find_if(mBoneList.begin(), mBoneList.end(), [bone](std::shared_ptr<AssimpBone>& otherBone) { return bone->getBoneId() == otherBone->getBoneId(); });
+        if (iter == mBoneList.end()) {
+          mBoneList.emplace_back(bone);
+        }
+      }
     }
   }
 

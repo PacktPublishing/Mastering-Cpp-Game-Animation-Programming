@@ -32,6 +32,8 @@ class YamlParser {
     float getCameraElevation();
     float getCameraAzimuth();
 
+    collisionChecks getCollisionChecksEnabled();
+
     /* saving */
     bool createConfigFile(OGLRenderData renderData, ModelInstanceCamData modInstCamData);
     bool writeYamlFile(std::string fileName);

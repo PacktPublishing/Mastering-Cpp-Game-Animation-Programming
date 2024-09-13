@@ -292,4 +292,19 @@ namespace YAML {
       return true;
     }
   };
+
+  /* read and write collisionChecks */
+  template<>
+  struct convert<collisionChecks> {
+    static Node encode(const collisionChecks& rhs) {
+      Node node;
+      node = static_cast<int>(rhs);
+      return node;
+    }
+
+    static bool decode(const Node& node, collisionChecks& rhs) {
+      rhs = static_cast<collisionChecks>(node.as<int>());
+      return true;
+    }
+  };
 }

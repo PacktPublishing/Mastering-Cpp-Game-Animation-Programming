@@ -259,16 +259,16 @@ void AssimpInstance::updateInstanceSpeed(float deltaTime) {
 void AssimpInstance::updateInstancePosition(float deltaTime) {
   if (!mInstanceSettings.rdNoMovement) {
     /* rotate accel/speed according to instance azimuth -> WASD */
-    float sinRot = std::sin(glm::radians(mInstanceSettings.isWorldRotation.y)) / 32.0f;
-    float cosRot = std::cos(glm::radians(mInstanceSettings.isWorldRotation.y)) / 32.0f;
+    float sinRot = std::sin(glm::radians(mInstanceSettings.isWorldRotation.y)) * 4.0f;
+    float cosRot = std::cos(glm::radians(mInstanceSettings.isWorldRotation.y)) * 4.0f;
     float xSpeed = mInstanceSettings.isSpeed.x * sinRot + mInstanceSettings.isSpeed.z * cosRot;
     float zSpeed = mInstanceSettings.isSpeed.x * cosRot - mInstanceSettings.isSpeed.z * sinRot;
 
     /* scale speed by scaling factor of the instanc e*/
     float speedFactor = mInstanceSettings.isScale;
 
-    mInstanceSettings.isWorldPosition.z += zSpeed * speedFactor;
-    mInstanceSettings.isWorldPosition.x += xSpeed * speedFactor;
+    mInstanceSettings.isWorldPosition.z += zSpeed * speedFactor * deltaTime;
+    mInstanceSettings.isWorldPosition.x += xSpeed * speedFactor * deltaTime;
   }
 
   /* set root node transform matrix, enabling instance movement */

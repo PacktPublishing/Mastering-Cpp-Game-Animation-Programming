@@ -146,7 +146,7 @@ file(GLOB SOURCES
   tools/*.cpp
   opengl/*.cpp
   model/*.cpp
-  quadtree//*.cpp
+  quadtree/*.cpp
   ${imgui_SOURCE_DIR}/*.cpp
   # .cpp files for backends
   ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp

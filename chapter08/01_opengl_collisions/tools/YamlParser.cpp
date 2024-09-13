@@ -5,6 +5,7 @@
 #include "AssimpInstance.h"
 #include "Camera.h"
 #include "Logger.h"
+#include "Enums.h"
 
 /* overloads */
 YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& vec) {
@@ -28,6 +29,12 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const moveState& state) {
 YAML::Emitter& operator<<(YAML::Emitter& out, const moveDirection& dir) {
   out << YAML::Flow;
   out << static_cast<int>(dir);
+  return out;
+}
+
+YAML::Emitter& operator<<(YAML::Emitter& out, const collisionChecks& checkCollisions) {
+  out << YAML::Flow;
+  out << static_cast<int>(checkCollisions);
   return out;
 }
 
@@ -438,6 +445,28 @@ float YamlParser::getCameraAzimuth() {
   return cameraAzimuthh;
 }
 
+collisionChecks YamlParser::getCollisionChecksEnabled() {
+  collisionChecks collisionValue = collisionChecks::none;
+  if (!hasKey("settings")) {
+    Logger::log(1, "%s error: no settings found in config file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
+    return collisionValue;
+  }
+
+  YAML::Node settingsNode = mYamlNode["settings"];
+  try {
+    for(auto it = settingsNode.begin(); it != settingsNode.end(); ++it) {
+      if (it->first.as<std::string>() == "collision-enabled") {
+        collisionValue = it->second.as<collisionChecks>();
+      }
+    }
+  } catch (...) {
+    Logger::log(1, "%s error: could not parse file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
+    return collisionValue;
+  }
+
+  return collisionValue;
+}
+
 void YamlParser::createInstanceToCamMap(ModelInstanceCamData modInstCamData) {
   mInstanceToCamMap.clear();
   for (const auto& camera : modInstCamData.micCameras) {
@@ -472,6 +501,8 @@ bool YamlParser::createConfigFile(OGLRenderData renderData, ModelInstanceCamData
   mYamlEmit << YAML::Value << modInstCamData.micSelectedCamera;
   mYamlEmit << YAML::Key << "highlight-selection";
   mYamlEmit << YAML::Value << renderData.rdHighlightSelectedInstance;
+  mYamlEmit << YAML::Key << "collision-enabled";
+  mYamlEmit << YAML::Value << renderData.rdCheckCollisions;
   mYamlEmit << YAML::EndMap;
   mYamlEmit << YAML::EndMap;
 

@@ -46,7 +46,7 @@ void UserInterface::init(OGLRenderData &renderData) {
   mUiDrawValues.resize(mNumUiDrawValues);
   mCollisionDebugDrawValues.resize(mNumCollisionDebugDrawValues);
   mCollisionCheckValues.resize(mNumCollisionCheckValues);
-  mNumCollisionsValue.resize(mNumNumCollisionValues);
+  mNumCollisionsValues.resize(mNumNumCollisionValues);
 }
 
 void UserInterface::createFrame(OGLRenderData &renderData) {
@@ -434,7 +434,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     mCollisionCheckValues.at(collisionCheckOffset) = renderData.rdCollisionCheckTime;
     collisionCheckOffset = ++collisionCheckOffset % mNumCollisionCheckValues;
 
-    mNumCollisionsValue.at(numCollisionOffset) = renderData.rdNumberOfCollisions;
+    mNumCollisionsValues.at(numCollisionOffset) = renderData.rdNumberOfCollisions;
     numCollisionOffset = ++numCollisionOffset % mNumNumCollisionValues;
 
     updateTime += 1.0 / 30.0;
@@ -568,7 +568,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         + " ms\n30s avg: " + std::to_string(averageUiGen) + " ms";
       ImGui::Text("UI Generation");
       ImGui::SameLine();
-      ImGui::PlotLines("##ModelUpload", mUiGenValues.data(), mUiGenValues.size(), uiGenOffset,
+      ImGui::PlotLines("##UIGenTimes", mUiGenValues.data(), mUiGenValues.size(), uiGenOffset,
         uiGenOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -1625,18 +1625,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
     ImGui::Text("Total Instances:  %ld", numberOfInstances);
 
-    static InstanceSettings savedInstanceSettings{};
-    static std::shared_ptr<AssimpInstance> currentInstance = nullptr;
-
-    InstanceSettings settings;
-    if (numberOfInstances > 0) {
-      settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
-      /* overwrite saved settings on instance change */
-      if (currentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
-        currentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
-        savedInstanceSettings = settings;
-      }
-    }
 
     if (modelListEmtpy) {
      ImGui::BeginDisabled();
@@ -1670,6 +1658,19 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       modInstCamData.micSelectedInstance++;
     }
     ImGui::PopButtonRepeat();
+
+    static InstanceSettings savedInstanceSettings{};
+    static std::shared_ptr<AssimpInstance> currentInstance = nullptr;
+
+    InstanceSettings settings;
+    if (numberOfInstances > 0) {
+      settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
+      /* overwrite saved settings on instance change */
+      if (currentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
+        currentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        savedInstanceSettings = settings;
+      }
+    }
 
     ImGui::Text("Hightlight:      ");
     ImGui::SameLine();
@@ -1837,10 +1838,17 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
     if (ImGui::IsItemHovered()) {
       ImGui::BeginTooltip();
+      int averageNumCollisions = 0;
+      for (const auto value : mNumCollisionsValues) {
+        averageNumCollisions += value;
+      }
+      averageNumCollisions /= static_cast<float>(mNumNumCollisionValues);
+      std::string numCoillisionsOverlay = "now:     " + std::to_string(renderData.rdNumberOfCollisions)
+      + "\n30s avg: " + std::to_string(averageNumCollisions);
       ImGui::Text("Collisions");
       ImGui::SameLine();
-      ImGui::PlotLines("##NumCollisions", mNumCollisionsValue.data(), mNumCollisionsValue.size(), numCollisionOffset,
-        nullptr, 0.0f, FLT_MAX, ImVec2(0, 80));
+      ImGui::PlotLines("##NumCollisions", mNumCollisionsValues.data(), mNumCollisionsValues.size(), numCollisionOffset,
+                       numCoillisionsOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 

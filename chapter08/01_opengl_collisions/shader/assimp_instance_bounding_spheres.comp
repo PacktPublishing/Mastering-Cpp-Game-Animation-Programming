@@ -9,7 +9,7 @@ layout (std430, binding = 1) readonly restrict buffer WorldPosMatrices {
   mat4 worldPosMat[];
 };
 
-layout (std430, binding = 2) readonly restrict buffer ParentMatrixIndices {
+layout (std430, binding = 2) readonly restrict buffer ParentNodeIndices {
   int parentIndex[];
 };
 
@@ -39,12 +39,12 @@ void main() {
   if (parentNode >= 0) {
     uint parentIndex = parentNode + numberOfBones * instance;
     vec3 parentPos = (worldPosMat[instance] * trsMat[parentIndex])[3].xyz;
-    parentPos += sphereAdjustment[node].xyz;
+    parentPos += sphereAdjustment[parentNode].xyz;
 
     vec3 center = mix(nodePos, parentPos, 0.5);
-    radius = length(center - nodePos) * 1.25 * sphereAdjustment[node].w;
+    radius = length(center - nodePos) * sphereAdjustment[node].w;
   } else {
-    radius = 0.75 * sphereAdjustment[node].w;
+    radius = sphereAdjustment[node].w;
   }
 
   /* ignore very small shperes */

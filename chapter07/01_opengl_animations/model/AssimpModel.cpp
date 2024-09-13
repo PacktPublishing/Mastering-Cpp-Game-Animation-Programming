@@ -168,15 +168,15 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
     std::vector<glm::vec4> animLookupData{};
 
     /* store inverse scaling factor in first element of lookup row */
-    const int lookupSize = 1023 + 1;
+    const int LOOKUP_SIZE = 1023 + 1;
 
-    std::vector<glm::vec4> emptyTranslateVector(lookupSize, glm::vec4(0.0f));
+    std::vector<glm::vec4> emptyTranslateVector(LOOKUP_SIZE, glm::vec4(0.0f));
     emptyTranslateVector.at(0) = glm::vec4(0.0f);
 
-    std::vector<glm::vec4> emptyRotateVector(lookupSize, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // x, y, z, w
+    std::vector<glm::vec4> emptyRotateVector(LOOKUP_SIZE, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)); // x, y, z, w
     emptyRotateVector.at(0) = glm::vec4(0.0f);
 
-    std::vector<glm::vec4> emptyScaleVector(lookupSize, glm::vec4(1.0f));
+    std::vector<glm::vec4> emptyScaleVector(LOOKUP_SIZE, glm::vec4(1.0f));
     emptyScaleVector.at(0) = glm::vec4(0.0f);
 
     /* init all transform values with defaults  */
@@ -191,18 +191,18 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
       for (const auto& channel : mAnimClips.at(clipId)->getChannels()) {
         int boneId = channel->getBoneId();
         if (boneId >= 0) {
-          int offset = clipId * mBoneList.size() * lookupSize * 3 + boneId * lookupSize * 3;
+          int offset = clipId * mBoneList.size() * LOOKUP_SIZE * 3 + boneId * LOOKUP_SIZE * 3;
 
           animLookupData.at(offset) = glm::vec4(channel->getInvTranslationScaling(), 0.0f, 0.0f, 0.0f);
           const auto& translations = channel->getTranslationData();
           std::copy(translations.begin(), translations.end(), animLookupData.begin() + offset + 1);
 
-          offset += lookupSize;
+          offset += LOOKUP_SIZE;
           animLookupData.at(offset) = glm::vec4(channel->getInvRotationScaling(), 0.0f, 0.0f, 0.0f);
           const auto& rotations = channel->getRotationData();
           std::copy(rotations.begin(), rotations.end(), animLookupData.begin() + offset + 1);
 
-          offset += lookupSize;
+          offset += LOOKUP_SIZE;
           animLookupData.at(offset) = glm::vec4(channel->getInvScaleScaling(), 0.0f, 0.0f, 0.0f);
           const auto& scalings = channel->getScalingData();
           std::copy(scalings.begin(), scalings.end(), animLookupData.begin() + offset + 1);
@@ -250,8 +250,14 @@ void AssimpModel::processNode(std::shared_ptr<AssimpNode> node, aiNode* aNode, c
       mModelMeshes.emplace_back(mesh.getMesh());
       mTextures.merge(mesh.getTextures());
 
+      /* avoid inserting duplicate bone Ids - meshes can reference the same bones */
       std::vector<std::shared_ptr<AssimpBone>> flatBones = mesh.getBoneList();
-      mBoneList.insert(mBoneList.end(), flatBones.begin(), flatBones.end());
+      for (const auto& bone : flatBones) {
+        const auto iter = std::find_if(mBoneList.begin(), mBoneList.end(), [bone](std::shared_ptr<AssimpBone>& otherBone) { return bone->getBoneId() == otherBone->getBoneId(); });
+        if (iter == mBoneList.end()) {
+          mBoneList.emplace_back(bone);
+        }
+      }
     }
   }
 

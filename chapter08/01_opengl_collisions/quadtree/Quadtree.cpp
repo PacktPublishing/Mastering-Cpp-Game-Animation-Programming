@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "Quadtree.h"
 #include "Logger.h"
 
@@ -74,24 +76,28 @@ int QuadTree::getQuadrantId(BoundingBox2D nodeBox, BoundingBox2D valueBox) {
   }
 }
 
-void QuadTree::add(std::shared_ptr<AssimpInstance> instance) {
-  add(mRootNode, 0, mRootBoundingBox, instance);
+void QuadTree::add(int instanceId) {
+  add(mRootNode, 0, mRootBoundingBox, instanceId);
 }
 
-void QuadTree::add(std::shared_ptr<QuadTreeNode> node, int depth, BoundingBox2D box, std::shared_ptr<AssimpInstance> instance) {
-  int instanceId = instance->getInstanceSettings().isInstanceIndexPosition;
+void QuadTree::add(std::shared_ptr<QuadTreeNode> node, int depth, BoundingBox2D box, int instanceId) {
+  if (!box.intersects(instanceGetBoundingBox2DCallback(instanceId))) {
+    Logger::log(1, "%s error: current quadtree node bounding box does not contain the bounding box of instance %i \n", __FUNCTION__, instanceId);
+    return;
+  }
+
   if (isLeaf(node)) {
     /* insert into node if possible */
     if (depth >= mMaxDepth || node->instancIds.size() < mThreshold) {
       node->instancIds.emplace_back(instanceId);
     } else {
       split(node, box);
-      add(node, depth, box, instance);
+      add(node, depth, box, instanceId);
     }
   } else {
-    int i = getQuadrantId(box, instance->getBoundingBox());
+    int i = getQuadrantId(box, instanceGetBoundingBox2DCallback(instanceId));
     if (i != -1) {
-      add(node->childs.at(i), depth + 1, getChildQuadrant(box, i), instance);
+      add(node->childs.at(i), depth + 1, getChildQuadrant(box, i), instanceId);
     } else {
       node->instancIds.emplace_back(instanceId);
     }
@@ -123,33 +129,37 @@ void QuadTree::split(std::shared_ptr<QuadTreeNode> node, BoundingBox2D box) {
   node->instancIds = std::move(newInstanceIds);
 }
 
-void QuadTree::remove(std::shared_ptr<AssimpInstance> instance) {
-  remove(mRootNode, mRootBoundingBox, instance);
+void QuadTree::remove(int instanceId) {
+  remove(mRootNode, mRootBoundingBox, instanceId);
 }
 
-bool QuadTree::remove(std::shared_ptr<QuadTreeNode> node, BoundingBox2D box, std::shared_ptr<AssimpInstance> instance) {
+bool QuadTree::remove(std::shared_ptr<QuadTreeNode> node, BoundingBox2D box, int instanceId) {
+  if (!box.intersects(instanceGetBoundingBox2DCallback(instanceId))) {
+    Logger::log(1, "%s error: current quadtree node bounding box does not contain the bounding box of instance %i \n", __FUNCTION__, instanceId);
+    return false;
+  }
+
   if (isLeaf(node)) {
-    removeInstance(node, instance);
+    removeInstance(node, instanceId);
     return true;
   } else {
-    int i = getQuadrantId(box, instance->getBoundingBox());
+    int i = getQuadrantId(box, instanceGetBoundingBox2DCallback(instanceId));
     if (i != -1) {
-      if (remove(node->childs[i], getChildQuadrant(box, i), instance)) {
+      if (remove(node->childs[i], getChildQuadrant(box, i), instanceId)) {
         return tryMerge(node);
       }
     } else {
-      removeInstance(node, instance);
+      removeInstance(node, instanceId);
     }
     return false;
   }
 }
 
-void QuadTree::removeInstance(std::shared_ptr<QuadTreeNode> node, std::shared_ptr<AssimpInstance> instance) {
+void QuadTree::removeInstance(std::shared_ptr<QuadTreeNode> node, int instanceId) {
   auto it = std::find_if(std::begin(node->instancIds), std::end(node->instancIds),
-    [&instance](const auto& rhs){ return instance->getInstanceSettings().isInstanceIndexPosition == rhs; });
+    [&instanceId](const auto& rhs){ return instanceId == rhs; });
   if (it == std::end(node->instancIds)) {
-    Logger::log(1, "%s error: could not remove not existing instance with id %i\n", __FUNCTION__,
-      instance->getInstanceSettings().isInstanceIndexPosition);
+    Logger::log(1, "%s error: could not remove not existing instance with id %i\n", __FUNCTION__, instanceId);
     return;
   }
   // Swap with the last element and pop back
@@ -181,9 +191,9 @@ bool QuadTree::tryMerge(std::shared_ptr<QuadTreeNode> node) {
   }
 }
 
-void QuadTree::update(std::shared_ptr<AssimpInstance> instance) {
-  remove(instance);
-  add(instance);
+void QuadTree::update(int instanceId) {
+  remove(instanceId);
+  add(instanceId);
 }
 
 std::vector<int> QuadTree::query(BoundingBox2D box) {

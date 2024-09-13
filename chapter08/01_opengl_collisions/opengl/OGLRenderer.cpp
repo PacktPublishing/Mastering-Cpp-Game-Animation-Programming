@@ -342,6 +342,9 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   mRenderData.rdHighlightSelectedInstance = parser.getHighlightActivated();
   mRenderData.rdInstanceEditMode = instanceEditMode::move;
 
+  /* restore collision settings */
+  mRenderData.rdCheckCollisions = parser.getCollisionChecksEnabled();
+
   return true;
 }
 
@@ -963,7 +966,7 @@ void OGLRenderer::enumerateInstances() {
   mQuadtree->clear();
   /* skip null instance */
   for (size_t i = 1; i < mModelInstCamData.micAssimpInstances.size(); ++i) {
-    mQuadtree->add(mModelInstCamData.micAssimpInstances.at(i));
+    mQuadtree->add(mModelInstCamData.micAssimpInstances.at(i)->getInstanceSettings().isInstanceIndexPosition);
   }
 }
 
@@ -1636,6 +1639,7 @@ void OGLRenderer::checkForInstanceCollisions() {
 }
 
 void OGLRenderer::checkForBorderCollisions() {
+  mCollisionCheckTimer.start();
   std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstances;
   for (size_t i = 0; i < instances.size(); ++i) {
     /* skip null instance*/
@@ -1643,18 +1647,21 @@ void OGLRenderer::checkForBorderCollisions() {
       continue;
     }
 
+    std::shared_ptr<AssimpModel> model = instances.at(i)->getModel();
     InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
 
-    /* always check world borders */
+    /* check world borders */
     if (glm::length(instSettings.isAutoRunSpeed) > 0.0f) {
-      mCollisionCheckTimer.start();
-      if (instSettings.isWorldPosition.x < mWorldBoundaries->getTopLeft().x || instSettings.isWorldPosition.x > mWorldBoundaries->getRight() ||
-          instSettings.isWorldPosition.z < mWorldBoundaries->getTopLeft().y || instSettings.isWorldPosition.z > mWorldBoundaries->getBottom()) {
+      AABB instanceAABB = model->getAABB(instSettings);
+      glm::vec3 minPos = instanceAABB.getMinPos();
+      glm::vec3 maxPos = instanceAABB.getMaxPos();
+      if (minPos.x < mWorldBoundaries->getTopLeft().x || maxPos.x > mWorldBoundaries->getRight() ||
+          minPos.z < mWorldBoundaries->getTopLeft().y || maxPos.z > mWorldBoundaries->getBottom()) {
         instances.at(i)->rotateInstance(60.0f);
       }
-      mRenderData.rdCollisionCheckTime += mCollisionCheckTimer.stop();
     }
   }
+  mRenderData.rdCollisionCheckTime += mCollisionCheckTimer.stop();
 }
 
 void OGLRenderer::checkForBoundingSphereCollisions() {
@@ -1790,7 +1797,7 @@ void OGLRenderer::drawAABBs() {
   mRenderData.rdCollisionDebugDrawTime += mCollisionDebugDrawTimer.stop();
 }
 
-void OGLRenderer::drawSelectedBoundingSphere() {
+void OGLRenderer::drawSelectedBoundingSpheres() {
   mCollisionDebugDrawTimer.start();
 
   if (mModelInstCamData.micSelectedInstance > 0 ) {
@@ -2159,17 +2166,15 @@ bool OGLRenderer::draw(float deltaTime) {
           /* get AABB and calculate 2D boundaries */
           AABB instanceAABB = model->getAABB(instSettings);
 
-          AABB boundaries;
-          boundaries.setExtents(instanceAABB.getMinPos(), instanceAABB.getMaxPos());
-
-          glm::vec2 position = glm::vec2(boundaries.getMinPos().x, boundaries.getMinPos().z);
-          glm::vec2 size = glm::vec2(std::fabs(boundaries.getMaxPos().x - boundaries.getMinPos().x), std::fabs(boundaries.getMaxPos().z - boundaries.getMinPos().z));
+          glm::vec2 position = glm::vec2(instanceAABB.getMinPos().x, instanceAABB.getMinPos().z);
+          glm::vec2 size = glm::vec2(std::fabs(instanceAABB.getMaxPos().x - instanceAABB.getMinPos().x),
+                                     std::fabs(instanceAABB.getMaxPos().z - instanceAABB.getMinPos().z));
 
           BoundingBox2D box{position, size};
           instances.at(i)->setBoundingBox(box);
 
           /* add instance to quadtree*/
-          mQuadtree->add(instances.at(i));
+          mQuadtree->add(instSettings.isInstanceIndexPosition);
         }
 
         size_t trsMatrixSize = numberOfBones * numberOfInstances * sizeof(glm::mat4);
@@ -2373,7 +2378,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   /* no bounding sphere collision will be done with this setting, so run the computer shaders just for the selected instance */
   if (mRenderData.rdDrawBoundingSpheres == collisionDebugDraws::selected) {
-    drawSelectedBoundingSphere();
+    drawSelectedBoundingSpheres();
   }
 
   if (mRenderData.rdDrawBoundingSpheres == collisionDebugDraws::all) {

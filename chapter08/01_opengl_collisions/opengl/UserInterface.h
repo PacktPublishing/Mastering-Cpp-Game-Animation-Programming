@@ -53,7 +53,7 @@ class UserInterface {
     std::vector<float> mCollisionCheckValues{};
     int mNumCollisionCheckValues = 90;
 
-    std::vector<float> mNumCollisionsValue{};
+    std::vector<float> mNumCollisionsValues{};
     int mNumNumCollisionValues = 90;
 
     static int cameraNameInputFilter(ImGuiInputTextCallbackData* data);

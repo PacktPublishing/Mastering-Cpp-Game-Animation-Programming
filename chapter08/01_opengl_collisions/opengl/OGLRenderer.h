@@ -214,7 +214,7 @@ class OGLRenderer {
 
     void createAABBLookup(std::shared_ptr<AssimpModel> model);
     void drawAABBs();
-    void drawSelectedBoundingSphere();
+    void drawSelectedBoundingSpheres();
     void drawCollidingBoundingSpheres();
     void drawAllBoundingSpheres();
 

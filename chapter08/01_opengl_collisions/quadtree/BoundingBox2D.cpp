@@ -22,10 +22,10 @@ glm::vec2 BoundingBox2D::getCenter() const {
 
 bool BoundingBox2D::contains(BoundingBox2D otherBox) {
   return
-    otherBox.getTopLeft().x <= mPosition.x &&
-    getRight() <= otherBox.getRight() &&
-    otherBox.getTopLeft().y <= mPosition.y &&
-    getBottom() <= otherBox.getBottom();
+    mPosition.x <= otherBox.getTopLeft().x &&
+    otherBox.getRight() <= getRight() &&
+    mPosition.y <= otherBox.getTopLeft().y &&
+    otherBox.getBottom() <= getBottom();
 }
 
 bool BoundingBox2D::intersects(BoundingBox2D otherBox) {
