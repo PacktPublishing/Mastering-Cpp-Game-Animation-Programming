@@ -22,11 +22,11 @@ void EventNode::draw(ModelInstanceCamData modInstCamData) {
   ImGui::TextUnformatted(getFormattedNodeName().c_str());
   ImNodes::EndNodeTitleBar();
 
-  /* New state */
+  bool eventWasTriggered = mEventTriggered;
   int staticIds = mStaticIdStart;
   ImNodes::BeginStaticAttribute(staticIds++);
   ImGui::Text("Event to wait for:");
-  if (mEventTriggered) {
+  if (eventWasTriggered) {
     ImGui::BeginDisabled();
   }
   ImGui::PushItemWidth(200.0f);
@@ -45,8 +45,14 @@ void EventNode::draw(ModelInstanceCamData modInstCamData) {
     ImGui::EndCombo();
   }
   ImGui::PopItemWidth();
+  if (eventWasTriggered) {
+    ImGui::EndDisabled();
+  }
   ImNodes::EndStaticAttribute();
 
+  if (eventWasTriggered) {
+    ImGui::BeginDisabled();
+  }
   ImNodes::BeginStaticAttribute(staticIds++);
   ImGui::Text("Cooldown: ");
   ImGui::SameLine();
@@ -61,7 +67,7 @@ void EventNode::draw(ModelInstanceCamData modInstCamData) {
     handleEvent();
   }
   ImNodes::EndStaticAttribute();
-  if (mEventTriggered) {
+  if (eventWasTriggered) {
     ImGui::EndDisabled();
   }
 
@@ -100,7 +106,7 @@ void EventNode::update(float deltaTime){
 }
 
 void EventNode::deactivate(bool informParentNodes) {
-  mTriggerEvent = nodeEvent::none;
+  mEventTriggered = false;
   mCooldown = 0.0f;
 }
 
