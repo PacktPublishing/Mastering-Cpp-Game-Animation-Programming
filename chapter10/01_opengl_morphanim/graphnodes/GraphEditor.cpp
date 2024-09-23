@@ -132,14 +132,13 @@ void GraphEditor::createNodeEditorWindow(OGLRenderData& renderData, ModelInstanc
   ImGui::Begin(editorTitle.c_str(), &mShowEditor);
   ImNodes::BeginNodeEditor();
 
-  /*
   ImNodes::PushColorStyle(
     ImNodesCol_TitleBar, IM_COL32(11, 109, 191, 255));
   ImNodes::PushColorStyle(
     ImNodesCol_TitleBarSelected, IM_COL32(81, 148, 204, 255));
   ImNodes::PushColorStyle(
     ImNodesCol_TitleBarHovered, IM_COL32(141, 188, 244, 255));
-*/
+
   const bool openPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImNodes::IsEditorHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right);
 
   for (const auto& node: behavior->bdGraphNodes) {
@@ -151,11 +150,10 @@ void GraphEditor::createNodeEditorWindow(OGLRenderData& renderData, ModelInstanc
   }
 
   /* pop title bar styles */
-  /*
   ImNodes::PopColorStyle();
   ImNodes::PopColorStyle();
   ImNodes::PopColorStyle();
-*/
+
   /* must be called right before EndNodeEditor */
   ImNodes::MiniMap();
 
