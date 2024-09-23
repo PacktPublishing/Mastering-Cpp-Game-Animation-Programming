@@ -1096,7 +1096,7 @@ bool OGLRenderer::draw(float deltaTime) {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         /* multiply every bone TRS matrix with its parent bones TRS matrices, until the root bone has been reached
-         * also, multiply the bone TRS, the matrix offset, and the instance world position matrix */
+         * also, multiply the bone TRS and the bone offset matrix */
         mAssimpMatrixComputeShader.use();
 
         mUploadToUBOTimer.start();

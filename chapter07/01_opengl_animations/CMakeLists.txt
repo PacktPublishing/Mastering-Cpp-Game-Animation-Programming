@@ -28,7 +28,7 @@ set(FETCHCONTENT_QUIET OFF)
 FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui
-  GIT_TAG        v1.90.5
+  GIT_TAG        v1.91.2
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
 )

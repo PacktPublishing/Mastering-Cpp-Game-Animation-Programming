@@ -126,16 +126,16 @@ void main() {
   int secondScaleLookupIndex = int(instAnimData[instance].secondClipReplayTimestamp * secondScaleInvScaleFactor) + 1;
 
   /* data lookup */
-  vec4 firstTanslation = lookupData[firstClip * clipOffset + node * boneOffset + firstTransLookupIndex];
+  vec4 firstTranslation = lookupData[firstClip * clipOffset + node * boneOffset + firstTransLookupIndex];
   vec4 firstRotation = lookupData[firstClip * clipOffset + node * boneOffset + lookupWidth + firstRotLookupIndex]; // this is a quaternion
   vec4 firstScale = lookupData[firstClip * clipOffset + node * boneOffset + lookupWidth * 2 + firstScaleLookupIndex];
 
-  vec4 secondTanslation = lookupData[secondClip * clipOffset + node * boneOffset + secondTransLookupIndex];
+  vec4 secondTranslation = lookupData[secondClip * clipOffset + node * boneOffset + secondTransLookupIndex];
   vec4 secondRotation = lookupData[secondClip * clipOffset + node * boneOffset + lookupWidth + secondRotLookupIndex]; // this is also a quaternion
   vec4 secondScale = lookupData[secondClip * clipOffset + node * boneOffset + lookupWidth * 2 + secondScaleLookupIndex];
 
   /* blend between animations */
-  vec4 finalTranslation = mix(firstTanslation, secondTanslation, blendFactor);
+  vec4 finalTranslation = mix(firstTranslation, secondTranslation, blendFactor);
   vec4 finalScale = mix(firstScale, secondScale, blendFactor);
   vec4 finalRotation = slerp(firstRotation, secondRotation, blendFactor);
 

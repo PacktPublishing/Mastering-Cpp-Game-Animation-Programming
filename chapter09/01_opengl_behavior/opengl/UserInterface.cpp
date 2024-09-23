@@ -1149,7 +1149,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     }
     ImGui::PopItemWidth();
     ImGui::SameLine();
-    if (ImGui::Button("Set")) {
+    if (ImGui::Button("Set##Model")) {
       modInstCamData.micModelAddBehaviorCallbackFunction(selectedModelName, behavior);
     }
     ImGui::SameLine();
@@ -1158,7 +1158,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::EndDisabled();
     }
 
-    if (ImGui::Button("Clear")) {
+    if (ImGui::Button("Clear##Model")) {
       modInstCamData.micModelDelBehaviorCallbackFunction(selectedModelName);
     }
 
@@ -1828,7 +1828,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     }
     ImGui::PopItemWidth();
     ImGui::SameLine();
-    if (ImGui::Button("Set")) {
+    if (ImGui::Button("Set##Instance")) {
       settings.isNodeTreeName = selectedTreeName;
       modInstCamData.micInstanceAddBehaviorCallbackFunction(settings.isInstanceIndexPosition, behavior);
     }
@@ -1841,7 +1841,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     if (settings.isNodeTreeName.empty()) {
       ImGui::BeginDisabled();
     }
-    if (ImGui::Button("Clear")) {
+    if (ImGui::Button("Clear##Instance")) {
       modInstCamData.micInstanceDelBehaviorCallbackFunction(settings.isInstanceIndexPosition);
       settings.isNodeTreeName.clear();
 

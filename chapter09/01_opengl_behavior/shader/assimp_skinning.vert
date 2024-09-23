@@ -14,11 +14,6 @@ layout (std140, binding = 0) uniform Matrices {
   mat4 projection;
 };
 
-struct AABB {
-  vec4 minPos;
-  vec4 maxPos;
-};
-
 layout (std430, binding = 1) readonly restrict buffer BoneMatrices {
   mat4 boneMat[];
 };
