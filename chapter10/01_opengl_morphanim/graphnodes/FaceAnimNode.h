@@ -31,4 +31,6 @@ class FaceAnimNode : public GraphNodeBase {
     float mFaceAnimStartWeight = 0.0f;
     float mFaceAnimEndWeight = 1.0f;
     float mFaceAnimBlendTime = 1.0f;
+
+    void resetTimes();
 };

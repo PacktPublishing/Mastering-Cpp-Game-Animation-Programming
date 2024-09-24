@@ -11,8 +11,7 @@ FaceAnimNode::FaceAnimNode(int nodeId) : GraphNodeBase(nodeId) {
   mStaticIdStart = id + 100;
   mOutId = id + 200;
 
-  mCurrentTime = mFaceAnimBlendTime;
-  mCurrentBlendValue = mFaceAnimStartWeight;
+  resetTimes();
 }
 
 std::shared_ptr<GraphNodeBase> FaceAnimNode::clone() {
@@ -82,13 +81,14 @@ void FaceAnimNode::draw(ModelInstanceCamData modInstCamData) {
   ImGui::SameLine();
   ImGui::PushItemWidth(100.0f);
   ImGui::SliderFloat("##BlendTime", &mFaceAnimBlendTime, 0.0f, 10.0f, "%.3fs", flags);
-  ImGui::Text("Left: %4.2fs", mCurrentTime);
-  ImGui::PopItemWidth();
-  ImNodes::EndStaticAttribute();
 
   if (ImGui::IsItemDeactivatedAfterEdit()) {
     mCurrentTime = mFaceAnimBlendTime;
   }
+
+  ImGui::Text("Left: %4.2fs", mCurrentTime);
+  ImGui::PopItemWidth();
+  ImNodes::EndStaticAttribute();
 
   if (mActive) {
     ImGui::EndDisabled();
@@ -136,8 +136,7 @@ void FaceAnimNode::update(float deltaTime) {
     /* notify parent(s) */
     fireNodeOutputTriggerCallback(mInId);
 
-    mCurrentTime = mFaceAnimBlendTime;
-    mCurrentBlendValue = mFaceAnimStartWeight;
+    resetTimes();
 
     mActive = false;
     mFired = true;
@@ -162,8 +161,7 @@ void FaceAnimNode::deactivate(bool informParentNodes) {
   mActive = false;
   mFired = false;
 
-  mCurrentTime = mFaceAnimBlendTime;
-  mCurrentBlendValue = mFaceAnimStartWeight;
+  resetTimes();
 
   if (informParentNodes) {
     /* inform parent that we are done*/
@@ -192,6 +190,12 @@ void FaceAnimNode::importData(std::map<std::string, std::string> data) {
     mFaceAnimStartWeight = std::stof(data["face-anim-start-weight"]);
     mFaceAnimEndWeight= std::stof(data["face-anim-end-weight"]);
     mFaceAnimBlendTime= std::stof(data["face-anim-blend-time"]);
+
+    resetTimes();
   }
 }
 
+void FaceAnimNode::resetTimes() {
+  mCurrentTime = mFaceAnimBlendTime;
+  mCurrentBlendValue = mFaceAnimStartWeight;
+}
