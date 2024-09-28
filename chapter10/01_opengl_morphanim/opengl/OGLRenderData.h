@@ -24,9 +24,7 @@ struct OGLMorphVertex {
 };
 
 struct OGLMorphMesh {
-  std::string morphName;
   std::vector<OGLMorphVertex> morphVertices{};
-  float morphWeigth{};
 };
 
 struct OGLVertex {

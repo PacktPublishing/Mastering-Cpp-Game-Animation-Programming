@@ -64,7 +64,7 @@ void FaceAnimNode::draw(ModelInstanceCamData modInstCamData) {
   ImGui::Text("Start Weight:");
   ImGui::SameLine();
   ImGui::PushItemWidth(100.0f);
-  ImGui::SliderFloat("##WeightStart", &mFaceAnimStartWeight, 0.0f, 1.0f, "%.3fs", flags);
+  ImGui::SliderFloat("##WeightStart", &mFaceAnimStartWeight, 0.0f, 1.0f, "%.3f", flags);
   ImGui::PopItemWidth();
   ImNodes::EndStaticAttribute();
 
@@ -72,7 +72,7 @@ void FaceAnimNode::draw(ModelInstanceCamData modInstCamData) {
   ImGui::Text("End Weight:  ");
   ImGui::SameLine();
   ImGui::PushItemWidth(100.0f);
-  ImGui::SliderFloat("##WeightEnd", &mFaceAnimEndWeight, 0.0f, 1.0f, "%.3fs", flags);
+  ImGui::SliderFloat("##WeightEnd", &mFaceAnimEndWeight, 0.0f, 1.0f, "%.3f", flags);
   ImGui::PopItemWidth();
   ImNodes::EndStaticAttribute();
 
@@ -117,8 +117,8 @@ void FaceAnimNode::update(float deltaTime) {
 
   /* time diff goes from 0.0f to 1.0f */
   float morphTimeDiff = 1.0f;
-  if (mFaceAnimBlendTime != mCurrentTime) {
-    morphTimeDiff = std::clamp(1.0f - (mFaceAnimBlendTime - mCurrentTime) / mFaceAnimBlendTime, 0.0f, 1.0f);
+  if (mFaceAnimBlendTime != 0.0f) {
+    morphTimeDiff = std::clamp(mCurrentTime / mFaceAnimBlendTime, 0.0f, 1.0f);
   }
 
   float morphWeightDiff = mFaceAnimEndWeight - mFaceAnimStartWeight;

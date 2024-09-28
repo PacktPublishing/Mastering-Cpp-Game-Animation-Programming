@@ -92,7 +92,14 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const InstanceSettings& settings) 
     out << YAML::Value << settings.isFaceAnim;
     out << YAML::Key << "face-anim-weight";
     out << YAML::Value << settings.isFaceAnimWeight;
-
+  }
+  if (settings.isHeadLeftRightMove != 0.0f) {
+    out << YAML::Key << "head-anim-left-right-timestamp";
+    out << YAML::Value << settings.isHeadLeftRightMove;
+  }
+  if (settings.isHeadUpDownMove != 0.0f) {
+    out << YAML::Key << "head-anim-up-down-timestamp";
+    out << YAML::Value << settings.isHeadUpDownMove;
   }
   return out;
 }

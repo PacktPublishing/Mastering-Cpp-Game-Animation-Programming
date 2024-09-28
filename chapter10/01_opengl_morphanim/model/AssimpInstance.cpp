@@ -265,7 +265,7 @@ void AssimpInstance::updateInstanceSpeed(float deltaTime) {
 }
 
 void AssimpInstance::updateInstancePosition(float deltaTime) {
-  if (!mInstanceSettings.rdNoMovement) {
+  if (!mInstanceSettings.isNoMovement) {
     /* rotate accel/speed according to instance azimuth -> WASD */
     float sinRot = std::sin(glm::radians(mInstanceSettings.isWorldRotation.y)) * 4.0f;
     float cosRot = std::cos(glm::radians(mInstanceSettings.isWorldRotation.y)) * 4.0f;
@@ -511,7 +511,7 @@ void AssimpInstance::setBoundingBox(BoundingBox2D box) {
 
 void AssimpInstance::setFaceAnim(faceAnimation faceAnim) {
   /* skip if model has no morph anims */
-  if (mAssimpModel->getNumAnimMeshes() == 0) {
+  if (!mAssimpModel->hasAnimMeshes()) {
     return;
   }
 

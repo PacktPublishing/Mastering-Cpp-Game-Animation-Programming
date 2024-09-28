@@ -2855,7 +2855,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
         model->drawInstancedNoMorphAnims(numberOfInstances);
 
-        if (model->getNumAnimMeshes() > 0) {
+        if (model->hasAnimMeshes()) {
           mFaceAnimTimer.start();
 
           if (mMousePick && mRenderData.rdApplicationMode == appMode::edit) {

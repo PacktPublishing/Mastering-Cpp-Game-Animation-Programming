@@ -1912,13 +1912,13 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         savedInstanceSettings = settings;
 
         std::shared_ptr<AssimpModel> currentModel = currentInstance->getModel();
-        modelHasFaceAnims = currentModel->getNumAnimMeshes() > 0;
+        modelHasFaceAnims = currentModel->hasAnimMeshes();
       }
     }
 
     ImGui::Text("Stop Movement:   ");
     ImGui::SameLine();
-    ImGui::Checkbox("##StopMovement", &settings.rdNoMovement);
+    ImGui::Checkbox("##StopMovement", &settings.isNoMovement);
 
     if (modelListEmtpy || nullInstanceSelected) {
      ImGui::EndDisabled();

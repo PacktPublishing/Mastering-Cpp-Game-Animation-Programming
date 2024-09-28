@@ -29,7 +29,7 @@ struct InstanceSettings {
   int isInstanceIndexPosition = -1;
   int isInstancePerModelIndexPosition = -1;
 
-  bool rdNoMovement = false;
+  bool isNoMovement = false;
   glm::vec3 isAccel = glm::vec3(0.0f);
   bool isMoveKeyPressed = false;
   glm::vec3 isSpeed = glm::vec3(0.0f);

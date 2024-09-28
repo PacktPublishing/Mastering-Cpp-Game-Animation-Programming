@@ -135,25 +135,28 @@ bool AssimpMesh::processMesh(aiMesh* mesh, const aiScene* scene, std::string ass
     }
   }
 
-  mAnimMeshCount = mesh->mNumAnimMeshes;
-  if (mAnimMeshCount > 0) {
-    Logger::log(1, "%s: -- mesh %s has %i morph anim meshes\n", __FUNCTION__, mMeshName.c_str(), mAnimMeshCount);
-    for (unsigned int i = 0; i < mAnimMeshCount; ++i) {
+  int animMeshCount = mesh->mNumAnimMeshes;
+  if (animMeshCount > 0) {
+    Logger::log(1, "%s: -- mesh %s has %i morph anim meshes\n", __FUNCTION__, mMeshName.c_str(), animMeshCount);
+    for (unsigned int i = 0; i < animMeshCount; ++i) {
       aiAnimMesh* animMesh = mesh->mAnimMeshes[i];
       std::string animMeshName = animMesh->mName.C_Str();
       float animMeshWeigth = animMesh->mWeight;
-      unsigned int mAninVertexCount = animMesh->mNumVertices;
+      unsigned int animVertexCount = animMesh->mNumVertices;
+      if (animVertexCount != mVertexCount) {
+        Logger::log(1, "%s error: moprh mesh %i vertex count does not match (orig mesh has %i vertices, morph mesh %i)\n",
+          __FUNCTION__, i, mVertexCount, animVertexCount);
+        continue;
+      }
 
-      Logger::log(1, "%s: ---  morph mesh %s has%s positions and%s normals, contains %i vertices with weight %f\n", __FUNCTION__,
+      Logger::log(1, "%s: ---  morph mesh %s has%s positions and%s normals, contains %i vertices with weight %f (ignored)\n", __FUNCTION__,
                   animMeshName.c_str(), animMesh->HasPositions() ? "" : "no", animMesh->HasNormals() ? "" : "no",
-                  mAninVertexCount, animMeshWeigth);
+                  animVertexCount, animMeshWeigth);
 
       if (animMesh->HasPositions()) {
         OGLMorphMesh newMorphMesh{};
-        newMorphMesh.morphWeigth = animMeshWeigth;
-        newMorphMesh.morphName = animMeshName;
 
-        for (unsigned int i = 0; i < mAninVertexCount; ++i) {
+        for (unsigned int i = 0; i < animVertexCount; ++i) {
           OGLMorphVertex vertex;
 
           vertex.position.x = animMesh->mVertices[i].x;

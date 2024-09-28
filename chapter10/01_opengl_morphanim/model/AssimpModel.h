@@ -56,15 +56,14 @@ class AssimpModel {
     void setAABBLokkup(std::vector<std::vector<AABB>> lookupData);
     AABB getAABB(InstanceSettings instSettings);
 
-    unsigned int getNumAnimMeshes();
+    bool hasAnimMeshes();
     unsigned int getAnimMeshVertexSize();
-    std::vector<std::string> getAnimMeshNames();
-    std::string getAnimMeshName(unsigned int index);
     void bindMorphAnimBuffer(int bindingPoint);
 
     bool hasHeadMovementAnimationsMapped();
 
     void cleanup();
+
 private:
     void processNode(std::shared_ptr<AssimpNode> node, aiNode* aNode, const aiScene* scene, std::string assetDirectory);
     void createNodeList(std::shared_ptr<AssimpNode> node, std::shared_ptr<AssimpNode> newNode, std::vector<std::shared_ptr<AssimpNode>> &list);
@@ -109,5 +108,4 @@ private:
     unsigned int mNumAnimatedMeshes = 0;
     unsigned int mAnimatedMeshVertexSize = 0;
     ShaderStorageBuffer mAnimMeshVerticesBuffer{};
-    std::vector<std::string> mAnimMeshMorphNames{};
 };

@@ -138,31 +138,22 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
     mVertexBuffers.emplace_back(buffer);
   }
 
-  /* set the "None" morph clip as default entry to avoid an emtpy array */
-  mAnimMeshMorphNames.emplace_back("None");
-
   /* create a SSBOs containing all vertices for all morph animation of this mesh */
   for (const auto& mesh : mModelMeshes) {
     if (mesh.morphMeshes.size() == 0) {
       continue;
     }
-    std::vector<OGLMorphVertex> animVertices;
-    animVertices.resize(mesh.vertices.size() * mNumAnimatedMeshes);
-    std::string animName;
+    OGLMorphMesh animMesh;
+    animMesh.morphVertices.resize(mesh.vertices.size() * mNumAnimatedMeshes);
 
     for (unsigned int i = 0; i < mNumAnimatedMeshes; ++i) {
       unsigned int vertexOffset = mesh.vertices.size() * i;
-      for (unsigned int v = 0; v < mesh.vertices.size(); ++v) {
-        animVertices[v + vertexOffset].position = mesh.morphMeshes[i].morphVertices[v].position;
-        animVertices[v + vertexOffset].normal = mesh.morphMeshes[i].morphVertices[v].normal;
-      }
-      animName = mesh.morphMeshes[i].morphName;
-
-      mAnimMeshMorphNames.emplace_back(animName);
+      std::copy(mesh.morphMeshes[i].morphVertices.begin(), mesh.morphMeshes[i].morphVertices.end(),
+        animMesh.morphVertices.begin() + vertexOffset);
       mAnimatedMeshVertexSize = mesh.vertices.size();
     }
 
-    mAnimMeshVerticesBuffer.uploadSsboData(animVertices);
+    mAnimMeshVerticesBuffer.uploadSsboData(animMesh.morphVertices);
     Logger::log(1, "%s: model has %i morphs, SSBO has %i vertices\n", __FUNCTION__, mNumAnimatedMeshes, mAnimatedMeshVertexSize);
   }
 
@@ -571,24 +562,12 @@ AABB AssimpModel::getAABB(InstanceSettings instSettings) {
   return translatedAabb;
 }
 
-unsigned int AssimpModel::getNumAnimMeshes() {
-  return mNumAnimatedMeshes;
+bool AssimpModel::hasAnimMeshes() {
+  return mNumAnimatedMeshes > 0;
 }
 
 unsigned int AssimpModel::getAnimMeshVertexSize() {
   return mAnimatedMeshVertexSize;
-}
-
-std::string AssimpModel::getAnimMeshName(unsigned int index) {
-  if (index >= mNumAnimatedMeshes) {
-    Logger::log(1, "%s error: index %i too big (have only %i elements)\n", __FUNCTION__, mNumAnimatedMeshes, index);
-    return std::string{};
-  }
-  return mAnimMeshMorphNames.at(index);
-}
-
-std::vector<std::string> AssimpModel::getAnimMeshNames() {
-  return mAnimMeshMorphNames;
 }
 
 void AssimpModel::bindMorphAnimBuffer(int bindingPoint) {

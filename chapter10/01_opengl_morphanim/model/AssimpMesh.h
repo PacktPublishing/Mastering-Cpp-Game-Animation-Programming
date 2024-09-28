@@ -27,8 +27,6 @@ class AssimpMesh {
     unsigned int mTriangleCount = 0;
     unsigned int mVertexCount = 0;
 
-    unsigned int mAnimMeshCount = 0;
-
     OGLMesh mMesh{};
 
     std::unordered_map<std::string, std::shared_ptr<Texture>> mTextures;

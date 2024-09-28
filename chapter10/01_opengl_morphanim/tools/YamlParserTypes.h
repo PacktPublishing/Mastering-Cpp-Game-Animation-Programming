@@ -81,6 +81,12 @@ namespace YAML {
         node["face-anim"] = rhs.isFaceAnim;
         node["face-anim-weight"] = rhs.isFaceAnimWeight;
       }
+      if (rhs.isHeadLeftRightMove != 0.0f) {
+        node["head-anim-left-right-timestamp"] = rhs.isHeadLeftRightMove;
+      }
+      if (rhs.isHeadUpDownMove != 0.0f) {
+        node["head-anim-up-down-timestamp"] = rhs.isHeadUpDownMove;
+      }
       return node;
     }
 
@@ -114,9 +120,13 @@ namespace YAML {
       }
       if (node["face-anim"]) {
         rhs.isFaceAnim = node["face-anim"].as<faceAnimation>();
-      }
-      if (node["face-anim-weight"]) {
         rhs.isFaceAnimWeight = node["face-anim-weight"].as<float>();
+      }
+      if (node["head-anim-left-right-timestamp"]) {
+        rhs.isHeadLeftRightMove = node["head-anim-left-right-timestamp"].as<float>();
+      }
+      if (node["head-anim-up-down-timestamp"]) {
+        rhs.isHeadUpDownMove = node["head-anim-up-down-timestamp"].as<float>();
       }
       return true;
     }
