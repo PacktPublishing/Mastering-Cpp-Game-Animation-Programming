@@ -38,7 +38,7 @@ void UserInterface::init(OGLRenderData &renderData) {
   const char *glslVersion = "#version 460 core";
   ImGui_ImplOpenGL3_Init(glslVersion);
 
-  ImGui::StyleColorsLight();
+  ImGui::StyleColorsDark();
   ImNodes::StyleColorsDark();
 
   /* init plot vectors */
