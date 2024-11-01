@@ -88,7 +88,7 @@ using setSelectedLevelCallback = std::function<void(int)>;
 using levelCheckCallback = std::function<bool(std::string)>;
 using levelAddCallback = std::function<bool(std::string)>;
 using levelDeleteCallback = std::function<void(std::string)>;
-using levelGenerateAABBCallback = std::function<void(void)>;
+using levelGenerateLevelDataCallback = std::function<void(void)>;
 
 using ikIterationsCallback = std::function<void(int)>;
 

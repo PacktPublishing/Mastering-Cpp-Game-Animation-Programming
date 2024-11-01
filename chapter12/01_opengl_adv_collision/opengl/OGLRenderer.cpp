@@ -222,8 +222,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mModelInstCamData.micLevelCheckCallbackFunction = [this](std::string levelFileName) { return hasLevel(levelFileName); };
   mModelInstCamData.micLevelAddCallbackFunction = [this](std::string levelFileName) { return addLevel(levelFileName); };
   mModelInstCamData.micLevelDeleteCallbackFunction = [this](std::string levelName) { deleteLevel(levelName); };
-  mModelInstCamData.micLevelGenerateAABBCallbackFunction = [this]() { generateLevelVertexData(); };
-  mModelInstCamData.micTriangleOctreeChangeCallbackFunction = [this]() { generateLevelVertexData(); };
+  mModelInstCamData.micLevelGenerateLevelDataCallbackFunction = [this]() { generateLevelVertexData(); };
 
   mModelInstCamData.micIkIterationsCallbackFunction = [this](int iterations) { mIKSolver.setNumIterations(iterations); };
 
@@ -1473,13 +1472,13 @@ void OGLRenderer::generateLevelOctree() {
     }
     Logger::log(1, "%s: generating octree data for level '%s'\n", __FUNCTION__, level->getLevelFileName().c_str());
     std::vector<OGLMesh> levelMeshes = level->getLevelMeshes();
+    glm::mat4 transformMat = level->getWorldTransformMatrix();
+    glm::mat3 normalMat = level->getNormalTransformMatrix();
+
     for (const auto& mesh : levelMeshes) {
       int index = 0;
       for (int i = 0; i < mesh.indices.size(); i += 3) {
         MeshTriangle tri{};
-        glm::mat4 transformMat = level->getWorldTransformMatrix();
-        glm::mat3 normalMat = level->getNormalTransformMatrix();
-
         /* fix w component of position */
         tri.points.at(0) = transformMat * glm::vec4(glm::vec3(mesh.vertices.at(mesh.indices.at(i)).position), 1.0f);
         tri.points.at(1) = transformMat * glm::vec4(glm::vec3(mesh.vertices.at(mesh.indices.at(i + 1)).position), 1.0f);
@@ -1494,7 +1493,6 @@ void OGLRenderer::generateLevelOctree() {
         /* add a (very) small offset to the size since complete planar triangles may be ignored */
         tri.boundingBox = BoundingBox3D(triangleAABB.getMinPos() - glm::vec3(0.0001f),
                                         triangleAABB.getMaxPos() - triangleAABB.getMinPos() + glm::vec3(0.0002f));
-
 
         tri.normal = glm::normalize(normalMat * glm::vec3(mesh.vertices.at(mesh.indices.at(i)).normal));
 
@@ -2306,7 +2304,7 @@ void OGLRenderer::checkForLevelCollisions() {
 
       /* check for slope */
       bool isWalkable = false;
-      if (glm::dot(tri.normal, glm::vec3(0.0f, 1.0f, 0.0f)) >= glm::cos(glm::radians(90.0f - mRenderData.rdMaxLevelGroundSlopeAngle))) {
+      if (glm::dot(tri.normal, glm::vec3(0.0f, 1.0f, 0.0f)) >= glm::cos(glm::radians(mRenderData.rdMaxLevelGroundSlopeAngle))) {
         isWalkable = true;
       }
 
@@ -2730,7 +2728,7 @@ void OGLRenderer::resetLevelData() {
   mRenderData.rdDrawLevelCollisionTriangles = false;
   mRenderData.rdEnableSimpleGravity = false;
 
-  mRenderData.rdMaxLevelGroundSlopeAngle = 90.0f;
+  mRenderData.rdMaxLevelGroundSlopeAngle = 0.0f;
   mRenderData.rdLevelOctreeThreshold = 10;
   mRenderData.rdLevelOctreeMaxDepth = 5;
 
@@ -3280,7 +3278,7 @@ bool OGLRenderer::draw(float deltaTime) {
             for (const auto& tri : collidingTriangles) {
               /* check for slope */
               bool isWalkable = false;
-              if (glm::dot(tri.normal, glm::vec3(0.0f, 1.0f, 0.0f)) >= glm::cos(glm::radians(90.0f - mRenderData.rdMaxLevelGroundSlopeAngle))) {
+              if (glm::dot(tri.normal, glm::vec3(0.0f, 1.0f, 0.0f)) >= glm::cos(glm::radians(mRenderData.rdMaxLevelGroundSlopeAngle))) {
                 isWalkable = true;
               }
 
@@ -3373,14 +3371,15 @@ bool OGLRenderer::draw(float deltaTime) {
         /* inverse kinematics */
         if (mRenderData.rdEnableFeetIK) {
           mIKTimer.start();
-          for (int foot = 0; foot < modSettings.msFootIKChainPair.size(); ++foot) {
-            mNewNodePositions.at(foot).clear();
-          }
 
           /* read back all node positions for foot positions */
           mDownloadFromUBOTimer.start();
           mShaderBoneMatrices = mShaderBoneMatrixBuffer.getSsboDataMat4();
           mRenderData.rdDownloadFromUBOTime += mDownloadFromUBOTimer.stop();
+
+          for (int foot = 0; foot < modSettings.msFootIKChainPair.size(); ++foot) {
+            mNewNodePositions.at(foot).clear();
+          }
 
           /* get positions of left and right foot from final world positions */
           for (size_t i = 0; i < numberOfInstances; ++i) {
@@ -3389,9 +3388,10 @@ bool OGLRenderer::draw(float deltaTime) {
 
               /* extract foot position from world position matrix */
               int footNodeId = modSettings.msFootIKChainPair.at(foot).first;
-              glm::vec3 footWorldPos = glm::vec3((mWorldPosMatrices.at(i) *
+
+              glm::vec3 footWorldPos = Tools::extractGlobalPosition(mWorldPosMatrices.at(i) *
                 mShaderBoneMatrices.at(i * numberOfBones + footNodeId) *
-                model->getInverseBoneOffsetMatrix(footNodeId))[3]);
+                model->getInverseBoneOffsetMatrix(footNodeId));
               float footDistAboveGround = std::fabs(instSettings.isWorldPosition.y - footWorldPos.y);
 
               AABB instanceAABB = model->getAABB(instSettings);
@@ -3447,18 +3447,23 @@ bool OGLRenderer::draw(float deltaTime) {
                 for (const auto& position : mIKSolvedPositions) {
                   vert.color = glm::vec3(0.1f, 0.6f, 0.8f);
 
-                  vert.position = position - glm::vec4(-0.5f, 0.0f, 0.0f, 0.0f);
+                  vert.position = position - glm::vec3(-0.5f, 0.0f, 0.0f);
                   mIKFootPointMesh->vertices.push_back(vert);
-                  vert.position = position - glm::vec4(0.5f, 0.0f, 0.0f, 0.0f);
+                  vert.position = position - glm::vec3(0.5f, 0.0f, 0.0f);
                   mIKFootPointMesh->vertices.push_back(vert);
-                  vert.position = position - glm::vec4(0.0f, 0.0f, 0.5f, 0.0f);
+                  vert.position = position - glm::vec3(0.0f, 0.0f, 0.5f);
                   mIKFootPointMesh->vertices.push_back(vert);
-                  vert.position = position - glm::vec4(0.0f, 0.0f, -0.5f, 0.0f);
+                  vert.position = position - glm::vec3(0.0f, 0.0f, -0.5f);
                   mIKFootPointMesh->vertices.push_back(vert);
                 }
               }
             }
           }
+
+          /* read TRS values */
+          mDownloadFromUBOTimer.start();
+          mTRSData = mShaderTRSMatrixBuffer.getSsboDataTRSMatrixData();
+          mRenderData.rdDownloadFromUBOTime += mDownloadFromUBOTimer.stop();
 
           /* we need to ROTATE the original bones to get the final position, starting with the root node */
           for (int foot = 0; foot < modSettings.msFootIKChainPair.size(); ++foot) {
@@ -3471,16 +3476,6 @@ bool OGLRenderer::draw(float deltaTime) {
 
             /* we need to run the compute shader for every node of the IK chain */
             for (int index = nodeChainSize - 1; index > 0; --index) {
-              /* read TRS values */
-              mDownloadFromUBOTimer.start();
-              mTRSData = mShaderTRSMatrixBuffer.getSsboDataTRSMatrixData();
-              mRenderData.rdDownloadFromUBOTime += mDownloadFromUBOTimer.stop();
-
-              /* read (new) bone positions */
-              mDownloadFromUBOTimer.start();
-              mShaderBoneMatrices = mShaderBoneMatrixBuffer.getSsboDataMat4();
-              mRenderData.rdDownloadFromUBOTime += mDownloadFromUBOTimer.stop();
-
               /* apply the local rotation to the bones to have the same rotations as the IK result */
               for (size_t i = 0; i < numberOfInstances; ++i) {
                 int nodeId = modSettings.msFootIKChainNodes[foot].at(index);
@@ -3525,6 +3520,10 @@ bool OGLRenderer::draw(float deltaTime) {
               //glDispatchCompute(numberOfBones, numberOfInstances, 1);
               glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+              /* read (new) bone positions */
+              mDownloadFromUBOTimer.start();
+              mShaderBoneMatrices = mShaderBoneMatrixBuffer.getSsboDataMat4();
+              mRenderData.rdDownloadFromUBOTime += mDownloadFromUBOTimer.stop();
             }
           }
           mRenderData.rdIKTime += mIKTimer.stop();

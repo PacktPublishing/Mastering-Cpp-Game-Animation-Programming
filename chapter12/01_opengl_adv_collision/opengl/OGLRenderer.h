@@ -305,9 +305,9 @@ class OGLRenderer {
 
     IKSolver mIKSolver{};
     std::shared_ptr<OGLLineMesh> mIKFootPointMesh = nullptr;
-    std::array<std::vector<glm::vec4>, 2> mNewNodePositions{};
+    std::array<std::vector<glm::vec3>, 2> mNewNodePositions{};
     std::vector<glm::mat4> mIKWorldPositionsToSolve{};
-    std::vector<glm::vec4> mIKSolvedPositions{};
+    std::vector<glm::vec3> mIKSolvedPositions{};
     std::vector<TRSMatrixData> mTRSData{};
 
     void drawIKDebugLines();

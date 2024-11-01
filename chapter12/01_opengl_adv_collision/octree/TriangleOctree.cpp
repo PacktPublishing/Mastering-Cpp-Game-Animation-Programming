@@ -208,7 +208,7 @@ void TriangleOctree::split(std::shared_ptr<TriangleOctreeNode> node, BoundingBox
       /* or insert into approriate child */
       int i = getOctantId(box, triangle.boundingBox);
       if (i != -1) {
-        node->childs[i]->triangles.emplace_back(triangle);
+        node->childs.at(i)->triangles.emplace_back(triangle);
       }
     }
   }

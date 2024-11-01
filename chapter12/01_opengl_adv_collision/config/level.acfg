@@ -13,7 +13,7 @@ settings:
   interaction-max-range: 10
   interaction-fov: 45
   gravity-enabled: true
-  level-collision-ground-slope: 50
+  level-collision-ground-slope: 40
   level-collision-max-stairstep-height: 2
   inverse-kinematics-enabled: true
   inverse-kinematics-iterations: 10

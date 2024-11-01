@@ -160,7 +160,7 @@ struct OGLRenderData {
   bool rdDrawLevelOctree = false;
   bool rdDrawLevelCollisionTriangles = false;
 
-  float rdMaxLevelGroundSlopeAngle = 90.0f;
+  float rdMaxLevelGroundSlopeAngle = 0.0f;
   float rdMaxStairstepHeight = 1.0f;
   glm::vec3 rdLevelCollisionAABBExtension = glm::vec3(0.0f, 1.0f, 0.0f);
 

@@ -11,10 +11,10 @@ class IKSolver {
 
     void setNumIterations(int iterations);
 
-    std::vector<glm::vec4> solveFARBIK(std::vector<glm::mat4>& nodeMatrices, glm::vec3 targetPos);
+    std::vector<glm::vec3> solveFARBIK(std::vector<glm::mat4>& nodeMatrices, glm::vec3 targetPos);
 
   private:
-    std::vector<glm::vec4> mNodePositions{};
+    std::vector<glm::vec3> mNodePositions{};
     std::vector<float> mBoneLengths{};
 
     void solveFABRIKForward(glm::vec3 targetPos);

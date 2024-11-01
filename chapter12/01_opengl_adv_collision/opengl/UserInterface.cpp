@@ -1375,11 +1375,11 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     }
 
     /* level settings, like instance */
-    bool settingChangedForAABB = false;
+    bool recreateLevelData = false;
     ImGui::Text("Swap Y/Z axes:   ");
     ImGui::SameLine();
     if (ImGui::Checkbox("##LevelAxisSwap", &settings.lsSwapYZAxis)) {
-      settingChangedForAABB = true;
+      recreateLevelData = true;
     }
 
     ImGui::Text("Pos (X/Y/Z):     ");
@@ -1387,7 +1387,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SliderFloat3("##LevelPos", glm::value_ptr(settings.lsWorldPosition),
       -150.0f, 150.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit() || ImGui::IsItemActive()) {
-      settingChangedForAABB = true;
+      recreateLevelData = true;
     }
 
     ImGui::Text("Rotation (X/Y/Z):");
@@ -1395,7 +1395,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SliderFloat3("##LevelRot", glm::value_ptr(settings.lsWorldRotation),
       -180.0f, 180.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit() || ImGui::IsItemActive()) {
-      settingChangedForAABB = true;
+      recreateLevelData = true;
     }
 
     ImGui::Text("Scale:           ");
@@ -1403,7 +1403,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SliderFloat("##LevelScale", &settings.lsScale,
       0.001f, 10.0f, "%.4f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit() || ImGui::IsItemActive()) {
-      settingChangedForAABB = true;
+      recreateLevelData = true;
     }
 
     ImGui::Text("                 ");
@@ -1417,7 +1417,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       settings.lsLevelFilename = levelFileName;
       settings.lsLevelFilenamePath = levelFileNamePath;
 
-      settingChangedForAABB = true;
+      recreateLevelData = true;
     }
 
     ImGui::Text("Colliding Tris:  %10i", renderData.rdNumberOfCollidingTriangles);
@@ -1426,7 +1426,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::Text("Max Ground Slope:");
     ImGui::SameLine();
     ImGui::SliderFloat("##MaxSlope", &renderData.rdMaxLevelGroundSlopeAngle,
-      45.0f, 90.0f, "%.2f", flags);
+      0.0f, 45.0f, "%.2f", flags);
 
     ImGui::Text("Max Stair Height:");
     ImGui::SameLine();
@@ -1453,29 +1453,24 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SameLine();
     ImGui::Checkbox("##DrawLevelOctree", &renderData.rdDrawLevelOctree);
 
-    bool settingChangedForTriangleOctree = false;
     ImGui::Text("Octree Max Depth:");
     ImGui::SameLine();
     ImGui::SliderInt("##LevelOctreeMaxDepth", &renderData.rdLevelOctreeMaxDepth, 1, 10, "%d", flags);
     if (ImGui::IsItemDeactivatedAfterEdit() || ImGui::IsItemActive()) {
-      settingChangedForTriangleOctree = true;
+      recreateLevelData = true;
     }
 
     ImGui::Text("Octree Threshold:");
     ImGui::SameLine();
     ImGui::SliderInt("##LevelOctreeThreshold", &renderData.rdLevelOctreeThreshold, 1, 20, "%d", flags);
     if (ImGui::IsItemDeactivatedAfterEdit() || ImGui::IsItemActive()) {
-      settingChangedForTriangleOctree = true;
+      recreateLevelData = true;
     }
 
     if (!nullLevelSelected) {
       modInstCamData.micLevels.at(modInstCamData.micSelectedLevel)->setLevelSettings(settings);
-      if (settingChangedForAABB) {
-        modInstCamData.micLevelGenerateAABBCallbackFunction();
-      }
-
-      if (settingChangedForTriangleOctree) {
-        modInstCamData.micTriangleOctreeChangeCallbackFunction();
+      if (recreateLevelData) {
+        modInstCamData.micLevelGenerateLevelDataCallbackFunction();
       }
     }
 
@@ -2171,25 +2166,25 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       modSettings = currentModel->getModelSettings();
 
       /* read out values to use shorter lines */
-      int leftEffektor = modSettings.msFootIKChainPair.at(0).first;
+      int leftEffector = modSettings.msFootIKChainPair.at(0).first;
       int leftRoot = modSettings.msFootIKChainPair.at(0).second;
-      int rightEffektor = modSettings.msFootIKChainPair.at(1).first;
+      int rightEffector = modSettings.msFootIKChainPair.at(1).first;
       int rightRoot = modSettings.msFootIKChainPair.at(1).second;
 
       bool leftFootChainChanged = false;
       bool rightFootChainChanged = false;
 
       if (currentModel->getBoneNameList().size() > 0) {
-        ImGui::Text("                  Effektor Node         Root Node");
+        ImGui::Text("                  Effector Node         Root Node");
         ImGui::Text("Left Foot:      ");
         ImGui::SameLine();
         ImGui::PushItemWidth(150.0f);
-        if (ImGui::BeginCombo("##LeftFootEffektorCombo",
-          nodeNames.at(leftEffektor).c_str())) {
+        if (ImGui::BeginCombo("##LeftFootEffectorCombo",
+          nodeNames.at(leftEffector).c_str())) {
           for (int i = 0; i < nodeNames.size(); ++i) {
-            const bool isSelected = (leftEffektor == i);
+            const bool isSelected = (leftEffector == i);
             if (ImGui::Selectable(nodeNames.at(i).c_str(), isSelected)) {
-              leftEffektor = i;
+              leftEffector = i;
               leftFootChainChanged = true;
             }
 
@@ -2223,12 +2218,12 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         ImGui::Text("Right Foot:     ");
         ImGui::SameLine();
         ImGui::PushItemWidth(150.0f);
-        if (ImGui::BeginCombo("##RightFootEffektorCombo",
-          nodeNames.at(rightEffektor).c_str())) {
+        if (ImGui::BeginCombo("##RightFootEffectorCombo",
+          nodeNames.at(rightEffector).c_str())) {
           for (int i = 0; i < nodeNames.size(); ++i) {
-            const bool isSelected = (rightEffektor == i);
+            const bool isSelected = (rightEffector == i);
             if (ImGui::Selectable(nodeNames.at(i).c_str(), isSelected)) {
-              rightEffektor = i;
+              rightEffector = i;
               rightFootChainChanged = true;
             }
 
@@ -2265,18 +2260,18 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Checkbox("##IKDebug", &renderData.rdDrawIKDebugLines);
 
       /* write (possibly updated) values back */
-      modSettings.msFootIKChainPair.at(0).first = leftEffektor;
+      modSettings.msFootIKChainPair.at(0).first = leftEffector;
       modSettings.msFootIKChainPair.at(0).second = leftRoot;
-      modSettings.msFootIKChainPair.at(1).first = rightEffektor;
+      modSettings.msFootIKChainPair.at(1).first = rightEffector;
       modSettings.msFootIKChainPair.at(1).second= rightRoot;
 
       currentModel->setModelSettings(modSettings);
 
       if (leftFootChainChanged) {
-        currentModel->setIkNodeChain(0, leftEffektor, leftRoot);
+        currentModel->setIkNodeChain(0, leftEffector, leftRoot);
       }
       if (rightFootChainChanged) {
-        currentModel->setIkNodeChain(1, rightEffektor, rightRoot);
+        currentModel->setIkNodeChain(1, rightEffector, rightRoot);
       }
 
       if (!renderData.rdEnableFeetIK) {

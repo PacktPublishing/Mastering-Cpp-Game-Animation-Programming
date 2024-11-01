@@ -23,11 +23,11 @@ void IKSolver::calculateOrigBoneLengths() {
 
 void IKSolver::solveFABRIKForward(glm::vec3 targetPos) {
   /* set effector to target */
-  mNodePositions.at(0) = glm::vec4(targetPos, 0.0f);
+  mNodePositions.at(0) = targetPos;
 
   for (size_t i = 1; i < mNodePositions.size(); ++i) {
-    glm::vec4 boneDirection = glm::normalize(mNodePositions.at(i) - mNodePositions.at(i - 1));
-    glm::vec4 offset = boneDirection * mBoneLengths.at(i - 1);
+    glm::vec3 boneDirection = glm::normalize(mNodePositions.at(i) - mNodePositions.at(i - 1));
+    glm::vec3 offset = boneDirection * mBoneLengths.at(i - 1);
 
     mNodePositions.at(i) = mNodePositions.at(i - 1) + offset;
   }
@@ -35,19 +35,19 @@ void IKSolver::solveFABRIKForward(glm::vec3 targetPos) {
 
 void IKSolver::solveFABRIKBackwards(glm::vec3 rootPos) {
   /* set root node back to (saved) target */
-  mNodePositions.at(mNodePositions.size() - 1) = glm::vec4(rootPos, 0.0f);
+  mNodePositions.at(mNodePositions.size() - 1) = rootPos;
 
   for (int i = mNodePositions.size() - 2; i >= 0; --i) {
-    glm::vec4 boneDirection = glm::normalize(mNodePositions.at(i) - mNodePositions.at(i + 1));
-    glm::vec4 offset = boneDirection * mBoneLengths.at(i);
+    glm::vec3 boneDirection = glm::normalize(mNodePositions.at(i) - mNodePositions.at(i + 1));
+    glm::vec3 offset = boneDirection * mBoneLengths.at(i);
 
     mNodePositions.at(i) = mNodePositions.at(i + 1) + offset;
   }
 }
 
-std::vector<glm::vec4> IKSolver::solveFARBIK(std::vector<glm::mat4>& nodeMatrices, glm::vec3 targetPos) {
+std::vector<glm::vec3> IKSolver::solveFARBIK(std::vector<glm::mat4>& nodeMatrices, glm::vec3 targetPos) {
   if (nodeMatrices.size() == 0) {
-    return std::vector<glm::vec4>{};
+    return std::vector<glm::vec3>{};
   }
 
   /* extract node positions */
@@ -60,13 +60,13 @@ std::vector<glm::vec4> IKSolver::solveFARBIK(std::vector<glm::mat4>& nodeMatrice
   calculateOrigBoneLengths();
 
   /* save position of root node for backward part */
-  glm::vec4 rootPos = mNodePositions.at(mNodePositions.size() - 1);
+  glm::vec3 rootPos = mNodePositions.at(mNodePositions.size() - 1);
 
   /* run the iterations */
   for (unsigned int i = 0; i < mIterations; ++i) {
     /* we are really close to the target, stop iterations */
-    glm::vec4 effector = mNodePositions.at(0);
-    if (glm::length(glm::vec4(targetPos, 0.0f) - effector) < mCloseThreshold) {
+    glm::vec3 effector = mNodePositions.at(0);
+    if (glm::length(targetPos - effector) < mCloseThreshold) {
       return mNodePositions;
     }
 

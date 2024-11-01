@@ -94,7 +94,7 @@ struct ModelInstanceCamData {
   levelCheckCallback micLevelCheckCallbackFunction;
   levelAddCallback micLevelAddCallbackFunction;
   levelDeleteCallback micLevelDeleteCallbackFunction;
-  levelGenerateAABBCallback micLevelGenerateAABBCallbackFunction;
+  levelGenerateLevelDataCallback micLevelGenerateLevelDataCallbackFunction;
   triangleOctreeChangeCallback micTriangleOctreeChangeCallbackFunction;
 
   ikIterationsCallback micIkIterationsCallbackFunction;
