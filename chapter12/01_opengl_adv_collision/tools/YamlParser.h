@@ -48,6 +48,7 @@ class YamlParser {
     float getMaxGroundSlopeAngle();
     float getMaxStairStepHeight();
     bool getIKEnabled();
+    int getIKNumIterations();
 
     /* saving */
     bool createConfigFile(OGLRenderData renderData, ModelInstanceCamData modInstCamData);

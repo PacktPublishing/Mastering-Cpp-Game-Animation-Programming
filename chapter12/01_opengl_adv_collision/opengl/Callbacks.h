@@ -90,4 +90,6 @@ using levelAddCallback = std::function<bool(std::string)>;
 using levelDeleteCallback = std::function<void(std::string)>;
 using levelGenerateAABBCallback = std::function<void(void)>;
 
+using ikIterationsCallback = std::function<void(int)>;
+
 using appExitCallback = std::function<void(void)>;

@@ -225,6 +225,8 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mModelInstCamData.micLevelGenerateAABBCallbackFunction = [this]() { generateLevelVertexData(); };
   mModelInstCamData.micTriangleOctreeChangeCallbackFunction = [this]() { generateLevelVertexData(); };
 
+  mModelInstCamData.micIkIterationsCallbackFunction = [this](int iterations) { mIKSolver.setNumIterations(iterations); };
+
   mRenderData.rdAppExitCallback = [this]() { doExitApplication(); };
   Logger::log(1, "%s: callbacks initialized\n", __FUNCTION__);
 
@@ -545,6 +547,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   mRenderData.rdMaxLevelGroundSlopeAngle = parser.getMaxGroundSlopeAngle();
   mRenderData.rdMaxStairstepHeight = parser.getMaxStairStepHeight();
   mRenderData.rdEnableFeetIK = parser.getIKEnabled();
+  mRenderData.rdNumberOfIkIteratons = parser.getIKNumIterations();
 
   return true;
 }

@@ -16,6 +16,7 @@ settings:
   level-collision-ground-slope: 50
   level-collision-max-stairstep-height: 2
   inverse-kinematics-enabled: true
+  inverse-kinematics-iterations: 10
 
 levels:
   - level-name: de_dust.glb
@@ -523,35 +524,19 @@ node-trees:
           - instance-random-rotation: 0
           - instance-relative-rotation: 1
     links:
-      - 10000: [21200, 22000]
-      - 10021: [18200, 20000]
-      - 10004: [4200, 5000]
-      - 10033: [34200, 35000]
-      - 10020: [15200, 28000]
-      - 10019: [29200, 31000]
-      - 10008: [14200, 2000]
-      - 10037: [41200, 44000]
-      - 10022: [26200, 18000]
-      - 10006: [7200, 8000]
-      - 10035: [36201, 40000]
-      - 10025: [19200, 29000]
-      - 10034: [31200, 36000]
-      - 10026: [0, 1000]
-      - 10013: [2202, 26000]
-      - 10001: [22200, 16000]
-      - 10030: [11200, 32000]
-      - 10017: [28200, 31000]
-      - 10018: [13200, 17000]
-      - 10032: [20200, 34000]
-      - 10003: [23200, 24000]
-      - 10029: [32200, 15000]
-      - 10009: [1200, 10000]
-      - 10038: [36200, 37000]
-      - 10012: [2201, 25000]
-      - 10041: [38200, 43000]
-      - 10024: [27200, 3000]
-      - 10011: [3200, 11000]
       - 10040: [43200, 39000]
+      - 10011: [3200, 11000]
+      - 10024: [27200, 3000]
+      - 10041: [38200, 43000]
+      - 10012: [2201, 25000]
+      - 10038: [36200, 37000]
+      - 10009: [1200, 10000]
+      - 10003: [23200, 24000]
+      - 10032: [20200, 34000]
+      - 10018: [13200, 17000]
+      - 10017: [28200, 31000]
+      - 10030: [11200, 32000]
+      - 10001: [22200, 16000]
       - 10014: [12200, 21000]
       - 10027: [17200, 33000]
       - 10039: [37200, 38000]
@@ -565,6 +550,22 @@ node-trees:
       - 10031: [33200, 19000]
       - 10028: [35200, 30000]
       - 10005: [6200, 7000]
+      - 10034: [31200, 36000]
+      - 10025: [19200, 29000]
+      - 10035: [36201, 40000]
+      - 10006: [7200, 8000]
+      - 10022: [26200, 18000]
+      - 10037: [41200, 44000]
+      - 10008: [14200, 2000]
+      - 10019: [29200, 31000]
+      - 10020: [15200, 28000]
+      - 10033: [34200, 35000]
+      - 10004: [4200, 5000]
+      - 10021: [18200, 20000]
+      - 10000: [21200, 22000]
+      - 10029: [32200, 15000]
+      - 10026: [0, 1000]
+      - 10013: [2202, 26000]
   - node-tree-name: AllRunCollisionWoman
     editor-settings: "[editor]\npanning=-612,98\n\n[node.0]\norigin=-144,33\n\n[node.9]\norigin=1014,520\n\n[node.8]\norigin=798,405\n\n[node.7]\norigin=614,896\n\n[node.6]\norigin=331,884\n\n[node.5]\norigin=557,461\n\n[node.4]\norigin=241,662\n\n[node.3]\norigin=988,-270\n\n[node.2]\norigin=530,-123\n\n[node.1]\norigin=-17,25\n\n[node.10]\norigin=157,-125\n\n[node.11]\norigin=1205,-267\n\n[node.14]\norigin=332,-131\n\n[node.17]\norigin=1218,11\n\n[node.13]\norigin=994,13\n\n[node.16]\norigin=1207,-126\n\n[node.12]\norigin=994,-128\n\n[node.30]\norigin=2075,-208\n\n[node.29]\norigin=1794,34\n\n[node.28]\norigin=1790,-183\n\n[node.27]\norigin=1785,-390\n\n[node.25]\norigin=1615,11\n\n[node.24]\norigin=1611,-131\n\n[node.19]\norigin=1603,-315\n\n[node.23]\norigin=1390,30\n\n[node.22]\norigin=1404,-124\n\n[node.21]\norigin=727,74\n\n[node.15]\norigin=1374,-284\n\n[node.20]\norigin=723,-133\n\n[node.18]\norigin=709,-345\n\n[node.26]\norigin=1009,267\n\n[node.31]\norigin=1643,243\n\n[node.32]\norigin=1265,355\n\n[node.33]\norigin=1433,393\n"
     nodes:
@@ -743,19 +744,25 @@ node-trees:
           - instance-random-rotation: 1
           - instance-relative-rotation: 1
     links:
-      - 10031: [32201, 33000]
-      - 10005: [6200, 7000]
+      - 10028: [29200, 30000]
+      - 10010: [2201, 20000]
+      - 10023: [15200, 19000]
       - 10001: [2200, 18000]
-      - 10018: [16200, 22000]
+      - 10030: [32200, 31000]
       - 10020: [25200, 29000]
       - 10007: [7201, 9000]
       - 10021: [19200, 27000]
       - 10008: [14200, 2000]
-      - 10000: [18200, 3000]
       - 10029: [26200, 32000]
+      - 10000: [18200, 3000]
+      - 10015: [13200, 17000]
+      - 10013: [12200, 16000]
+      - 10026: [27200, 30000]
       - 10017: [11200, 15000]
       - 10004: [4200, 5000]
-      - 10015: [13200, 17000]
+      - 10018: [16200, 22000]
+      - 10005: [6200, 7000]
+      - 10031: [32201, 33000]
       - 10002: [20200, 12000]
       - 10024: [23200, 25000]
       - 10022: [24200, 28000]
@@ -769,29 +776,21 @@ node-trees:
       - 10027: [28200, 30000]
       - 10014: [2202, 21000]
       - 10012: [21200, 13000]
-      - 10023: [15200, 19000]
-      - 10010: [2201, 20000]
-      - 10028: [29200, 30000]
-      - 10013: [12200, 16000]
-      - 10026: [27200, 30000]
-      - 10030: [32200, 31000]
 
 instances:
   - model-file: Woman.gltf
-    position: [42.4733772, 0, -53.3272972]
-    rotation: [0, 119.669968, 0]
+    position: [28.5176735, 0, -50.8313141]
+    rotation: [0, -67.7800293, 0]
     scale: 1
     swap-axes: false
     1st-anim-clip-number: 0
     2nd-anim-clip-number: 9
-    anim-clip-speed: 2
-    anim-blend-factor: 0
+    anim-clip-speed: 8
+    anim-blend-factor: 1
     node-tree: AllRunCollisionWoman
-    face-anim-index: 1
-    face-anim-weight: 0.590107918
   - model-file: Man.gltf
-    position: [24.0954895, 0, 25.2760677]
-    rotation: [0, 106.17012, 0]
+    position: [49.7089157, 1.56789351, 28.4596252]
+    rotation: [0, 62.6401062, 0]
     scale: 1
     swap-axes: false
     1st-anim-clip-number: 4
@@ -800,7 +799,7 @@ instances:
     anim-blend-factor: 1
     node-tree: AllRunCollisionMan
   - model-file: Woman.gltf
-    position: [9.38804436, 0, -49.2905846]
+    position: [53.3677444, 0, -45.8988152]
     rotation: [0, 85.5899963, 0]
     scale: 1
     swap-axes: false
@@ -810,18 +809,8 @@ instances:
     anim-blend-factor: 1
     node-tree: AllRunCollisionWoman
   - model-file: Woman.gltf
-    position: [48.4840317, 1.92157269, 39.7514839]
+    position: [8.54283428, 0, 48.7818718]
     rotation: [0, -77.2600098, 0]
-    scale: 1
-    swap-axes: false
-    1st-anim-clip-number: 0
-    2nd-anim-clip-number: 9
-    anim-clip-speed: 2
-    anim-blend-factor: 0
-    node-tree: AllRunCollisionWoman
-  - model-file: Woman.gltf
-    position: [4.56855345, 0, -31.2041988]
-    rotation: [0, -148.030029, 0]
     scale: 1
     swap-axes: false
     1st-anim-clip-number: 0
@@ -830,8 +819,18 @@ instances:
     anim-blend-factor: 1
     node-tree: AllRunCollisionWoman
   - model-file: Woman.gltf
-    position: [-36.9546051, 0, 21.2527466]
-    rotation: [0, -63.8200378, 0]
+    position: [-3.02830243, 0, -48.1882553]
+    rotation: [0, 39.0899658, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-36.6509781, 0, 19.3253555]
+    rotation: [0, 113.669952, 0]
     scale: 1
     swap-axes: false
     1st-anim-clip-number: 0
@@ -840,7 +839,7 @@ instances:
     anim-blend-factor: 1
     node-tree: AllRunCollisionWoman
   - model-file: Man.gltf
-    position: [13.9516735, 2.44546103, 84.8334045]
+    position: [4.52486992, 5.43471146, 132.838318]
     rotation: [0, -11.1098785, 0]
     scale: 1
     swap-axes: false
@@ -850,18 +849,18 @@ instances:
     anim-blend-factor: 1
     node-tree: AllRunCollisionMan
   - model-file: Man.gltf
-    position: [13.7684164, 1.49011612e-08, 16.4942722]
-    rotation: [0, 76.0300903, 0]
+    position: [61.2457237, 2.15419698, 47.2017555]
+    rotation: [0, 46.9000931, 0]
     scale: 1
     swap-axes: false
     1st-anim-clip-number: 4
     2nd-anim-clip-number: 22
     anim-clip-speed: 1.5
-    anim-blend-factor: 0
+    anim-blend-factor: 0.198915079
     node-tree: AllRunCollisionMan
   - model-file: Man.gltf
-    position: [-44.4054375, 5.43471146, 130.933304]
-    rotation: [0, -174.849884, 0]
+    position: [-44.2990417, 5.43471146, 132.113892]
+    rotation: [0, 5.15011597, 0]
     scale: 1
     swap-axes: false
     1st-anim-clip-number: 4

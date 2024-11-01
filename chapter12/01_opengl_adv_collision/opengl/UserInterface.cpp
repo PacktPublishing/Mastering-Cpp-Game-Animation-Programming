@@ -2160,6 +2160,14 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         ImGui::BeginDisabled();
       }
 
+      ImGui::Text("IK Iterations:  ");
+      ImGui::SameLine();
+      ImGui::PushItemWidth(300.0f);
+      ImGui::SliderInt("##IKIterations", &renderData.rdNumberOfIkIteratons, 1, 15, "%d", flags);
+      if (ImGui::IsItemDeactivatedAfterEdit()) {
+        modInstCamData.micIkIterationsCallbackFunction(renderData.rdNumberOfIkIteratons);
+      }
+
       modSettings = currentModel->getModelSettings();
 
       /* read out values to use shorter lines */

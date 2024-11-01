@@ -857,6 +857,28 @@ bool YamlParser::getIKEnabled() {
   return ikEnabled;
 }
 
+int YamlParser::getIKNumIterations() {
+  int iterations = 10;
+  if (!hasKey("settings")) {
+    Logger::log(1, "%s error: no settings found in config file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
+    return iterations;
+  }
+
+  YAML::Node settingsNode = mYamlNode["settings"];
+  try {
+    for(auto it = settingsNode.begin(); it != settingsNode.end(); ++it) {
+      if (it->first.as<std::string>() == "inverse-kinematics-iterations") {
+        iterations = it->second.as<int>();
+      }
+    }
+  } catch (...) {
+    Logger::log(1, "%s error: could not parse file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
+    return iterations;
+  }
+
+  return iterations;
+}
+
 void YamlParser::createInstanceToCamMap(ModelInstanceCamData modInstCamData) {
   mInstanceToCamMap.clear();
   for (const auto& camera : modInstCamData.micCameras) {
@@ -910,6 +932,8 @@ bool YamlParser::createConfigFile(OGLRenderData renderData, ModelInstanceCamData
   mYamlEmit << YAML::Value << renderData.rdMaxStairstepHeight;
   mYamlEmit << YAML::Key << "inverse-kinematics-enabled";
   mYamlEmit << YAML::Value << renderData.rdEnableFeetIK;
+  mYamlEmit << YAML::Key << "inverse-kinematics-iterations";
+  mYamlEmit << YAML::Value << renderData.rdNumberOfIkIteratons;
   mYamlEmit << YAML::EndMap;
   mYamlEmit << YAML::EndMap;
 

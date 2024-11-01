@@ -170,5 +170,6 @@ struct OGLRenderData {
   bool rdEnableSimpleGravity = false;
 
   bool rdEnableFeetIK = false;
+  int rdNumberOfIkIteratons = 10;
   bool rdDrawIKDebugLines = false;
 };
