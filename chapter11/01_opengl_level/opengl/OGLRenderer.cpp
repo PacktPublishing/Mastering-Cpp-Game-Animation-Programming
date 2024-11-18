@@ -614,6 +614,7 @@ void OGLRenderer::addNullModelAndInstance(){
   std::shared_ptr<AssimpInstance> nullInstance = std::make_shared<AssimpInstance>(nullModel);
   mModelInstCamData.micAssimpInstancesPerModel[nullModel->getModelFileName()].emplace_back(nullInstance);
   mModelInstCamData.micAssimpInstances.emplace_back(nullInstance);
+  enumerateInstances();
 
   /* init the central settings container */
   mModelInstCamData.micSettingsContainer.reset();
@@ -3211,15 +3212,15 @@ bool OGLRenderer::draw(float deltaTime) {
   drawInteractionDebug();
   mRenderData.rdInteractionTime = mInteractionTimer.stop();
 
-  mCollisionDebugDrawTimer.start();
-  drawCollisionDebug();
-  mRenderData.rdCollisionDebugDrawTime += mCollisionDebugDrawTimer.stop();
-
   /* check for collisions */
   mCollisionCheckTimer.start();
   checkForInstanceCollisions();
   checkForBorderCollisions();
   mRenderData.rdCollisionCheckTime += mCollisionCheckTimer.stop();
+
+  mCollisionDebugDrawTimer.start();
+  drawCollisionDebug();
+  mRenderData.rdCollisionDebugDrawTime += mCollisionDebugDrawTimer.stop();
 
   /* behavior update */
   mBehviorTimer.start();

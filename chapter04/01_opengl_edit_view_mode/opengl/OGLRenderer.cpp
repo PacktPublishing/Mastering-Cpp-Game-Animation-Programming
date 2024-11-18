@@ -186,12 +186,11 @@ void OGLRenderer::redoLastOperation() {
 }
 
 bool OGLRenderer::hasModel(std::string modelFileName) {
-  for (const auto & model : mModelInstData.miModelList) {
-    if (model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName) {
-      return true;
-    }
-  }
-  return false;
+  auto modelIter =  std::find_if(mModelInstData.miModelList.begin(), mModelInstData.miModelList.end(),
+    [modelFileName](const auto& model) {
+      return model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName;
+    });
+  return modelIter != mModelInstData.miModelList.end();
 }
 
 bool OGLRenderer::addModel(std::string modelFileName) {
@@ -680,7 +679,7 @@ bool OGLRenderer::draw(float deltaTime) {
   mProjectionMatrix = glm::perspective(
     glm::radians(static_cast<float>(mRenderData.rdFieldOfView)),
     static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight),
-    0.01f, 500.0f);
+    0.1f, 500.0f);
 
   mViewMatrix = mCamera.getViewMatrix(mRenderData);
 
@@ -908,7 +907,8 @@ bool OGLRenderer::draw(float deltaTime) {
 
   if (mRenderData.rdApplicationMode == appMode::edit) {
     mUIGenerateTimer.start();
-    mUserInterface.createFrame(mRenderData, mModelInstData, mMouseLock);
+    mUserInterface.hideMouse(mMouseLock);
+    mUserInterface.createFrame(mRenderData, mModelInstData);
     mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
   }
 

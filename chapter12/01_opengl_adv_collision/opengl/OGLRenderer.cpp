@@ -2304,7 +2304,7 @@ void OGLRenderer::checkForLevelCollisions() {
 
       /* check for slope */
       bool isWalkable = false;
-      if (glm::dot(tri.normal, glm::vec3(0.0f, 1.0f, 0.0f)) >= glm::cos(glm::radians(mRenderData.rdMaxLevelGroundSlopeAngle))) {
+      if (glm::dot(tri.normal, glm::vec3(0.0f, 1.0f, 0.0f)) >= std::cos(glm::radians(mRenderData.rdMaxLevelGroundSlopeAngle))) {
         isWalkable = true;
       }
 
@@ -3278,7 +3278,7 @@ bool OGLRenderer::draw(float deltaTime) {
             for (const auto& tri : collidingTriangles) {
               /* check for slope */
               bool isWalkable = false;
-              if (glm::dot(tri.normal, glm::vec3(0.0f, 1.0f, 0.0f)) >= glm::cos(glm::radians(mRenderData.rdMaxLevelGroundSlopeAngle))) {
+              if (glm::dot(tri.normal, glm::vec3(0.0f, 1.0f, 0.0f)) >= std::cos(glm::radians(mRenderData.rdMaxLevelGroundSlopeAngle))) {
                 isWalkable = true;
               }
 
@@ -3623,7 +3623,7 @@ bool OGLRenderer::draw(float deltaTime) {
         }
 
         mUploadToUBOTimer.start();
-        mShaderModelRootMatrixBuffer.bind(1);
+        mShaderModelRootMatrixBuffer.uploadSsboData(mWorldPosMatrices, 1);
         mSelectedInstanceBuffer.uploadSsboData(mSelectedInstance, 2);
 
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();

@@ -66,7 +66,7 @@ void Camera::updateCamera(OGLRenderData& renderData, float deltaTime) {
         float rotationAngle = 180.0f - instSettings.isWorldRotation.y;
         mCamSettings.csViewAzimuth = rotationAngle;
 
-        glm::vec3 offset = glm::vec3(-glm::sin(glm::radians(rotationAngle)), 1.0f, glm::cos(glm::radians(rotationAngle))) * mCamSettings.csThirdPersonDistance;
+        glm::vec3 offset = glm::vec3(-std::sin(glm::radians(rotationAngle)), 1.0f, std::cos(glm::radians(rotationAngle))) * mCamSettings.csThirdPersonDistance;
         offset.y += mCamSettings.csThirdPersonHeightOffset;
         mCamSettings.csWorldPosition = instSettings.isWorldPosition + offset;
 
@@ -106,10 +106,10 @@ void Camera::updateCameraView(OGLRenderData& renderData, const float deltaTime) 
   float azimRad = glm::radians(mCamSettings.csViewAzimuth);
   float elevRad = glm::radians(mCamSettings.csViewElevation);
 
-  float sinAzim = glm::sin(azimRad);
-  float cosAzim = glm::cos(azimRad);
-  float sinElev = glm::sin(elevRad);
-  float cosElev = glm::cos(elevRad);
+  float sinAzim = std::sin(azimRad);
+  float cosAzim = std::cos(azimRad);
+  float sinElev = std::sin(elevRad);
+  float cosElev = std::cos(elevRad);
 
   /* update view direction */
   mViewDirection = glm::normalize(glm::vec3(

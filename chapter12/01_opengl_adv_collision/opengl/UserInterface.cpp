@@ -1267,7 +1267,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       behavior.reset();
       ImGui::BeginDisabled();
     } else {
-      if (selectedTreeName.empty()) {
+      if (selectedTreeName.empty() || selectedTreeName == "None") {
         selectedTreeName = modInstCamData.micBehaviorData.begin()->first;
       }
       if (!behavior) {
@@ -1280,7 +1280,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::PushItemWidth(200.0f);
     if (ImGui::BeginCombo("##ModelTreeCombo", selectedTreeName.c_str())) {
       for (const auto& tree : modInstCamData.micBehaviorData) {
-        const bool isSelected = tree.first == selectedTreeName;
+        const bool isSelected = (tree.first == selectedTreeName);
         if (ImGui::Selectable(tree.first.c_str(), isSelected)) {
           selectedTreeName = tree.first;
           behavior = tree.second;
@@ -1437,18 +1437,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SameLine();
     ImGui::Checkbox("##EnableGravity", &renderData.rdEnableSimpleGravity);
 
-    ImGui::Text("Draw AABB:       ");
-    ImGui::SameLine();
-    ImGui::Checkbox("##DrawLevelAABB", &renderData.rdDrawLevelAABB);
-
-    ImGui::Text("Draw Wireframe:  ");
-    ImGui::SameLine();
-    ImGui::Checkbox("##DrawLevelWireframe", &renderData.rdDrawLevelWireframe);
-
-    ImGui::Text("Draw Collisions: ");
-    ImGui::SameLine();
-    ImGui::Checkbox("##DrawLevelCollidingTriangles", &renderData.rdDrawLevelCollisionTriangles);
-
     ImGui::Text("Draw Octree:     ");
     ImGui::SameLine();
     ImGui::Checkbox("##DrawLevelOctree", &renderData.rdDrawLevelOctree);
@@ -1466,6 +1454,18 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     if (ImGui::IsItemDeactivatedAfterEdit() || ImGui::IsItemActive()) {
       recreateLevelData = true;
     }
+
+    ImGui::Text("Draw AABB:       ");
+    ImGui::SameLine();
+    ImGui::Checkbox("##DrawLevelAABB", &renderData.rdDrawLevelAABB);
+
+    ImGui::Text("Draw Wireframe:  ");
+    ImGui::SameLine();
+    ImGui::Checkbox("##DrawLevelWireframe", &renderData.rdDrawLevelWireframe);
+
+    ImGui::Text("Draw Collisions: ");
+    ImGui::SameLine();
+    ImGui::Checkbox("##DrawLevelCollidingTriangles", &renderData.rdDrawLevelCollisionTriangles);
 
     if (!nullLevelSelected) {
       modInstCamData.micLevels.at(modInstCamData.micSelectedLevel)->setLevelSettings(settings);
@@ -2376,7 +2376,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       behavior.reset();
       ImGui::BeginDisabled();
     } else {
-      if (selectedTreeName.empty()) {
+      if (selectedTreeName.empty() || selectedTreeName == "None") {
         selectedTreeName = modInstCamData.micBehaviorData.begin()->first;
       }
       if (!behavior) {
@@ -2390,9 +2390,14 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::PushItemWidth(200.0f);
     if (ImGui::BeginCombo("##NodeTreeCombo", selectedTreeName.c_str())) {
       for (const auto& tree : modInstCamData.micBehaviorData) {
-        if (ImGui::Selectable(tree.first.c_str(), tree.first == selectedTreeName)) {
+        const bool isSelected = (tree.first == selectedTreeName);
+        if (ImGui::Selectable(tree.first.c_str(), isSelected)) {
           selectedTreeName = tree.first;
           behavior = tree.second;
+        }
+
+        if (isSelected) {
+          ImGui::SetItemDefaultFocus();
         }
       }
       ImGui::EndCombo();

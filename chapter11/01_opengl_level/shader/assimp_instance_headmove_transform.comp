@@ -92,7 +92,7 @@ vec4 slerp(vec4 a, vec4 b, float t) {
 }
 
 /* quaternion multiplication */
-vec4 qmult(vec4 a, vec4 b) {
+vec4 qMult(vec4 a, vec4 b) {
   return vec4(
     a.x * b.w + a.w * b.x + a.z * b.y - a.y * b.z,
     a.y * b.w + a.w * b.y + a.x * b.z - a.z * b.x,
@@ -191,22 +191,22 @@ void main() {
   vec4 headUpDownScale = lookupData[headUpDownClip * clipOffset + node * boneOffset + lookupWidth * 2 + headUpDownScaleLookupIndex];
 
   vec4 headLeftRightTranslationDiff = headLeftRightTranslation - headLeftRightBaseTranslation;
-  vec4 headLeftRightRotationDiff = qmult(qInverse(headLeftRightBaseRotation), headLeftRightRotation);
+  vec4 headLeftRightRotationDiff = qMult(qInverse(headLeftRightBaseRotation), headLeftRightRotation);
   vec4 headLeftRightScaleDiff = headLeftRightScale - headLeftRightBaseScale;
 
   vec4 headUpDownTranslationDiff = headUpDownTranslation - headUpDownBaseTranslation;
-  vec4 headUpDownRotationDiff = qmult(qInverse(headUpDownBaseRotation), headUpDownRotation);
+  vec4 headUpDownRotationDiff = qMult(qInverse(headUpDownBaseRotation), headUpDownRotation);
   vec4 headUpDownScaleDiff = headUpDownScale - headUpDownBaseScale;
 
   /* combine both diffs into one */
   vec4 headTranslationDiff = headLeftRightTranslationDiff + headUpDownTranslationDiff;
   vec4 headScaleDiff = headLeftRightScaleDiff + headUpDownScaleDiff;
-  vec4 headRotationDiff = qmult(headUpDownRotationDiff, headLeftRightRotationDiff);
+  vec4 headRotationDiff = qMult(headUpDownRotationDiff, headLeftRightRotationDiff);
 
   /* blend between animations */
   vec4 finalTranslation = mix(firstTranslation + headTranslationDiff, secondTranslation + headTranslationDiff, blendFactor);
   vec4 finalScale = mix(firstScale + headScaleDiff, secondScale + headScaleDiff, blendFactor);
-  vec4 finalRotation = slerp(qmult(headRotationDiff, firstRotation), qmult(headRotationDiff, secondRotation), blendFactor);
+  vec4 finalRotation = slerp(qMult(headRotationDiff, firstRotation), qMult(headRotationDiff, secondRotation), blendFactor);
 
   /* create the TRS matrix from interpolated values */
   uint index = node + numberOfBones * instance;

@@ -2,6 +2,7 @@
 #include <tuple>
 #include <map>
 #include <cctype>
+#include <limits>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -74,27 +75,29 @@ void UserInterface::createFrame(OGLRenderData &renderData) {
   mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * newFps;
 }
 
-void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanceCamData& modInstCamData, const bool hideMouse) {
-  ImGuiWindowFlags imguiWindowFlags = 0;
-  //imguiWindowFlags |= ImGuiWindowFlags_NoCollapse;
-  //imguiWindowFlags |= ImGuiWindowFlags_NoResize;
-  //imguiWindowFlags |= ImGuiWindowFlags_NoMove;
-
+void UserInterface::hideMouse(bool hide) {
   /* v1.89.8 removed the check for disabled mouse cursor in GLFW
    * we need to ignore the mouse postion if the mouse lock is active */
-  if (hideMouse) {
+  if (hide) {
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
   } else {
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
   }
+}
+
+void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanceCamData& modInstCamData) {
+  ImGuiWindowFlags imguiWindowFlags = 0;
+  //imguiWindowFlags |= ImGuiWindowFlags_NoCollapse;
+  //imguiWindowFlags |= ImGuiWindowFlags_NoResize;
+  //imguiWindowFlags |= ImGuiWindowFlags_NoMove;
 
   ImGui::SetNextWindowBgAlpha(0.8f);
 
-  /* remove dimming of background for modal dialogs */
+  /* dim background for modal dialogs */
   ImGuiStyle& style = ImGui::GetStyle();
-  style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+  style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
 
   ImGui::Begin("Control", nullptr, imguiWindowFlags);
 
@@ -474,8 +477,8 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     std::string fpsOverlay = "now:     " + std::to_string(mFramesPerSecond) + "\n30s avg: " + std::to_string(averageFPS);
     ImGui::Text("FPS");
     ImGui::SameLine();
-    ImGui::PlotLines("##FrameTimes", mFPSValues.data(), mFPSValues.size(), fpsOffset, fpsOverlay.c_str(), 0.0f, FLT_MAX,
-      ImVec2(0, 80));
+    ImGui::PlotLines("##FrameTimes", mFPSValues.data(), mFPSValues.size(), fpsOffset, fpsOverlay.c_str(), 0.0f,
+      std::numeric_limits<float>::max(), ImVec2(0, 80));
     ImGui::EndTooltip();
   }
 
@@ -519,7 +522,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Text("Frame Time       ");
       ImGui::SameLine();
       ImGui::PlotLines("##FrameTime", mFrameTimeValues.data(), mFrameTimeValues.size(), frameTimeOffset,
-        frameTimeOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        frameTimeOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -537,7 +540,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Text("VBO Upload");
       ImGui::SameLine();
       ImGui::PlotLines("##ModelUploadTimes", mModelUploadValues.data(), mModelUploadValues.size(), modelUploadOffset,
-        modelUploadOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        modelUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -555,7 +558,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Text("Matrix Generation");
       ImGui::SameLine();
       ImGui::PlotLines("##MatrixGenTimes", mMatrixGenerationValues.data(), mMatrixGenerationValues.size(), matrixGenOffset,
-        matrixGenOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        matrixGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -568,12 +571,12 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         averageMatrixUpload += value;
       }
       averageMatrixUpload /= static_cast<float>(mNumMatrixUploadValues);
-      std::string matrixUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToVBOTime)
+      std::string matrixUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToUBOTime)
         + " ms\n30s avg: " + std::to_string(averageMatrixUpload) + " ms";
       ImGui::Text("UBO Upload");
       ImGui::SameLine();
       ImGui::PlotLines("##MatrixUploadTimes", mMatrixUploadValues.data(), mMatrixUploadValues.size(), matrixUploadOffset,
-        matrixUploadOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        matrixUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -591,7 +594,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Text("UI Generation");
       ImGui::SameLine();
       ImGui::PlotLines("##UIGenTimes", mUiGenValues.data(), mUiGenValues.size(), uiGenOffset,
-        uiGenOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        uiGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -609,7 +612,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Text("UI Draw");
       ImGui::SameLine();
       ImGui::PlotLines("##UIDrawTimes", mUiDrawValues.data(), mUiDrawValues.size(), uiDrawOffset,
-        uiDrawOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        uiDrawOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -627,7 +630,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Text("Collision Debug Draw");
       ImGui::SameLine();
       ImGui::PlotLines("##CollisionDebugDrawTimes", mCollisionDebugDrawValues.data(), mCollisionDebugDrawValues.size(), collisionDebugDrawOffset,
-        collisionDebugOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        collisionDebugOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -645,7 +648,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Text("Collision Check");
       ImGui::SameLine();
       ImGui::PlotLines("##CollisionCheckTimes", mCollisionCheckValues.data(), mCollisionCheckValues.size(), collisionCheckOffset,
-        collisionCheckOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        collisionCheckOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -663,7 +666,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Text("Behavior Update");
       ImGui::SameLine();
       ImGui::PlotLines("##BehaviorUpdateTimes", mBehaviorValues.data(), mBehaviorValues.size(), behaviorOffset,
-        behaviorOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        behaviorOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -681,7 +684,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Text("Interaction Update");
       ImGui::SameLine();
       ImGui::PlotLines("##InteractionUpdateTimes", mInteractionValues.data(), mInteractionValues.size(), interactionOffset,
-        interactionOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        interactionOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -699,7 +702,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Text("Face Anim Time");
       ImGui::SameLine();
       ImGui::PlotLines("##FaceAnimTimes", mFaceAnimValues.data(), mFaceAnimValues.size(), faceAnimOffset,
-        faceAnimOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        faceAnimOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
   }
@@ -1156,7 +1159,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       behavior.reset();
       ImGui::BeginDisabled();
     } else {
-      if (selectedTreeName.empty()) {
+      if (selectedTreeName.empty() || selectedTreeName == "None") {
         selectedTreeName = modInstCamData.micBehaviorData.begin()->first;
       }
       if (!behavior) {
@@ -1169,7 +1172,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::PushItemWidth(200.0f);
     if (ImGui::BeginCombo("##ModelTreeCombo", selectedTreeName.c_str())) {
       for (const auto& tree : modInstCamData.micBehaviorData) {
-        const bool isSelected = tree.first == selectedTreeName;
+        const bool isSelected = (tree.first == selectedTreeName);
         if (ImGui::Selectable(tree.first.c_str(), isSelected)) {
           selectedTreeName = tree.first;
           behavior = tree.second;
@@ -1941,7 +1944,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       behavior.reset();
       ImGui::BeginDisabled();
     } else {
-      if (selectedTreeName.empty()) {
+      if (selectedTreeName.empty() || selectedTreeName == "None") {
         selectedTreeName = modInstCamData.micBehaviorData.begin()->first;
       }
       if (!behavior) {
@@ -1955,9 +1958,14 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::PushItemWidth(200.0f);
     if (ImGui::BeginCombo("##NodeTreeCombo", selectedTreeName.c_str())) {
       for (const auto& tree : modInstCamData.micBehaviorData) {
-        if (ImGui::Selectable(tree.first.c_str(), tree.first == selectedTreeName)) {
+        const bool isSelected = (tree.first == selectedTreeName);
+        if (ImGui::Selectable(tree.first.c_str(), isSelected)) {
           selectedTreeName = tree.first;
           behavior = tree.second;
+        }
+
+        if (isSelected) {
+          ImGui::SetItemDefaultFocus();
         }
       }
       ImGui::EndCombo();
@@ -2281,7 +2289,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Text("Collisions");
       ImGui::SameLine();
       ImGui::PlotLines("##NumCollisions", mNumCollisionsValues.data(), mNumCollisionsValues.size(), numCollisionOffset,
-        numCoillisionsOverlay.c_str(), 0.0f, FLT_MAX, ImVec2(0, 80));
+        numCoillisionsOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 

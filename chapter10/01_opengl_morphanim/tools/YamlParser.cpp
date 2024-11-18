@@ -471,7 +471,7 @@ int YamlParser::getSelectedInstanceNum() {
 }
 
 int YamlParser::getSelectedCameraNum() {
-  int selectedCameraeNum = 0;
+  int selectedCameraNum = 0;
   if (!hasKey("settings")) {
     Logger::log(1, "%s error: no settings found in config file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
     return 0;
@@ -481,7 +481,7 @@ int YamlParser::getSelectedCameraNum() {
   try {
     for(auto it = settingsNode.begin(); it != settingsNode.end(); ++it) {
       if (it->first.as<std::string>() == "selected-camera") {
-        selectedCameraeNum = it->second.as<int>();
+        selectedCameraNum = it->second.as<int>();
       }
     }
   } catch (...) {
@@ -489,7 +489,7 @@ int YamlParser::getSelectedCameraNum() {
     return 0;
   }
 
-  return selectedCameraeNum;
+  return selectedCameraNum;
 }
 
 bool YamlParser::getHighlightActivated() {

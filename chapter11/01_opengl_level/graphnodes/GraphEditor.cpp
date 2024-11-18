@@ -1,4 +1,5 @@
 #include "GraphEditor.h"
+#include <limits>
 
 #include "OGLRenderData.h"
 #include "ModelInstanceCamData.h"
@@ -126,10 +127,9 @@ void GraphEditor::createNodeEditorWindow(OGLRenderData& renderData, ModelInstanc
   std::shared_ptr<BehaviorData> behavior = mBehavior->getBehaviorData();
 
   ImGui::SetNextWindowBgAlpha(0.5f);
-  ImGui::SetNextWindowSizeConstraints(ImVec2(640, 480), ImVec2(FLT_MAX, FLT_MAX));
+  ImGui::SetNextWindowSizeConstraints(ImVec2(640, 480),
+    ImVec2(std::numeric_limits<float>::max(), std::numeric_limits<float>::max()));
 
-  std::string editorTitle = "Node Editor - " + behavior->bdName;
-  ImGui::Begin(editorTitle.c_str(), &mShowEditor);
   ImNodes::BeginNodeEditor();
 
   ImNodes::PushColorStyle(

@@ -237,7 +237,12 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   }
 
   /* restore selected model number */
-  mModelInstCamData.micSelectedModel = parser.getSelectedModelNum();
+  int selectedModel = parser.getSelectedModelNum();
+  if (selectedModel < mModelInstCamData.micModelList.size()) {
+    mModelInstCamData.micSelectedModel = selectedModel;
+  } else {
+    mModelInstCamData.micSelectedModel = 0;
+  }
 
   std::vector<ExtendedInstanceSettings> savedInstanceSettings = parser.getInstanceConfigs();
   if (savedInstanceSettings.size() == 0) {
@@ -253,54 +258,65 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   enumerateInstances();
 
   /* restore selected instance num */
-  mModelInstCamData.micSelectedInstance = parser.getSelectedInstanceNum();
+  int selectedInstance = parser.getSelectedInstanceNum();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
+    mModelInstCamData.micSelectedInstance = selectedInstance;
+  } else {
+    mModelInstCamData.micSelectedInstance = 0;
+  }
 
   /* make sure we have the default cam */
   loadDefaultFreeCam();
 
+  /* load cameras */
   std::vector<CameraSettings> savedCamSettings = parser.getCameraConfigs();
   if (savedCamSettings.size() == 0) {
-    Logger::log(1, "%s error: no cameras in file '%s', fallback to default\n", __FUNCTION__, parser.getFileName().c_str());
-  }
-
-  for (const auto& setting : savedCamSettings) {
-    /* camera instance zero is always available, just import settings */
-    if (setting.csCamName == "FreeCam") {
-      Logger::log(1, "%s: restore FreeCam\n", __FUNCTION__);
-      mModelInstCamData.micCameras.at(0)->setCameraSettings(setting);
-    } else {
-      Logger::log(1, "%s: restore camera %s\n", __FUNCTION__, setting.csCamName.c_str());
-      std::shared_ptr<Camera> newCam = std::make_shared<Camera>();
-      newCam->setCameraSettings(setting);
-      mModelInstCamData.micCameras.emplace_back(newCam);
+    Logger::log(1, "%s warning: no cameras in file '%s', fallback to default\n", __FUNCTION__, parser.getFileName().c_str());
+  } else {
+    for (const auto& setting : savedCamSettings) {
+      /* camera instance zero is always available, just import settings */
+      if (setting.csCamName == "FreeCam") {
+        Logger::log(1, "%s: restore FreeCam\n", __FUNCTION__);
+        mModelInstCamData.micCameras.at(0)->setCameraSettings(setting);
+      } else {
+        Logger::log(1, "%s: restore camera %s\n", __FUNCTION__, setting.csCamName.c_str());
+        std::shared_ptr<Camera> newCam = std::make_shared<Camera>();
+        newCam->setCameraSettings(setting);
+        mModelInstCamData.micCameras.emplace_back(newCam);
+      }
     }
-  }
 
-  /* now try to set the camera targets back to the chosen instances */
-  for (int i = 0; i < savedInstanceSettings.size(); ++i) {
-    if (!savedInstanceSettings.at(i).eisCameraNames.empty()) {
-      for (const auto& camName : savedInstanceSettings.at(i).eisCameraNames) {
-        /* skip over null instance */
-        int instanceId = i + 1;
+    /* now try to set the camera targets back to the chosen instances */
+    for (int i = 0; i < savedInstanceSettings.size(); ++i) {
+      if (!savedInstanceSettings.at(i).eisCameraNames.empty()) {
+        for (const auto& camName : savedInstanceSettings.at(i).eisCameraNames) {
+          /* skip over null instance */
+          int instanceId = i + 1;
 
-        /* double check */
-        if (instanceId < mModelInstCamData.micAssimpInstances.size()) {
-          Logger::log(1, "%s: restore camera instance settings for instance %i (cam: %s)\n", __FUNCTION__, instanceId, camName.c_str());
-          std::shared_ptr<AssimpInstance> instanceToFollow = mModelInstCamData.micAssimpInstances.at(instanceId);
+          /* double check */
+          if (instanceId < mModelInstCamData.micAssimpInstances.size()) {
+            Logger::log(1, "%s: restore camera instance settings for instance %i (cam: %s)\n", __FUNCTION__, instanceId, camName.c_str());
+            std::shared_ptr<AssimpInstance> instanceToFollow = mModelInstCamData.micAssimpInstances.at(instanceId);
 
-          auto iter = std::find_if(mModelInstCamData.micCameras.begin(), mModelInstCamData.micCameras.end(), [camName](std::shared_ptr<Camera> cam) {
-            return cam->getCameraSettings().csCamName == camName;
-          });
-          if (iter != mModelInstCamData.micCameras.end()) {
-            (*iter)->setInstanceToFollow(instanceToFollow);
+            auto iter = std::find_if(mModelInstCamData.micCameras.begin(), mModelInstCamData.micCameras.end(), [camName](std::shared_ptr<Camera> cam) {
+              return cam->getCameraSettings().csCamName == camName;
+            });
+            if (iter != mModelInstCamData.micCameras.end()) {
+              (*iter)->setInstanceToFollow(instanceToFollow);
+            }
           }
         }
       }
     }
-  }
 
-  /* restore selected camera num */
-  mModelInstCamData.micSelectedCamera = parser.getSelectedCameraNum();
+    /* restore selected camera num */
+    int selectedCamera = parser.getSelectedCameraNum();
+    if (selectedCamera < mModelInstCamData.micCameras.size()) {
+      mModelInstCamData.micSelectedCamera = selectedCamera;
+    } else {
+      mModelInstCamData.micSelectedCamera = 0;
+    }
+  }
 
   /* restore hightlight status, set default edit mode */
   mRenderData.rdHighlightSelectedInstance = parser.getHighlightActivated();
@@ -391,6 +407,7 @@ void OGLRenderer::addNullModelAndInstance(){
   std::shared_ptr<AssimpInstance> nullInstance = std::make_shared<AssimpInstance>(nullModel);
   mModelInstCamData.micAssimpInstancesPerModel[nullModel->getModelFileName()].emplace_back(nullInstance);
   mModelInstCamData.micAssimpInstances.emplace_back(nullInstance);
+  enumerateInstances();
 
   /* init the central settings container */
   mModelInstCamData.micSettingsContainer.reset();
@@ -456,19 +473,20 @@ void OGLRenderer::loadDefaultFreeCam() {
 }
 
 bool OGLRenderer::hasModel(std::string modelFileName) {
-  for (const auto & model : mModelInstCamData.micModelList) {
-    if (model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName) {
-      return true;
-    }
-  }
-  return false;
+  auto modelIter =  std::find_if(mModelInstCamData.micModelList.begin(), mModelInstCamData.micModelList.end(),
+    [modelFileName](const auto& model) {
+      return model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName;
+    });
+  return modelIter != mModelInstCamData.micModelList.end();
 }
 
 std::shared_ptr<AssimpModel> OGLRenderer::getModel(std::string modelFileName) {
-  for (const auto & model : mModelInstCamData.micModelList) {
-    if (model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName) {
-      return model;;
-    }
+  auto modelIter =  std::find_if(mModelInstCamData.micModelList.begin(), mModelInstCamData.micModelList.end(),
+    [modelFileName](const auto& model) {
+      return model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName;
+    });
+  if (modelIter != mModelInstCamData.micModelList.end()) {
+    return *modelIter;
   }
   return nullptr;
 }
@@ -1405,7 +1423,7 @@ bool OGLRenderer::draw(float deltaTime) {
     mProjectionMatrix = glm::perspective(
       glm::radians(static_cast<float>(camSettings.csFieldOfView)),
       static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight),
-      0.01f, 500.0f);
+      0.1f, 500.0f);
   } else {
     float orthoScaling = camSettings.csOrthoScale;
     float aspect = static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight) * orthoScaling;
@@ -1687,16 +1705,13 @@ bool OGLRenderer::draw(float deltaTime) {
   /* create user interface */
   mUIGenerateTimer.start();
   mUserInterface.createFrame(mRenderData);
-  mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
 
   if (mRenderData.rdApplicationMode != appMode::view) {
-    mUIGenerateTimer.start();
-    mUserInterface.createSettingsWindow(mRenderData, mModelInstCamData, mMouseLock);
-    mRenderData.rdUIGenerateTime += mUIGenerateTimer.stop();
+    mUserInterface.hideMouse(mMouseLock);
+    mUserInterface.createSettingsWindow(mRenderData, mModelInstCamData);
   }
 
   /* always draw the status bar */
-  mUIGenerateTimer.start();
   mUserInterface.createStatusBar(mRenderData, mModelInstCamData);
   mRenderData.rdUIGenerateTime += mUIGenerateTimer.stop();
 

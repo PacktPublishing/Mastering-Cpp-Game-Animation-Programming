@@ -199,8 +199,21 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
 
   enumerateInstances();
 
-  mModelInstData.miSelectedModel = parser.getSelectedModelNum();
-  mModelInstData.miSelectedInstance = parser.getSelectedInstanceNum();
+  /* restore selected model number */
+  int selectedModel = parser.getSelectedModelNum();
+  if (selectedModel < mModelInstData.miModelList.size()) {
+    mModelInstData.miSelectedModel = selectedModel;
+  } else {
+    mModelInstData.miSelectedModel = 0;
+  }
+
+  /* restore selected instance num */
+  int selectedInstance = parser.getSelectedInstanceNum();
+  if (selectedInstance < mModelInstData.miAssimpInstances.size()) {
+    mModelInstData.miSelectedInstance = selectedInstance;
+  } else {
+    mModelInstData.miSelectedInstance = 0;
+  }
 
   mRenderData.rdHighlightSelectedInstance = parser.getHighlightActivated();
 
@@ -280,6 +293,7 @@ void OGLRenderer::addNullModelAndInstance(){
   std::shared_ptr<AssimpInstance> nullInstance = std::make_shared<AssimpInstance>(nullModel);
   mModelInstData.miAssimpInstancesPerModel[nullModel->getModelFileName()].emplace_back(nullInstance);
   mModelInstData.miAssimpInstances.emplace_back(nullInstance);
+  enumerateInstances();
 
   /* init the central settings container */
   mModelInstData.miSettingsContainer.reset();
@@ -332,19 +346,20 @@ void OGLRenderer::removeAllModelsAndInstances() {
 }
 
 bool OGLRenderer::hasModel(std::string modelFileName) {
-  for (const auto & model : mModelInstData.miModelList) {
-    if (model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName) {
-      return true;
-    }
-  }
-  return false;
+  auto modelIter =  std::find_if(mModelInstData.miModelList.begin(), mModelInstData.miModelList.end(),
+    [modelFileName](const auto& model) {
+      return model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName;
+    });
+  return modelIter != mModelInstData.miModelList.end();
 }
 
 std::shared_ptr<AssimpModel> OGLRenderer::getModel(std::string modelFileName) {
-  for (const auto & model : mModelInstData.miModelList) {
-    if (model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName) {
-      return model;;
-    }
+  auto modelIter =  std::find_if(mModelInstData.miModelList.begin(), mModelInstData.miModelList.end(),
+    [modelFileName](const auto& model) {
+      return model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName;
+    });
+  if (modelIter != mModelInstData.miModelList.end()) {
+    return *modelIter;
   }
   return nullptr;
 }
@@ -1009,7 +1024,7 @@ bool OGLRenderer::draw(float deltaTime) {
   mProjectionMatrix = glm::perspective(
     glm::radians(static_cast<float>(mRenderData.rdFieldOfView)),
     static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight),
-    0.01f, 500.0f);
+    0.1f, 500.0f);
 
   mViewMatrix = mCamera.getViewMatrix(mRenderData);
 
@@ -1238,7 +1253,8 @@ bool OGLRenderer::draw(float deltaTime) {
 
   if (mRenderData.rdApplicationMode == appMode::edit) {
     mUIGenerateTimer.start();
-    mUserInterface.createFrame(mRenderData, mModelInstData, mMouseLock);
+    mUserInterface.hideMouse(mMouseLock);
+    mUserInterface.createFrame(mRenderData, mModelInstData);
     mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
   }
 

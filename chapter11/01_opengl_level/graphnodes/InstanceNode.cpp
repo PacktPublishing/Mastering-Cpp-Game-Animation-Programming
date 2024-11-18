@@ -202,9 +202,6 @@ void InstanceNode::draw(ModelInstanceCamData modInstCamData) {
     ImGui::EndDisabled();
   }
   ImNodes::EndStaticAttribute();
-  ImNodes::BeginStaticAttribute(staticIds++);
-  ImGui::Checkbox("Random Rotataion", &mRandomRot);
-  ImNodes::EndStaticAttribute();
 
   /* New position */
   ImNodes::BeginStaticAttribute(staticIds++);

@@ -343,7 +343,12 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   }
 
   /* restore selected model number */
-  mModelInstCamData.micSelectedModel = parser.getSelectedModelNum();
+  int selectedModel = parser.getSelectedModelNum();
+  if (selectedModel < mModelInstCamData.micModelList.size()) {
+    mModelInstCamData.micSelectedModel = selectedModel;
+  } else {
+    mModelInstCamData.micSelectedModel = 0;
+  }
 
   /* get node trees for behavior, needed to be set (copied) in instances */
   std::vector<EnhancedBehaviorData> behaviorData = parser.getBehaviorData();
@@ -401,7 +406,12 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   enumerateInstances();
 
   /* restore selected instance num */
-  mModelInstCamData.micSelectedInstance = parser.getSelectedInstanceNum();
+  int selectedInstance = parser.getSelectedInstanceNum();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
+    mModelInstCamData.micSelectedInstance = selectedInstance;
+  } else {
+    mModelInstCamData.micSelectedInstance = 0;
+  }
 
   /* restore behavior data after IDs are restored */
   for (auto& instance : mModelInstCamData.micAssimpInstances) {
@@ -417,47 +427,52 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   /* load cameras */
   std::vector<CameraSettings> savedCamSettings = parser.getCameraConfigs();
   if (savedCamSettings.size() == 0) {
-    Logger::log(1, "%s error: no cameras in file '%s', fallback to default\n", __FUNCTION__, parser.getFileName().c_str());
-  }
-
-  for (const auto& setting : savedCamSettings) {
-    /* camera instance zero is always available, just import settings */
-    if (setting.csCamName == "FreeCam") {
-      Logger::log(1, "%s: restore FreeCam\n", __FUNCTION__);
-      mModelInstCamData.micCameras.at(0)->setCameraSettings(setting);
-    } else {
-      Logger::log(1, "%s: restore camera %s\n", __FUNCTION__, setting.csCamName.c_str());
-      std::shared_ptr<Camera> newCam = std::make_shared<Camera>();
-      newCam->setCameraSettings(setting);
-      mModelInstCamData.micCameras.emplace_back(newCam);
+    Logger::log(1, "%s warning: no cameras in file '%s', fallback to default\n", __FUNCTION__, parser.getFileName().c_str());
+  } else {
+    for (const auto& setting : savedCamSettings) {
+      /* camera instance zero is always available, just import settings */
+      if (setting.csCamName == "FreeCam") {
+        Logger::log(1, "%s: restore FreeCam\n", __FUNCTION__);
+        mModelInstCamData.micCameras.at(0)->setCameraSettings(setting);
+      } else {
+        Logger::log(1, "%s: restore camera %s\n", __FUNCTION__, setting.csCamName.c_str());
+        std::shared_ptr<Camera> newCam = std::make_shared<Camera>();
+        newCam->setCameraSettings(setting);
+        mModelInstCamData.micCameras.emplace_back(newCam);
+      }
     }
-  }
 
-  /* now try to set the camera targets back to the chosen instances */
-  for (int i = 0; i < savedInstanceSettings.size(); ++i) {
-    if (!savedInstanceSettings.at(i).eisCameraNames.empty()) {
-      for (const auto& camName : savedInstanceSettings.at(i).eisCameraNames) {
-        /* skip over null instance */
-        int instanceId = i + 1;
+    /* now try to set the camera targets back to the chosen instances */
+    for (int i = 0; i < savedInstanceSettings.size(); ++i) {
+      if (!savedInstanceSettings.at(i).eisCameraNames.empty()) {
+        for (const auto& camName : savedInstanceSettings.at(i).eisCameraNames) {
+          /* skip over null instance */
+          int instanceId = i + 1;
 
-        /* double check */
-        if (instanceId < mModelInstCamData.micAssimpInstances.size()) {
-          Logger::log(1, "%s: restore camera instance settings for instance %i (cam: %s)\n", __FUNCTION__, instanceId, camName.c_str());
-          std::shared_ptr<AssimpInstance> instanceToFollow = mModelInstCamData.micAssimpInstances.at(instanceId);
+          /* double check */
+          if (instanceId < mModelInstCamData.micAssimpInstances.size()) {
+            Logger::log(1, "%s: restore camera instance settings for instance %i (cam: %s)\n", __FUNCTION__, instanceId, camName.c_str());
+            std::shared_ptr<AssimpInstance> instanceToFollow = mModelInstCamData.micAssimpInstances.at(instanceId);
 
-          auto iter = std::find_if(mModelInstCamData.micCameras.begin(), mModelInstCamData.micCameras.end(), [camName](std::shared_ptr<Camera> cam) {
-            return cam->getCameraSettings().csCamName == camName;
-          });
-          if (iter != mModelInstCamData.micCameras.end()) {
-            (*iter)->setInstanceToFollow(instanceToFollow);
+            auto iter = std::find_if(mModelInstCamData.micCameras.begin(), mModelInstCamData.micCameras.end(), [camName](std::shared_ptr<Camera> cam) {
+              return cam->getCameraSettings().csCamName == camName;
+            });
+            if (iter != mModelInstCamData.micCameras.end()) {
+              (*iter)->setInstanceToFollow(instanceToFollow);
+            }
           }
         }
       }
     }
-  }
 
-  /* restore selected camera num */
-  mModelInstCamData.micSelectedCamera = parser.getSelectedCameraNum();
+    /* restore selected camera num */
+    int selectedCamera = parser.getSelectedCameraNum();
+    if (selectedCamera < mModelInstCamData.micCameras.size()) {
+      mModelInstCamData.micSelectedCamera = selectedCamera;
+    } else {
+      mModelInstCamData.micSelectedCamera = 0;
+    }
+  }
 
   /* restore hightlight status, set default edit mode */
   mRenderData.rdHighlightSelectedInstance = parser.getHighlightActivated();
@@ -555,6 +570,7 @@ void OGLRenderer::addNullModelAndInstance(){
   std::shared_ptr<AssimpInstance> nullInstance = std::make_shared<AssimpInstance>(nullModel);
   mModelInstCamData.micAssimpInstancesPerModel[nullModel->getModelFileName()].emplace_back(nullInstance);
   mModelInstCamData.micAssimpInstances.emplace_back(nullInstance);
+  enumerateInstances();
 
   /* init the central settings container */
   mModelInstCamData.micSettingsContainer.reset();
@@ -637,19 +653,20 @@ void OGLRenderer::loadDefaultFreeCam() {
 }
 
 bool OGLRenderer::hasModel(std::string modelFileName) {
-  for (const auto & model : mModelInstCamData.micModelList) {
-    if (model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName) {
-      return true;
-    }
-  }
-  return false;
+  auto modelIter =  std::find_if(mModelInstCamData.micModelList.begin(), mModelInstCamData.micModelList.end(),
+    [modelFileName](const auto& model) {
+      return model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName;
+    });
+  return modelIter != mModelInstCamData.micModelList.end();
 }
 
 std::shared_ptr<AssimpModel> OGLRenderer::getModel(std::string modelFileName) {
-  for (const auto & model : mModelInstCamData.micModelList) {
-    if (model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName) {
-      return model;;
-    }
+  auto modelIter =  std::find_if(mModelInstCamData.micModelList.begin(), mModelInstCamData.micModelList.end(),
+    [modelFileName](const auto& model) {
+      return model->getModelFileNamePath() == modelFileName || model->getModelFileName() == modelFileName;
+    });
+  if (modelIter != mModelInstCamData.micModelList.end()) {
+    return *modelIter;
   }
   return nullptr;
 }
@@ -910,26 +927,16 @@ void OGLRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
 /* keep scaling and axis flipping */
 void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int numClones){
   std::shared_ptr<AssimpModel> model = instance->getModel();
-  size_t animClipNum = model->getAnimClips().size();
   std::vector<std::shared_ptr<AssimpInstance>> newInstances;
   for (int i = 0; i < numClones; ++i) {
     int xPos = std::rand() % 250 - 125;
     int zPos = std::rand() % 250 - 125;
     int rotation = std::rand() % 360 - 180;
 
-    int clipNr = std::rand() % animClipNum;
-    float animSpeed = (std::rand() % 50 + 75) / 100.0f;
-
     std::shared_ptr<AssimpInstance> newInstance = std::make_shared<AssimpInstance>(model);
     InstanceSettings instSettings = instance->getInstanceSettings();
     instSettings.isWorldPosition = glm::vec3(xPos, 0.0f, zPos);
     instSettings.isWorldRotation = glm::vec3(0.0f, rotation, 0.0f);
-    if (animClipNum > 0) {
-      instSettings.isFirstAnimClipNr = clipNr;
-      instSettings.isSecondAnimClipNr = clipNr;
-      instSettings.isAnimSpeedFactor = animSpeed;
-      instSettings.isAnimBlendFactor = 0.0f;
-    }
 
     newInstance->setInstanceSettings(instSettings);
 
@@ -1872,67 +1879,65 @@ void OGLRenderer::handleMovementKeys(float deltaTime) {
 }
 
 void OGLRenderer::checkForInstanceCollisions() {
-  mCollisionCheckTimer.start();
-
   /* get bounding box intersections */
   mModelInstCamData.micInstanceCollisions = mQuadtree->findAllIntersections();
 
-  mBoundingSpheresPerInstance.clear();
+  if (mRenderData.rdCheckCollisions == collisionChecks::boundingSpheres) {
+    mBoundingSpheresPerInstance.clear();
 
-  /* calculate collision spheres per model */
-  std::map<std::string, std::set<int>> modelToInstanceMapping;
+    /* calculate collision spheres per model */
+    std::map<std::string, std::set<int>> modelToInstanceMapping;
 
-  for (const auto& instancePairs : mModelInstCamData.micInstanceCollisions) {
-    modelToInstanceMapping[mModelInstCamData.micAssimpInstances.at(instancePairs.first)->getModel()->getModelFileName()].insert(instancePairs.first);
-    modelToInstanceMapping[mModelInstCamData.micAssimpInstances.at(instancePairs.second)->getModel()->getModelFileName()].insert(instancePairs.second);
-  }
-
-  for (const auto& collisionInstances : modelToInstanceMapping) {
-    std::shared_ptr<AssimpModel> model = getModel(collisionInstances.first);
-    if (!model->hasAnimations()) {
-      continue;
+    for (const auto& instancePairs : mModelInstCamData.micInstanceCollisions) {
+      modelToInstanceMapping[mModelInstCamData.micAssimpInstances.at(instancePairs.first)->getModel()->getModelFileName()].insert(instancePairs.first);
+      modelToInstanceMapping[mModelInstCamData.micAssimpInstances.at(instancePairs.second)->getModel()->getModelFileName()].insert(instancePairs.second);
     }
 
-    size_t numInstances = collisionInstances.second.size();
-    std::vector<int> instanceIds = std::vector(collisionInstances.second.begin(), collisionInstances.second.end());
+    for (const auto& collisionInstances : modelToInstanceMapping) {
+      std::shared_ptr<AssimpModel> model = getModel(collisionInstances.first);
+      if (!model->hasAnimations()) {
+        continue;
+      }
 
-    size_t numberOfBones = model->getBoneList().size();
+      size_t numInstances = collisionInstances.second.size();
+      std::vector<int> instanceIds = std::vector(collisionInstances.second.begin(), collisionInstances.second.end());
 
-    size_t numberOfSpheres = numInstances * numberOfBones;
-    size_t trsMatrixSize = numInstances * numberOfBones * sizeof(glm::mat4);
+      size_t numberOfBones = model->getBoneList().size();
 
-    mPerInstanceAnimData.resize(numInstances);
+      size_t numberOfSpheres = numInstances * numberOfBones;
+      size_t trsMatrixSize = numInstances * numberOfBones * sizeof(glm::mat4);
 
-    /* we MUST set the bone offsets to identity matrices to get the skeleton data */
-    std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
-    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
+      mPerInstanceAnimData.resize(numInstances);
 
-    /* reusing the array and SSBO for now */
-    mWorldPosMatrices.resize(numInstances);
+      /* we MUST set the bone offsets to identity matrices to get the skeleton data */
+      std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
+      mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
 
-    mShaderBoneMatrixBuffer.checkForResize(trsMatrixSize);
-    mShaderTRSMatrixBuffer.checkForResize(trsMatrixSize);
+      /* reusing the array and SSBO for now */
+      mWorldPosMatrices.resize(numInstances);
 
-    mBoundingSphereBuffer.checkForResize(numberOfSpheres * sizeof(glm::vec4));
+      mShaderBoneMatrixBuffer.checkForResize(trsMatrixSize);
+      mShaderTRSMatrixBuffer.checkForResize(trsMatrixSize);
 
-    for (size_t i = 0; i < numInstances; ++i) {
-      InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(instanceIds.at(i))->getInstanceSettings();
+      mBoundingSphereBuffer.checkForResize(numberOfSpheres * sizeof(glm::vec4));
 
-      PerInstanceAnimData animData{};
-      animData.firstAnimClipNum = instSettings.isFirstAnimClipNr;
-      animData.secondAnimClipNum = instSettings.isSecondAnimClipNr;
-      animData.firstClipReplayTimestamp = instSettings.isFirstClipAnimPlayTimePos;
-      animData.secondClipReplayTimestamp = instSettings.isSecondClipAnimPlayTimePos;
-      animData.blendFactor = instSettings.isAnimBlendFactor;
+      for (size_t i = 0; i < numInstances; ++i) {
+        InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(instanceIds.at(i))->getInstanceSettings();
 
-      mPerInstanceAnimData.at(i) = animData;
+        PerInstanceAnimData animData{};
+        animData.firstAnimClipNum = instSettings.isFirstAnimClipNr;
+        animData.secondAnimClipNum = instSettings.isSecondAnimClipNr;
+        animData.firstClipReplayTimestamp = instSettings.isFirstClipAnimPlayTimePos;
+        animData.secondClipReplayTimestamp = instSettings.isSecondClipAnimPlayTimePos;
+        animData.blendFactor = instSettings.isAnimBlendFactor;
 
-      mWorldPosMatrices.at(i) = mModelInstCamData.micAssimpInstances.at(instanceIds.at(i))->getWorldTransformMatrix();
-    }
+        mPerInstanceAnimData.at(i) = animData;
 
-    runBoundingSphereComputeShaders(model, numberOfBones, numInstances);
+        mWorldPosMatrices.at(i) = mModelInstCamData.micAssimpInstances.at(instanceIds.at(i))->getWorldTransformMatrix();
+      }
 
-    if (mRenderData.rdCheckCollisions == collisionChecks::boundingSpheres) {
+      runBoundingSphereComputeShaders(model, numberOfBones, numInstances);
+
       /* read sphere SSBO per model */
       std::vector<glm::vec4> boundingSpheres = mBoundingSphereBuffer.getSsboDataVec4(numberOfSpheres);
 
@@ -1944,11 +1949,10 @@ void OGLRenderer::checkForInstanceCollisions() {
         std::copy(boundingSpheres.begin() + i * numberOfBones, boundingSpheres.begin() + (i + 1) * numberOfBones, mBoundingSpheresPerInstance[instanceIndex].begin());
       }
     }
-  }
 
-  if (mRenderData.rdCheckCollisions == collisionChecks::boundingSpheres) {
     checkForBoundingSphereCollisions();
   }
+
   size_t remainingCollisions = mModelInstCamData.micInstanceCollisions.size();
 
   if (mRenderData.rdDrawBoundingSpheres == collisionDebugDraw::colliding && remainingCollisions > 0) {
@@ -1961,32 +1965,30 @@ void OGLRenderer::checkForInstanceCollisions() {
   if (mRenderData.rdCheckCollisions != collisionChecks::none) {
     reactToInstanceCollisions();
   }
-
-  mRenderData.rdCollisionCheckTime += mCollisionCheckTimer.stop();
 }
 
 void OGLRenderer::checkForBorderCollisions() {
-  mCollisionCheckTimer.start();
-  std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstances;
-  for (size_t i = 0; i < instances.size(); ++i) {
-    /* skip null instance*/
-    if (i == 0) {
+  for (const auto& instancesPerModel : mModelInstCamData.micAssimpInstancesPerModel) {
+    std::shared_ptr<AssimpModel> model = getModel(instancesPerModel.first);
+    /* non-animated models have no lookup data */
+    if (!model || !model->hasAnimations()) {
       continue;
     }
 
-    std::shared_ptr<AssimpModel> model = instances.at(i)->getModel();
-    InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
+    std::vector<std::shared_ptr<AssimpInstance>> instances = instancesPerModel.second;
+    for (size_t i = 0; i < instances.size(); ++i) {
+      InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
 
-    /* check world borders */
-    AABB instanceAABB = model->getAABB(instSettings);
-    glm::vec3 minPos = instanceAABB.getMinPos();
-    glm::vec3 maxPos = instanceAABB.getMaxPos();
-    if (minPos.x < mWorldBoundaries->getTopLeft().x || maxPos.x > mWorldBoundaries->getRight() ||
+      /* check world borders */
+      AABB instanceAABB = model->getAABB(instSettings);
+      glm::vec3 minPos = instanceAABB.getMinPos();
+      glm::vec3 maxPos = instanceAABB.getMaxPos();
+      if (minPos.x < mWorldBoundaries->getTopLeft().x || maxPos.x > mWorldBoundaries->getRight() ||
         minPos.z < mWorldBoundaries->getTopLeft().y || maxPos.z > mWorldBoundaries->getBottom()) {
-      mModelInstCamData.micNodeEventCallbackFunction(instSettings.isInstanceIndexPosition, nodeEvent::instanceToEdgeCollision);
+        mModelInstCamData.micNodeEventCallbackFunction(instSettings.isInstanceIndexPosition, nodeEvent::instanceToEdgeCollision);
+      }
     }
   }
-  mRenderData.rdCollisionCheckTime += mCollisionCheckTimer.stop();
 }
 
 void OGLRenderer::checkForBoundingSphereCollisions() {
@@ -2285,7 +2287,8 @@ void OGLRenderer::drawAABBs(std::vector<std::shared_ptr<AssimpInstance>> instanc
   std::shared_ptr<OGLLineMesh> aabbLineMesh = nullptr;;
 
   mAABBMesh->vertices.clear();
-  mAABBMesh->vertices.resize((instances.size() + 1) * mSphereMesh.vertices.size());
+  AABB instanceAABB;
+  mAABBMesh->vertices.resize(instances.size() * instanceAABB.getAABBLines(aabbColor)->vertices.size());
 
   for (size_t i = 0; i < instances.size(); ++i) {
     InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
@@ -2297,11 +2300,12 @@ void OGLRenderer::drawAABBs(std::vector<std::shared_ptr<AssimpInstance>> instanc
 
     std::shared_ptr<AssimpModel> model = instances.at(i)->getModel();
 
-    AABB instanceAABB = model->getAABB(instSettings);
+    instanceAABB = model->getAABB(instSettings);
     aabbLineMesh = instanceAABB.getAABBLines(aabbColor);
 
     if (aabbLineMesh) {
-      std::copy(aabbLineMesh->vertices.begin(), aabbLineMesh->vertices.end(), mAABBMesh->vertices.begin() + (i + 1) * aabbLineMesh->vertices.size());
+      std::copy(aabbLineMesh->vertices.begin(), aabbLineMesh->vertices.end(),
+        mAABBMesh->vertices.begin() + i * aabbLineMesh->vertices.size());
     }
   }
 
@@ -2319,7 +2323,6 @@ void OGLRenderer::drawCollisionDebug() {
   /* draw AABB lines and bounding sphere of selected instance */
   if (mRenderData.rdDrawCollisionAABBs == collisionDebugDraw::colliding ||
       mRenderData.rdDrawCollisionAABBs == collisionDebugDraw::all) {
-    mCollisionDebugDrawTimer.start();
     std::set<int> uniqueInstanceIds;
 
     for (const auto& colliding : mModelInstCamData.micInstanceCollisions) {
@@ -2347,7 +2350,6 @@ void OGLRenderer::drawCollisionDebug() {
       aabbColor = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
       drawAABBs(instancestoDraw, aabbColor);
     }
-    mRenderData.rdCollisionDebugDrawTime += mCollisionDebugDrawTimer.stop();
   }
 
   /* no bounding sphere collision will be done with this setting, so run the computer shaders just for the selected instance */
@@ -2638,7 +2640,7 @@ bool OGLRenderer::draw(float deltaTime) {
     mProjectionMatrix = glm::perspective(
       glm::radians(static_cast<float>(camSettings.csFieldOfView)),
       static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight),
-      0.01f, 500.0f);
+      0.1f, 500.0f);
   } else {
     float orthoScaling = camSettings.csOrthoScale;
     float aspect = static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight) * orthoScaling;
@@ -3006,11 +3008,15 @@ bool OGLRenderer::draw(float deltaTime) {
   drawInteractionDebug();
   mRenderData.rdInteractionTime = mInteractionTimer.stop();
 
-  drawCollisionDebug();
-
   /* check for collisions */
+  mCollisionCheckTimer.start();
   checkForInstanceCollisions();
   checkForBorderCollisions();
+  mRenderData.rdCollisionCheckTime += mCollisionCheckTimer.stop();
+
+  mCollisionDebugDrawTimer.start();
+  drawCollisionDebug();
+  mRenderData.rdCollisionDebugDrawTime += mCollisionDebugDrawTimer.stop();
 
   /* behavior update */
   mBehviorTimer.start();
@@ -3030,7 +3036,8 @@ bool OGLRenderer::draw(float deltaTime) {
   mUserInterface.createFrame(mRenderData);
 
   if (mRenderData.rdApplicationMode != appMode::view) {
-    mUserInterface.createSettingsWindow(mRenderData, mModelInstCamData, mMouseLock);
+    mUserInterface.hideMouse(mMouseLock);
+    mUserInterface.createSettingsWindow(mRenderData, mModelInstCamData);
   }
 
   /* always draw the status bar and instance positions window */

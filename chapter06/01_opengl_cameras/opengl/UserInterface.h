@@ -12,9 +12,10 @@
 class UserInterface {
   public:
     void init(OGLRenderData &renderData);
+    void hideMouse(bool hide);
 
     void createFrame(OGLRenderData& renderData);
-    void createSettingsWindow(OGLRenderData &renderData, ModelInstanceCamData &modInstCamData, const bool hideMouse);
+    void createSettingsWindow(OGLRenderData &renderData, ModelInstanceCamData &modInstCamData);
     void createStatusBar(OGLRenderData &renderData, ModelInstanceCamData &modInstCamData);
 
     void render();

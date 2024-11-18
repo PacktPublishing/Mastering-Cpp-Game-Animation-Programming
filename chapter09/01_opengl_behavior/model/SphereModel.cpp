@@ -24,9 +24,9 @@ void SphereModel::init() {
       float amzimuth = glm::radians(360.0f / mHorDiv) * j;
 
       ringData.emplace_back(glm::vec3(
-        glm::sin(amzimuth) * glm::cos(elevation) * mRadius,
-        glm::sin(elevation) * mRadius,
-        glm::cos(amzimuth) * glm::cos(elevation) * mRadius
+        std::sin(amzimuth) * std::cos(elevation) * mRadius,
+        std::sin(elevation) * mRadius,
+        std::cos(amzimuth) * std::cos(elevation) * mRadius
       ));
     }
     constructionVertexData.push_back(ringData);

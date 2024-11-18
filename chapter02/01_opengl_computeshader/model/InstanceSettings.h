@@ -5,9 +5,6 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-// forward declaration to avoid circular dependencies
-class AssimpAnimClip;
-
 struct InstanceSettings {
   glm::vec3 isWorldPosition = glm::vec3(0.0f);
   glm::vec3 isWorldRotation = glm::vec3(0.0f);

@@ -16,10 +16,10 @@ void Camera::updateCamera(OGLRenderData& renderData, const float deltaTime) {
   float azimRad = glm::radians(renderData.rdViewAzimuth);
   float elevRad = glm::radians(renderData.rdViewElevation);
 
-  float sinAzim = glm::sin(azimRad);
-  float cosAzim = glm::cos(azimRad);
-  float sinElev = glm::sin(elevRad);
-  float cosElev = glm::cos(elevRad);
+  float sinAzim = std::sin(azimRad);
+  float cosAzim = std::cos(azimRad);
+  float sinElev = std::sin(elevRad);
+  float cosElev = std::cos(elevRad);
 
   /* update view direction */
   mViewDirection = glm::normalize(glm::vec3(

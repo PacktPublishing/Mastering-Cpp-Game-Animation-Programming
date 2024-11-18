@@ -21,7 +21,6 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
   Logger::log(1, "%s: loading model from file '%s'\n", __FUNCTION__, modelFilename.c_str());
 
   Assimp::Importer importer;
-  /* TODO: Woman.glb needs UV flipping, the HEV suit from HL2 does not... */
   const aiScene *scene = importer.ReadFile(modelFilename, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_ValidateDataStructure | extraImportFlags);
 
   if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {

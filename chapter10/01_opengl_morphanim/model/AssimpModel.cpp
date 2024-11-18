@@ -20,7 +20,6 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
   Logger::log(1, "%s: loading model from file '%s'\n", __FUNCTION__, modelFilename.c_str());
 
   Assimp::Importer importer;
-  /* TODO: Woman.glb needs UV flipping, the HEV suit from HL2 does not... */
   const aiScene *scene = importer.ReadFile(modelFilename, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_ValidateDataStructure | extraImportFlags);
 
   if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
@@ -536,18 +535,24 @@ AABB AssimpModel::getAABB(InstanceSettings instSettings) {
   glm::vec3 interpMinPos = interpAabb.getMinPos();
   glm::vec3 interpMaxPos = interpAabb.getMaxPos();
   glm::vec3 p1 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat * interpMinPos;
-  glm::vec3 p2 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat * glm::vec3(interpMaxPos.x, interpMinPos.y, interpMinPos.z);
-  glm::vec3 p3 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat * glm::vec3(interpMinPos.x, interpMaxPos.y, interpMinPos.z);
-  glm::vec3 p4 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat * glm::vec3(interpMaxPos.x, interpMaxPos.y, interpMinPos.z);
+  glm::vec3 p2 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+    glm::vec3(interpMaxPos.x, interpMinPos.y, interpMinPos.z);
+  glm::vec3 p3 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+    glm::vec3(interpMinPos.x, interpMaxPos.y, interpMinPos.z);
+  glm::vec3 p4 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+    glm::vec3(interpMaxPos.x, interpMaxPos.y, interpMinPos.z);
 
-  glm::vec3 p5 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat * glm::vec3(interpMinPos.x, interpMinPos.y, interpMaxPos.z);
-  glm::vec3 p6 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat * glm::vec3(interpMaxPos.x, interpMinPos.y, interpMaxPos.z);
-  glm::vec3 p7 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat * glm::vec3(interpMinPos.x, interpMaxPos.y, interpMaxPos.z);
+  glm::vec3 p5 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+    glm::vec3(interpMinPos.x, interpMinPos.y, interpMaxPos.z);
+  glm::vec3 p6 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+    glm::vec3(interpMaxPos.x, interpMinPos.y, interpMaxPos.z);
+  glm::vec3 p7 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+    glm::vec3(interpMinPos.x, interpMaxPos.y, interpMaxPos.z);
   glm::vec3 p8 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat * interpMaxPos;
 
   rotatedAabb.create(p1);
   rotatedAabb.addPoint(p2);
-  rotatedAabb.addPoint(p4);
+  rotatedAabb.addPoint(p3);
   rotatedAabb.addPoint(p4);
   rotatedAabb.addPoint(p5);
   rotatedAabb.addPoint(p6);

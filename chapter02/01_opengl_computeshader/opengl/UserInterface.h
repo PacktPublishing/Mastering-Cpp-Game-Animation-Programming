@@ -9,7 +9,10 @@
 class UserInterface {
   public:
     void init(OGLRenderData &renderData);
-    void createFrame(OGLRenderData &renderData, ModelAndInstanceData &modInstData, const bool hideMouse);
+
+    void hideMouse(bool hide);
+    void createFrame(OGLRenderData &renderData, ModelAndInstanceData &modInstData);
+
     void render();
     void cleanup();
 

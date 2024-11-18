@@ -43,7 +43,7 @@ BoundingBox3D Octree::getChildOctant(BoundingBox3D parentBox, int octantId) {
       return BoundingBox3D(glm::vec3(origin.x, origin.y + childSize.y, origin.z), childSize);
       break;
     case 3:
-      return BoundingBox3D(glm::vec3(origin.x + childSize.z, origin.y + childSize.y, origin.z), childSize);
+      return BoundingBox3D(glm::vec3(origin.x + childSize.x, origin.y + childSize.y, origin.z), childSize);
       break;
 
     case 4:
