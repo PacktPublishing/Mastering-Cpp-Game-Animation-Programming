@@ -45,8 +45,6 @@ void PathFinder::generateGroundTriangles(OGLRenderData& renderData, std::shared_
     std::vector<MeshTriangle> nearbyTris = octree->query(queryBox);
 
     NavTriangle& navTri = mNavTriangles.at(tri.index);
-    navTri.neighborTris.clear();
-
     for (const auto& peer : nearbyTris) {
       /* ignore myself */
       if (tri.index == peer.index) {
@@ -115,8 +113,8 @@ std::vector<int> PathFinder::findPath(int startTriIndex, int targetTriIndex) {
     return std::vector<int>{};
   }
 
-  NavTriangle destTri = mNavTriangles.at(targetTriIndex);
-  glm::vec3 destPoint = destTri.center;
+  NavTriangle targetTri = mNavTriangles.at(targetTriIndex);
+  glm::vec3 targetPoint = targetTri.center;
 
   if (mNavTriangles.count(startTriIndex) == 0) {
     Logger::log(1, "%s error: source triangle id %i not found\n", __FUNCTION__, startTriIndex);
@@ -126,32 +124,23 @@ std::vector<int> PathFinder::findPath(int startTriIndex, int targetTriIndex) {
   NavTriangle startTri = mNavTriangles.at(startTriIndex);
   glm::vec3 startPoint = startTri.center;
 
-  /* create comparator for min prio queue  */
-  auto cmp = [](NavData left, NavData right) { return left.distanceToDest > right.distanceToDest; };
-
-  mNavOpenList.clear();
-  mNavClosedList.clear();
-  mNavPoints.clear();
+  std::unordered_set<int> navOpenList{};
+  std::unordered_set<int> navClosedList{};
+  std::unordered_map<int, NavData> navPoints{};
 
   int currentIndex = startTriIndex;
 
   /* insert start data */
   NavData navStartPoint{};
   navStartPoint.triIndex = startTriIndex;
-  navStartPoint.position = startPoint;
   navStartPoint.prevTriIndex = -1;
-  navStartPoint.distancefromSource = 0;
-  navStartPoint.heuristicToDest = glm::distance(startPoint, destPoint);
-  navStartPoint.distanceToDest = navStartPoint.distancefromSource + navStartPoint.heuristicToDest;
-  mNavPoints.emplace(std::make_pair(startTriIndex, navStartPoint));
-  mNavOpenList.insert(startTriIndex);
+  navStartPoint.distanceFromSource = 0;
+  navStartPoint.heuristicToDest = glm::distance(startPoint, targetPoint);
+  navStartPoint.distanceToDest = navStartPoint.distanceFromSource + navStartPoint.heuristicToDest;
+  navPoints.emplace(std::make_pair(startTriIndex, navStartPoint));
+  navOpenList.insert(startTriIndex);
 
-  unsigned int loopCount = 0;
   while (currentIndex != targetTriIndex) {
-    if (loopCount++ > 10000) {
-      Logger::log(1, "%s error: nav loop count overflow\n" , __FUNCTION__);
-      break;
-    }
     NavTriangle currentTri = mNavTriangles.at(currentIndex);
     glm::vec3 currentTriPoint = currentTri.center;
     std::unordered_set<int> neighborTris = currentTri.neighborTris;
@@ -160,58 +149,60 @@ std::vector<int> PathFinder::findPath(int startTriIndex, int targetTriIndex) {
       NavTriangle navTri = mNavTriangles.at(navTriIndex);
       glm::vec3 navTriPoint = navTri.center;
 
-      if (mNavClosedList.count(navTriIndex) == 0 && mNavOpenList.count(navTriIndex) == 0) {
-        /* insert new node */
-        mNavOpenList.insert(navTriIndex);
+      if (navClosedList.count(navTriIndex) == 0) {
+        if (navOpenList.count(navTriIndex) == 0) {
+          /* insert new node */
+          navOpenList.insert(navTriIndex);
 
-        NavData navPoint{};
+          NavData navPoint{};
 
-        navPoint.triIndex = navTriIndex;
-        navPoint.position = navTriPoint;
-        navPoint.prevTriIndex = currentIndex;
-
-        NavData prevNavPoint = mNavPoints.at(navPoint.prevTriIndex);
-        navPoint.distancefromSource = prevNavPoint.distancefromSource + glm::distance(currentTriPoint, navTriPoint);
-        navPoint.heuristicToDest = glm::distance(navTriPoint, destPoint);
-        navPoint.distanceToDest = navPoint.distancefromSource + navPoint.heuristicToDest;
-
-        mNavPoints.emplace(std::make_pair(navTriIndex, navPoint));
-      } else if (mNavClosedList.count(navTriIndex) == 0 && mNavPoints.count(navTriIndex) > 0) {
-        /* update triangle if in open list and already visited - and if path with new prev triangle is shorter */
-        NavData& navPoint = mNavPoints.at(navTriIndex);
-
-        NavData possibleNewPrevNavPoint = mNavPoints.at(currentIndex);
-        float newDistanceFromSource = possibleNewPrevNavPoint.distancefromSource + glm::distance(currentTriPoint, navTriPoint);
-        float newDistanceToDest = newDistanceFromSource + navPoint.heuristicToDest;
-        if (newDistanceToDest < navPoint.distanceToDest) {
+          navPoint.triIndex = navTriIndex;
           navPoint.prevTriIndex = currentIndex;
-          navPoint.distancefromSource = newDistanceFromSource;
-          navPoint.distanceToDest = newDistanceToDest;
+
+          NavData prevNavPoint = navPoints.at(navPoint.prevTriIndex);
+          navPoint.distanceFromSource = prevNavPoint.distanceFromSource + glm::distance(currentTriPoint, navTriPoint);
+          navPoint.heuristicToDest = glm::distance(navTriPoint, targetPoint);
+          navPoint.distanceToDest = navPoint.distanceFromSource + navPoint.heuristicToDest;
+
+          navPoints.emplace(std::make_pair(navTriIndex, navPoint));
+        } else {
+          /* update triangle if in open list and already visited - and if path with new prev triangle is shorter */
+          NavData& navPoint = navPoints.at(navTriIndex);
+
+          NavData possibleNewPrevNavPoint = navPoints.at(currentIndex);
+          float newDistanceFromSource = possibleNewPrevNavPoint.distanceFromSource + glm::distance(currentTriPoint, navTriPoint);
+          float newDistanceToDest = newDistanceFromSource + navPoint.heuristicToDest;
+          if (newDistanceToDest < navPoint.distanceToDest) {
+            navPoint.prevTriIndex = currentIndex;
+            navPoint.distanceFromSource = newDistanceFromSource;
+            navPoint.distanceToDest = newDistanceToDest;
+          }
         }
       }
     }
-    mNavClosedList.insert(currentIndex);
+    navClosedList.insert(currentIndex);
+
+    if (navOpenList.empty()) {
+      Logger::log(1, "%s error: nav open list empty while searching for neighbor to %i\n", __FUNCTION__, currentIndex);
+      return std::vector<int>{};
+    }
+
+    /* create comparator for min prio queue  */
+    auto cmp = [](NavData left, NavData right) { return left.distanceToDest > right.distanceToDest; };
 
     /* create prio queue to find lowest distance to destination  */
     std::priority_queue<NavData, std::vector<NavData>, decltype(cmp)> naviDataQueue(cmp);
-    for (const auto& navTriIndex : mNavOpenList) {
-      NavData navPoint = mNavPoints.at(navTriIndex);
+    for (const auto& navTriIndex : navOpenList) {
+      NavData navPoint = navPoints.at(navTriIndex);
       naviDataQueue.push(navPoint);
     }
 
     NavData nextPointToDest{};
-    if (!naviDataQueue.empty()) {
-      nextPointToDest = naviDataQueue.top();
-      naviDataQueue.pop();
-      currentIndex = nextPointToDest.triIndex;
+    nextPointToDest = naviDataQueue.top();
+    currentIndex = nextPointToDest.triIndex;
 
-      /* remove from open list */
-      mNavOpenList.erase(currentIndex);
-
-    } else {
-      Logger::log(1, "%s error: nav data queue empty while searching for neighbor to %i\n", __FUNCTION__, currentIndex);
-      break;
-    }
+    /* remove from open list */
+    navOpenList.erase(currentIndex);
   }
 
   std::vector<int> foundPath{};
@@ -219,10 +210,10 @@ std::vector<int> PathFinder::findPath(int startTriIndex, int targetTriIndex) {
   foundPath.emplace_back(currentIndex);
 
   /* walk backwards */
-  NavData navPoint = mNavPoints.at(currentIndex);
+  NavData navPoint = navPoints.at(currentIndex);
   while (navPoint.prevTriIndex != -1) {
     foundPath.emplace_back(navPoint.prevTriIndex);
-    navPoint = mNavPoints.at(navPoint.prevTriIndex);
+    navPoint = navPoints.at(navPoint.prevTriIndex);
   }
   /* start point is added in while() loop as last parent */
   //foundPath.emplace_back(startTriIndex);

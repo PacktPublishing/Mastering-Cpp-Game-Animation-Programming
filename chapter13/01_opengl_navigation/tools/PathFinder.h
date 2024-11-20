@@ -20,10 +20,9 @@ struct NavTriangle {
 };
 
 struct NavData {
-  glm::vec3 position{};
   int triIndex;
   int prevTriIndex;
-  float distancefromSource;
+  float distanceFromSource;
   float heuristicToDest;
   float distanceToDest;
 };
@@ -33,7 +32,7 @@ class PathFinder {
     void generateGroundTriangles(OGLRenderData& renderData, std::shared_ptr<TriangleOctree> octree, BoundingBox3D worldbox);
     std::vector<int> getGroundTriangleNeighbors(int groundTriIndex);
 
-    std::vector<int> findPath(int startTriIndex, int destTriIndex);
+    std::vector<int> findPath(int startTriIndex, int targetTriIndex);
 
     glm::vec3 getTriangleCenter(int index);
 
@@ -42,14 +41,6 @@ class PathFinder {
     std::shared_ptr<OGLLineMesh> getAsTriangleMesh(std::vector<int> indices, glm::vec3 color, glm::vec3 normalColor, glm::vec3 offset);
 
   private:
-    void generateGroundTriangleData();
-
     std::unordered_map<int, NavTriangle> mNavTriangles{};
     std::shared_ptr<OGLLineMesh> mLevelGroundMesh = nullptr;
-
-    void findPathToTarget(int targetTriangleIndex);
-
-    std::unordered_set<int> mNavOpenList{};
-    std::unordered_set<int> mNavClosedList{};
-    std::unordered_map<int, NavData> mNavPoints{};
 };

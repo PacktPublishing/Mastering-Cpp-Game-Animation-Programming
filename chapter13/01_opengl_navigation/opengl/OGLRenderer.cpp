@@ -364,6 +364,43 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   /* reset octree display */
   mUserInterface.resetPositionWindowOctreeView();
 
+
+  /* load level data */
+  std::vector<LevelSettings> savedLevelSettings = parser.getLevelConfigs();
+  if (savedLevelSettings.size() == 0) {
+    Logger::log(1, "%s warning: no level in file '%s', skipping\n", __FUNCTION__, parser.getFileName().c_str());
+  } else {
+    for (auto& levelSetting : savedLevelSettings) {
+      /* skip level data generation here, will be done after all levels are loaded */
+      if (!addLevel(levelSetting.lsLevelFilenamePath, false)) {
+        return false;
+      }
+
+      std::shared_ptr<AssimpLevel> level = getLevel(levelSetting.lsLevelFilenamePath);
+      if (!level) {
+        return false;
+      }
+
+      level->setLevelSettings(levelSetting);
+    }
+
+    /* restore level settings before generating the level data  */
+    mRenderData.rdEnableSimpleGravity = parser.getGravityEnabled();
+    mRenderData.rdMaxLevelGroundSlopeAngle = parser.getMaxGroundSlopeAngle();
+    mRenderData.rdMaxStairstepHeight = parser.getMaxStairStepHeight();
+
+    /* regenerate vertex data */
+    generateLevelVertexData();
+
+    /* restore selected level num */
+    int selectedLevel = parser.getSelectedLevelNum();
+    if (selectedLevel < mModelInstCamData.micLevels.size()) {
+      mModelInstCamData.micSelectedLevel = selectedLevel;
+    } else {
+      mModelInstCamData.micSelectedLevel = 0;
+    }
+  }
+
   /* get models */
   std::vector<ModelSettings> savedModelSettings = parser.getModelConfigs();
   if (savedModelSettings.size() == 0) {
@@ -521,45 +558,6 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
       mModelInstCamData.micSelectedCamera = 0;
     }
   }
-
-  /* load level data */
-
-
-  std::vector<LevelSettings> savedLevelSettings = parser.getLevelConfigs();
-  if (savedLevelSettings.size() == 0) {
-    Logger::log(1, "%s warning: no level in file '%s', skipping\n", __FUNCTION__, parser.getFileName().c_str());
-  } else {
-    for (auto& levelSetting : savedLevelSettings) {
-      /* skip level data generation here, will be done after all levels are loaded */
-      if (!addLevel(levelSetting.lsLevelFilenamePath, false)) {
-        return false;
-      }
-
-      std::shared_ptr<AssimpLevel> level = getLevel(levelSetting.lsLevelFilenamePath);
-      if (!level) {
-        return false;
-      }
-
-      level->setLevelSettings(levelSetting);
-    }
-
-    /* restore level settings before generating the level data  */
-    mRenderData.rdEnableSimpleGravity = parser.getGravityEnabled();
-    mRenderData.rdMaxLevelGroundSlopeAngle = parser.getMaxGroundSlopeAngle();
-    mRenderData.rdMaxStairstepHeight = parser.getMaxStairStepHeight();
-
-    /* regenerate vertex data */
-    generateLevelVertexData();
-
-    /* restore selected level num */
-    int selectedLevel = parser.getSelectedLevelNum();
-    if (selectedLevel < mModelInstCamData.micLevels.size()) {
-      mModelInstCamData.micSelectedLevel = selectedLevel;
-    } else {
-      mModelInstCamData.micSelectedLevel = 0;
-    }
-  }
-
 
   /* restore hightlight status, set default edit mode */
   mRenderData.rdHighlightSelectedInstance = parser.getHighlightActivated();
@@ -3442,78 +3440,56 @@ bool OGLRenderer::draw(float deltaTime) {
           mWorldPosMatrices.at(i) = instances.at(i)->getWorldTransformMatrix();
 
           /* path update */
-          /* random pos in de_dust for now */
-          mPathFindingTimer.start();
-          int pathTargetInstance = instSettings.isPathTargetInstance;
+          if (instSettings.isNavigationEnabled) {
+            mPathFindingTimer.start();
+            int pathTargetInstance = instSettings.isPathTargetInstance;
 
-          /* invalid target, reset */
-          if (pathTargetInstance >= mModelInstCamData.micAssimpInstances.size()) {
-            pathTargetInstance = -1;
-            instances.at(i)->setPathTargetInstanceId(pathTargetInstance);
-          }
-
-          int pathTargetInstanceTriIndex = -1;
-          glm::vec3 pathTargetWorldPos = glm::vec3(0.0f);
-          if (pathTargetInstance != -1) {
-            /* target instance is always valid here */
-            std::shared_ptr<AssimpInstance> targetInstance = mModelInstCamData.micAssimpInstances.at(pathTargetInstance);
-            pathTargetInstanceTriIndex = targetInstance->getCurrentGroundTriangleIndex();
-            pathTargetWorldPos = targetInstance->getWorldPosition();
-          }
-
-          /* do a path update only if both start and end triangle indices are valid and we or target changed its triangle */
-          if ((instSettings.isCurrentGroundTriangleIndex > -1 && pathTargetInstanceTriIndex > -1) &&
-              (instSettings.isCurrentGroundTriangleIndex != instSettings.isPathStartTriangleIndex ||
-              pathTargetInstanceTriIndex != instSettings.isPathTargetTriangleIndex)) {
-            instances.at(i)->setPathStartTriIndex(instSettings.isCurrentGroundTriangleIndex);
-            instances.at(i)->setPathTargetTriIndex(pathTargetInstanceTriIndex);
-
-            std::vector<int> pathToTarget = mPathFinder.findPath(instSettings.isCurrentGroundTriangleIndex, pathTargetInstanceTriIndex);
-            instances.at(i)->setPathToTarget(pathToTarget);
-          }
-          std::vector<int> pathToTarget = instances.at(i)->getPathToTarget();
-
-          /* remove first and last elements, they are the target centers of start and target triangles */
-          if (pathToTarget.size() > 1) {
-            pathToTarget.pop_back();
-          }
-          if (pathToTarget.size() > 0) {
-            pathToTarget.erase(pathToTarget.begin());
-          }
-
-          if (mRenderData.rdDrawInstancePaths && pathTargetInstanceTriIndex > -1) {
-
-            glm::vec3 pathColor = glm::vec3(0.4f, 1.0f, 0.4f);
-            glm::vec3 pathYOffset = glm::vec3(0.0f, 1.0f, 0.0f);
-
-            OGLLineVertex vert;
-            vert.color = pathColor;
-
-            vert.position = instSettings.isWorldPosition + pathYOffset;
-            mInstancePathMesh->vertices.emplace_back(vert);
-
-            if (pathToTarget.size() > 0) {
-              vert.position = mPathFinder.getTriangleCenter(pathToTarget.at(0)) + pathYOffset;
-              mInstancePathMesh->vertices.emplace_back(vert);
-
-              std::shared_ptr<OGLLineMesh> pathMesh =
-                mPathFinder.getAsLineMesh(pathToTarget, pathColor, pathYOffset);
-
-              mInstancePathMesh->vertices.insert(mInstancePathMesh->vertices.end(), pathMesh->vertices.begin(), pathMesh->vertices.end());
-
-              vert.position = mPathFinder.getTriangleCenter(pathToTarget.at(pathToTarget.size() - 1)) + pathYOffset;
-              mInstancePathMesh->vertices.emplace_back(vert);
+            /* invalid target, reset */
+            if (pathTargetInstance >= mModelInstCamData.micAssimpInstances.size()) {
+              pathTargetInstance = -1;
+              instances.at(i)->setPathTargetInstanceId(pathTargetInstance);
             }
 
-            vert.position = pathTargetWorldPos + pathYOffset;
-            mInstancePathMesh->vertices.emplace_back(vert);
+            int pathTargetInstanceTriIndex = -1;
+            glm::vec3 pathTargetWorldPos = glm::vec3(0.0f);
+            if (pathTargetInstance != -1) {
+              /* target instance is always valid here */
+              std::shared_ptr<AssimpInstance> targetInstance = mModelInstCamData.micAssimpInstances.at(pathTargetInstance);
+              pathTargetInstanceTriIndex = targetInstance->getCurrentGroundTriangleIndex();
+              pathTargetWorldPos = targetInstance->getWorldPosition();
+            }
 
-          }
-          mRenderData.rdPathFindingTime += mPathFindingTimer.stop();
+            /* do a path update only if both start and end triangle indices are valid and we or target changed its triangle */
+            if ((instSettings.isCurrentGroundTriangleIndex > -1 && pathTargetInstanceTriIndex > -1) &&
+                (instSettings.isCurrentGroundTriangleIndex != instSettings.isPathStartTriangleIndex ||
+                pathTargetInstanceTriIndex != instSettings.isPathTargetTriangleIndex)) {
+              instances.at(i)->setPathStartTriIndex(instSettings.isCurrentGroundTriangleIndex);
+              instances.at(i)->setPathTargetTriIndex(pathTargetInstanceTriIndex);
 
-          /* navigate to target */
-          if (instSettings.isNavigationEnabled) {
+              std::vector<int> pathToTarget = mPathFinder.findPath(instSettings.isCurrentGroundTriangleIndex, pathTargetInstanceTriIndex);
+
+              /* disable navigation if target is unreachable */
+              if (pathToTarget.size() == 0) {
+                instances.at(i)->setNavigationEnabled(false);
+                instances.at(i)->setPathTargetInstanceId(-1);
+              } else {
+                instances.at(i)->setPathToTarget(pathToTarget);
+              }
+            }
+
+            std::vector<int> pathToTarget = instances.at(i)->getPathToTarget();
+
+            /* remove first and last elements, they are the target centers of start and target triangles */
+            if (pathToTarget.size() > 1) {
+              pathToTarget.pop_back();
+            }
             if (pathToTarget.size() > 0) {
+              pathToTarget.erase(pathToTarget.begin());
+            }
+
+            /* navigate to target */
+            if (pathToTarget.size() > 0) {
+              /* navigate to next triangle, not the one we may stand on (start triangle)*/
               int nextTarget = pathToTarget.at(0);
               glm::vec3 destPos = mPathFinder.getTriangleCenter(nextTarget);
               instances.at(i)->rotateTo(destPos, deltaTime);
@@ -3521,6 +3497,34 @@ bool OGLRenderer::draw(float deltaTime) {
               /* empty path means we have only the target itself left */
               instances.at(i)->rotateTo(pathTargetWorldPos, deltaTime);
             }
+
+            if (mRenderData.rdDrawInstancePaths && pathTargetInstance > -1) {
+              glm::vec3 pathColor = glm::vec3(0.4f, 1.0f, 0.4f);
+              glm::vec3 pathYOffset = glm::vec3(0.0f, 1.0f, 0.0f);
+
+              OGLLineVertex vert;
+              vert.color = pathColor;
+
+              vert.position = instSettings.isWorldPosition + pathYOffset;
+              mInstancePathMesh->vertices.emplace_back(vert);
+
+              if (pathToTarget.size() > 0) {
+                vert.position = mPathFinder.getTriangleCenter(pathToTarget.at(0)) + pathYOffset;
+                mInstancePathMesh->vertices.emplace_back(vert);
+
+                std::shared_ptr<OGLLineMesh> pathMesh =
+                  mPathFinder.getAsLineMesh(pathToTarget, pathColor, pathYOffset);
+
+                mInstancePathMesh->vertices.insert(mInstancePathMesh->vertices.end(), pathMesh->vertices.begin(), pathMesh->vertices.end());
+
+                vert.position = mPathFinder.getTriangleCenter(pathToTarget.at(pathToTarget.size() - 1)) + pathYOffset;
+                mInstancePathMesh->vertices.emplace_back(vert);
+              }
+
+              vert.position = pathTargetWorldPos + pathYOffset;
+              mInstancePathMesh->vertices.emplace_back(vert);
+            }
+            mRenderData.rdPathFindingTime += mPathFindingTimer.stop();
           }
 
           /* neighbor triangles*/

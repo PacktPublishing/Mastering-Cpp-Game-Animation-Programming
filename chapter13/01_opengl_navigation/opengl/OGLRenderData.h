@@ -80,9 +80,9 @@ struct MeshTriangle {
 };
 
 struct TRSMatrixData{
-  glm::vec4 translation;
-  glm::quat rotation;
-  glm::vec4 scale;
+  glm::vec4 translation{};
+  glm::quat rotation{};
+  glm::vec4 scale{};
 };
 
 struct OGLRenderData {

@@ -335,14 +335,14 @@ void AssimpInstance::rotateTo(glm::vec3 targetPos, float deltaTime) {
   glm::vec3 twoDimWorldPos = glm::vec3(mInstanceSettings.isWorldPosition.x, 0.0f, mInstanceSettings.isWorldPosition.z);
   glm::vec3 toTarget = glm::normalize(glm::vec3(targetPos.x, 0.0f, targetPos.z) - twoDimWorldPos);
 
-  float rotationAngle = glm::degrees(std::acos(glm::dot(myRotation, toTarget)));
-  Logger::log(2, "%s: angle to target is %f degree\n", __FUNCTION__, rotationAngle);
-
-  glm::quat destRoation = glm::rotation(toTarget, myRotation);
-  glm::vec3 angles = glm::eulerAngles(destRoation);
+  float angleDiff = glm::degrees(std::acos(glm::dot(myRotation, toTarget)));
+  Logger::log(2, "%s: angle to target is %f degree\n", __FUNCTION__, angleDiff);
 
   /* do not rotate exactly to target, keep some deadzone */
-  if (rotationAngle > 6.0f) {
+  if (angleDiff > 6.0f) {
+    glm::quat destRoation = glm::rotation(toTarget, myRotation);
+    glm::vec3 angles = glm::eulerAngles(destRoation);
+
     rotateInstance(glm::degrees(angles.y) * deltaTime * 2.0f);
   }
 }

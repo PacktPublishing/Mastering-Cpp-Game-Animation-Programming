@@ -48,9 +48,9 @@ struct InstanceSettings {
   std::vector<int> isNeighborGroundTriangles{};
 
   bool isNavigationEnabled = false;
+  int isPathTargetInstance = -1;
   int isPathStartTriangleIndex = -1;
   int isPathTargetTriangleIndex = -1;
-  int isPathTargetInstance = -1;
   std::vector<int> isPathToTarget{};
 };
 
