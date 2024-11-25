@@ -8,7 +8,7 @@
 # ASSIMP_FOUND true if both the ASSIMP_LIBRARY and ASSIMP_INCLUDE_DIR have been found.
 #
 # To help locate the library and include file, you can define a
-# variable called ASSIMP_ROOT which points to the root of the glfw library
+# variable called ASSIMP_ROOT which points to the root of the Assimp library
 # installation.
 #
 # default search dirs

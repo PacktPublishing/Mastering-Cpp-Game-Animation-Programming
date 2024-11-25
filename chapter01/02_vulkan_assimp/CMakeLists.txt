@@ -6,9 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(Main)
 
 # use custom file to find libraries
-if(WIN32)
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-endif()
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # optimize for speed on Clang or GCC
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -98,20 +96,22 @@ if(NOT vk_bootstrap_POPULATED)
 endif()
 
 # get VMA
-# Skip downloading GLM if VUlkan SDK has been found?
-include(FetchContent)
-FetchContent_Declare(
-  vma
-  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-  GIT_TAG        v3.1.0
-)
+# Skip downloading GLM if VUlkan SDK has been found
+if (NOT DEFINED ENV{VK_SDK_PATH})
+  include(FetchContent)
+  FetchContent_Declare(
+    vma
+    GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
+    GIT_TAG        v3.1.0
+  )
+  
+  FetchContent_MakeAvailable(vma)
 
-FetchContent_MakeAvailable(vma)
-
-FetchContent_GetProperties(vma)
-if(NOT vma_POPULATED)
-  FetchContent_Populate(vma)
-  add_subdirectory(${vma_SOURCE_DIR} EXCLUDE_FROM_ALL)
+  FetchContent_GetProperties(vma)
+  if(NOT vma_POPULATED)
+    FetchContent_Populate(vma)
+    add_subdirectory(${vma_SOURCE_DIR} EXCLUDE_FROM_ALL)
+  endif()
 endif()
 
 # get GLFW3 and GLM via FetchContent on Windows systems
@@ -185,8 +185,9 @@ find_package(Vulkan REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 find_package(glm REQUIRED)
 find_package(assimp REQUIRED)
+find_package(vma REQUIRED)
 
-include_directories(${GLFW3_INCLUDE_DIR} ${GLM_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR})
+include_directories(${GLFW3_INCLUDE_DIR} ${GLM_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${VMA_SOURCE_DIR}/vma)
 
 
 # compile shaders
