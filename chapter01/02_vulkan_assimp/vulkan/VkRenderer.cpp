@@ -19,7 +19,6 @@
 #include "SyncObjects.h"
 #include "Renderpass.h"
 
-#include "Pipeline.h"
 #include "PipelineLayout.h"
 #include "SkinningPipeline.h"
 
