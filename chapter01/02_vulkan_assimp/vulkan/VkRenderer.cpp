@@ -313,7 +313,7 @@ bool VkRenderer::createDescriptorSets() {
   VkResult result = vkAllocateDescriptorSets(mRenderData.rdVkbDevice.device, &descriptorAllocateInfo,
       &mRenderData.rdAssimpDescriptorSet);
    if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not allocate Assimp SSBO descriptor set (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: could not allocate Assimp descriptor set (error: %i)\n", __FUNCTION__, result);
     return false;
   }
 
@@ -327,7 +327,7 @@ bool VkRenderer::createDescriptorSets() {
   result = vkAllocateDescriptorSets(mRenderData.rdVkbDevice.device, &skinningDescriptorAllocateInfo,
     &mRenderData.rdAssimpSkinningDescriptorSet);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not allocate Assimp Skinning SSBO descriptor set (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: could not allocate Assimp Skinning descriptor set (error: %i)\n", __FUNCTION__, result);
     return false;
   }
 
