@@ -101,8 +101,7 @@ class VkRenderer {
     bool createSwapchain();
     bool createRenderPass();
     bool createPipelineLayouts();
-    bool createAssimpPipeline();
-    bool createAssimpSkinningPipeline();
+    bool createPipelines();
     bool createFramebuffer();
     bool createCommandPool();
     bool createCommandBuffer();

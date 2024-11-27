@@ -98,11 +98,7 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  if (!createAssimpPipeline()) {
-    return false;
-  }
-
-  if (!createAssimpSkinningPipeline()) {
+  if (!createPipelines()) {
     return false;
   }
 
@@ -563,7 +559,7 @@ bool VkRenderer::createPipelineLayouts() {
   return true;
 }
 
-bool VkRenderer::createAssimpPipeline() {
+bool VkRenderer::createPipelines() {
   std::string vertexShaderFile = "shader/assimp.vert.spv";
   std::string fragmentShaderFile = "shader/assimp.frag.spv";
   if (!SkinningPipeline::init(mRenderData, mRenderData.rdAssimpPipelineLayout,
@@ -571,12 +567,9 @@ bool VkRenderer::createAssimpPipeline() {
     Logger::log(1, "%s error: could not init Assimp shader pipeline\n", __FUNCTION__);
     return false;
   }
-  return true;
-}
 
-bool VkRenderer::createAssimpSkinningPipeline() {
-  std::string vertexShaderFile = "shader/assimp_skinning.vert.spv";
-  std::string fragmentShaderFile = "shader/assimp_skinning.frag.spv";
+  vertexShaderFile = "shader/assimp_skinning.vert.spv";
+  fragmentShaderFile = "shader/assimp_skinning.frag.spv";
   if (!SkinningPipeline::init(mRenderData, mRenderData.rdAssimpSkinningPipelineLayout,
       mRenderData.rdAssimpSkinningPipeline, vertexShaderFile, fragmentShaderFile)) {
     Logger::log(1, "%s error: could not init Assimp Skinning shader pipeline\n", __FUNCTION__);
