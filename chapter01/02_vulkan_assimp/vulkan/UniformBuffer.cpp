@@ -18,33 +18,6 @@ bool UniformBuffer::init(VkRenderData& renderData, VkUniformBufferData &uboData)
     return false;
   }
 
-  VkDescriptorSetAllocateInfo descriptorAllocateInfo{};
-  descriptorAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  descriptorAllocateInfo.descriptorPool = renderData.rdDescriptorPool;
-  descriptorAllocateInfo.descriptorSetCount = 1;
-  descriptorAllocateInfo.pSetLayouts = &renderData.rdUBODescriptorLayout;
-
-  result = vkAllocateDescriptorSets(renderData.rdVkbDevice.device, &descriptorAllocateInfo, &uboData.descriptorSet);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not allocate UBO descriptor set (error: %i)\n", __FUNCTION__, result);
-    return false;
-  }
-
-  VkDescriptorBufferInfo uboInfo{};
-  uboInfo.buffer = uboData.buffer;
-  uboInfo.offset = 0;
-  uboInfo.range = sizeof(VkUploadMatrices);
-
-  VkWriteDescriptorSet writeDescriptorSet{};
-  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  writeDescriptorSet.dstSet = uboData.descriptorSet;
-  writeDescriptorSet.dstBinding = 0;
-  writeDescriptorSet.descriptorCount = 1;
-  writeDescriptorSet.pBufferInfo = &uboInfo;
-
-  vkUpdateDescriptorSets(renderData.rdVkbDevice.device, 1, &writeDescriptorSet, 0, nullptr);
-
   return true;
 }
 
@@ -60,6 +33,5 @@ void UniformBuffer::uploadData(VkRenderData &renderData, VkUniformBufferData &ub
 }
 
 void UniformBuffer::cleanup(VkRenderData& renderData, VkUniformBufferData &uboData) {
-  vkFreeDescriptorSets(renderData.rdVkbDevice.device, renderData.rdDescriptorPool, 1, &uboData.descriptorSet);
   vmaDestroyBuffer(renderData.rdAllocator, uboData.buffer, uboData.bufferAlloc);
 }

@@ -22,7 +22,6 @@
 #include "Pipeline.h"
 #include "PipelineLayout.h"
 #include "SkinningPipeline.h"
-#include "SkinningPipelineLayout.h"
 
 #include "AssimpModel.h"
 #include "AssimpInstance.h"
@@ -51,7 +50,7 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  if (!getQueue()) {
+  if (!getQueues()) {
     return false;
   }
 
@@ -72,7 +71,14 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  /* descriptor pool is needed for texture and UBO */
+  if (!createMatrixUBO()) {
+    return false;
+  }
+
+  if (!createSSBOs()) {
+    return false;
+  }
+
   if (!createDescriptorPool()) {
     return false;
   }
@@ -81,15 +87,7 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  if (!createMatrixUBO()) {
-    return false;
-  }
-
-  if (!createWorldPosSSBO()) {
-    return false;
-  }
-
-  if (!createBoneMatrixSSBO()) {
+  if (!createDescriptorSets()) {
     return false;
   }
 
@@ -97,11 +95,7 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  if (!createAssimpPipelineLayout()) {
-    return false;
-  }
-
-  if (!createAssimpSkinningPipelineLayout()) {
+  if (!createPipelineLayouts()) {
     return false;
   }
 
@@ -222,7 +216,7 @@ bool VkRenderer::deviceInit() {
   return true;
 }
 
-bool VkRenderer::getQueue() {
+bool VkRenderer::getQueues() {
   auto graphQueueRet = mRenderData.rdVkbDevice.get_queue(vkb::QueueType::graphics);
   if (!graphQueueRet.has_value()) {
     Logger::log(1, "%s error: could not get graphics queue\n", __FUNCTION__);
@@ -268,80 +262,145 @@ bool VkRenderer::createDescriptorPool() {
 }
 
 bool VkRenderer::createDescriptorLayouts() {
-  VkDescriptorSetLayoutBinding textureBind{};
-  textureBind.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  textureBind.binding = 0;
-  textureBind.descriptorCount = 1;
-  textureBind.pImmutableSamplers = nullptr;
-  textureBind.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+  VkDescriptorSetLayoutBinding assimpTextureBind{};
+  assimpTextureBind.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  assimpTextureBind.binding = 0;
+  assimpTextureBind.descriptorCount = 1;
+  assimpTextureBind.pImmutableSamplers = nullptr;
+  assimpTextureBind.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-  VkDescriptorSetLayoutCreateInfo textureCreateInfo{};
-  textureCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  textureCreateInfo.bindingCount = 1;
-  textureCreateInfo.pBindings = &textureBind;
+  std::vector<VkDescriptorSetLayoutBinding> assimpTexBindings = { assimpTextureBind };
 
-  VkResult result = vkCreateDescriptorSetLayout(mRenderData.rdVkbDevice.device, &textureCreateInfo, nullptr, &mRenderData.rdTextureDescriptorLayout);
+  VkDescriptorSetLayoutCreateInfo assimpTextureCreateInfo{};
+  assimpTextureCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+  assimpTextureCreateInfo.bindingCount = static_cast<uint32_t>(assimpTexBindings.size());
+  assimpTextureCreateInfo.pBindings = assimpTexBindings.data();
+
+  VkResult result = vkCreateDescriptorSetLayout(mRenderData.rdVkbDevice.device, &assimpTextureCreateInfo,
+    nullptr, &mRenderData.rdAssimpTextureDescriptorLayout);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not create descriptor set layout (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: could not create ASSIMP texturedescriptor set layout (error: %i)\n", __FUNCTION__, result);
     return false;
   }
 
-  VkDescriptorSetLayoutBinding uboBind{};
-  uboBind.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  uboBind.binding = 0;
-  uboBind.descriptorCount = 1;
-  uboBind.pImmutableSamplers = nullptr;
-  uboBind.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+  VkDescriptorSetLayoutBinding assimpUboBind{};
+  assimpUboBind.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  assimpUboBind.binding = 0;
+  assimpUboBind.descriptorCount = 1;
+  assimpUboBind.pImmutableSamplers = nullptr;
+  assimpUboBind.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-  VkDescriptorSetLayoutCreateInfo uboCreateInfo{};
-  uboCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  uboCreateInfo.bindingCount = 1;
-  uboCreateInfo.pBindings = &uboBind;
+  VkDescriptorSetLayoutBinding assimpSsboBind{};
+  assimpSsboBind.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+  assimpSsboBind.binding = 1;
+  assimpSsboBind.descriptorCount = 1;
+  assimpSsboBind.pImmutableSamplers = nullptr;
+  assimpSsboBind.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-  result = vkCreateDescriptorSetLayout(mRenderData.rdVkbDevice.device, &uboCreateInfo, nullptr, &mRenderData.rdUBODescriptorLayout);
+  std::vector<VkDescriptorSetLayoutBinding> assimpBindings = { assimpUboBind, assimpSsboBind };
+
+  VkDescriptorSetLayoutCreateInfo assimpCreateInfo{};
+  assimpCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+  assimpCreateInfo.bindingCount = static_cast<uint32_t>(assimpBindings.size());
+  assimpCreateInfo.pBindings = assimpBindings.data();
+
+  result = vkCreateDescriptorSetLayout(mRenderData.rdVkbDevice.device, &assimpCreateInfo,
+    nullptr, &mRenderData.rdAssimpDescriptorLayout);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not create UBO descriptor set layout (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: could not create ASSIMP buffer descriptor set layout (error: %i)\n", __FUNCTION__, result);
     return false;
   }
 
-  VkDescriptorSetLayoutBinding ssboBind{};
-  ssboBind.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-  ssboBind.binding = 0;
-  ssboBind.descriptorCount = 1;
-  ssboBind.pImmutableSamplers = nullptr;
-  ssboBind.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+  return true;
+}
 
-  VkDescriptorSetLayoutCreateInfo ssboCreateInfo{};
-  ssboCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  ssboCreateInfo.bindingCount = 1;
-  ssboCreateInfo.pBindings = &ssboBind;
+bool VkRenderer::createDescriptorSets() {
+  /* non-animated models */
+  VkDescriptorSetAllocateInfo descriptorAllocateInfo{};
+  descriptorAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+  descriptorAllocateInfo.descriptorPool = mRenderData.rdDescriptorPool;
+  descriptorAllocateInfo.descriptorSetCount = 1;
+  descriptorAllocateInfo.pSetLayouts = &mRenderData.rdAssimpDescriptorLayout;
 
-  result = vkCreateDescriptorSetLayout(mRenderData.rdVkbDevice.device, &ssboCreateInfo, nullptr,
-    &mRenderData.rdSSBODescriptorLayout);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not create SSBO descriptor set layout (error: %i)\n", __FUNCTION__, result);
+  VkResult result = vkAllocateDescriptorSets(mRenderData.rdVkbDevice.device, &descriptorAllocateInfo,
+      &mRenderData.rdAssimpDescriptorSet);
+   if (result != VK_SUCCESS) {
+    Logger::log(1, "%s error: could not allocate Assimp SSBO descriptor set (error: %i)\n", __FUNCTION__, result);
     return false;
   }
 
-  VkDescriptorSetLayoutBinding dynamicSsboBind{};
-  dynamicSsboBind.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
-  dynamicSsboBind.binding = 0;
-  dynamicSsboBind.descriptorCount = 1;
-  dynamicSsboBind.pImmutableSamplers = nullptr;
-  dynamicSsboBind.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+  /* animated models */
+  VkDescriptorSetAllocateInfo skinningDescriptorAllocateInfo{};
+  skinningDescriptorAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+  skinningDescriptorAllocateInfo.descriptorPool = mRenderData.rdDescriptorPool;
+  skinningDescriptorAllocateInfo.descriptorSetCount = 1;
+  skinningDescriptorAllocateInfo.pSetLayouts = &mRenderData.rdAssimpDescriptorLayout;
 
-  VkDescriptorSetLayoutCreateInfo dynamicSsboCreateInfo{};
-  dynamicSsboCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  dynamicSsboCreateInfo.bindingCount = 1;
-  dynamicSsboCreateInfo.pBindings = &dynamicSsboBind;
-
-  result = vkCreateDescriptorSetLayout(mRenderData.rdVkbDevice.device, &dynamicSsboCreateInfo, nullptr,
-    &mRenderData.rdDynamicSSBODescriptorLayout);
+  result = vkAllocateDescriptorSets(mRenderData.rdVkbDevice.device, &skinningDescriptorAllocateInfo,
+    &mRenderData.rdAssimpSkinningDescriptorSet);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not create dynamic SSBO descriptor set layout (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: could not allocate Assimp Skinning SSBO descriptor set (error: %i)\n", __FUNCTION__, result);
     return false;
   }
 
+  updateDescriptorSets();
+
+  return true;
+}
+
+bool VkRenderer::updateDescriptorSets() {
+  /* we must update the descriptor sets whenever the buffer size has changed */
+  VkDescriptorBufferInfo matrixInfo{};
+  matrixInfo.buffer = mPerspectiveViewMatrixUBO.buffer;
+  matrixInfo.offset = 0;
+  matrixInfo.range = VK_WHOLE_SIZE;
+
+  VkDescriptorBufferInfo worldPosInfo{};
+  worldPosInfo.buffer = mWorldPosBuffer.buffer;
+  worldPosInfo.offset = 0;
+  worldPosInfo.range = VK_WHOLE_SIZE;
+
+  VkWriteDescriptorSet matrixWriteDescriptorSet{};
+  matrixWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  matrixWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  matrixWriteDescriptorSet.dstSet = mRenderData.rdAssimpDescriptorSet;
+  matrixWriteDescriptorSet.dstBinding = 0;
+  matrixWriteDescriptorSet.descriptorCount = 1;
+  matrixWriteDescriptorSet.pBufferInfo = &matrixInfo;
+
+  VkWriteDescriptorSet posWriteDescriptorSet{};
+  posWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  posWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+  posWriteDescriptorSet.dstSet = mRenderData.rdAssimpDescriptorSet;
+  posWriteDescriptorSet.dstBinding = 1;
+  posWriteDescriptorSet.descriptorCount = 1;
+  posWriteDescriptorSet.pBufferInfo = &worldPosInfo;
+
+  std::vector<VkWriteDescriptorSet> writeDescriptorSets = { matrixWriteDescriptorSet, posWriteDescriptorSet };
+
+  vkUpdateDescriptorSets(mRenderData.rdVkbDevice.device, static_cast<uint32_t>(writeDescriptorSets.size()),
+     writeDescriptorSets.data(), 0, nullptr);
+
+  VkDescriptorBufferInfo boneMatrixInfo{};
+  boneMatrixInfo.buffer = mBoneMatrixBuffer.buffer;
+  boneMatrixInfo.offset = 0;
+  boneMatrixInfo.range = VK_WHOLE_SIZE;
+
+  /* world pos matrix is identical, just needs another descriptor set */
+  matrixWriteDescriptorSet.dstSet = mRenderData.rdAssimpSkinningDescriptorSet;
+
+  VkWriteDescriptorSet boneMatrixWriteDescriptorSet{};
+  boneMatrixWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  boneMatrixWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+  boneMatrixWriteDescriptorSet.dstSet = mRenderData.rdAssimpSkinningDescriptorSet;
+  boneMatrixWriteDescriptorSet.dstBinding = 1;
+  boneMatrixWriteDescriptorSet.descriptorCount = 1;
+  boneMatrixWriteDescriptorSet.pBufferInfo = &boneMatrixInfo;
+
+  std::vector<VkWriteDescriptorSet> skinningWriteDescriptorSets = { matrixWriteDescriptorSet, boneMatrixWriteDescriptorSet };
+
+  vkUpdateDescriptorSets(mRenderData.rdVkbDevice.device, static_cast<uint32_t>(skinningWriteDescriptorSets.size()),
+     skinningWriteDescriptorSets.data(), 0, nullptr);
   return true;
 }
 
@@ -463,21 +522,20 @@ bool VkRenderer::createMatrixUBO() {
   return true;
 }
 
-bool VkRenderer::createWorldPosSSBO() {
+bool VkRenderer::createSSBOs() {
   if (!ShaderStorageBuffer::init(mRenderData, mWorldPosBuffer)) {
     Logger::log(1, "%s error: could not create world position SSBO\n", __FUNCTION__);
     return false;
   }
-  return true;
-}
 
-bool VkRenderer::createBoneMatrixSSBO() {
   if (!ShaderStorageBuffer::init(mRenderData, mBoneMatrixBuffer)) {
     Logger::log(1, "%s error: could not create bone matrix SSBO\n", __FUNCTION__);
     return false;
   }
+
   return true;
 }
+
 
 bool VkRenderer::createRenderPass() {
   if (!Renderpass::init(mRenderData)) {
@@ -487,19 +545,29 @@ bool VkRenderer::createRenderPass() {
   return true;
 }
 
-bool VkRenderer::createAssimpPipelineLayout() {
-  if (!PipelineLayout::init(mRenderData, mRenderData.rdAssimpPipelineLayout)) {
+bool VkRenderer::createPipelineLayouts() {
+  /* non-animated model */
+  std::vector<VkDescriptorSetLayout> layouts = {
+    mRenderData.rdAssimpTextureDescriptorLayout,
+    mRenderData.rdAssimpDescriptorLayout };
+
+  if (!PipelineLayout::init(mRenderData, mRenderData.rdAssimpPipelineLayout, layouts)) {
     Logger::log(1, "%s error: could not init Assimp pipeline layout\n", __FUNCTION__);
     return false;
   }
-  return true;
-}
 
-bool VkRenderer::createAssimpSkinningPipelineLayout() {
-  if (!SkinningPipelineLayout::init(mRenderData, mRenderData.rdAssimpSkinningPipelineLayout)) {
+  /* animated model, needs push constant */
+  std::vector<VkDescriptorSetLayout> skinningLayouts = {
+    mRenderData.rdAssimpTextureDescriptorLayout,
+    mRenderData.rdAssimpDescriptorLayout };
+
+  std::vector<VkPushConstantRange> pushConstants = { { VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VkPushConstants) } };
+
+  if (!PipelineLayout::init(mRenderData, mRenderData.rdAssimpSkinningPipelineLayout, skinningLayouts, pushConstants)) {
     Logger::log(1, "%s error: could not init Assimp Skinning pipeline layout\n", __FUNCTION__);
     return false;
   }
+
   return true;
 }
 
@@ -916,9 +984,10 @@ bool VkRenderer::draw(float deltaTime) {
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
     size_t numberOfInstances = modelType.second.size();
     if (numberOfInstances > 0) {
+      std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
 
       /* animated models */
-      if (modelType.second.at(0)->getModel()->hasAnimations() &&
+      if (model->hasAnimations() &&
         modelType.second.at(0)->getBoneMatrices().size() > 0) {
 
         mMatrixGenerateTimer.start();
@@ -945,9 +1014,20 @@ bool VkRenderer::draw(float deltaTime) {
     }
   }
 
+  /* we need to update descriptors after the upload if buffer size changed */
+  bool doDescriptorUpdates = false;
+  if (mBoneMatrixBuffer.bufferSize < mModelBoneMatrices.size() * sizeof(glm::mat4) ||
+      mWorldPosBuffer.bufferSize < mWorldPosMatrices.size() * sizeof(glm::mat4)) {
+    doDescriptorUpdates = true;
+  }
+
   mUploadToUBOTimer.start();
   ShaderStorageBuffer::uploadData(mRenderData, mBoneMatrixBuffer, mModelBoneMatrices);
   ShaderStorageBuffer::uploadData(mRenderData, mWorldPosBuffer, mWorldPosMatrices);
+
+  if (doDescriptorUpdates) {
+    updateDescriptorSets();
+  }
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   /* Vulkan render preparations */
@@ -1013,11 +1093,12 @@ bool VkRenderer::draw(float deltaTime) {
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
     size_t numberOfInstances = modelType.second.size();
     if (numberOfInstances > 0) {
+      std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
 
       /* animated models */
-      if (modelType.second.at(0)->getModel()->hasAnimations() &&
+      if (model->hasAnimations() &&
         modelType.second.at(0)->getBoneMatrices().size() > 0) {
-        size_t numberOfBones = modelType.second.at(0)->getModel()->getBoneList().size();
+        size_t numberOfBones = model->getBoneList().size();
 
         mUploadToUBOTimer.start();
         mModelStride.pkModelStride = numberOfBones;
@@ -1028,10 +1109,8 @@ bool VkRenderer::draw(float deltaTime) {
         vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpSkinningPipeline);
 
         vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                mRenderData.rdAssimpSkinningPipelineLayout, 1, 1, &mPerspectiveViewMatrixUBO.descriptorSet, 0, nullptr);
-        vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                mRenderData.rdAssimpSkinningPipelineLayout, 2, 1, &mBoneMatrixBuffer.descriptorSet, 0, nullptr);
-        modelType.second.at(0)->getModel()->drawInstanced(mRenderData, numberOfInstances, firstAnimatedInstanceToDraw);
+                                mRenderData.rdAssimpSkinningPipelineLayout, 1, 1, &mRenderData.rdAssimpSkinningDescriptorSet, 0, nullptr);
+        model->drawInstanced(mRenderData, numberOfInstances, firstAnimatedInstanceToDraw);
         firstAnimatedInstanceToDraw += numberOfInstances;
       } else {
         /* non-animated models */
@@ -1039,10 +1118,8 @@ bool VkRenderer::draw(float deltaTime) {
         vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpPipeline);
 
         vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                mRenderData.rdAssimpPipelineLayout, 1, 1, &mPerspectiveViewMatrixUBO.descriptorSet, 0, nullptr);
-        vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                mRenderData.rdAssimpPipelineLayout, 2, 1, &mWorldPosBuffer.descriptorSet, 0, nullptr);
-        modelType.second.at(0)->getModel()->drawInstanced(mRenderData, numberOfInstances, firstInstanceToDraw);
+                                mRenderData.rdAssimpPipelineLayout, 1, 1, &mRenderData.rdAssimpDescriptorSet, 0, nullptr);
+        model->drawInstanced(mRenderData, numberOfInstances, firstInstanceToDraw);
         firstInstanceToDraw += numberOfInstances;
       }
     }
@@ -1132,8 +1209,9 @@ void VkRenderer::cleanup() {
 
   SkinningPipeline::cleanup(mRenderData, mRenderData.rdAssimpPipeline);
   SkinningPipeline::cleanup(mRenderData, mRenderData.rdAssimpSkinningPipeline);
+
   PipelineLayout::cleanup(mRenderData, mRenderData.rdAssimpPipelineLayout);
-  SkinningPipelineLayout::cleanup(mRenderData, mRenderData.rdAssimpSkinningPipelineLayout);
+  PipelineLayout::cleanup(mRenderData, mRenderData.rdAssimpSkinningPipelineLayout);
   Renderpass::cleanup(mRenderData);
 
   VertexBuffer::cleanup(mRenderData, mVertexBuffer);
@@ -1141,10 +1219,12 @@ void VkRenderer::cleanup() {
   ShaderStorageBuffer::cleanup(mRenderData, mBoneMatrixBuffer);
   ShaderStorageBuffer::cleanup(mRenderData, mWorldPosBuffer);
 
-  vkDestroyDescriptorSetLayout(mRenderData.rdVkbDevice.device, mRenderData.rdDynamicSSBODescriptorLayout, nullptr);
-  vkDestroyDescriptorSetLayout(mRenderData.rdVkbDevice.device, mRenderData.rdSSBODescriptorLayout, nullptr);
-  vkDestroyDescriptorSetLayout(mRenderData.rdVkbDevice.device, mRenderData.rdUBODescriptorLayout, nullptr);
-  vkDestroyDescriptorSetLayout(mRenderData.rdVkbDevice.device, mRenderData.rdTextureDescriptorLayout, nullptr);
+  vkFreeDescriptorSets(mRenderData.rdVkbDevice.device, mRenderData.rdDescriptorPool, 1, &mRenderData.rdAssimpDescriptorSet);
+  vkFreeDescriptorSets(mRenderData.rdVkbDevice.device, mRenderData.rdDescriptorPool, 1, &mRenderData.rdAssimpSkinningDescriptorSet);
+
+  vkDestroyDescriptorSetLayout(mRenderData.rdVkbDevice.device, mRenderData.rdAssimpDescriptorLayout, nullptr);
+  vkDestroyDescriptorSetLayout(mRenderData.rdVkbDevice.device, mRenderData.rdAssimpTextureDescriptorLayout, nullptr);
+
   vkDestroyDescriptorPool(mRenderData.rdVkbDevice.device, mRenderData.rdDescriptorPool, nullptr);
 
   vkDestroyImageView(mRenderData.rdVkbDevice.device, mRenderData.rdDepthImageView, nullptr);

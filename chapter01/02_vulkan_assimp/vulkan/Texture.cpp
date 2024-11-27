@@ -396,7 +396,7 @@ bool Texture::uploadToGPU(VkRenderData& renderData, VkTextureData& texData, VkTe
   descriptorAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
   descriptorAllocateInfo.descriptorPool = renderData.rdDescriptorPool;
   descriptorAllocateInfo.descriptorSetCount = 1;
-  descriptorAllocateInfo.pSetLayouts = &renderData.rdTextureDescriptorLayout;
+  descriptorAllocateInfo.pSetLayouts = &renderData.rdAssimpTextureDescriptorLayout;
 
   result = vkAllocateDescriptorSets(renderData.rdVkbDevice.device, &descriptorAllocateInfo, &texData.descriptorSet);
   if (result != VK_SUCCESS) {

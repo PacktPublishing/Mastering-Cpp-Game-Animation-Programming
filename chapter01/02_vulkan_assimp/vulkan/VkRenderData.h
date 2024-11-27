@@ -1,5 +1,6 @@
 /* Vulkan */
 #pragma once
+
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -19,7 +20,7 @@ struct VkVertex {
   glm::vec4 color = glm::vec4(1.0f);
   glm::vec3 normal = glm::vec3(0.0f);
   glm::vec2 uv = glm::vec2(0.0f);
-  glm::vec4 boneNumber = glm::vec4(0.0f);
+  glm::uvec4 boneNumber = glm::vec4(0.0f);
   glm::vec4 boneWeight = glm::vec4(0.0f);
 };
 
@@ -127,8 +128,10 @@ struct VkRenderData {
   VmaAllocation rdDepthImageAlloc = VK_NULL_HANDLE;
 
   VkRenderPass rdRenderpass;
+
   VkPipelineLayout rdAssimpPipelineLayout = VK_NULL_HANDLE;
   VkPipelineLayout rdAssimpSkinningPipelineLayout = VK_NULL_HANDLE;
+
   VkPipeline rdAssimpPipeline = VK_NULL_HANDLE;
   VkPipeline rdAssimpSkinningPipeline = VK_NULL_HANDLE;
 
@@ -139,10 +142,11 @@ struct VkRenderData {
   VkSemaphore rdRenderSemaphore = VK_NULL_HANDLE;
   VkFence rdRenderFence = VK_NULL_HANDLE;
 
-  VkDescriptorSetLayout rdTextureDescriptorLayout = VK_NULL_HANDLE;
-  VkDescriptorSetLayout rdUBODescriptorLayout = VK_NULL_HANDLE;
-  VkDescriptorSetLayout rdSSBODescriptorLayout = VK_NULL_HANDLE;
-  VkDescriptorSetLayout rdDynamicSSBODescriptorLayout = VK_NULL_HANDLE;
+  VkDescriptorSetLayout rdAssimpDescriptorLayout = VK_NULL_HANDLE;
+  VkDescriptorSetLayout rdAssimpTextureDescriptorLayout = VK_NULL_HANDLE;
+
+  VkDescriptorSet rdAssimpDescriptorSet = VK_NULL_HANDLE;
+  VkDescriptorSet rdAssimpSkinningDescriptorSet = VK_NULL_HANDLE;
 
   VkDescriptorPool rdDescriptorPool = VK_NULL_HANDLE;
   VkDescriptorPool rdImguiDescriptorPool = VK_NULL_HANDLE;

@@ -151,7 +151,6 @@ bool Pipeline::init(VkRenderData& renderData, VkPipelineLayout& pipelineLayout, 
     Logger::log(1, "%s error: could not create rendering pipeline (error: %i)\n", __FUNCTION__, result);
     Shader::cleanup(renderData.rdVkbDevice.device, vertexModule);
     Shader::cleanup(renderData.rdVkbDevice.device, fragmentModule);
-    vkDestroyPipelineLayout(renderData.rdVkbDevice.device, pipelineLayout, nullptr);
     return false;
   }
 

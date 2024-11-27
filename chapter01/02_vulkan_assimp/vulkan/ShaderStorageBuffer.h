@@ -14,6 +14,7 @@ class ShaderStorageBuffer {
 
     static void uploadData(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData,
       std::vector<glm::mat4> bufferData);
+
     static void checkForResize(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData,
       size_t bufferSize);
 

@@ -3,16 +3,14 @@
 
 #include <VkBootstrap.h>
 
-bool PipelineLayout::init(VkRenderData& renderData, VkPipelineLayout& pipelineLayout) {
-  std::vector<VkDescriptorSetLayout> layouts = { renderData.rdTextureDescriptorLayout,
-    renderData.rdUBODescriptorLayout,
-    renderData.rdSSBODescriptorLayout };
-
+bool PipelineLayout::init(VkRenderData& renderData, VkPipelineLayout& pipelineLayout,
+    std::vector<VkDescriptorSetLayout> layouts, std::vector<VkPushConstantRange> pushConstants) {
   VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
   pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
   pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());
   pipelineLayoutInfo.pSetLayouts = layouts.data();
-  pipelineLayoutInfo.pushConstantRangeCount = 0;
+  pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstants.size());
+  pipelineLayoutInfo.pPushConstantRanges = pushConstants.data();
 
   VkResult result = vkCreatePipelineLayout(renderData.rdVkbDevice.device, &pipelineLayoutInfo, nullptr, &pipelineLayout);
   if (result != VK_SUCCESS) {

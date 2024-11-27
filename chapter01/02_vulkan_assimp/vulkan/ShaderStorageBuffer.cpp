@@ -19,34 +19,6 @@ bool ShaderStorageBuffer::init(VkRenderData& renderData, VkShaderStorageBufferDa
     return false;
   }
 
-  VkDescriptorSetAllocateInfo descriptorAllocateInfo{};
-  descriptorAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  descriptorAllocateInfo.descriptorPool = renderData.rdDescriptorPool;
-  descriptorAllocateInfo.descriptorSetCount = 1;
-  descriptorAllocateInfo.pSetLayouts = &renderData.rdSSBODescriptorLayout;
-
-  result = vkAllocateDescriptorSets(renderData.rdVkbDevice.device, &descriptorAllocateInfo,
-      &SSBOData.descriptorSet);
-   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not allocate SSBO descriptor set (error: %i)\n", __FUNCTION__, result);
-    return false;
-  }
-
-  VkDescriptorBufferInfo ssboInfo{};
-  ssboInfo.buffer = SSBOData.buffer;
-  ssboInfo.offset = 0;
-  ssboInfo.range = bufferSize;
-
-  VkWriteDescriptorSet writeDescriptorSet{};
-  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-  writeDescriptorSet.dstSet = SSBOData.descriptorSet;
-  writeDescriptorSet.dstBinding = 0;
-  writeDescriptorSet.descriptorCount = 1;
-  writeDescriptorSet.pBufferInfo = &ssboInfo;
-
-  vkUpdateDescriptorSets(renderData.rdVkbDevice.device, 1, &writeDescriptorSet, 0, nullptr);
-
   SSBOData.bufferSize = bufferSize;
   Logger::log(1, "%s: created SSBO of size %i\n", __FUNCTION__, bufferSize);
     return true;
@@ -83,6 +55,5 @@ void ShaderStorageBuffer::checkForResize(VkRenderData& renderData, VkShaderStora
 }
 
 void ShaderStorageBuffer::cleanup(VkRenderData& renderData, VkShaderStorageBufferData &SSBOData) {
-  vkFreeDescriptorSets(renderData.rdVkbDevice.device, renderData.rdDescriptorPool, 1, &SSBOData.descriptorSet);
   vmaDestroyBuffer(renderData.rdAllocator, SSBOData.buffer, SSBOData.bufferAlloc);
 }

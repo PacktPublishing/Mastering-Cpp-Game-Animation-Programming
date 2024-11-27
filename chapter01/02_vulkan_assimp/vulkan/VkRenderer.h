@@ -8,6 +8,7 @@
 /* Vulkan also before GLFW */
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
+
 #include <VkBootstrap.h>
 #include <vk_mem_alloc.h>
 
@@ -89,18 +90,18 @@ class VkRenderer {
     VkDeviceSize mMinSSBOOffsetAlignment = 0;
 
     bool deviceInit();
-    bool getQueue();
+    bool getQueues();
     bool initVma();
     bool createDescriptorPool();
     bool createDescriptorLayouts();
+    bool createDescriptorSets();
+    bool updateDescriptorSets();
     bool createDepthBuffer();
     bool createMatrixUBO();
-    bool createWorldPosSSBO();
-    bool createBoneMatrixSSBO();
+    bool createSSBOs();
     bool createSwapchain();
     bool createRenderPass();
-    bool createAssimpPipelineLayout();
-    bool createAssimpSkinningPipelineLayout();
+    bool createPipelineLayouts();
     bool createAssimpPipeline();
     bool createAssimpSkinningPipeline();
     bool createFramebuffer();

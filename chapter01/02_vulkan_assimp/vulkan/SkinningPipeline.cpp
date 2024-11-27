@@ -62,7 +62,7 @@ bool SkinningPipeline::init(VkRenderData& renderData, VkPipelineLayout& pipeline
   VkVertexInputAttributeDescription jointsAttribute{};
   jointsAttribute.binding = 0;
   jointsAttribute.location = 4;
-  jointsAttribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+  jointsAttribute.format = VK_FORMAT_R32G32B32A32_UINT;
   jointsAttribute.offset = offsetof(VkVertex, boneNumber);
 
   VkVertexInputAttributeDescription weightAttribute{};

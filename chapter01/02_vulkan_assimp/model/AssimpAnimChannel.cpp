@@ -39,7 +39,6 @@ void AssimpAnimChannel::loadChannelData(aiNodeAnim* nodeAnim) {
     mInverseScaleTimeDiffs.emplace_back(1.0f / (mScaleTimings.at(i + 1) - mScaleTimings.at(i)));
   }
 
-
   mPreState = preState;
   mPostState = postState;
 }

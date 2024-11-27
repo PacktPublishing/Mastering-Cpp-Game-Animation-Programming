@@ -27,8 +27,6 @@ FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui
   GIT_TAG        v1.91.2
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
 )
 
 FetchContent_MakeAvailable(imgui)
@@ -44,8 +42,6 @@ FetchContent_Declare(
   filedialog
   GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog
   GIT_TAG        v0.6.7
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
 )
 
 # ugly hack to have ImGui available when the file dialog source getch fetched
@@ -66,8 +62,6 @@ FetchContent_Declare(
   stbi
   GIT_REPOSITORY https://github.com/nothings/stb
   GIT_TAG        master
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
 )
 
 FetchContent_MakeAvailable(stbi)
@@ -104,7 +98,7 @@ if (NOT DEFINED ENV{VK_SDK_PATH})
     GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
     GIT_TAG        v3.1.0
   )
-  
+
   FetchContent_MakeAvailable(vma)
 
   FetchContent_GetProperties(vma)
