@@ -970,6 +970,8 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToUBOTime = mUploadToUBOTimer.stop();
 
   /* fill the world position matrices */
+  mRenderData.rdMatricesSize = 0;
+
   mWorldPosMatrices.clear();
   mModelBoneMatrices.clear();
 
@@ -991,7 +993,6 @@ bool VkRenderer::draw(float deltaTime) {
         }
 
         mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
-        mRenderData.rdMatricesSize += mModelBoneMatrices.size() * sizeof(glm::mat4);
       } else {
         /* non-animated models */
         mMatrixGenerateTimer.start();
@@ -1001,10 +1002,12 @@ bool VkRenderer::draw(float deltaTime) {
         }
 
         mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
-        mRenderData.rdMatricesSize += mWorldPosMatrices.size() * sizeof(glm::mat4);
       }
     }
   }
+
+  mRenderData.rdMatricesSize = mModelBoneMatrices.size() * sizeof(glm::mat4) +
+    mWorldPosMatrices.size() * sizeof(glm::mat4);
 
   /* we need to update descriptors after the upload if buffer size changed */
   bool doDescriptorUpdates = false;
@@ -1078,8 +1081,6 @@ bool VkRenderer::draw(float deltaTime) {
   vkCmdSetScissor(mRenderData.rdCommandBuffer, 0, 1, &scissor);
 
   /* draw the models */
-  mRenderData.rdMatricesSize = 0;
-
   uint32_t firstAnimatedInstanceToDraw = 0;
   uint32_t firstInstanceToDraw = 0;
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
