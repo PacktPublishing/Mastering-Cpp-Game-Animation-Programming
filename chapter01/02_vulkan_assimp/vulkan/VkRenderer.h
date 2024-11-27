@@ -51,10 +51,6 @@ class VkRenderer {
   private:
     VkRenderData mRenderData{};
     ModelAndInstanceData mModelInstData{};
-    VkPushConstants mModelStride;
-
-    UserInterface mUserInterface{};
-    Camera mCamera{};
 
     Timer mFrameTimer{};
     Timer mMatrixGenerateTimer{};
@@ -62,7 +58,10 @@ class VkRenderer {
     Timer mUIGenerateTimer{};
     Timer mUIDrawTimer{};
 
-    VkVertexBufferData mVertexBuffer{};
+    UserInterface mUserInterface{};
+    Camera mCamera{};
+
+    VkPushConstants mModelStride;
     VkUniformBufferData mPerspectiveViewMatrixUBO{};
 
     /* for non-animated models */

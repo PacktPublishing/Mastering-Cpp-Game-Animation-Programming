@@ -118,13 +118,6 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  /* use an arbitrary initial size  */
-  unsigned int vertexBufferSize = 1024;
-  if (!VertexBuffer::init(mRenderData, mVertexBuffer, vertexBufferSize)) {
-    Logger::log(1, "%s error: could not init Vertex Buffer", __FUNCTION__);
-    return false;
-  }
-
   mWorldPosMatrices.resize(1);
   mWorldPosMatrices.at(0) = glm::mat4(1.0f);
 
@@ -1213,7 +1206,6 @@ void VkRenderer::cleanup() {
   PipelineLayout::cleanup(mRenderData, mRenderData.rdAssimpSkinningPipelineLayout);
   Renderpass::cleanup(mRenderData);
 
-  VertexBuffer::cleanup(mRenderData, mVertexBuffer);
   UniformBuffer::cleanup(mRenderData, mPerspectiveViewMatrixUBO);
   ShaderStorageBuffer::cleanup(mRenderData, mBoneMatrixBuffer);
   ShaderStorageBuffer::cleanup(mRenderData, mWorldPosBuffer);
