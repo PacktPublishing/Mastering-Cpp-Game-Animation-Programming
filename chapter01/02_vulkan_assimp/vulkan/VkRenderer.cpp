@@ -250,53 +250,61 @@ bool VkRenderer::createDescriptorPool() {
 }
 
 bool VkRenderer::createDescriptorLayouts() {
-  VkDescriptorSetLayoutBinding assimpTextureBind{};
-  assimpTextureBind.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  assimpTextureBind.binding = 0;
-  assimpTextureBind.descriptorCount = 1;
-  assimpTextureBind.pImmutableSamplers = nullptr;
-  assimpTextureBind.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+  VkResult result;
 
-  std::vector<VkDescriptorSetLayoutBinding> assimpTexBindings = { assimpTextureBind };
+  {
+    /* texture */
+    VkDescriptorSetLayoutBinding assimpTextureBind{};
+    assimpTextureBind.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    assimpTextureBind.binding = 0;
+    assimpTextureBind.descriptorCount = 1;
+    assimpTextureBind.pImmutableSamplers = nullptr;
+    assimpTextureBind.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-  VkDescriptorSetLayoutCreateInfo assimpTextureCreateInfo{};
-  assimpTextureCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  assimpTextureCreateInfo.bindingCount = static_cast<uint32_t>(assimpTexBindings.size());
-  assimpTextureCreateInfo.pBindings = assimpTexBindings.data();
+    std::vector<VkDescriptorSetLayoutBinding> assimpTexBindings = { assimpTextureBind };
 
-  VkResult result = vkCreateDescriptorSetLayout(mRenderData.rdVkbDevice.device, &assimpTextureCreateInfo,
-    nullptr, &mRenderData.rdAssimpTextureDescriptorLayout);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not create ASSIMP texturedescriptor set layout (error: %i)\n", __FUNCTION__, result);
-    return false;
+    VkDescriptorSetLayoutCreateInfo assimpTextureCreateInfo{};
+    assimpTextureCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    assimpTextureCreateInfo.bindingCount = static_cast<uint32_t>(assimpTexBindings.size());
+    assimpTextureCreateInfo.pBindings = assimpTexBindings.data();
+
+    result = vkCreateDescriptorSetLayout(mRenderData.rdVkbDevice.device, &assimpTextureCreateInfo,
+      nullptr, &mRenderData.rdAssimpTextureDescriptorLayout);
+    if (result != VK_SUCCESS) {
+      Logger::log(1, "%s error: could not create Assimp texturedescriptor set layout (error: %i)\n", __FUNCTION__, result);
+      return false;
+    }
   }
 
-  VkDescriptorSetLayoutBinding assimpUboBind{};
-  assimpUboBind.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  assimpUboBind.binding = 0;
-  assimpUboBind.descriptorCount = 1;
-  assimpUboBind.pImmutableSamplers = nullptr;
-  assimpUboBind.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+  {
+      /* non-animated shader */
+    VkDescriptorSetLayoutBinding assimpUboBind{};
+    assimpUboBind.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    assimpUboBind.binding = 0;
+    assimpUboBind.descriptorCount = 1;
+    assimpUboBind.pImmutableSamplers = nullptr;
+    assimpUboBind.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-  VkDescriptorSetLayoutBinding assimpSsboBind{};
-  assimpSsboBind.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-  assimpSsboBind.binding = 1;
-  assimpSsboBind.descriptorCount = 1;
-  assimpSsboBind.pImmutableSamplers = nullptr;
-  assimpSsboBind.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    VkDescriptorSetLayoutBinding assimpSsboBind{};
+    assimpSsboBind.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    assimpSsboBind.binding = 1;
+    assimpSsboBind.descriptorCount = 1;
+    assimpSsboBind.pImmutableSamplers = nullptr;
+    assimpSsboBind.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-  std::vector<VkDescriptorSetLayoutBinding> assimpBindings = { assimpUboBind, assimpSsboBind };
+    std::vector<VkDescriptorSetLayoutBinding> assimpBindings = { assimpUboBind, assimpSsboBind };
 
-  VkDescriptorSetLayoutCreateInfo assimpCreateInfo{};
-  assimpCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  assimpCreateInfo.bindingCount = static_cast<uint32_t>(assimpBindings.size());
-  assimpCreateInfo.pBindings = assimpBindings.data();
+    VkDescriptorSetLayoutCreateInfo assimpCreateInfo{};
+    assimpCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    assimpCreateInfo.bindingCount = static_cast<uint32_t>(assimpBindings.size());
+    assimpCreateInfo.pBindings = assimpBindings.data();
 
-  result = vkCreateDescriptorSetLayout(mRenderData.rdVkbDevice.device, &assimpCreateInfo,
-    nullptr, &mRenderData.rdAssimpDescriptorLayout);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not create ASSIMP buffer descriptor set layout (error: %i)\n", __FUNCTION__, result);
-    return false;
+    result = vkCreateDescriptorSetLayout(mRenderData.rdVkbDevice.device, &assimpCreateInfo,
+      nullptr, &mRenderData.rdAssimpDescriptorLayout);
+    if (result != VK_SUCCESS) {
+      Logger::log(1, "%s error: could not create Assimp buffer descriptor set layout (error: %i)\n", __FUNCTION__, result);
+      return false;
+    }
   }
 
   return true;
@@ -338,57 +346,75 @@ bool VkRenderer::createDescriptorSets() {
 
 bool VkRenderer::updateDescriptorSets() {
   /* we must update the descriptor sets whenever the buffer size has changed */
-  VkDescriptorBufferInfo matrixInfo{};
-  matrixInfo.buffer = mPerspectiveViewMatrixUBO.buffer;
-  matrixInfo.offset = 0;
-  matrixInfo.range = VK_WHOLE_SIZE;
+  {
+    /* non-animated shader */
+    VkDescriptorBufferInfo matrixInfo{};
+    matrixInfo.buffer = mPerspectiveViewMatrixUBO.buffer;
+    matrixInfo.offset = 0;
+    matrixInfo.range = VK_WHOLE_SIZE;
 
-  VkDescriptorBufferInfo worldPosInfo{};
-  worldPosInfo.buffer = mWorldPosBuffer.buffer;
-  worldPosInfo.offset = 0;
-  worldPosInfo.range = VK_WHOLE_SIZE;
+    VkDescriptorBufferInfo worldPosInfo{};
+    worldPosInfo.buffer = mWorldPosBuffer.buffer;
+    worldPosInfo.offset = 0;
+    worldPosInfo.range = VK_WHOLE_SIZE;
 
-  VkWriteDescriptorSet matrixWriteDescriptorSet{};
-  matrixWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  matrixWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  matrixWriteDescriptorSet.dstSet = mRenderData.rdAssimpDescriptorSet;
-  matrixWriteDescriptorSet.dstBinding = 0;
-  matrixWriteDescriptorSet.descriptorCount = 1;
-  matrixWriteDescriptorSet.pBufferInfo = &matrixInfo;
+    VkWriteDescriptorSet matrixWriteDescriptorSet{};
+    matrixWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    matrixWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    matrixWriteDescriptorSet.dstSet = mRenderData.rdAssimpDescriptorSet;
+    matrixWriteDescriptorSet.dstBinding = 0;
+    matrixWriteDescriptorSet.descriptorCount = 1;
+    matrixWriteDescriptorSet.pBufferInfo = &matrixInfo;
 
-  VkWriteDescriptorSet posWriteDescriptorSet{};
-  posWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  posWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-  posWriteDescriptorSet.dstSet = mRenderData.rdAssimpDescriptorSet;
-  posWriteDescriptorSet.dstBinding = 1;
-  posWriteDescriptorSet.descriptorCount = 1;
-  posWriteDescriptorSet.pBufferInfo = &worldPosInfo;
+    VkWriteDescriptorSet posWriteDescriptorSet{};
+    posWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    posWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    posWriteDescriptorSet.dstSet = mRenderData.rdAssimpDescriptorSet;
+    posWriteDescriptorSet.dstBinding = 1;
+    posWriteDescriptorSet.descriptorCount = 1;
+    posWriteDescriptorSet.pBufferInfo = &worldPosInfo;
 
-  std::vector<VkWriteDescriptorSet> writeDescriptorSets = { matrixWriteDescriptorSet, posWriteDescriptorSet };
+    std::vector<VkWriteDescriptorSet> writeDescriptorSets = { matrixWriteDescriptorSet, posWriteDescriptorSet };
 
-  vkUpdateDescriptorSets(mRenderData.rdVkbDevice.device, static_cast<uint32_t>(writeDescriptorSets.size()),
-     writeDescriptorSets.data(), 0, nullptr);
+    vkUpdateDescriptorSets(mRenderData.rdVkbDevice.device, static_cast<uint32_t>(writeDescriptorSets.size()),
+       writeDescriptorSets.data(), 0, nullptr);
+  }
 
-  VkDescriptorBufferInfo boneMatrixInfo{};
-  boneMatrixInfo.buffer = mBoneMatrixBuffer.buffer;
-  boneMatrixInfo.offset = 0;
-  boneMatrixInfo.range = VK_WHOLE_SIZE;
+  {
+    /* animated shader */
+    VkDescriptorBufferInfo matrixInfo{};
+    matrixInfo.buffer = mPerspectiveViewMatrixUBO.buffer;
+    matrixInfo.offset = 0;
+    matrixInfo.range = VK_WHOLE_SIZE;
 
-  /* world pos matrix is identical, just needs another descriptor set */
-  matrixWriteDescriptorSet.dstSet = mRenderData.rdAssimpSkinningDescriptorSet;
+    VkDescriptorBufferInfo boneMatrixInfo{};
+    boneMatrixInfo.buffer = mBoneMatrixBuffer.buffer;
+    boneMatrixInfo.offset = 0;
+    boneMatrixInfo.range = VK_WHOLE_SIZE;
 
-  VkWriteDescriptorSet boneMatrixWriteDescriptorSet{};
-  boneMatrixWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  boneMatrixWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-  boneMatrixWriteDescriptorSet.dstSet = mRenderData.rdAssimpSkinningDescriptorSet;
-  boneMatrixWriteDescriptorSet.dstBinding = 1;
-  boneMatrixWriteDescriptorSet.descriptorCount = 1;
-  boneMatrixWriteDescriptorSet.pBufferInfo = &boneMatrixInfo;
+    /* world pos matrix is identical, just needs another descriptor set */
+    VkWriteDescriptorSet matrixWriteDescriptorSet{};
+    matrixWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    matrixWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    matrixWriteDescriptorSet.dstSet = mRenderData.rdAssimpSkinningDescriptorSet;
+    matrixWriteDescriptorSet.dstBinding = 0;
+    matrixWriteDescriptorSet.descriptorCount = 1;
+    matrixWriteDescriptorSet.pBufferInfo = &matrixInfo;
 
-  std::vector<VkWriteDescriptorSet> skinningWriteDescriptorSets = { matrixWriteDescriptorSet, boneMatrixWriteDescriptorSet };
+    VkWriteDescriptorSet boneMatrixWriteDescriptorSet{};
+    boneMatrixWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    boneMatrixWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    boneMatrixWriteDescriptorSet.dstSet = mRenderData.rdAssimpSkinningDescriptorSet;
+    boneMatrixWriteDescriptorSet.dstBinding = 1;
+    boneMatrixWriteDescriptorSet.descriptorCount = 1;
+    boneMatrixWriteDescriptorSet.pBufferInfo = &boneMatrixInfo;
 
-  vkUpdateDescriptorSets(mRenderData.rdVkbDevice.device, static_cast<uint32_t>(skinningWriteDescriptorSets.size()),
-     skinningWriteDescriptorSets.data(), 0, nullptr);
+    std::vector<VkWriteDescriptorSet> skinningWriteDescriptorSets = { matrixWriteDescriptorSet, boneMatrixWriteDescriptorSet };
+
+    vkUpdateDescriptorSets(mRenderData.rdVkbDevice.device, static_cast<uint32_t>(skinningWriteDescriptorSets.size()),
+       skinningWriteDescriptorSets.data(), 0, nullptr);
+  }
+
   return true;
 }
 
