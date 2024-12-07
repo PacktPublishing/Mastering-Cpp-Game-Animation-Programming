@@ -1,10 +1,10 @@
 # Chapter 14
 
-In this chapter you will learn how to add a sound and advanced visuals
-* Learn how to use SDL as audio-only library, howw to load and play music and sound effects
+In this chapter you will learn how to add sounds, music, and advanced visuals
+* Learn how to use SDL as audio-only library, and howw to load and play music and sound effects
 * Understand the principle behind a cubemap and implement a skybox
 * Add adjustable fog to the virtual world
-* Implement a day/night cycle by using changing color and intensity of the global world light
+* Implement a day/night cycle by changing position, color, and intensity of the global light source
 
 ## Controls
 
