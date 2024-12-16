@@ -862,7 +862,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     }
   }
 
-  if (ImGui::CollapsingHeader("Music")) {
+  if (ImGui::CollapsingHeader("Music & Sound")) {
     std::vector<std::string> playlist = modInstCamData.micGetMusicPlayListCallbackFunction();
     bool audioInitialized = modInstCamData.micIsAudioManagerInitializedCallbackFunction();
 
@@ -970,12 +970,21 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     }
 
     int musicVolume = modInstCamData.micGetMusicVolumeCallbackFunction();
-    ImGui::Text("Volume:       ");
+    ImGui::Text("Music Volume: ");
     ImGui::SameLine();
 
     ImGui::SliderInt("##MusicVolume", &musicVolume, 0, 128, "%d", flags);
     if (ImGui::IsItemDeactivatedAfterEdit() || ImGui::IsItemActive()) {
       modInstCamData.micSetMusicVolumeCallbackFunction(musicVolume);
+    }
+
+    int soundVolume = modInstCamData.micGetSoundEffectsVolumeCallbackFunction();
+    ImGui::Text("Sound Volume: ");
+    ImGui::SameLine();
+
+    ImGui::SliderInt("##SoundVolume", &soundVolume, 0, 128, "%d", flags);
+    if (ImGui::IsItemDeactivatedAfterEdit() || ImGui::IsItemActive()) {
+      modInstCamData.micSetSoundEffectsVolumeCallbackFunction(soundVolume);
     }
 
     if (!playlistHasEntries) {
@@ -1363,7 +1372,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SameLine();
     ImGui::SliderFloat("##LevelLightIntensity", &renderData.rdLightSourceIntensity, 0.0f, 1.0f, "%.2f", flags);
 
-    ImGui::Text("Light Color:    ");
+    ImGui::Text("RGB Light Color:");
     ImGui::SameLine();
     ImGui::SliderFloat3("##LevelLightCol", glm::value_ptr(renderData.rdLightSourceColor), 0.0f, 1.0f, "%.3f", flags);
 

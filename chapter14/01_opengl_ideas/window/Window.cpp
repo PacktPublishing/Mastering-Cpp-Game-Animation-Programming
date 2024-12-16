@@ -27,9 +27,9 @@ bool Window::init(unsigned int width, unsigned int height, std::string title) {
   mRenderer = std::make_unique<OGLRenderer>(mWindow);
 
   /* allow to set window title in renderer */
-  ModelInstanceCamData& rendererModInstCamData = mRenderer->getModInstCamData();
-  rendererModInstCamData.micGetWindowTitleFunction = [this]() { return getWindowTitle(); };
-  rendererModInstCamData.micSetWindowTitleFunction = [this](std::string windowTitle) { setWindowTitle(windowTitle); };
+  ModelInstanceCamData& rendererMICData = mRenderer->getModInstCamData();
+  rendererMICData.micGetWindowTitleFunction = [this]() { return getWindowTitle(); };
+  rendererMICData.micSetWindowTitleFunction = [this](std::string windowTitle) { setWindowTitle(windowTitle); };
 
   glfwSetWindowUserPointer(mWindow, mRenderer.get());
   glfwSetWindowSizeCallback(mWindow, [](GLFWwindow *win, int width, int height) {
@@ -94,23 +94,25 @@ bool Window::init(unsigned int width, unsigned int height, std::string title) {
     }
   }
 
-  rendererModInstCamData.micIsAudioManagerInitializedCallbackFunction = [this]() { return mAudioManager.isInitialized(); };
-  rendererModInstCamData.micPlayRandomMusicCallbackFunction = [this]() { mAudioManager.playRandomMusic(); };
-  rendererModInstCamData.micStopMusicCallbackFunction = [this]() { mAudioManager.stopMusic(); };
-  rendererModInstCamData.micPauseResumeMusicCallbackFunction = [this](bool pauseOrResume) { mAudioManager.pauseMusic(pauseOrResume); };
-  rendererModInstCamData.micGetMusicPlayListCallbackFunction = [this]() { return mAudioManager.getPlayList(); };
-  rendererModInstCamData.micIsMusicPausedCallbackFunction = [this]() { return mAudioManager.isMusicPaused(); };
-  rendererModInstCamData.micIsMusicPlayingCallbackFunction = [this]() { return mAudioManager.isMusicPlaying(); };
-  rendererModInstCamData.micGetMusicCurrentTrackCallbackFunction = [this]() { return mAudioManager.getCurrentTitle(); };
-  rendererModInstCamData.micPlayNextMusicTrackCallbackFunction = [this]() { mAudioManager.playNextTitle(); };
-  rendererModInstCamData.micPlayPrevMusicTrackCallbackFunction = [this]() { mAudioManager.playPrevTitle(); };
-  rendererModInstCamData.micSetMusicVolumeCallbackFunction = [this](int volume) { mAudioManager.setMusicVolume(volume); };
-  rendererModInstCamData.micGetMusicVolumeCallbackFunction = [this]() { return mAudioManager.getMusicVolume(); };
-  rendererModInstCamData.micPlayMusicTitleCallbackFunction = [this](std::string title) { mAudioManager.playTitle(title); };
+  rendererMICData.micIsAudioManagerInitializedCallbackFunction = [this]() { return mAudioManager.isInitialized(); };
+  rendererMICData.micPlayRandomMusicCallbackFunction = [this]() { mAudioManager.playRandomMusic(); };
+  rendererMICData.micStopMusicCallbackFunction = [this]() { mAudioManager.stopMusic(); };
+  rendererMICData.micPauseResumeMusicCallbackFunction = [this](bool pauseOrResume) { mAudioManager.pauseMusic(pauseOrResume); };
+  rendererMICData.micGetMusicPlayListCallbackFunction = [this]() { return mAudioManager.getPlayList(); };
+  rendererMICData.micIsMusicPausedCallbackFunction = [this]() { return mAudioManager.isMusicPaused(); };
+  rendererMICData.micIsMusicPlayingCallbackFunction = [this]() { return mAudioManager.isMusicPlaying(); };
+  rendererMICData.micGetMusicCurrentTrackCallbackFunction = [this]() { return mAudioManager.getCurrentTitle(); };
+  rendererMICData.micPlayNextMusicTrackCallbackFunction = [this]() { mAudioManager.playNextTitle(); };
+  rendererMICData.micPlayPrevMusicTrackCallbackFunction = [this]() { mAudioManager.playPrevTitle(); };
+  rendererMICData.micSetMusicVolumeCallbackFunction = [this](int volume) { mAudioManager.setMusicVolume(volume); };
+  rendererMICData.micGetMusicVolumeCallbackFunction = [this]() { return mAudioManager.getMusicVolume(); };
+  rendererMICData.micPlayMusicTitleCallbackFunction = [this](std::string title) { mAudioManager.playTitle(title); };
 
-  rendererModInstCamData.micPlayWalkFootstepCallbackFunction = [this]() { mAudioManager.playWalkFootsteps(); };
-  rendererModInstCamData.micPlayRunFootstepCallbackFunction = [this]() { mAudioManager.playRunFootsteps(); };
-  rendererModInstCamData.micStopFootstepCallbackFunction = [this]() { mAudioManager.stopFootsteps(); };
+  rendererMICData.micSetSoundEffectsVolumeCallbackFunction = [this](int volume) { mAudioManager.setSoundVolume(volume); };
+  rendererMICData.micGetSoundEffectsVolumeCallbackFunction = [this]() { return mAudioManager.getSoundVolume(); };
+  rendererMICData.micPlayWalkFootstepCallbackFunction = [this]() { mAudioManager.playWalkFootsteps(); };
+  rendererMICData.micPlayRunFootstepCallbackFunction = [this]() { mAudioManager.playRunFootsteps(); };
+  rendererMICData.micStopFootstepCallbackFunction = [this]() { mAudioManager.stopFootsteps(); };
 
   mStartTime = std::chrono::steady_clock::now();
   Logger::log(1, "%s: Window with OpenGL 4.6 successfully initialized\n", __FUNCTION__);

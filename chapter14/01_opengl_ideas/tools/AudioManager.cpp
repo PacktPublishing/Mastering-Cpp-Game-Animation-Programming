@@ -19,7 +19,7 @@ bool AudioManager::init() {
     return false;
   }
 
-  if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 8192) < 0) {
+  if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
     Logger::log(1, "%s error: could not init mixer device\n", __FUNCTION__);
     Logger::log(1, "%s errormessage: %s\n", __FUNCTION__, Mix_GetError());
     Logger::log(1, "%s: disabling music output\n", __FUNCTION__);
@@ -129,6 +129,7 @@ void AudioManager::clearAllMusic() {
   for (auto& title : mMusicTitles) {
     Mix_FreeMusic(title.second);
   }
+  mMusicTitles.clear();
 
   mMusicAvailable = false;
   mMusicPlaying = false;

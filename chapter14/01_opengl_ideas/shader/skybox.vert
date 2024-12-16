@@ -17,9 +17,8 @@ void main() {
   /* remove translation part */
   mat3 inverseView = transpose(mat3(view));
 
-  vec3 unprojected = (inverseProjection * aPos).xyz;
-  texCoord = inverseView * unprojected;
+  texCoord = inverseView * (inverseProjection * aPos).xyz;
 
-  /* set z to 1.0 to force drawingon z far plance */
+  /* set z to 1.0 to force drawing on the far z plane */
   gl_Position = aPos.xyww;
 }

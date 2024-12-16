@@ -182,7 +182,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
 
   /* load skybox texture */
   std::string skyboxTexName = "textures/skybox.jpg";
-  if (!mSkyboxTexture.loadCubemapTxture(skyboxTexName, false)) {
+  if (!mSkyboxTexture.loadCubemapTexture(skyboxTexName, false)) {
     Logger::log(1, "%s error: could not load skybox texture '%s'\n", __FUNCTION__, skyboxTexName.c_str());
     return false;
   }
@@ -3270,7 +3270,7 @@ void OGLRenderer::drawSkybox() {
   mSkyboxShader.use();
   mSkyboxTexture.bindCubemap();
   mSkyboxBuffer.bindAndDraw();
-  mSkyboxTexture.unbind();
+  mSkyboxTexture.unbindCubemap();
 }
 
 bool OGLRenderer::draw(float deltaTime) {

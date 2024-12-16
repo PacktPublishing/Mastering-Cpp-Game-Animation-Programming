@@ -83,7 +83,7 @@ bool Texture::loadTexture(std::string textureName, aiTexel* textureData, int wid
   return true;
 }
 
-bool Texture::loadCubemapTxture(std::string textureFilename, bool flipImage) {
+bool Texture::loadCubemapTexture(std::string textureFilename, bool flipImage) {
   mTextureName = textureFilename;
 
   stbi_set_flip_vertically_on_load(flipImage);
@@ -154,7 +154,7 @@ bool Texture::loadCubemapTxture(std::string textureFilename, bool flipImage) {
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-  glBindTexture(GL_TEXTURE_2D, 0);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
   stbi_image_free(textureData);
 
@@ -174,3 +174,8 @@ void Texture::bindCubemap() {
 void Texture::unbind() {
   glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+void Texture::unbindCubemap() {
+  glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+

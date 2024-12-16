@@ -29,6 +29,6 @@ void main() {
   float fogAmount = 1.0 - clamp(exp(-pow(fogDensity * fogDistance, 2.0)), 0.0, 1.0);
   vec4 fogColor = 0.25 * vec4(vec3(lightColor), 1.0);
 
-  FragColor = mix(vec4(ambient + diffuse, 1.0) * texture(tex, texCoord) * color, fogColor * color, fogAmount);
+  FragColor = mix(vec4(min(ambient + diffuse, vec3(1.0)), 1.0) * texture(tex, texCoord) * color, fogColor * color, fogAmount);
 }
 

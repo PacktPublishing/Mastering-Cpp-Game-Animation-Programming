@@ -10,12 +10,13 @@ class Texture {
     bool loadTexture(std::string textureFilename, bool flipImage = true);
     bool loadTexture(std::string textureName, aiTexel* textureData, int width, int height, bool flipImage = true);
 
-    bool loadCubemapTxture(std::string textureFilename, bool flipImage = true);
+    bool loadCubemapTexture(std::string textureFilename, bool flipImage = true);
 
     void bind();
     void unbind();
 
     void bindCubemap();
+    void unbindCubemap();
 
     void cleanup();
 

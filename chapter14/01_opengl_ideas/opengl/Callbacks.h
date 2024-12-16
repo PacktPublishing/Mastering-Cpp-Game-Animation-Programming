@@ -112,6 +112,9 @@ using getMusicVolumeCallback = std::function<int(void)>;
 using getMusicPlayListCallback = std::function<std::vector<std::string>(void)>;
 using getMusicCurrentTrackCallback = std::function<std::string(void)>;
 
+using setSoundEffectsVolumeCallback = std::function<void(int)>;
+using getSoundEffectsVolumeCallback = std::function<int(void)>;
+
 using playWalkFootstepCallback = std::function<void(void)>;
 using playRunFootstepCallback = std::function<void(void)>;
 using stopFootstepCallback = std::function<void(void)>;

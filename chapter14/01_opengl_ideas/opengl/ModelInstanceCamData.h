@@ -120,6 +120,9 @@ struct ModelInstanceCamData {
   getMusicPlayListCallback micGetMusicPlayListCallbackFunction;
   getMusicCurrentTrackCallback micGetMusicCurrentTrackCallbackFunction;
 
+  setSoundEffectsVolumeCallback micSetSoundEffectsVolumeCallbackFunction;
+  getSoundEffectsVolumeCallback micGetSoundEffectsVolumeCallbackFunction;
+
   playWalkFootstepCallback micPlayWalkFootstepCallbackFunction;
   playRunFootstepCallback micPlayRunFootstepCallbackFunction;
   stopFootstepCallback micStopFootstepCallbackFunction;
