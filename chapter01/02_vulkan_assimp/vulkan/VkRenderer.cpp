@@ -461,7 +461,7 @@ bool VkRenderer::createDepthBuffer() {
 
   result = vkCreateImageView(mRenderData.rdVkbDevice.device, &depthImageViewinfo, nullptr, &mRenderData.rdDepthImageView);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not create depth buffer image view (error: %i)\n", __FUNCTION__), result;
+    Logger::log(1, "%s error: could not create depth buffer image view (error: %i)\n", __FUNCTION__, result);
     return false;
   }
   return true;
@@ -496,6 +496,7 @@ bool VkRenderer::createSwapchain() {
 
 bool VkRenderer::recreateSwapchain() {
   /* handle minimize */
+  glfwGetFramebufferSize(mRenderData.rdWindow, &mRenderData.rdWidth, &mRenderData.rdHeight);
   while (mRenderData.rdWidth == 0 || mRenderData.rdHeight == 0) {
     glfwGetFramebufferSize(mRenderData.rdWindow, &mRenderData.rdWidth, &mRenderData.rdHeight);
     glfwWaitEvents();
@@ -565,19 +566,15 @@ bool VkRenderer::createPipelineLayouts() {
     mRenderData.rdAssimpTextureDescriptorLayout,
     mRenderData.rdAssimpDescriptorLayout };
 
-  if (!PipelineLayout::init(mRenderData, mRenderData.rdAssimpPipelineLayout, layouts)) {
+  std::vector<VkPushConstantRange> pushConstants = { { VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VkPushConstants) } };
+
+  if (!PipelineLayout::init(mRenderData, mRenderData.rdAssimpPipelineLayout, layouts, pushConstants)) {
     Logger::log(1, "%s error: could not init Assimp pipeline layout\n", __FUNCTION__);
     return false;
   }
 
-  /* animated model, needs push constant */
-  std::vector<VkDescriptorSetLayout> skinningLayouts = {
-    mRenderData.rdAssimpTextureDescriptorLayout,
-    mRenderData.rdAssimpDescriptorLayout };
-
-  std::vector<VkPushConstantRange> pushConstants = { { VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VkPushConstants) } };
-
-  if (!PipelineLayout::init(mRenderData, mRenderData.rdAssimpSkinningPipelineLayout, skinningLayouts, pushConstants)) {
+  /* animated model */
+  if (!PipelineLayout::init(mRenderData, mRenderData.rdAssimpSkinningPipelineLayout, layouts, pushConstants)) {
     Logger::log(1, "%s error: could not init Assimp Skinning pipeline layout\n", __FUNCTION__);
     return false;
   }
@@ -858,7 +855,7 @@ void VkRenderer::handleMouseButtonEvents(int button, int action, int mods) {
   }
 }
 
-void VkRenderer::handleMousePositionEvents(double xPos, double yPos){
+void VkRenderer::handleMousePositionEvents(double xPos, double yPos) {
   /* forward to ImGui */
   ImGuiIO& io = ImGui::GetIO();
   io.AddMousePosEvent((float)xPos, (float)yPos);
@@ -1030,8 +1027,8 @@ bool VkRenderer::draw(float deltaTime) {
 
   /* we need to update descriptors after the upload if buffer size changed */
   bool doDescriptorUpdates = false;
-  if (mBoneMatrixBuffer.bufferSize < mModelBoneMatrices.size() * sizeof(glm::mat4) ||
-      mWorldPosBuffer.bufferSize < mWorldPosMatrices.size() * sizeof(glm::mat4)) {
+  if (mBoneMatrixBuffer.bufferSize != mModelBoneMatrices.size() * sizeof(glm::mat4) ||
+      mWorldPosBuffer.bufferSize != mWorldPosMatrices.size() * sizeof(glm::mat4)) {
     doDescriptorUpdates = true;
   }
 
@@ -1045,19 +1042,13 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   /* Vulkan render preparations */
-  result = vkResetCommandBuffer(mRenderData.rdCommandBuffer, 0);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: failed to reset command buffer (error: %i)\n", __FUNCTION__, result);
+  if (!CommandBuffer::reset(mRenderData.rdCommandBuffer)) {
+    Logger::log(1, "%s error: failed to reset command buffer\n", __FUNCTION__);
     return false;
   }
 
-  VkCommandBufferBeginInfo cmdBeginInfo{};
-  cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-  result = vkBeginCommandBuffer(mRenderData.rdCommandBuffer, &cmdBeginInfo);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: failed to begin command buffer (error: %i)\n", __FUNCTION__, result);
+  if (!CommandBuffer::beginSingleShot(mRenderData.rdCommandBuffer)) {
+    Logger::log(1, "%s error: failed to begin command buffer\n", __FUNCTION__);
     return false;
   }
 
@@ -1100,8 +1091,8 @@ bool VkRenderer::draw(float deltaTime) {
   vkCmdSetScissor(mRenderData.rdCommandBuffer, 0, 1, &scissor);
 
   /* draw the models */
-  uint32_t firstAnimatedInstanceToDraw = 0;
-  uint32_t firstInstanceToDraw = 0;
+  int worldPosOffset = 0;
+  int worldPosOffsetSkinned = 0;
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
     size_t numberOfInstances = modelType.second.size();
     if (numberOfInstances > 0) {
@@ -1113,26 +1104,32 @@ bool VkRenderer::draw(float deltaTime) {
         size_t numberOfBones = model->getBoneList().size();
 
         mUploadToUBOTimer.start();
-        mModelStride.pkModelStride = numberOfBones;
+        mModelData.pkModelStride = numberOfBones;
+        mModelData.pkWorldPosOffset = worldPosOffsetSkinned;
         vkCmdPushConstants(mRenderData.rdCommandBuffer, mRenderData.rdAssimpSkinningPipelineLayout,
-          VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VkPushConstants), &mModelStride);
+          VK_SHADER_STAGE_VERTEX_BIT, 0, static_cast<uint32_t>(sizeof(VkPushConstants)), &mModelData);
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
         vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpSkinningPipeline);
 
         vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                                 mRenderData.rdAssimpSkinningPipelineLayout, 1, 1, &mRenderData.rdAssimpSkinningDescriptorSet, 0, nullptr);
-        model->drawInstanced(mRenderData, numberOfInstances, firstAnimatedInstanceToDraw);
-        firstAnimatedInstanceToDraw += numberOfInstances;
+        model->drawInstanced(mRenderData, numberOfInstances);
+        worldPosOffsetSkinned += numberOfInstances * numberOfBones;
       } else {
         /* non-animated models */
+        mUploadToUBOTimer.start();
+        mModelData.pkWorldPosOffset = worldPosOffset;
+        vkCmdPushConstants(mRenderData.rdCommandBuffer, mRenderData.rdAssimpPipelineLayout,
+          VK_SHADER_STAGE_VERTEX_BIT, 0, static_cast<uint32_t>(sizeof(VkPushConstants)), &mModelData);
+        mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
         vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpPipeline);
 
         vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                                 mRenderData.rdAssimpPipelineLayout, 1, 1, &mRenderData.rdAssimpDescriptorSet, 0, nullptr);
-        model->drawInstanced(mRenderData, numberOfInstances, firstInstanceToDraw);
-        firstInstanceToDraw += numberOfInstances;
+        model->drawInstanced(mRenderData, numberOfInstances);
+        worldPosOffset += numberOfInstances;
       }
     }
   }
@@ -1149,9 +1146,8 @@ bool VkRenderer::draw(float deltaTime) {
 
   vkCmdEndRenderPass(mRenderData.rdCommandBuffer);
 
-  result = vkEndCommandBuffer(mRenderData.rdCommandBuffer);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: failed to end command buffer (error: %i)\n", __FUNCTION__, result);
+  if (!CommandBuffer::end(mRenderData.rdCommandBuffer)) {
+    Logger::log(1, "%s error: failed to end command buffer\n", __FUNCTION__);
     return false;
   }
 

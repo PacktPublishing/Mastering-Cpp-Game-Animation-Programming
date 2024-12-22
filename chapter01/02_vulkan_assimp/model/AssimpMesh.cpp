@@ -125,7 +125,7 @@ bool AssimpMesh::processMesh(VkRenderData &renderData, aiMesh* mesh, const aiSce
         unsigned int vertexId = mesh->mBones[boneId]->mWeights[weight].mVertexId;
         float vertexWeight = mesh->mBones[boneId]->mWeights[weight].mWeight;
 
-        glm::vec4 currentIds = mMesh.vertices.at(vertexId).boneNumber;
+        glm::uvec4 currentIds = mMesh.vertices.at(vertexId).boneNumber;
         glm::vec4 currentWeights = mMesh.vertices.at(vertexId).boneWeight;
 
         /* insert weight and bone id into first free slot (weight => 0.0f) */

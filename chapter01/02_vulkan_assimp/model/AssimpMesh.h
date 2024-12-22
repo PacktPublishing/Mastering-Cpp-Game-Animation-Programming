@@ -29,6 +29,6 @@ class AssimpMesh {
     unsigned int mTriangleCount = 0;
     unsigned int mVertexCount = 0;
 
-    VkMesh mMesh {};
-    std::vector<std::shared_ptr<AssimpBone>> mBoneList;
+    VkMesh mMesh{};
+    std::vector<std::shared_ptr<AssimpBone>> mBoneList{};
 };

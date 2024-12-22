@@ -43,8 +43,6 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
   }
   Logger::log(1, "%s: model contains %i vertices and %i faces\n", __FUNCTION__, mVertexCount, mTriangleCount);
 
-  aiNode* rootNode = scene->mRootNode;
-
   if (scene->HasTextures()) {
     unsigned int numTextures = scene->mNumTextures;
 
@@ -81,9 +79,10 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
   /* nodes */
   Logger::log(1, "%s: ... processing nodes...\n", __FUNCTION__);
 
+  aiNode* rootNode = scene->mRootNode;
   std::string rootNodeName = rootNode->mName.C_Str();
   mRootNode = AssimpNode::createNode(rootNodeName);
-  Logger::log(2, "%s: root node name: '%s'\n", __FUNCTION__, rootNodeName.c_str());
+  Logger::log(1, "%s: root node name: '%s'\n", __FUNCTION__, rootNodeName.c_str());
 
   processNode(renderData, mRootNode, rootNode, scene, assetDirectory);
 
@@ -199,8 +198,8 @@ glm::mat4 AssimpModel::getRootTranformationMatrix() {
 void AssimpModel::draw(VkRenderData &renderData) {
   for (unsigned int i = 0; i < mModelMeshes.size(); ++i) {
     VkMesh& mesh = mModelMeshes.at(i);
-    // find diffuse texture by name
 
+    // find diffuse texture by name
     VkTextureData diffuseTex{};
     auto diffuseTexName = mesh.textures.find(aiTextureType_DIFFUSE);
     if (diffuseTexName != mesh.textures.end()) {
@@ -233,11 +232,11 @@ void AssimpModel::draw(VkRenderData &renderData) {
   }
 }
 
-void AssimpModel::drawInstanced(VkRenderData &renderData, uint32_t instanceCount, uint32_t firstInstance) {
+void AssimpModel::drawInstanced(VkRenderData &renderData, uint32_t instanceCount) {
   for (unsigned int i = 0; i < mModelMeshes.size(); ++i) {
     VkMesh& mesh = mModelMeshes.at(i);
-    // find diffuse texture by name
 
+    // find diffuse texture by name
     VkTextureData diffuseTex{};
     auto diffuseTexName = mesh.textures.find(aiTextureType_DIFFUSE);
     if (diffuseTexName != mesh.textures.end()) {
@@ -266,7 +265,7 @@ void AssimpModel::drawInstanced(VkRenderData &renderData, uint32_t instanceCount
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(renderData.rdCommandBuffer, 0, 1, &mVertexBuffers.at(i).buffer, &offset);
     vkCmdBindIndexBuffer(renderData.rdCommandBuffer, mIndexBuffers.at(i).buffer, 0, VK_INDEX_TYPE_UINT32);
-    vkCmdDrawIndexed(renderData.rdCommandBuffer, static_cast<uint32_t>(mesh.indices.size()), instanceCount, 0, 0, firstInstance);
+    vkCmdDrawIndexed(renderData.rdCommandBuffer, static_cast<uint32_t>(mesh.indices.size()), instanceCount, 0, 0, 0);
   }
 }
 
@@ -319,4 +318,8 @@ const std::vector<std::shared_ptr<AssimpAnimClip>>& AssimpModel::getAnimClips() 
 
 bool AssimpModel::hasAnimations() {
   return mAnimClips.size() > 0;
+}
+
+const std::shared_ptr<AssimpNode> AssimpModel::getRootNode() {
+  return mRootNode;
 }

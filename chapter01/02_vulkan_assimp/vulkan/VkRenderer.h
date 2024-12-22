@@ -61,7 +61,7 @@ class VkRenderer {
     UserInterface mUserInterface{};
     Camera mCamera{};
 
-    VkPushConstants mModelStride;
+    VkPushConstants mModelData{};
     VkUniformBufferData mPerspectiveViewMatrixUBO{};
 
     /* for non-animated models */

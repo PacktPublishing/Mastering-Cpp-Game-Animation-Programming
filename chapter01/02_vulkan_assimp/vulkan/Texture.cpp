@@ -353,7 +353,8 @@ bool Texture::uploadToGPU(VkRenderData& renderData, VkTextureData& texData, VkTe
   texViewInfo.subresourceRange.baseArrayLayer = 0;
   texViewInfo.subresourceRange.layerCount = 1;
 
-  if (vkCreateImageView(renderData.rdVkbDevice.device, &texViewInfo, nullptr, &texData.imageView) != VK_SUCCESS) {
+  VkResult result = vkCreateImageView(renderData.rdVkbDevice.device, &texViewInfo, nullptr, &texData.imageView);
+  if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: could not create image view for texture\n", __FUNCTION__);
     return false;
   }
@@ -386,7 +387,7 @@ bool Texture::uploadToGPU(VkRenderData& renderData, VkTextureData& texData, VkTe
   texSamplerInfo.anisotropyEnable = anisotropyAvailable;
   texSamplerInfo.maxAnisotropy = maxAnisotropy;
 
-  VkResult result = vkCreateSampler(renderData.rdVkbDevice.device, &texSamplerInfo, nullptr, &texData.sampler);
+  result = vkCreateSampler(renderData.rdVkbDevice.device, &texSamplerInfo, nullptr, &texData.sampler);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: could not create sampler for texture (error: %i)\n", __FUNCTION__, result);
     return false;

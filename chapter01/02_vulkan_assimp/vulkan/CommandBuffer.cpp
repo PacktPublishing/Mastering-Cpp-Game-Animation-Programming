@@ -9,15 +9,53 @@ bool CommandBuffer::init(VkRenderData renderData, VkCommandBuffer& commandBuffer
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
   allocInfo.commandBufferCount = 1;
 
-  if (vkAllocateCommandBuffers(renderData.rdVkbDevice.device, &allocInfo, &commandBuffer) != VK_SUCCESS) {
+  VkResult result = vkAllocateCommandBuffers(renderData.rdVkbDevice.device, &allocInfo, &commandBuffer);
+  if (result != VK_SUCCESS) {
+    Logger::log(1, "%s error: could not allocate command buffer (error: %i)\n", __FUNCTION__, result);
     return false;
   }
 
   return true;
 }
 
-void CommandBuffer::cleanup(VkRenderData renderData, const VkCommandBuffer commandBuffer) {
-  vkFreeCommandBuffers(renderData.rdVkbDevice.device, renderData.rdCommandPool, 1, &commandBuffer);
+bool CommandBuffer::reset(VkCommandBuffer &commandBuffer, VkCommandBufferResetFlags flags) {
+  VkResult result = vkResetCommandBuffer(commandBuffer, flags);
+  if (result != VK_SUCCESS) {
+    Logger::log(1, "%s error: could not reset command buffer (error: %i)\n", __FUNCTION__, result);
+    return false;
+  }
+  return true;
+}
+
+bool CommandBuffer::begin(VkCommandBuffer &commandBuffer, VkCommandBufferBeginInfo &beginInfo) {
+  VkResult result = vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    if (result != VK_SUCCESS) {
+    Logger::log(1, "%s error: could not begin new command buffer\n", __FUNCTION__);
+    return false;
+  }
+  return true;
+}
+
+bool CommandBuffer::beginSingleShot(VkCommandBuffer& commandBuffer) {
+  VkCommandBufferBeginInfo cmdBeginInfo{};
+  cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+  VkResult result = vkBeginCommandBuffer(commandBuffer, &cmdBeginInfo);
+  if (result != VK_SUCCESS) {
+    Logger::log(1, "%s error: could not begin new command buffer (error: %i)\n", __FUNCTION__, result);
+    return false;
+  }
+  return true;
+}
+
+bool CommandBuffer::end(VkCommandBuffer& commandBuffer) {
+  VkResult result = vkEndCommandBuffer(commandBuffer);
+  if (result != VK_SUCCESS) {
+    Logger::log(1, "%s error: could not end render pass (error: %i)\n", __FUNCTION__, result);
+    return false;
+  }
+  return true;
 }
 
 VkCommandBuffer CommandBuffer::createSingleShotBuffer(VkRenderData renderData) {
@@ -49,7 +87,7 @@ VkCommandBuffer CommandBuffer::createSingleShotBuffer(VkRenderData renderData) {
   return commandBuffer;
 }
 
-bool CommandBuffer::submitSingleShotBuffer(VkRenderData renderData, const VkCommandBuffer commandBuffer, const VkQueue queue) {
+bool CommandBuffer::submitSingleShotBuffer(VkRenderData renderData, VkCommandBuffer commandBuffer, VkQueue queue) {
   Logger::log(2, "%s: submitting single shot command buffer\n", __FUNCTION__);
 
   VkResult result = vkEndCommandBuffer(commandBuffer);
@@ -87,7 +125,7 @@ bool CommandBuffer::submitSingleShotBuffer(VkRenderData renderData, const VkComm
     return false;
   }
 
-  result =vkWaitForFences(renderData.rdVkbDevice.device, 1, &bufferFence, VK_TRUE, UINT64_MAX);
+  result = vkWaitForFences(renderData.rdVkbDevice.device, 1, &bufferFence, VK_TRUE, UINT64_MAX);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: waiting for buffer fence failed (error: %i)\n", __FUNCTION__, result);
     return false;
@@ -98,4 +136,8 @@ bool CommandBuffer::submitSingleShotBuffer(VkRenderData renderData, const VkComm
 
   Logger::log(2, "%s: single shot command buffer successfully submitted\n", __FUNCTION__);
   return true;
+}
+
+void CommandBuffer::cleanup(VkRenderData renderData, VkCommandBuffer commandBuffer) {
+  vkFreeCommandBuffers(renderData.rdVkbDevice.device, renderData.rdCommandPool, 1, &commandBuffer);
 }

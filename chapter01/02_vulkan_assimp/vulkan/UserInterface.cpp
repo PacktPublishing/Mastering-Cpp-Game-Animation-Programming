@@ -50,7 +50,10 @@ bool UserInterface::init(VkRenderData& renderData) {
     return false;
   }
 
-  ImGui_ImplGlfw_InitForVulkan(renderData.rdWindow, true);
+  if (!ImGui_ImplGlfw_InitForVulkan(renderData.rdWindow, true)) {
+    Logger::log(1, "%s error: could not init ImGui GLFW for Vulkan \n", __FUNCTION__);
+    return false;
+  }
 
   ImGui_ImplVulkan_InitInfo imguiIinitInfo{};
   imguiIinitInfo.Instance = renderData.rdVkbInstance.instance;
@@ -63,7 +66,10 @@ bool UserInterface::init(VkRenderData& renderData) {
   imguiIinitInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
   imguiIinitInfo.RenderPass = renderData.rdRenderpass;
 
-  ImGui_ImplVulkan_Init(&imguiIinitInfo);
+  if (!ImGui_ImplVulkan_Init(&imguiIinitInfo)) {
+    Logger::log(1, "%s error: could not init ImGui for Vulkan \n", __FUNCTION__);
+    return false;
+  }
 
   ImGui::StyleColorsDark();
 

@@ -1,7 +1,7 @@
 #include "AssimpAnimClip.h"
 #include "Logger.h"
 
-void AssimpAnimClip::addChannels(aiAnimation* animation){
+void AssimpAnimClip::addChannels(aiAnimation* animation) {
   mClipName = animation->mName.C_Str();
   mClipDuration = animation->mDuration;
   mClipTicksPerSecond = animation->mTicksPerSecond;
@@ -27,14 +27,6 @@ void AssimpAnimClip::setClipName(std::string name) {
 
 std::vector<std::shared_ptr<AssimpAnimChannel>> AssimpAnimClip::getChannels() {
   return mAnimChannels;
-}
-
-std::shared_ptr<AssimpAnimChannel> AssimpAnimClip::getChannel(unsigned int index) {
-  if (index >= mAnimChannels.size()) {
-    Logger::log(1, "%s error: tried to get channel %i, but I have only %i channels \n",__FUNCTION__, index, mAnimChannels.size());
-    return nullptr;
-  }
-  return mAnimChannels.at(index);
 }
 
 float AssimpAnimClip::getClipDuration() {

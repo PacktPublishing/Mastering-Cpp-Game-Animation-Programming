@@ -23,7 +23,7 @@ class AssimpModel {
     glm::mat4 getRootTranformationMatrix();
 
     void draw(VkRenderData &renderData);
-    void drawInstanced(VkRenderData &renderData, uint32_t instanceCount, uint32_t firstInstace);
+    void drawInstanced(VkRenderData &renderData, uint32_t instanceCount);
     unsigned int getTriangleCount();
 
     std::string getModelFileName();
@@ -38,6 +38,8 @@ class AssimpModel {
     const std::vector<std::shared_ptr<AssimpBone>>& getBoneList();
     const std::map<std::string, glm::mat4>& getBoneOffsetMatrices();
 
+    const std::shared_ptr<AssimpNode> getRootNode();
+
     void cleanup(VkRenderData &renderData);
 
 private:
@@ -50,7 +52,7 @@ private:
     /* store the root node for direct access */
     std::shared_ptr<AssimpNode> mRootNode = nullptr;
     /* a map to find the node by name */
-    std::map<std::string, std::shared_ptr<AssimpNode>> mNodeMap;
+    std::map<std::string, std::shared_ptr<AssimpNode>> mNodeMap{};
     /* and a 'flat' map to keep the order of insertation  */
     std::vector<std::shared_ptr<AssimpNode>> mNodeList{};
 

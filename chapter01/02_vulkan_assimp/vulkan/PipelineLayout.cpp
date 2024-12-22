@@ -5,6 +5,7 @@
 
 bool PipelineLayout::init(VkRenderData& renderData, VkPipelineLayout& pipelineLayout,
     std::vector<VkDescriptorSetLayout> layouts, std::vector<VkPushConstantRange> pushConstants) {
+
   VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
   pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
   pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());

@@ -12,6 +12,7 @@ layout (location = 2) out vec2 texCoord;
 
 layout (push_constant) uniform Constants {
   int modelStride;
+  int worldPosOffset;
 };
 
 layout (set = 1, binding = 0) uniform Matrices {
@@ -24,12 +25,13 @@ layout (std430, set = 1, binding = 1) readonly restrict buffer BoneMatrices {
 };
 
 void main() {
+  int skinMatOffset = gl_InstanceIndex * modelStride + worldPosOffset;
 
   mat4 skinMat =
-    aBoneWeight.x * boneMat[aBoneNum.x + gl_InstanceIndex * modelStride] +
-    aBoneWeight.y * boneMat[aBoneNum.y + gl_InstanceIndex * modelStride] +
-    aBoneWeight.z * boneMat[aBoneNum.z + gl_InstanceIndex * modelStride] +
-    aBoneWeight.w * boneMat[aBoneNum.w + gl_InstanceIndex * modelStride];
+    aBoneWeight.x * boneMat[aBoneNum.x + skinMatOffset] +
+    aBoneWeight.y * boneMat[aBoneNum.y + skinMatOffset] +
+    aBoneWeight.z * boneMat[aBoneNum.z + skinMatOffset] +
+    aBoneWeight.w * boneMat[aBoneNum.w + skinMatOffset];
 
   gl_Position = projection * view * skinMat * vec4(aPos, 1.0);
   color = aColor;

@@ -20,19 +20,19 @@ struct VkVertex {
   glm::vec4 color = glm::vec4(1.0f);
   glm::vec3 normal = glm::vec3(0.0f);
   glm::vec2 uv = glm::vec2(0.0f);
-  glm::uvec4 boneNumber = glm::vec4(0.0f);
+  glm::uvec4 boneNumber = glm::uvec4(0);
   glm::vec4 boneWeight = glm::vec4(0.0f);
 };
 
 struct VkMesh {
-  std::vector<VkVertex> vertices;
+  std::vector<VkVertex> vertices{};
   std::vector<uint32_t> indices{};
   std::unordered_map<aiTextureType, std::string> textures{};
 };
 
 struct VkUploadMatrices {
-  glm::mat4 viewMatrix;
-  glm::mat4 projectionMatrix;
+  glm::mat4 viewMatrix{};
+  glm::mat4 projectionMatrix{};
 };
 
 struct VkTextureData {
@@ -79,6 +79,7 @@ struct VkShaderStorageBufferData {
 
 struct VkPushConstants {
   int pkModelStride;
+  int pkWorldPosOffset;
 };
 
 struct VkRenderData {
@@ -115,19 +116,19 @@ struct VkRenderData {
   vkb::Device rdVkbDevice{};
   vkb::Swapchain rdVkbSwapchain{};
 
-  std::vector<VkImage> rdSwapchainImages;
-  std::vector<VkImageView> rdSwapchainImageViews;
-  std::vector<VkFramebuffer> rdFramebuffers;
+  std::vector<VkImage> rdSwapchainImages{};
+  std::vector<VkImageView> rdSwapchainImageViews{};
+  std::vector<VkFramebuffer> rdFramebuffers{};
 
   VkQueue rdGraphicsQueue = VK_NULL_HANDLE;
   VkQueue rdPresentQueue = VK_NULL_HANDLE;
 
   VkImage rdDepthImage = VK_NULL_HANDLE;
   VkImageView rdDepthImageView = VK_NULL_HANDLE;
-  VkFormat rdDepthFormat;
+  VkFormat rdDepthFormat = VK_FORMAT_UNDEFINED;
   VmaAllocation rdDepthImageAlloc = VK_NULL_HANDLE;
 
-  VkRenderPass rdRenderpass;
+  VkRenderPass rdRenderpass = VK_NULL_HANDLE;
 
   VkPipelineLayout rdAssimpPipelineLayout = VK_NULL_HANDLE;
   VkPipelineLayout rdAssimpSkinningPipelineLayout = VK_NULL_HANDLE;
