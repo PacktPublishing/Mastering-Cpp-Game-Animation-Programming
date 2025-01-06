@@ -22,7 +22,7 @@ struct BehaviorData {
   /* store node positions while in editor */
   std::string bdEditorSettings;
 
-  nodeActionCallback bdNodeActionCallbackFunction{};
+  nodeActionCallback bdNodeActionCallbackFunction;
 };
 
 /* enhanced struct to get extra data */
@@ -33,5 +33,5 @@ struct PerNodeImportData {
 };
 
 struct EnhancedBehaviorData : BehaviorData {
-  std::vector<PerNodeImportData> nodeImportData;
+  std::vector<PerNodeImportData> nodeImportData{};
 };

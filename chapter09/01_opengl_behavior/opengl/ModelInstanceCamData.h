@@ -24,7 +24,7 @@ struct ModelInstanceCamData {
   std::map<std::string, std::vector<std::shared_ptr<AssimpInstance>>> micAssimpInstancesPerModel{};
   int micSelectedInstance = 0;
 
-  std::shared_ptr<AssimpSettingsContainer> micSettingsContainer;
+  std::shared_ptr<AssimpSettingsContainer> micSettingsContainer{};
 
   std::vector<std::shared_ptr<Camera>> micCameras{};
   int micSelectedCamera = 0;
@@ -40,6 +40,9 @@ struct ModelInstanceCamData {
   std::unordered_map<nodeEvent, std::string> micNodeUpdateMap{};
 
   /* callbacks */
+  setWindowTitleCallback micSetWindowTitleFunction;
+  getWindowTitleCallback micGetWindowTitleFunction;
+
   modelCheckCallback micModelCheckCallbackFunction;
   modelAddCallback micModelAddCallbackFunction;
   modelDeleteCallback micModelDeleteCallbackFunction;
@@ -66,7 +69,7 @@ struct ModelInstanceCamData {
   cameraDeleteCallback micCameraDeleteCallbackFunction;
   cameraNameCheckCallback micCameraNameCheckCallbackFunction;
 
-  instanceGetPositions micInstanceGetPositionsCallbackFunction;
+  instanceGetPositionsCallback micInstanceGetPositionsCallbackFunction;
 
   quadTreeQueryBBoxCallback micQuadTreeQueryBBoxCallbackFunction;
   quadTreeFindAllIntersectionsCallback micQuadTreeFindAllIntersectionsCallbackFunction;

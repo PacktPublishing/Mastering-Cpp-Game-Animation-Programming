@@ -59,7 +59,6 @@ void UserInterface::createFrame(OGLRenderData &renderData) {
   }
   /* make an averge value to avoid jumps */
   mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * newFps;
-
 }
 
 void UserInterface::hideMouse(bool hide) {

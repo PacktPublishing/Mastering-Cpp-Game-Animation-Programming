@@ -1,12 +1,8 @@
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/string_cast.hpp>
 
 #include "Camera.h"
-#include "Logger.h"
 
 void Camera::updateCamera(OGLRenderData& renderData, const float deltaTime) {
   if (deltaTime == 0.0f) {

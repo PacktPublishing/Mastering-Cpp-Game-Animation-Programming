@@ -7,7 +7,6 @@
 
 #include "OGLRenderData.h"
 #include "ModelInstanceCamData.h"
-#include "InstanceSettings.h"
 
 class UserInterface {
   public:

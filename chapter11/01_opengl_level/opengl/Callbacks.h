@@ -20,6 +20,8 @@ class AssimpSettingsContainer;
 class Camera;
 class SingleInstanceBehavior;
 
+using getWindowTitleCallback = std::function<std::string(void)>;
+using setWindowTitleCallback = std::function<void(std::string)>;
 
 using getInstanceEditModeCallback = std::function<instanceEditMode(void)>;
 using setInstanceEditModeCallback = std::function<void(instanceEditMode)>;

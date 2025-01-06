@@ -11,5 +11,5 @@ class CoordArrowsModel {
 
   private:
     void init();
-    OGLLineMesh mVertexData;
+    OGLLineMesh mVertexData{};
 };

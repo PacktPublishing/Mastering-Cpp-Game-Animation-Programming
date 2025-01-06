@@ -58,7 +58,7 @@ class AssimpLevel {
     std::vector<std::shared_ptr<AssimpNode>> mNodeList{};
 
     glm::mat4 mRootTransformMatrix = glm::mat4(1.0f);
-    LevelSettings mLevelSettings;
+    LevelSettings mLevelSettings{};
 
     std::vector<OGLMesh> mLevelMeshes{};
     std::vector<VertexIndexBuffer> mVertexBuffers{};

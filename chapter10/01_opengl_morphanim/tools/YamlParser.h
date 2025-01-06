@@ -57,6 +57,6 @@ class YamlParser {
     YAML::Node mYamlNode{};
     YAML::Emitter mYamlEmit{};
 
-    const std::string mYamlConfigFileVersion = "7.0";
+    const std::string mYamlConfigFileVersion = "6.0";
     std::string mYamlFileVersion;
 };

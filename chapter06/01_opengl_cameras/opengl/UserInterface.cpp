@@ -1272,7 +1272,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
     } else {
-      /* TODO: besster solution if no instances or no clips are found */
+      /* TODO: better solution if no instances or no clips are found */
       ImGui::BeginDisabled();
 
       ImGui::Text("Animation Clip:");

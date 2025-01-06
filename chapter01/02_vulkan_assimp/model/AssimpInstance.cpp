@@ -79,7 +79,7 @@ std::shared_ptr<AssimpModel> AssimpInstance::getModel() {
 }
 
 glm::vec3 AssimpInstance::getWorldPosition() {
-  return mInstanceSettings.isWorldRotation;
+  return mInstanceSettings.isWorldPosition;
 }
 
 glm::mat4 AssimpInstance::getWorldTransformMatrix() {

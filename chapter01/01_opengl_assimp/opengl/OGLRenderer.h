@@ -5,11 +5,14 @@
 #include <string>
 #include <memory>
 #include <map>
+
 #include <glm/glm.hpp>
 
 /* GL headers before GLFW */
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include "OGLRenderData.h"
 
 #include "Timer.h"
 #include "Framebuffer.h"
@@ -23,16 +26,15 @@
 #include "AssimpInstance.h"
 #include "ModelAndInstanceData.h"
 
-#include "OGLRenderData.h"
-
 class OGLRenderer {
   public:
     OGLRenderer(GLFWwindow *window);
 
     bool init(unsigned int width, unsigned int height);
     void setSize(unsigned int width, unsigned int height);
-    void uploadAssimpData(OGLMesh vertexData);
+
     bool draw(float deltaTime);
+
     void handleKeyEvents(int key, int scancode, int action, int mods);
     void handleMouseButtonEvents(int button, int action, int mods);
     void handleMousePositionEvents(double xPos, double yPos);

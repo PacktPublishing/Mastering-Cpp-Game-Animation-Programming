@@ -1,11 +1,7 @@
-#include <algorithm>
-
 #include <imgui_impl_glfw.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 
 #include <ctime>
 #include <cstdlib>
@@ -15,9 +11,8 @@
 
 #include "OGLRenderer.h"
 #include "InstanceSettings.h"
-#include "CameraSettings.h"
-#include "ModelSettings.h"
 #include "AssimpSettingsContainer.h"
+#include "YamlParser.h"
 #include "Logger.h"
 
 OGLRenderer::OGLRenderer(GLFWwindow *window) {
@@ -33,7 +28,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mRenderData.mAppModeMap[appMode::view] = "View";
 
   /* save orig window title, add current mode */
-  mOrigWindowTitle = getWindowTitle();
+  mOrigWindowTitle = mModelInstCamData.micGetWindowTitleFunction();
   setModeInWindowTitle();
 
   /* required for perspective */
@@ -194,8 +189,8 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
     Logger::log(1, "%s: loaded default config file '%s'\n", __FUNCTION__, mDefaultConfigFileName.c_str());
   } else {
     Logger::log(1, "%s: could not load default config file '%s'\n", __FUNCTION__, mDefaultConfigFileName.c_str());
-    /* only add null instance if we don't have default config */
-    addNullModelAndInstance();
+    /* clear everything and add null model/instance/settings container */
+    removeAllModelsAndInstances();
     loadDefaultFreeCam();
   }
 
@@ -203,6 +198,10 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
 
   mApplicationRunning = true;
   return true;
+}
+
+ModelInstanceCamData& OGLRenderer::getModInstCamData() {
+  return mModelInstCamData;
 }
 
 bool OGLRenderer::loadConfigFile(std::string configFileName) {
@@ -399,7 +398,7 @@ void OGLRenderer::redoLastOperation() {
   }
 }
 
-void OGLRenderer::addNullModelAndInstance(){
+void OGLRenderer::addNullModelAndInstance() {
   /* create an empty null model and an instance from it */
   std::shared_ptr<AssimpModel> nullModel = std::make_shared<AssimpModel>();
   mModelInstCamData.micModelList.emplace_back(nullModel);
@@ -636,7 +635,8 @@ std::shared_ptr<AssimpInstance> OGLRenderer::addInstance(std::shared_ptr<AssimpM
 void OGLRenderer::addExistingInstance(std::shared_ptr<AssimpInstance> instance, int indexPos, int indexPerModelPos) {
   Logger::log(2, "%s: inserting instance on pos %i\n", __FUNCTION__, indexPos);
   mModelInstCamData.micAssimpInstances.insert(mModelInstCamData.micAssimpInstances.begin() + indexPos, instance);
-  mModelInstCamData.micAssimpInstancesPerModel[instance->getModel()->getModelFileName()].insert(mModelInstCamData.micAssimpInstancesPerModel[instance->getModel()->getModelFileName()].begin() +
+  mModelInstCamData.micAssimpInstancesPerModel[instance->getModel()->getModelFileName()].insert(
+    mModelInstCamData.micAssimpInstancesPerModel[instance->getModel()->getModelFileName()].begin() +
     indexPerModelPos, instance);
 
   enumerateInstances();
@@ -733,13 +733,13 @@ void OGLRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
 }
 
 /* keep scaling and axis flipping */
-void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int numClones){
+void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int numClones) {
   std::shared_ptr<AssimpModel> model = instance->getModel();
   size_t animClipNum = model->getAnimClips().size();
   std::vector<std::shared_ptr<AssimpInstance>> newInstances;
   for (int i = 0; i < numClones; ++i) {
-    int xPos = std::rand() % 50 - 25;
-    int zPos = std::rand() % 50 - 25;
+    int xPos = std::rand() % 250 - 125;
+    int zPos = std::rand() % 250 - 125;
     int rotation = std::rand() % 360 - 180;
 
     int clipNr = std::rand() % animClipNum;
@@ -791,6 +791,7 @@ void OGLRenderer::enumerateInstances() {
     instSettings.isInstanceIndexPosition = i;
     mModelInstCamData.micAssimpInstances.at(i)->setInstanceSettings(instSettings);
   }
+
   for (const auto& modelType : mModelInstCamData.micAssimpInstancesPerModel) {
     for (size_t i = 0; i < modelType.second.size(); ++i) {
       InstanceSettings instSettings = modelType.second.at(i)->getInstanceSettings();
@@ -864,6 +865,58 @@ void OGLRenderer::setSize(unsigned int width, unsigned int height) {
   Logger::log(1, "%s: resized window to %dx%d\n", __FUNCTION__, width, height);
 }
 
+void OGLRenderer::setConfigDirtyFlag(bool flag) {
+  mConfigIsDirty = flag;
+  if (mConfigIsDirty) {
+    mWindowTitleDirtySign = "*";
+  } else {
+    mWindowTitleDirtySign = " ";
+  }
+  setModeInWindowTitle();
+}
+
+bool OGLRenderer::getConfigDirtyFlag() {
+  return mConfigIsDirty;
+}
+
+void OGLRenderer::setModeInWindowTitle() {
+  mModelInstCamData.micSetWindowTitleFunction(mOrigWindowTitle + " (" +
+    mRenderData.mAppModeMap.at(mRenderData.rdApplicationMode) + " Mode)" +
+    mWindowTitleDirtySign);
+}
+
+void OGLRenderer::toggleFullscreen() {
+  mRenderData.rdFullscreen = mRenderData.rdFullscreen ? false : true;
+
+  static int xPos = 0;
+  static int yPos = 0;
+  static int width = mRenderData.rdWidth;
+  static int height = mRenderData.rdHeight;
+  if (mRenderData.rdFullscreen) {
+    /* save position and resolution */
+    glfwGetWindowPos(mRenderData.rdWindow, &xPos, &yPos);
+    glfwGetWindowSize(mRenderData.rdWindow, &width, &height);
+
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    glfwSetWindowMonitor(mRenderData.rdWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+  } else {
+    glfwSetWindowMonitor(mRenderData.rdWindow, nullptr, xPos, yPos, width, height, 0);
+  }
+}
+
+void OGLRenderer::checkMouseEnable() {
+  if (mMouseLock || mMouseMove || mRenderData.rdApplicationMode != appMode::edit) {
+    glfwSetInputMode(mRenderData.rdWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    /* enable raw mode if possible */
+    if (glfwRawMouseMotionSupported()) {
+      glfwSetInputMode(mRenderData.rdWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
+  } else {
+    glfwSetInputMode(mRenderData.rdWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+  }
+}
+
 void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
   /* forward to ImGui only when in edit mode */
   if (mRenderData.rdApplicationMode == appMode::edit) {
@@ -887,6 +940,7 @@ void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
     setModeInWindowTitle();
   }
 
+  /* toggle between full-screen and window mode by pressing F11 */
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_F11) == GLFW_PRESS) {
    toggleFullscreen();
   }
@@ -979,56 +1033,6 @@ void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
   checkMouseEnable();
 }
 
-void OGLRenderer::setConfigDirtyFlag(bool flag) {
-  mConfigIsDirty = flag;
-  if (mConfigIsDirty) {
-    mWindowTitleDirtySign = "*";
-  } else {
-    mWindowTitleDirtySign = " ";
-  }
-  setModeInWindowTitle();
-}
-
-bool OGLRenderer::getConfigDirtyFlag() {
-  return mConfigIsDirty;
-}
-
-void OGLRenderer::setModeInWindowTitle() {
-  setWindowTitle(mOrigWindowTitle + " (" + mRenderData.mAppModeMap.at(mRenderData.rdApplicationMode) + " Mode)" + mWindowTitleDirtySign);
-}
-
-void OGLRenderer::toggleFullscreen() {
-  mRenderData.rdFullscreen = mRenderData.rdFullscreen ? false : true;
-
-  static int xPos = 0;
-  static int yPos = 0;
-  static int width = mRenderData.rdWidth;
-  static int height = mRenderData.rdHeight;
-  if (mRenderData.rdFullscreen) {
-    /* save position and resolution */
-    glfwGetWindowPos(mRenderData.rdWindow, &xPos, &yPos);
-    glfwGetWindowSize(mRenderData.rdWindow, &width, &height);
-
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-    glfwSetWindowMonitor(mRenderData.rdWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-  } else {
-    glfwSetWindowMonitor(mRenderData.rdWindow, nullptr, xPos, yPos, width, height, 0);
-  }
-}
-
-void OGLRenderer::checkMouseEnable() {
-  if (mMouseLock || mMouseMove || mRenderData.rdApplicationMode != appMode::edit) {
-    glfwSetInputMode(mRenderData.rdWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    /* enable raw mode if possible */
-    if (glfwRawMouseMotionSupported()) {
-      glfwSetInputMode(mRenderData.rdWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-    }
-  } else {
-    glfwSetInputMode(mRenderData.rdWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-  }
-}
-
 void OGLRenderer::handleMouseButtonEvents(int button, int action, int mods) {
   /* forward to ImGui only when in edit mode */
   if (mRenderData.rdApplicationMode == appMode::edit) {
@@ -1102,12 +1106,11 @@ void OGLRenderer::handleMousePositionEvents(double xPos, double yPos) {
   /* forward to ImGui only when in edit mode */
   if (mRenderData.rdApplicationMode == appMode::edit) {
     ImGuiIO& io = ImGui::GetIO();
-
     io.AddMousePosEvent((float)xPos, (float)yPos);
 
     /* hide from application if above ImGui window */
-    if (io.WantCaptureMouse) {
-      return;
+    if (io.WantCaptureMouse || io.WantTextInput) {
+        return;
     }
   }
 
@@ -1443,7 +1446,6 @@ bool OGLRenderer::draw(float deltaTime) {
   mUniformBuffer.uploadUboData(matrixData, 0);
   mRenderData.rdUploadToUBOTime = mUploadToUBOTimer.stop();
 
-
   /* save the selected instance for color highlight */
   std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
   if (mRenderData.rdApplicationMode == appMode::edit) {
@@ -1457,15 +1459,14 @@ bool OGLRenderer::draw(float deltaTime) {
   }
 
   mRenderData.rdMatricesSize = 0;
-  for (const auto& modelType : mModelInstCamData.micAssimpInstancesPerModel) {
-    size_t numberOfInstances = modelType.second.size();
-    if (numberOfInstances > 0 && modelType.second.at(0)->getModel()->getTriangleCount() > 0) {
+  for (const auto& model : mModelInstCamData.micModelList) {
+    size_t numberOfInstances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].size();
+    if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (modelType.second.at(0)->getModel()->hasAnimations() &&
-        modelType.second.at(0)->getModel()->getBoneList().size() > 0) {
+      if (model->hasAnimations() && model->getBoneList().size() > 0) {
 
-        size_t numberOfBones = modelType.second.at(0)->getModel()->getBoneList().size();
+        size_t numberOfBones = model->getBoneList().size();
 
         mMatrixGenerateTimer.start();
 
@@ -1473,14 +1474,15 @@ bool OGLRenderer::draw(float deltaTime) {
         mWorldPosMatrices.resize(numberOfInstances);
         mSelectedInstance.resize(numberOfInstances);
 
+        std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
         for (size_t i = 0; i < numberOfInstances; ++i) {
-          modelType.second.at(i)->updateInstanceSpeed(deltaTime);
-          modelType.second.at(i)->updateInstancePosition(deltaTime);
-          modelType.second.at(i)->updateAnimation(deltaTime);
+          instances.at(i)->updateInstanceSpeed(deltaTime);
+          instances.at(i)->updateInstancePosition(deltaTime);
+          instances.at(i)->updateAnimation(deltaTime);
 
-          mWorldPosMatrices.at(i) = modelType.second.at(i)->getWorldTransformMatrix();
+          mWorldPosMatrices.at(i) = instances.at(i)->getWorldTransformMatrix();
 
-          InstanceSettings instSettings = modelType.second.at(i)->getInstanceSettings();
+          InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
 
           PerInstanceAnimData animData{};
           animData.firstAnimClipNum = instSettings.isFirstAnimClipNr;
@@ -1492,7 +1494,7 @@ bool OGLRenderer::draw(float deltaTime) {
           mPerInstanceAnimData.at(i) = animData;
 
           if (mRenderData.rdApplicationMode == appMode::edit) {
-            if (currentSelectedInstance == modelType.second.at(i)) {
+            if (currentSelectedInstance == instances.at(i)) {
               mSelectedInstance.at(i).x = mRenderData.rdSelectedInstanceHighlightValue;
             } else {
               mSelectedInstance.at(i).x = 1.0f;
@@ -1519,7 +1521,7 @@ bool OGLRenderer::draw(float deltaTime) {
         mAssimpTransformComputeShader.use();
 
         mUploadToUBOTimer.start();
-        modelType.second.at(0)->getModel()->bindAnimLookupBuffer(0);
+        model->bindAnimLookupBuffer(0);
         mPerInstanceAnimDataBuffer.uploadSsboData(mPerInstanceAnimData, 1);
         mShaderTRSMatrixBuffer.bind(2);
 
@@ -1527,7 +1529,6 @@ bool OGLRenderer::draw(float deltaTime) {
 
         /* do the computation - in groups of 32 invocations */
         glDispatchCompute(numberOfBones, std::ceil(numberOfInstances / 32.0f), 1);
-        //glDispatchCompute(numberOfBones, numberOfInstances, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         /* multiply every bone TRS matrix with its parent bones TRS matrices, until the root bone has been reached
@@ -1536,29 +1537,28 @@ bool OGLRenderer::draw(float deltaTime) {
 
         mUploadToUBOTimer.start();
         mShaderTRSMatrixBuffer.bind(0);
-        modelType.second.at(0)->getModel()->bindBoneParentBuffer(1);
-        modelType.second.at(0)->getModel()->bindBoneMatrixOffsetBuffer(2);
+        model->bindBoneParentBuffer(1);
+        model->bindBoneMatrixOffsetBuffer(2);
         mShaderBoneMatrixBuffer.bind(3);
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
         /* do the computation - in groups of 32 invocations */
         glDispatchCompute(numberOfBones, std::ceil(numberOfInstances / 32.0f), 1);
-        //glDispatchCompute(numberOfBones, numberOfInstances, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
 
         /* get the bone matrix of the selected bone from the SSBO */
         std::shared_ptr<Camera> cam = mModelInstCamData.micCameras.at(mModelInstCamData.micSelectedCamera);
         CameraSettings camSettings = cam->getCameraSettings();
 
         if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
-          modelType.second.at(0)->getModel() == cam->getInstanceToFollow()->getModel()) {
+          model == cam->getInstanceToFollow()->getModel()) {
           int selectedInstance = cam->getInstanceToFollow()->getInstanceSettings().isInstancePerModelIndexPosition;
           int selectedBone = camSettings.csFirstPersonBoneToFollow;
           glm::mat4 offsetMatrix = glm::translate(glm::mat4(1.0f), camSettings.csFirstPersonOffsets);
           glm::mat4 boneMatrix = mShaderBoneMatrixBuffer.getSsboDataMat4(selectedInstance * numberOfBones + selectedBone, 1).at(0);
 
           cam->setBoneMatrix(mWorldPosMatrices.at(selectedInstance) * boneMatrix * offsetMatrix *
-            glm::inverse(modelType.second.at(0)->getModel()->getBoneList().at(selectedBone)->getOffsetMatrix()));
+            glm::inverse(model->getBoneList().at(selectedBone)->getOffsetMatrix()));
 
           cam->setCameraSettings(camSettings);
         }
@@ -1578,24 +1578,24 @@ bool OGLRenderer::draw(float deltaTime) {
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
       } else {
         /* non-animated models */
-        size_t numberOfInstances = modelType.second.size();
 
         mMatrixGenerateTimer.start();
         mWorldPosMatrices.resize(numberOfInstances);
         mSelectedInstance.resize(numberOfInstances);
 
+        std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
         for (size_t i = 0; i < numberOfInstances; ++i) {
-          mWorldPosMatrices.at(i) = modelType.second.at(i)->getWorldTransformMatrix();
+          mWorldPosMatrices.at(i) = instances.at(i)->getWorldTransformMatrix();
 
           if (mRenderData.rdApplicationMode == appMode::edit) {
-            if (currentSelectedInstance == modelType.second.at(i)) {
+            if (currentSelectedInstance == instances.at(i)) {
               mSelectedInstance.at(i).x = mRenderData.rdSelectedInstanceHighlightValue;
             } else {
               mSelectedInstance.at(i).x = 1.0f;
             }
 
             if (mMousePick) {
-              InstanceSettings instSettings = modelType.second.at(i)->getInstanceSettings();
+              InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
               mSelectedInstance.at(i).y = static_cast<float>(instSettings.isInstanceIndexPosition);
             }
           } else {
@@ -1605,20 +1605,6 @@ bool OGLRenderer::draw(float deltaTime) {
 
         mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
         mRenderData.rdMatricesSize += mWorldPosMatrices.size() * sizeof(glm::mat4);
-
-        /* get the bone matrix of the selected bone from the SSBO */
-        std::shared_ptr<Camera> cam = mModelInstCamData.micCameras.at(mModelInstCamData.micSelectedCamera);
-        CameraSettings camSettings = cam->getCameraSettings();
-
-        if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
-          modelType.second.at(0)->getModel() == cam->getInstanceToFollow()->getModel()) {
-          int selectedInstance = cam->getInstanceToFollow()->getInstanceSettings().isInstancePerModelIndexPosition;
-          glm::mat4 offsetMatrix = glm::translate(glm::mat4(1.0f), camSettings.csFirstPersonOffsets);
-
-          cam->setBoneMatrix(mWorldPosMatrices.at(selectedInstance) * offsetMatrix);
-
-          cam->setCameraSettings(camSettings);
-        }
 
         if (mMousePick && mRenderData.rdApplicationMode == appMode::edit) {
           mAssimpSelectionShader.use();
@@ -1632,10 +1618,11 @@ bool OGLRenderer::draw(float deltaTime) {
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
       }
 
-      modelType.second.at(0)->getModel()->drawInstanced(numberOfInstances);
+      model->drawInstanced(numberOfInstances);
     }
   }
 
+  /* draw coord arrow, depending on edit mode */
   mCoordArrowsLineIndexCount = 0;
   mLineMesh->vertices.clear();
   if (mRenderData.rdApplicationMode == appMode::edit) {
@@ -1657,7 +1644,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
       mCoordArrowsLineIndexCount += mCoordArrowsMesh.vertices.size();
       std::for_each(mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end(),
-        [=](auto &n){
+        [=](auto &n) {
           n.color /= 2.0f;
           n.position = glm::quat(glm::radians(instSettings.isWorldRotation)) * n.position;
           n.position += instSettings.isWorldPosition;
@@ -1706,7 +1693,7 @@ bool OGLRenderer::draw(float deltaTime) {
   mUIGenerateTimer.start();
   mUserInterface.createFrame(mRenderData);
 
-  if (mRenderData.rdApplicationMode != appMode::view) {
+  if (mRenderData.rdApplicationMode == appMode::edit) {
     mUserInterface.hideMouse(mMouseLock);
     mUserInterface.createSettingsWindow(mRenderData, mModelInstCamData);
   }
@@ -1723,12 +1710,11 @@ bool OGLRenderer::draw(float deltaTime) {
 }
 
 void OGLRenderer::cleanup() {
-  mSelectedInstanceBuffer.cleanup();
-
   mShaderModelRootMatrixBuffer.cleanup();
-
   mShaderBoneMatrixBuffer.cleanup();
   mShaderTRSMatrixBuffer.cleanup();
+  mSelectedInstanceBuffer.cleanup();
+  mPerInstanceAnimDataBuffer.cleanup();
 
   mAssimpTransformComputeShader.cleanup();
   mAssimpMatrixComputeShader.cleanup();

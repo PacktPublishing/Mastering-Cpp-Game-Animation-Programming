@@ -1,5 +1,6 @@
 /* Assimp model, ready to draw */
 #pragma once
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -52,12 +53,11 @@ private:
     /* store the root node for direct access */
     std::shared_ptr<AssimpNode> mRootNode = nullptr;
     /* a map to find the node by name */
-    std::map<std::string, std::shared_ptr<AssimpNode>> mNodeMap;
+    std::map<std::string, std::shared_ptr<AssimpNode>> mNodeMap{};
     /* and a 'flat' map to keep the order of insertation  */
     std::vector<std::shared_ptr<AssimpNode>> mNodeList{};
 
-    /* TODO: bone map/list per mesh */
-    std::vector<std::shared_ptr<AssimpBone>> mBoneList;
+    std::vector<std::shared_ptr<AssimpBone>> mBoneList{};
     std::map<std::string, glm::mat4> mBoneOffsetMatrices{};
 
     std::vector<std::shared_ptr<AssimpAnimClip>> mAnimClips{};

@@ -1,12 +1,5 @@
 #include <algorithm>
-#include <chrono>
-#include <cmath>
 #include <filesystem>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/dual_quaternion.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
@@ -74,7 +67,7 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
   }
 
   /* the textures are stored directly or relative to the model file */
-  std::string assetDirectory = modelFilename.substr(0, modelFilename.find_last_of(std::filesystem::path::preferred_separator));
+  std::string assetDirectory = modelFilename.substr(0, modelFilename.find_last_of('/'));
 
   /* nodes */
   Logger::log(1, "%s: ... processing nodes...\n", __FUNCTION__);

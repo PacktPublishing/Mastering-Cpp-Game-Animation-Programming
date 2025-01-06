@@ -44,10 +44,10 @@ void ShaderStorageBuffer::uploadData(VkRenderData &renderData, VkShaderStorageBu
   void* data;
   VkResult result = vmaMapMemory(renderData.rdAllocator, SSBOData.bufferAlloc, &data);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: coult not map SSBO memory (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: could not map SSBO memory (error: %i)\n", __FUNCTION__, result);
     return;
   }
-  std::memcpy(data, bufferData.data(), SSBOData.bufferSize);
+  std::memcpy(data, bufferData.data(), bufferSize);
   vmaUnmapMemory(renderData.rdAllocator, SSBOData.bufferAlloc);
   vmaFlushAllocation(renderData.rdAllocator, SSBOData.bufferAlloc, 0, SSBOData.bufferSize);
 }
@@ -67,10 +67,10 @@ void ShaderStorageBuffer::uploadData(VkRenderData &renderData, VkShaderStorageBu
   void* data;
   VkResult result = vmaMapMemory(renderData.rdAllocator, SSBOData.bufferAlloc, &data);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: coult not map SSBO memory (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: could not map SSBO memory (error: %i)\n", __FUNCTION__, result);
     return;
   }
-  std::memcpy(data, bufferData.data(), SSBOData.bufferSize);
+  std::memcpy(data, bufferData.data(), bufferSize);
   vmaUnmapMemory(renderData.rdAllocator, SSBOData.bufferAlloc);
   vmaFlushAllocation(renderData.rdAllocator, SSBOData.bufferAlloc, 0, SSBOData.bufferSize);
 }
@@ -90,10 +90,10 @@ void ShaderStorageBuffer::uploadData(VkRenderData &renderData, VkShaderStorageBu
   void* data;
   VkResult result = vmaMapMemory(renderData.rdAllocator, SSBOData.bufferAlloc, &data);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: coult not map SSBO memory (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: could not map SSBO memory (error: %i)\n", __FUNCTION__, result);
     return;
   }
-  std::memcpy(data, bufferData.data(), SSBOData.bufferSize);
+  std::memcpy(data, bufferData.data(), bufferSize);
   vmaUnmapMemory(renderData.rdAllocator, SSBOData.bufferAlloc);
   vmaFlushAllocation(renderData.rdAllocator, SSBOData.bufferAlloc, 0, SSBOData.bufferSize);
 }

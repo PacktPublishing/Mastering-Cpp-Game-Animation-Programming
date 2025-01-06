@@ -25,7 +25,7 @@ struct ModelInstanceCamData {
   std::map<std::string, std::vector<std::shared_ptr<AssimpInstance>>> micAssimpInstancesPerModel{};
   int micSelectedInstance = 0;
 
-  std::shared_ptr<AssimpSettingsContainer> micSettingsContainer;
+  std::shared_ptr<AssimpSettingsContainer> micSettingsContainer{};
 
   std::vector<std::shared_ptr<Camera>> micCameras{};
   int micSelectedCamera = 0;

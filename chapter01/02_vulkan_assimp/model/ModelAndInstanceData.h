@@ -32,6 +32,7 @@ struct ModelAndInstanceData {
    * so let's use a separate pending list */
   std::vector<std::shared_ptr<AssimpModel>> miPendingDeleteAssimpModels{};
 
+  /* callbacks */
   modelCheckCallback miModelCheckCallbackFunction;
   modelAddCallback miModelAddCallbackFunction;
   modelDeleteCallback miModelDeleteCallbackFunction;

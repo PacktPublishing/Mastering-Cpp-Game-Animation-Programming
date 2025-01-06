@@ -178,7 +178,7 @@ std::optional<std::map<std::string, std::string>> FaceAnimNode::exportData() {
     data["face-anim-blend-time"] = std::to_string(mFaceAnimBlendTime);
   }
 
-  if (data.empty()){
+  if (data.empty()) {
     return {};
   }
   return data;

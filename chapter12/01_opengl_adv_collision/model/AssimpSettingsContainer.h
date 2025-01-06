@@ -32,16 +32,16 @@ struct AssimpModelSettings {
   int amsSelectedModel;
   int amsSavedSelectedModel;
   int amsModelPosInList;
-  std::weak_ptr<AssimpModel> amsModel;
-  std::shared_ptr<AssimpModel> amsDeletedModel;
-  std::weak_ptr<AssimpInstance> amsInitialInstance;
+  std::weak_ptr<AssimpModel> amsModel{};
+  std::shared_ptr<AssimpModel> amsDeletedModel{};
+  std::weak_ptr<AssimpInstance> amsInitialInstance{};
   std::vector<std::weak_ptr<AssimpInstance>> amsInstances{};
   std::vector<std::shared_ptr<AssimpInstance>> amsDeletedInstances{};
 };
 
 struct CameraSavedSettings {
-  std::weak_ptr<Camera> ccsCamera;
-  std::shared_ptr<Camera> ccsDeletedCamera;
+  std::weak_ptr<Camera> ccsCamera{};
+  std::shared_ptr<Camera> ccsDeletedCamera{};
   int ccsSelectedCamera;
   int ccsSavedSelectedCamera;
   CameraSettings cssCameraSettings{};
@@ -54,10 +54,10 @@ struct UndoRedoSettings {
   instanceEditMode ursSavedEditMode;
   int ursSelectedInstance;
   int ursSavedSelectedInstance;
-  AssimpInstanceSettings ursInstanceSettings;
-  AssimpMultiInstanceSettings ursMultiInstanceSettings;
-  AssimpModelSettings ursModelSettings;
-  CameraSavedSettings ursCameraSetings;
+  AssimpInstanceSettings ursInstanceSettings{};
+  AssimpMultiInstanceSettings ursMultiInstanceSettings{};
+  AssimpModelSettings ursModelSettings{};
+  CameraSavedSettings ursCameraSetings{};
 };
 
 class AssimpSettingsContainer {
@@ -108,7 +108,7 @@ class AssimpSettingsContainer {
     void removeStacks();
 
   private:
-    std::weak_ptr<AssimpInstance> mNullInstance;
+    std::weak_ptr<AssimpInstance> mNullInstance{};
 
     void removeRedoStack();
 

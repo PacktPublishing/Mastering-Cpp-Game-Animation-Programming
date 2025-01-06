@@ -1,11 +1,11 @@
 /* Assimp model, ready to draw */
 #pragma once
+
 #include <string>
 #include <vector>
 #include <memory>
 #include <map>
 #include <unordered_map>
-#include <glad/glad.h>
 
 #include <glm/glm.hpp>
 
@@ -17,6 +17,7 @@
 #include "ShaderStorageBuffer.h"
 #include "ModelSettings.h"
 #include "InstanceSettings.h"
+#include "AABB.h"
 
 #include "OGLRenderData.h"
 
@@ -53,7 +54,7 @@ class AssimpModel {
     void setModelSettings(ModelSettings settings);
     ModelSettings getModelSettings();
 
-    void setAABBLokkup(std::vector<std::vector<AABB>> lookupData);
+    void setAABBLookup(std::vector<std::vector<AABB>> lookupData);
     AABB getAABB(InstanceSettings instSettings);
 
     bool hasAnimMeshes();
@@ -81,7 +82,6 @@ private:
     /* and a 'flat' map to keep the order of insertation  */
     std::vector<std::shared_ptr<AssimpNode>> mNodeList{};
 
-    /* TODO: bone map/list per mesh */
     std::vector<std::shared_ptr<AssimpBone>> mBoneList{};
     std::vector<std::string> mBoneNameList{};
     std::map<std::string, glm::mat4> mBoneOffsetMatrices{};
@@ -93,6 +93,7 @@ private:
 
     ShaderStorageBuffer mShaderBoneParentBuffer{};
     std::vector<int32_t> mBoneParentIndexList{};
+
     ShaderStorageBuffer mShaderBoneMatrixOffsetBuffer{};
     ShaderStorageBuffer mAnimLookupBuffer{};
 
@@ -102,8 +103,8 @@ private:
 
     glm::mat4 mRootTransformMatrix = glm::mat4(1.0f);
 
-    ModelSettings mModelSettings;
-    std::vector<std::vector<AABB>> mAabbLookups;
+    ModelSettings mModelSettings{};
+    std::vector<std::vector<AABB>> mAabbLookups{};
 
     unsigned int mNumAnimatedMeshes = 0;
     unsigned int mAnimatedMeshVertexSize = 0;

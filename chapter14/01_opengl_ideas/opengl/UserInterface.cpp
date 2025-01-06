@@ -2814,7 +2814,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
-    /* ignore nav target settings on static models */
     std::shared_ptr<AssimpModel> currentModel = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel();
     bool modelIsStatic = !currentModel->hasAnimations();
 
@@ -2886,10 +2885,9 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::EndDisabled();
     }
 
-    if (modelIsStatic){
+    if (modelIsStatic) {
       ImGui::EndDisabled();
     }
-
 
     if (!modelHasFaceAnims) {
       ImGui::BeginDisabled();

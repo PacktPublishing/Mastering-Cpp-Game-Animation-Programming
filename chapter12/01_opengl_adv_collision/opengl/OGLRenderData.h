@@ -33,7 +33,7 @@ struct OGLVertex {
   glm::vec4 position = glm::vec4(0.0f); // last float is uv.x
   glm::vec4 color = glm::vec4(1.0f);
   glm::vec4 normal = glm::vec4(0.0f); // last float is uv.y
-  glm::ivec4 boneNumber = glm::ivec4(0);
+  glm::uvec4 boneNumber = glm::uvec4(0);
   glm::vec4 boneWeight = glm::vec4(0.0f);
 };
 
@@ -71,15 +71,15 @@ struct PerInstanceAnimData {
 
 struct MeshTriangle {
   int index;
-  std::array<glm::vec3, 3> points;
-  glm::vec3 normal;
-  BoundingBox3D boundingBox;
+  std::array<glm::vec3, 3> points{};
+  glm::vec3 normal{};
+  BoundingBox3D boundingBox{};
 };
 
 struct TRSMatrixData{
-  glm::vec4 translation;
-  glm::quat rotation;
-  glm::vec4 scale;
+  glm::vec4 translation{};
+  glm::quat rotation{};
+  glm::vec4 scale{};
 };
 
 struct OGLRenderData {

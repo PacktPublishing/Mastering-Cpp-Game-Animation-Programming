@@ -1,7 +1,7 @@
 #include "AssimpAnimClip.h"
 #include "Logger.h"
 
-void AssimpAnimClip::addChannels(aiAnimation* animation, float maxClipDuration, std::vector<std::shared_ptr<AssimpBone>> boneList){
+void AssimpAnimClip::addChannels(aiAnimation* animation, float maxClipDuration, std::vector<std::shared_ptr<AssimpBone>> boneList) {
   mClipName = animation->mName.C_Str();
   mClipDuration = static_cast<float>(animation->mDuration);
   mClipTicksPerSecond = static_cast<float>(animation->mTicksPerSecond);
@@ -27,7 +27,7 @@ void AssimpAnimClip::addChannels(aiAnimation* animation, float maxClipDuration, 
   }
 }
 
-const std::string& AssimpAnimClip::getClipName() {
+std::string AssimpAnimClip::getClipName() {
   return mClipName;
 }
 
@@ -39,22 +39,14 @@ const std::vector<std::shared_ptr<AssimpAnimChannel>>& AssimpAnimClip::getChanne
   return mAnimChannels;
 }
 
-const std::shared_ptr<AssimpAnimChannel> AssimpAnimClip::getChannel(unsigned int index) {
-  if (index >= mAnimChannels.size()) {
-    Logger::log(1, "%s error: tried to get channel %i, but I have only %i channels \n",__FUNCTION__, index, mAnimChannels.size());
-    return std::make_shared<AssimpAnimChannel>();
-  }
-  return mAnimChannels.at(index);
-}
-
 const unsigned int AssimpAnimClip::getNumChannels() {
   return mAnimChannels.size();
 }
 
-const float& AssimpAnimClip::getClipDuration() {
+float AssimpAnimClip::getClipDuration() {
   return mClipDuration;
 }
 
-const float& AssimpAnimClip::getClipTicksPerSecond() {
+float AssimpAnimClip::getClipTicksPerSecond() {
   return mClipTicksPerSecond;
 }

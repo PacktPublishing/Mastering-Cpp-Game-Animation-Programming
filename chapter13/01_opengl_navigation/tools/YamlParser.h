@@ -49,6 +49,7 @@ class YamlParser {
     float getMaxStairStepHeight();
     bool getIKEnabled();
     int getIKNumIterations();
+    bool getNavEnabled();
 
     /* saving */
     bool createConfigFile(OGLRenderData renderData, ModelInstanceCamData modInstCamData);
@@ -66,6 +67,6 @@ class YamlParser {
     YAML::Node mYamlNode{};
     YAML::Emitter mYamlEmit{};
 
-    const std::string mYamlConfigFileVersion = "10.0";
+    const std::string mYamlConfigFileVersion = "9.0";
     std::string mYamlFileVersion;
 };

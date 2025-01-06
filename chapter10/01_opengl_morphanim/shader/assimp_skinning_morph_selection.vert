@@ -2,7 +2,7 @@
 layout (location = 0) in vec4 aPos; // last float is uv.x :)
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec4 aNormal; // last float is uv.y
-layout (location = 3) in ivec4 aBoneNum;
+layout (location = 3) in uvec4 aBoneNum;
 layout (location = 4) in vec4 aBoneWeight;
 
 layout (location = 0) out vec4 color;
@@ -10,14 +10,14 @@ layout (location = 1) out vec4 normal;
 layout (location = 2) out vec2 texCoord;
 layout (location = 3) out float selectInfo;
 
-layout (std140, binding = 0) uniform Matrices {
-  mat4 view;
-  mat4 projection;
-};
-
 struct MorphVertex {
   vec4 position;
   vec4 normal;
+};
+
+layout (std140, binding = 0) uniform Matrices {
+  mat4 view;
+  mat4 projection;
 };
 
 layout (std430, binding = 1) readonly restrict buffer BoneMatrices {
@@ -55,7 +55,7 @@ void main() {
 
   mat4 worldPosSkinMat = worldPos[gl_InstanceID] * skinMat;
 
-  /* y and z data contain the offset into the morph anim buffer*/
+  /* y and z data contain the offset into the morph anim buffer */
   int morphAnimOffset = int(perInstanceMorphData[gl_InstanceID].y * perInstanceMorphData[gl_InstanceID].z);
 
   vec4 origVertex = vec4(aPos.x, aPos.y, aPos.z, 1.0);

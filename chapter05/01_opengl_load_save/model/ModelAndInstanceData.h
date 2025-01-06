@@ -21,7 +21,11 @@ struct ModelAndInstanceData {
   std::map<std::string, std::vector<std::shared_ptr<AssimpInstance>>> miAssimpInstancesPerModel{};
   int miSelectedInstance = 0;
 
-  std::shared_ptr<AssimpSettingsContainer> miSettingsContainer;
+  std::shared_ptr<AssimpSettingsContainer> miSettingsContainer{};
+
+  /* callbacks */
+  setWindowTitleCallback miSetWindowTitleFunction;
+  getWindowTitleCallback miGetWindowTitleFunction;
 
   modelCheckCallback miModelCheckCallbackFunction;
   modelAddCallback miModelAddCallbackFunction;

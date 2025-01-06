@@ -68,28 +68,6 @@ std::vector<glm::vec4> ShaderStorageBuffer::getSsboDataVec4(int numberOfElements
   return ssboData;
 }
 
-std::vector<int32_t> ShaderStorageBuffer::getSsboDataInt32() {
-  std::vector<int32_t> ssboData;
-  ssboData.resize(mBufferSize / sizeof(int32_t));
-
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, mShaderStorageBuffer);
-  glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, mBufferSize, ssboData.data());
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-  return ssboData;
-}
-
-std::vector<AABB> ShaderStorageBuffer::getSsboDataAABB() {
-  std::vector<AABB> ssboData;
-  ssboData.resize(mBufferSize / sizeof(AABB));
-
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, mShaderStorageBuffer);
-  glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, mBufferSize, ssboData.data());
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-  return ssboData;
-}
-
 void ShaderStorageBuffer::cleanup() {
   glDeleteBuffers(1, &mShaderStorageBuffer);
 }

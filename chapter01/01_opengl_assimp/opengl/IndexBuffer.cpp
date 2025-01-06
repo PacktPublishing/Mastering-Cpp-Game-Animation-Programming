@@ -26,8 +26,6 @@ void IndexBuffer::uploadData(std::vector<uint32_t> indices) {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-
 void IndexBuffer::cleanup() {
   glDeleteBuffers(1, &mIndexVBO);
 }
-

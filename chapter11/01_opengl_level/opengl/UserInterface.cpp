@@ -1109,10 +1109,13 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     /* state is changed during model deletion, so save it first */
     bool modelListEmtpy = modInstCamData.micModelList.size() == 1;
     std::string selectedModelName = "None";
-
+    std::shared_ptr<AssimpModel> selectedModel = nullptr;
+    bool modelIsStatic = true;
 
     if (!modelListEmtpy) {
-      selectedModelName = modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str();
+      selectedModel = modInstCamData.micModelList.at(modInstCamData.micSelectedModel);
+      selectedModelName = selectedModel->getModelFileName().c_str();
+      modelIsStatic = !selectedModel->hasAnimations();
     }
 
     if (modelListEmtpy) {
@@ -1189,6 +1192,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
      ImGui::EndDisabled();
     }
 
+    if (modelIsStatic) {
+      ImGui::BeginDisabled();
+    }
+
     size_t numTrees = modInstCamData.micBehaviorData.size();
     static std::string selectedTreeName;
     static std::shared_ptr<SingleInstanceBehavior> behavior = nullptr;
@@ -1236,6 +1243,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
     if (ImGui::Button("Clear##Model")) {
       modInstCamData.micModelDelBehaviorCallbackFunction(selectedModelName);
+    }
+
+    if (modelIsStatic) {
+      ImGui::EndDisabled();
     }
   }
 
@@ -2105,68 +2116,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::BeginDisabled();
     }
 
-    size_t numTrees = modInstCamData.micBehaviorData.size();
-    static std::string selectedTreeName;
-    static std::shared_ptr<SingleInstanceBehavior> behavior;
-
-    if (numTrees == 0)  {
-      selectedTreeName = "None";
-      behavior.reset();
-      ImGui::BeginDisabled();
-    } else {
-      if (selectedTreeName.empty() || selectedTreeName == "None") {
-        selectedTreeName = modInstCamData.micBehaviorData.begin()->first;
-      }
-      if (!behavior) {
-        behavior = modInstCamData.micBehaviorData.begin()->second;
-      }
-    }
-
-    ImGui::Text("Model Tree:        %s", settings.isNodeTreeName.empty() ? "None" : settings.isNodeTreeName.c_str());
-    ImGui::Text("Change Tree:     ");
-    ImGui::SameLine();
-    ImGui::PushItemWidth(200.0f);
-    if (ImGui::BeginCombo("##NodeTreeCombo", selectedTreeName.c_str())) {
-      for (const auto& tree : modInstCamData.micBehaviorData) {
-        const bool isSelected = (tree.first == selectedTreeName);
-        if (ImGui::Selectable(tree.first.c_str(), isSelected)) {
-          selectedTreeName = tree.first;
-          behavior = tree.second;
-        }
-
-        if (isSelected) {
-          ImGui::SetItemDefaultFocus();
-        }
-      }
-      ImGui::EndCombo();
-    }
-    ImGui::PopItemWidth();
-    ImGui::SameLine();
-    if (ImGui::Button("Set##Instance")) {
-      settings.isNodeTreeName = selectedTreeName;
-      modInstCamData.micInstanceAddBehaviorCallbackFunction(settings.isInstanceIndexPosition, behavior);
-    }
-    ImGui::SameLine();
-
-    if (numTrees == 0) {
-      ImGui::EndDisabled();
-    }
-
-    if (settings.isNodeTreeName.empty()) {
-      ImGui::BeginDisabled();
-    }
-    if (ImGui::Button("Clear##Instance")) {
-      modInstCamData.micInstanceDelBehaviorCallbackFunction(settings.isInstanceIndexPosition);
-      settings.isNodeTreeName.clear();
-
-      /* HACK to change data in instance while settngs are used */
-      modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->setInstanceSettings(settings);
-      currentInstance->updateInstanceState(moveState::idle, moveDirection::none);
-      settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
-    }
-    if (settings.isNodeTreeName.empty()) {
-      ImGui::EndDisabled();
-    }
 
     ImGui::Text("                 ");
     ImGui::SameLine();
@@ -2291,6 +2240,81 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
       savedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
+    }
+
+    std::shared_ptr<AssimpModel> currentModel = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel();
+    bool modelIsStatic = !currentModel->hasAnimations();
+
+    size_t numTrees = modInstCamData.micBehaviorData.size();
+    static std::string selectedTreeName;
+    static std::shared_ptr<SingleInstanceBehavior> behavior;
+
+    if (numTrees == 0)  {
+      selectedTreeName = "None";
+      behavior.reset();
+      ImGui::BeginDisabled();
+    } else {
+      if (selectedTreeName.empty() || selectedTreeName == "None") {
+        selectedTreeName = modInstCamData.micBehaviorData.begin()->first;
+      }
+      if (!behavior) {
+        behavior = modInstCamData.micBehaviorData.begin()->second;
+      }
+    }
+
+    if (modelIsStatic) {
+      ImGui::BeginDisabled();
+    }
+
+    ImGui::Text("Model Tree:        %s", settings.isNodeTreeName.empty() ? "None" : settings.isNodeTreeName.c_str());
+    ImGui::Text("Change Tree:     ");
+    ImGui::SameLine();
+    ImGui::PushItemWidth(200.0f);
+    if (ImGui::BeginCombo("##NodeTreeCombo", selectedTreeName.c_str())) {
+      for (const auto& tree : modInstCamData.micBehaviorData) {
+        const bool isSelected = (tree.first == selectedTreeName);
+        if (ImGui::Selectable(tree.first.c_str(), isSelected)) {
+          selectedTreeName = tree.first;
+          behavior = tree.second;
+        }
+
+        if (isSelected) {
+          ImGui::SetItemDefaultFocus();
+        }
+      }
+      ImGui::EndCombo();
+    }
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+    if (ImGui::Button("Set##Instance")) {
+      settings.isNodeTreeName = selectedTreeName;
+      modInstCamData.micInstanceAddBehaviorCallbackFunction(settings.isInstanceIndexPosition, behavior);
+    }
+    ImGui::SameLine();
+
+    if (numTrees == 0) {
+      ImGui::EndDisabled();
+    }
+
+    bool nodeTreeEmpty = settings.isNodeTreeName.empty();
+    if (nodeTreeEmpty) {
+      ImGui::BeginDisabled();
+    }
+    if (ImGui::Button("Clear##Instance")) {
+      modInstCamData.micInstanceDelBehaviorCallbackFunction(settings.isInstanceIndexPosition);
+      settings.isNodeTreeName.clear();
+
+      /* HACK to change data in instance while settngs are used */
+      modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->setInstanceSettings(settings);
+      currentInstance->updateInstanceState(moveState::idle, moveDirection::none);
+      settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
+    }
+    if (nodeTreeEmpty) {
+      ImGui::EndDisabled();
+    }
+
+    if (modelIsStatic) {
+      ImGui::EndDisabled();
     }
 
     if (!modelHasFaceAnims) {

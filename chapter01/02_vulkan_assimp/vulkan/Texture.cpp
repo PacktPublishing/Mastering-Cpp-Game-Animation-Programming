@@ -74,7 +74,7 @@ bool Texture::loadTexture(VkRenderData &renderData, VkTextureData &texData, std:
   void* uploadData;
   result = vmaMapMemory(renderData.rdAllocator, stagingBufferAlloc, &uploadData);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: coult not map texture memory (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: could not map texture memory (error: %i)\n", __FUNCTION__, result);
     return false;
   }
   std::memcpy(uploadData, textureData, static_cast<uint32_t>(imageSize));
@@ -173,7 +173,7 @@ bool Texture::loadTexture(VkRenderData& renderData, VkTextureData& texData, std:
   void* uploadData;
   result = vmaMapMemory(renderData.rdAllocator, stagingBufferAlloc, &uploadData);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: coult not map texture memory (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: could not map texture memory (error: %i)\n", __FUNCTION__, result);
     return false;
   }
   std::memcpy(uploadData, data, static_cast<uint32_t>(imageSize));

@@ -1,19 +1,19 @@
 /* Dear ImGui*/
 #pragma once
+
 #include <vector>
 
 #include "OGLRenderData.h"
 #include "ModelAndInstanceData.h"
-#include "InstanceSettings.h"
 
 class UserInterface {
   public:
     void init(OGLRenderData &renderData);
-
     void hideMouse(bool hide);
-    void createFrame(OGLRenderData &renderData, ModelAndInstanceData &modInstData);
 
+    void createFrame(OGLRenderData &renderData, ModelAndInstanceData &modInstData);
     void render();
+
     void cleanup();
 
   private:

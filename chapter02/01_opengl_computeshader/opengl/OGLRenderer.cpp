@@ -1,14 +1,12 @@
-#include <algorithm>
-
-#include <imgui_impl_glfw.h>
-
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <ctime>
 #include <cstdlib>
 #include <algorithm>
 #include <filesystem>
 #include <memory>
+
+#include <imgui_impl_glfw.h>
+
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "OGLRenderer.h"
 #include "InstanceSettings.h"
@@ -51,7 +49,6 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   size_t uniformMatrixBufferSize = 3 * sizeof(glm::mat4);
   mUniformBuffer.init(uniformMatrixBufferSize);
   Logger::log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, uniformMatrixBufferSize);
-
 
   if (!mAssimpShader.loadShaders("shader/assimp.vert", "shader/assimp.frag")) {
     Logger::log(1, "%s: Assimp shader loading failed\n", __FUNCTION__);
@@ -96,11 +93,11 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mModelInstData.miInstanceDeleteCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { deleteInstance(instance) ;};
   mModelInstData.miInstanceCloneCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { cloneInstance(instance); };
 
-  mNodeTransformBuffer.init(256);
+  mShaderNodeTransformBuffer.init(256);
   mShaderTRSMatrixBuffer.init(256);
   mShaderBoneMatrixBuffer.init(256);
 
-  mShaderModelRootMatrixBuffer.init(64);
+  mShaderModelRootMatrixBuffer.init(256);
 
   mFrameTimer.start();
 
@@ -308,12 +305,7 @@ void OGLRenderer::handleMousePositionEvents(double xPos, double yPos) {
 
     mRenderData.rdViewElevation -= mouseMoveRelY / 10.0;
     /* keep between -89 and +89 degree */
-    if (mRenderData.rdViewElevation > 89.0) {
-      mRenderData.rdViewElevation = 89.0;
-    }
-    if (mRenderData.rdViewElevation < -89.0) {
-      mRenderData.rdViewElevation = -89.0;
-    }
+    mRenderData.rdViewElevation = std::clamp(mRenderData.rdViewElevation, -89.0f, 89.0f);
   }
 
   /* save old values*/
@@ -378,6 +370,7 @@ bool OGLRenderer::draw(float deltaTime) {
   glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
   glClearDepth(1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_FRAMEBUFFER_SRGB);
 
   mMatrixGenerateTimer.start();
   mCamera.updateCamera(mRenderData, deltaTime);
@@ -403,12 +396,11 @@ bool OGLRenderer::draw(float deltaTime) {
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
     size_t numberOfInstances = modelType.second.size();
     if (numberOfInstances > 0) {
+      std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
 
       /* animated models */
-      if (modelType.second.at(0)->getModel()->hasAnimations() &&
-        modelType.second.at(0)->getModel()->getBoneList().size() > 0) {
-
-        size_t numberOfBones = modelType.second.at(0)->getModel()->getBoneList().size();
+      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+        size_t numberOfBones = model->getBoneList().size();
 
         mMatrixGenerateTimer.start();
 
@@ -434,13 +426,12 @@ bool OGLRenderer::draw(float deltaTime) {
         mAssimpTransformComputeShader.use();
 
         mUploadToUBOTimer.start();
-        mNodeTransformBuffer.uploadSsboData(mNodeTransFormData, 0);
+        mShaderNodeTransformBuffer.uploadSsboData(mNodeTransFormData, 0);
         mShaderTRSMatrixBuffer.bind(1);
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
         /* do the computation - in groups of 32 invocations */
         glDispatchCompute(numberOfBones, std::ceil(numberOfInstances / 32.0f), 1);
-        //glDispatchCompute(numberOfBones, numberOfInstances, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         /* multiply every bone TRS matrix with its parent bones TRS matrices, until the root bone has been reached
@@ -449,14 +440,13 @@ bool OGLRenderer::draw(float deltaTime) {
 
         mUploadToUBOTimer.start();
         mShaderTRSMatrixBuffer.bind(0);
-        modelType.second.at(0)->getModel()->bindBoneParentBuffer(1);
-        modelType.second.at(0)->getModel()->bindBoneMatrixOffsetBuffer(2);
+        model->bindBoneParentBuffer(1);
+        model->bindBoneMatrixOffsetBuffer(2);
         mShaderBoneMatrixBuffer.bind(3);
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
         /* do the computation - in groups of 32 invocations */
         glDispatchCompute(numberOfBones, std::ceil(numberOfInstances / 32.0f), 1);
-        //glDispatchCompute(numberOfBones, numberOfInstances, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         /* now bind the final bone transforms to the vertex skinning shader */
@@ -484,7 +474,7 @@ bool OGLRenderer::draw(float deltaTime) {
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
       }
 
-      modelType.second.at(0)->getModel()->drawInstanced(numberOfInstances);
+      model->drawInstanced(numberOfInstances);
     }
   }
 
@@ -514,7 +504,7 @@ void OGLRenderer::cleanup() {
   mShaderBoneMatrixBuffer.cleanup();
   mShaderTRSMatrixBuffer.cleanup();
 
-  mNodeTransformBuffer.cleanup();
+  mShaderNodeTransformBuffer.cleanup();
 
   mAssimpTransformComputeShader.cleanup();
   mAssimpMatrixComputeShader.cleanup();

@@ -26,9 +26,10 @@ struct ActionAnimation {
 struct ModelSettings {
   std::string msModelFilenamePath;
   std::string msModelFilename;
-  std::map<moveState, ActionAnimation> msActionClipMappings;
-  std::map<moveDirection, IdleWalkRunBlending> msIWRBlendings;
-  std::set<std::pair<moveState, moveState>> msAllowedStateOrder;
+
+  std::map<moveState, ActionAnimation> msActionClipMappings{};
+  std::map<moveDirection, IdleWalkRunBlending> msIWRBlendings{};
+  std::set<std::pair<moveState, moveState>> msAllowedStateOrder{};
 
   std::vector<glm::vec4> msBoundingSphereAdjustments{};
 };

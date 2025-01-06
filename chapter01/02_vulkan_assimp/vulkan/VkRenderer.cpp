@@ -1,12 +1,11 @@
+#include <imgui_impl_glfw.h>
+
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <ctime>
 #include <cstdlib>
 #include <algorithm>
 #include <filesystem>
-#include <memory>
-
-#include <imgui_impl_glfw.h>
-
-#include <glm/gtc/matrix_transform.hpp>
 
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
@@ -33,6 +32,10 @@ VkRenderer::VkRenderer(GLFWwindow *window) {
 }
 
 bool VkRenderer::init(unsigned int width, unsigned int height) {
+  /* randomize rand() */
+  std::srand(static_cast<int>(time(nullptr)));
+
+  /* required for perspective */
   mRenderData.rdWidth = width;
   mRenderData.rdHeight = height;
 
@@ -117,7 +120,7 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
   mWorldPosMatrices.resize(1);
   mWorldPosMatrices.at(0) = glm::mat4(1.0f);
 
-  // register callbacks
+  /* register callbacks */
   mModelInstData.miModelCheckCallbackFunction = [this](std::string fileName) { return hasModel(fileName); };
   mModelInstData.miModelAddCallbackFunction = [this](std::string fileName) { return addModel(fileName); };
   mModelInstData.miModelDeleteCallbackFunction = [this](std::string modelName) { deleteModel(modelName); };
@@ -277,7 +280,7 @@ bool VkRenderer::createDescriptorLayouts() {
   }
 
   {
-      /* non-animated shader */
+      /* UBO/SSBO in shader */
     VkDescriptorSetLayoutBinding assimpUboBind{};
     assimpUboBind.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     assimpUboBind.binding = 0;
@@ -930,6 +933,11 @@ void VkRenderer::handleMovementKeys() {
 }
 
 bool VkRenderer::draw(float deltaTime) {
+  /* no update on zero diff */
+  if (deltaTime == 0.0f) {
+    return true;
+  }
+
   mRenderData.rdFrameTime = mFrameTimer.stop();
   mFrameTimer.start();
 

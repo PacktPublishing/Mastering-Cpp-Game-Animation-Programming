@@ -39,7 +39,7 @@ void UserInterface::init(OGLRenderData &renderData) {
   const char *glslVersion = "#version 460 core";
   ImGui_ImplOpenGL3_Init(glslVersion);
 
-  ImGui::StyleColorsLight();
+  ImGui::StyleColorsDark();
   ImNodes::StyleColorsDark();
 
   /* init plot vectors */
@@ -2658,7 +2658,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::EndDisabled();
     }
 
-    if (modelIsStatic){
+    if (modelIsStatic) {
       ImGui::EndDisabled();
     }
 
@@ -3047,6 +3047,12 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     if (!renderData.rdInteraction) {
       ImGui::EndDisabled();
     }
+  }
+
+  if (ImGui::CollapsingHeader("Navigation")) {
+    ImGui::Text("Enable Navigation:     ");
+    ImGui::SameLine();
+    ImGui::Checkbox("##EnableNav", &renderData.rdEnableNavigation);
   }
 
   ImGui::End();

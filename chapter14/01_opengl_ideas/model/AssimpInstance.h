@@ -109,7 +109,6 @@ class AssimpInstance {
     moveState mNextMoveState = moveState::idle;
     moveState mActionMoveState = moveState::idle;
 
-    bool mKeepInstanceSpeed = false;
     bool mAnimRestarted = false;
 
     animationState mAnimState = animationState::playIdleWalkRun;

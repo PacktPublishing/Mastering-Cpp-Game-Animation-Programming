@@ -125,11 +125,10 @@ void AssimpLevel::processNode(std::shared_ptr<AssimpNode> node, aiNode* aNode, c
       aiMesh* modelMesh = scene->mMeshes[aNode->mMeshes[i]];
 
       AssimpMesh mesh;
-      mesh.processMesh(modelMesh, scene, assetDirectory);
+      mesh.processMesh(modelMesh, scene, assetDirectory, mTextures);
       OGLMesh vertexMesh = mesh.getMesh();
 
       mLevelMeshes.emplace_back(vertexMesh);
-      mTextures.merge(mesh.getTextures());
     }
   }
 

@@ -15,6 +15,7 @@
 #include "AssimpModel.h"
 #include "AssimpAnimClip.h"
 #include "AssimpInstance.h"
+#include "InstanceSettings.h"
 #include "Logger.h"
 
 void UserInterface::init(OGLRenderData &renderData) {
@@ -287,7 +288,6 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     bool modelListEmtpy = modInstData.miModelList.size() == 1;
     std::string selectedModelName = "None";
 
-
     if (!modelListEmtpy) {
       selectedModelName = modInstData.miModelList.at(modInstData.miSelectedModel)->getModelFileName().c_str();
     }
@@ -331,7 +331,6 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
 
     if (ImGuiFileDialog::Instance()->Display("ChooseModelFile")) {
       if (ImGuiFileDialog::Instance()->IsOk()) {
-
         std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 
         if (modInstData.miModelAddCallbackFunction(filePathName)) {
@@ -402,7 +401,6 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::SameLine();
     ImGui::SliderInt("##MassInstanceCreation", &manyInstanceCreateNum, 1, 100, "%d", flags);
 
-
     if (modelListEmtpy) {
      ImGui::EndDisabled();
     }
@@ -438,7 +436,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::SameLine();
     ImGui::PushItemWidth(30);
     ImGui::DragInt("##SelInst", &modInstData.miSelectedInstance, 1, 1,
-                   modInstData.miAssimpInstances.size() - 1, "%3d", flags);
+      modInstData.miAssimpInstances.size() - 1, "%3d", flags);
     ImGui::PopItemWidth();
 
     if (modelListEmtpy || nullInstanceSelected) {
@@ -607,11 +605,12 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
         }
         ImGui::EndCombo();
       }
+
       ImGui::Text("Replay Speed:  ");
       ImGui::SameLine();
       ImGui::SliderFloat("##ClipSpeed", &settings.isAnimSpeedFactor, 0.0f, 2.0f, "%.3f", flags);
     } else {
-      /* TODO: besster solution if no instances or no clips are found */
+      /* TODO: better solution if no instances or no clips are found */
       ImGui::BeginDisabled();
 
       ImGui::Text("Animation Clip:");

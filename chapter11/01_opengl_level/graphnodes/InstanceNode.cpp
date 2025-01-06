@@ -360,7 +360,7 @@ std::optional<std::map<std::string, std::string>> InstanceNode::exportData() {
     data["instance-position-z"] = std::to_string(mPosition.z);
   }
 
-  if (data.empty()){
+  if (data.empty()) {
     return {};
   }
   return data;

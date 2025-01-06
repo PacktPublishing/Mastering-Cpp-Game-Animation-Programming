@@ -22,7 +22,5 @@ class Window {
 
     std::string mWindowTitle;
 
-    std::unique_ptr<OGLRenderer> mRenderer;
-
-    std::chrono::time_point<std::chrono::steady_clock> mStartTime;
+    std::unique_ptr<OGLRenderer> mRenderer = nullptr;
 };

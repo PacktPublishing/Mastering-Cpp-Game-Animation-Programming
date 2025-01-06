@@ -23,13 +23,10 @@ class ShaderStorageBuffer {
     void bind(int bindingPoint);
     GLuint getBufferId();
 
-    std::vector<glm::mat4> getSsboDataMat4();
-    std::vector<int32_t> getSsboDataInt32();
-
     void checkForResize(size_t newBufferSize);
     void cleanup();
 
   private:
-    size_t mBufferSize;
+    size_t mBufferSize = 0;
     GLuint mShaderStorageBuffer = 0;
 };

@@ -50,7 +50,7 @@ class Camera {
     void setCameraSettings(CameraSettings settings);
 
   private:
-    void updateCameraView(OGLRenderData& renderData, const float deltaTime);
+    void updateCameraView();
     void updateCameraPosition(OGLRenderData& renderData, const float deltaTime);
 
     CameraSettings mCamSettings{};

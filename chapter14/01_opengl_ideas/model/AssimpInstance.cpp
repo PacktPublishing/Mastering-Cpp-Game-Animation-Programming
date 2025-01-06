@@ -127,8 +127,6 @@ void AssimpInstance::updateAnimStateMachine(float deltaTime) {
           mInstanceSettings.isAccel = glm::vec3(0.0f);
           mInstanceSettings.isSpeed = glm::vec3(0.0f);
         }
-
-        //mKeepInstanceSpeed = true;
       }
       break;
     case animationState::transitionFromIdleWalkRun:
@@ -303,7 +301,7 @@ void AssimpInstance::rotateInstance(float angle) {
 }
 
 void AssimpInstance::rotateInstance(glm::vec3 angles) {
-  /* keep a;; angles between -180 and 180 degree */
+  /* keep all angles between -180 and 180 degree */
   if (angles.x < -180.0f) {
    angles.x += 360.0f;
   }
@@ -394,7 +392,6 @@ void AssimpInstance::blendActionAnimation(float deltaTime, bool backwards) {
     if (mInstanceSettings.isAnimBlendFactor <= 0.0f) {
       mAnimState = animationState::playIdleWalkRun;
       mNextMoveState = moveState::idle;
-      mKeepInstanceSpeed = false;
     }
   } else {
     mInstanceSettings.isAnimBlendFactor += blendSpeedFactor;

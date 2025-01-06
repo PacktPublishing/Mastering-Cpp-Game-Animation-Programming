@@ -65,7 +65,6 @@ void UserInterface::createFrame(OGLRenderData &renderData) {
   mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * newFps;
 }
 
-
 void UserInterface::hideMouse(bool hide) {
   /* v1.89.8 removed the check for disabled mouse cursor in GLFW
    * we need to ignore the mouse postion if the mouse lock is active */
@@ -1876,39 +1875,39 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::Text("Draw AABB Lines:        ");
     ImGui::SameLine();
     if (ImGui::RadioButton("None##AABB",
-      renderData.rdDrawCollisionAABBs == collisionDebugDraws::none)) {
-      renderData.rdDrawCollisionAABBs = collisionDebugDraws::none;
+      renderData.rdDrawCollisionAABBs == collisionDebugDraw::none)) {
+      renderData.rdDrawCollisionAABBs = collisionDebugDraw::none;
     }
     ImGui::SameLine();
     if (ImGui::RadioButton("Colliding##AABB",
-      renderData.rdDrawCollisionAABBs == collisionDebugDraws::colliding)) {
-      renderData.rdDrawCollisionAABBs = collisionDebugDraws::colliding;
+      renderData.rdDrawCollisionAABBs == collisionDebugDraw::colliding)) {
+      renderData.rdDrawCollisionAABBs = collisionDebugDraw::colliding;
     }
     ImGui::SameLine();
     if (ImGui::RadioButton("All##AABB",
-      renderData.rdDrawCollisionAABBs == collisionDebugDraws::all)) {
-      renderData.rdDrawCollisionAABBs = collisionDebugDraws::all;
+      renderData.rdDrawCollisionAABBs == collisionDebugDraw::all)) {
+      renderData.rdDrawCollisionAABBs = collisionDebugDraw::all;
     }
     ImGui::Text("Draw Bounding Spheres:  ");
     ImGui::SameLine();
     if (ImGui::RadioButton("None##Sphere",
-      renderData.rdDrawBoundingSpheres == collisionDebugDraws::none)) {
-      renderData.rdDrawBoundingSpheres = collisionDebugDraws::none;
+      renderData.rdDrawBoundingSpheres == collisionDebugDraw::none)) {
+      renderData.rdDrawBoundingSpheres = collisionDebugDraw::none;
     }
     ImGui::SameLine();
     if (ImGui::RadioButton("Colliding##Sphere",
-      renderData.rdDrawBoundingSpheres == collisionDebugDraws::colliding)) {
-      renderData.rdDrawBoundingSpheres = collisionDebugDraws::colliding;
+      renderData.rdDrawBoundingSpheres == collisionDebugDraw::colliding)) {
+      renderData.rdDrawBoundingSpheres = collisionDebugDraw::colliding;
     }
     ImGui::SameLine();
     if (ImGui::RadioButton("Selected##Sphere",
-      renderData.rdDrawBoundingSpheres == collisionDebugDraws::selected)) {
-      renderData.rdDrawBoundingSpheres = collisionDebugDraws::selected;
+      renderData.rdDrawBoundingSpheres == collisionDebugDraw::selected)) {
+      renderData.rdDrawBoundingSpheres = collisionDebugDraw::selected;
     }
     ImGui::SameLine();
     if (ImGui::RadioButton("All##Sphere",
-      renderData.rdDrawBoundingSpheres == collisionDebugDraws::all)) {
-      renderData.rdDrawBoundingSpheres = collisionDebugDraws::all;
+      renderData.rdDrawBoundingSpheres == collisionDebugDraw::all)) {
+      renderData.rdDrawBoundingSpheres = collisionDebugDraw::all;
     }
   }
 

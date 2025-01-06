@@ -1,14 +1,12 @@
-#include <algorithm>
-
-#include <imgui_impl_glfw.h>
-
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <ctime>
 #include <cstdlib>
 #include <algorithm>
 #include <filesystem>
 #include <memory>
+
+#include <imgui_impl_glfw.h>
+
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "OGLRenderer.h"
 #include "InstanceSettings.h"
@@ -86,8 +84,9 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mModelInstData.miInstanceDeleteCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { deleteInstance(instance) ;};
   mModelInstData.miInstanceCloneCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { cloneInstance(instance); };
 
-  mShaderBoneMatrixBuffer.init(32768);
-  mWorldPosBuffer.init(32768);
+  mShaderBoneMatrixBuffer.init(256);
+
+  mWorldPosBuffer.init(256);
 
   mFrameTimer.start();
 
@@ -202,7 +201,6 @@ void OGLRenderer::deleteInstance(std::shared_ptr<AssimpInstance> instance) {
 
   updateTriangleCount();
 }
-
 
 void OGLRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
   std::shared_ptr<AssimpModel> currentModel = instance->getModel();
@@ -362,6 +360,7 @@ bool OGLRenderer::draw(float deltaTime) {
   glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
   glClearDepth(1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_FRAMEBUFFER_SRGB);
 
   mMatrixGenerateTimer.start();
   mCamera.updateCamera(mRenderData, deltaTime);
@@ -387,12 +386,11 @@ bool OGLRenderer::draw(float deltaTime) {
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
     size_t numberOfInstances = modelType.second.size();
     if (numberOfInstances > 0) {
+      std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
 
       /* animated models */
-      if (modelType.second.at(0)->getModel()->hasAnimations() &&
-        modelType.second.at(0)->getBoneMatrices().size() > 0) {
-
-        size_t numberOfBones = modelType.second.at(0)->getModel()->getBoneList().size();
+      if (model->hasAnimations() && modelType.second.at(0)->getBoneMatrices().size() > 0) {
+        size_t numberOfBones = model->getBoneList().size();
 
         mMatrixGenerateTimer.start();
         mModelBoneMatrices.clear();
@@ -428,7 +426,7 @@ bool OGLRenderer::draw(float deltaTime) {
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
       }
 
-      modelType.second.at(0)->getModel()->drawInstanced(numberOfInstances);
+      model->drawInstanced(numberOfInstances);
     }
   }
 

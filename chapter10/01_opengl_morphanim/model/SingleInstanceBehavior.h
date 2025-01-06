@@ -30,12 +30,12 @@ class SingleInstanceBehavior {
     void addEvent(nodeEvent event);
 
   private:
-    fireNodeOutputCallback mFireNodeOutputCallback{};
-    instanceNodeActionCallback mInstanceNodeActionCallback{};
+    fireNodeOutputCallback mFireNodeOutputCallbackFunction;
+    instanceNodeActionCallback mInstanceNodeActionCallbackFunction;
 
-    std::shared_ptr<BehaviorData> mBehaviorData;
+    std::shared_ptr<BehaviorData> mBehaviorData = nullptr;
     int mInstanceId = 0;
 
-    std::vector<nodeEvent> mPendingNodeEvents;
-    std::vector<nodeEvent> mNewPendingNodeEvents;
+    std::vector<nodeEvent> mPendingNodeEvents{};
+    std::vector<nodeEvent> mNewPendingNodeEvents{};
 };

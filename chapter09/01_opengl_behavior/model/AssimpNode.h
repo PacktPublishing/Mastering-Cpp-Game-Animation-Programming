@@ -34,7 +34,7 @@ class AssimpNode : public std::enable_shared_from_this<AssimpNode>  {
 
   private:
     std::string mNodeName = "(invalid)";
-    std::weak_ptr<AssimpNode> mParentNode;
+    std::weak_ptr<AssimpNode> mParentNode{};
     std::vector<std::shared_ptr<AssimpNode>> mChildNodes{};
 
     glm::vec3 mTranslation = glm::vec3(0.0f);

@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <memory>
+
 #include <glm/glm.hpp>
 
 /* Vulkan also before GLFW */
@@ -12,16 +14,16 @@
 #include <VkBootstrap.h>
 #include <vk_mem_alloc.h>
 
-#include "VkRenderData.h"
-
 #include "Timer.h"
 #include "Texture.h"
 #include "UniformBuffer.h"
 #include "UserInterface.h"
 #include "VertexBuffer.h"
 #include "ShaderStorageBuffer.h"
-#include "ModelAndInstanceData.h"
 #include "Camera.h"
+
+#include "VkRenderData.h"
+#include "ModelAndInstanceData.h"
 
 class VkRenderer {
   public:
@@ -119,5 +121,5 @@ class VkRenderer {
     void updateDescriptorSets();
     void updateComputeDescriptorSets();
 
-    void runComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances, int32_t modelOffset);
+    void runComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances, uint32_t modelOffset);
 };

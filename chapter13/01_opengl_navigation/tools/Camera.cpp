@@ -44,10 +44,10 @@ void Camera::updateCamera(OGLRenderData& renderData, float deltaTime) {
         if (mCamSettings.csFirstPersonLockView) {
           /* get elevation */
           glm::vec3 elevationVector = mFirstPersonBoneMatrix * glm::vec4(mWorldUpVector, 0.0f);
-          mCamSettings.csViewElevation = -glm::degrees(glm::acos(glm::dot(glm::normalize(elevationVector), mWorldUpVector)));
+          mCamSettings.csViewElevation = -glm::degrees(std::acos(glm::dot(glm::normalize(elevationVector), mWorldUpVector)));
 
           glm::vec3 azimuthVector = mFirstPersonBoneMatrix * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
-          float rotateAngle = glm::degrees(glm::acos(glm::dot(glm::normalize(glm::vec3(azimuthVector.x, 0.0f, azimuthVector.z)), glm::vec3(0.0f, 0.0f, -1.0f))));
+          float rotateAngle = glm::degrees(std::acos(glm::dot(glm::normalize(glm::vec3(azimuthVector.x, 0.0f, azimuthVector.z)), glm::vec3(0.0f, 0.0f, -1.0f))));
           /* support full 360 degree for Azimuth */
           if (azimuthVector.x < 0.0f) {
             rotateAngle = 360.0f - rotateAngle;
@@ -71,7 +71,7 @@ void Camera::updateCamera(OGLRenderData& renderData, float deltaTime) {
         mCamSettings.csWorldPosition = instSettings.isWorldPosition + offset;
 
         glm::vec3 viewDirection = instSettings.isWorldPosition - mCamSettings.csWorldPosition;
-        mCamSettings.csViewElevation = (90.0f - glm::degrees(glm::acos(glm::dot(glm::normalize(viewDirection), mWorldUpVector)))) / 2.0f;
+        mCamSettings.csViewElevation = (90.0f - glm::degrees(std::acos(glm::dot(glm::normalize(viewDirection), mWorldUpVector)))) / 2.0f;
 
         updateCameraView(renderData, deltaTime);
       }
@@ -83,10 +83,10 @@ void Camera::updateCamera(OGLRenderData& renderData, float deltaTime) {
 
         glm::vec3 viewDirection = instance->getWorldPosition() - mCamSettings.csWorldPosition + glm::vec3(0.0f, mCamSettings.csFollowCamHeightOffset, 0.0f);
 
-        mCamSettings.csViewElevation = 90.0f - glm::degrees(glm::acos(glm::dot(glm::normalize(viewDirection), mWorldUpVector)));
+        mCamSettings.csViewElevation = 90.0f - glm::degrees(std::acos(glm::dot(glm::normalize(viewDirection), mWorldUpVector)));
 
         /* map to 'y = 0' to avoid elevation angle taking over for the largest angle */
-        float rotateAngle = glm::degrees(glm::acos(glm::dot(glm::normalize(glm::vec3(viewDirection.x, 0.0f, viewDirection.z)), glm::vec3(0.0f, 0.0f, -1.0f))));
+        float rotateAngle = glm::degrees(std::acos(glm::dot(glm::normalize(glm::vec3(viewDirection.x, 0.0f, viewDirection.z)), glm::vec3(0.0f, 0.0f, -1.0f))));
         /* support full 360 degree for Azimuth */
         if (viewDirection.x < 0.0f) {
           rotateAngle = 360.0f - rotateAngle;
@@ -120,7 +120,7 @@ void Camera::updateCameraView(OGLRenderData& renderData, const float deltaTime) 
   mUpDirection = glm::normalize(glm::cross(mRightDirection, mViewDirection));
 }
 
-void Camera::updateCameraPosition(OGLRenderData& renderData, const float deltaTime){
+void Camera::updateCameraPosition(OGLRenderData& renderData, const float deltaTime) {
   /* update camera position depending on desired movement */
   mCamSettings.csWorldPosition +=
     renderData.rdMoveForward * deltaTime * mViewDirection

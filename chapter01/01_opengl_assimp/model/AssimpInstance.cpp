@@ -60,14 +60,12 @@ void AssimpInstance::updateAnimation(float deltaTime) {
   }
 
   /* set root node transform matrix, enabling instance movement */
-  mAssimpModel->getNodeMap().at(mAssimpModel->getBoneList().at(0)->getBoneName())->setRootTransformMatrix(mLocalTransformMatrix * mAssimpModel->getRootTranformationMatrix());
+  mAssimpModel->getRootNode()->setRootTransformMatrix(mLocalTransformMatrix * mAssimpModel->getRootTranformationMatrix());
 
   /* flat node map contains nodes in parent->child order, starting with root node, update matrices down the skeleton tree */
   mBoneMatrices.clear();
-  for (auto& bone : mAssimpModel->getBoneList()) {
-    std::string nodeName = bone->getBoneName();
-
-    std::shared_ptr<AssimpNode> node = mAssimpModel->getNodeMap().at(nodeName);
+  for (auto& node : mAssimpModel->getNodeList()) {
+    std::string nodeName = node->getNodeName();
     node->updateTRSMatrix();
     if (mAssimpModel->getBoneOffsetMatrices().count(nodeName) > 0) {
       mBoneMatrices.emplace_back(mAssimpModel->getNodeMap().at(nodeName)->getTRSMatrix() * mAssimpModel->getBoneOffsetMatrices().at(nodeName));
@@ -80,7 +78,7 @@ std::shared_ptr<AssimpModel> AssimpInstance::getModel() {
 }
 
 glm::vec3 AssimpInstance::getWorldPosition() {
-  return mInstanceSettings.isWorldRotation;
+  return mInstanceSettings.isWorldPosition;
 }
 
 glm::mat4 AssimpInstance::getWorldTransformMatrix() {

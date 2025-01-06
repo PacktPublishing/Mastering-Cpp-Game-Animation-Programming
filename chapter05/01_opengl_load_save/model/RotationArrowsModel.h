@@ -11,5 +11,5 @@ class RotationArrowsModel {
 
   private:
     void init();
-    OGLLineMesh mVertexData;
+    OGLLineMesh mVertexData{};
 };

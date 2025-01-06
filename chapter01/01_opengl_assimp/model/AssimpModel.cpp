@@ -1,19 +1,11 @@
 #include <algorithm>
-#include <chrono>
-#include <cmath>
 #include <filesystem>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/dual_quaternion.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
 #include "AssimpModel.h"
-#include "VertexIndexBuffer.h"
 #include "Tools.h"
 #include "Logger.h"
 
@@ -41,8 +33,6 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
     Logger::log(1, "%s: mesh %i contains %i vertices and %i faces\n", __FUNCTION__, i, numVertices, numFaces);
   }
   Logger::log(1, "%s: model contains %i vertices and %i faces\n", __FUNCTION__, mVertexCount, mTriangleCount);
-
-  aiNode* rootNode = scene->mRootNode;
 
   if (scene->HasTextures()) {
     unsigned int numTextures = scene->mNumTextures;
@@ -76,14 +66,15 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
   }
 
   /* the textures are stored directly or relative to the model file */
-  std::string assetDirectory = modelFilename.substr(0, modelFilename.find_last_of(std::filesystem::path::preferred_separator));
+  std::string assetDirectory = modelFilename.substr(0, modelFilename.find_last_of('/'));
 
   /* nodes */
   Logger::log(1, "%s: ... processing nodes...\n", __FUNCTION__);
 
+  aiNode* rootNode = scene->mRootNode;
   std::string rootNodeName = rootNode->mName.C_Str();
   mRootNode = AssimpNode::createNode(rootNodeName);
-  Logger::log(2, "%s: root node name: '%s'\n", __FUNCTION__, rootNodeName.c_str());
+  Logger::log(1, "%s: root node name: '%s'\n", __FUNCTION__, rootNodeName.c_str());
 
   processNode(mRootNode, rootNode, scene, assetDirectory);
 
@@ -109,7 +100,7 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
   }
 
   /* create vertex buffers for the meshes */
-  for (auto mesh : mModelMeshes) {
+  for (const auto& mesh : mModelMeshes) {
     VertexIndexBuffer buffer;
     buffer.init();
     buffer.uploadData(mesh.vertices, mesh.indices);
@@ -295,4 +286,8 @@ const std::vector<std::shared_ptr<AssimpAnimClip>>& AssimpModel::getAnimClips() 
 
 bool AssimpModel::hasAnimations() {
   return mAnimClips.size() > 0;
+}
+
+const std::shared_ptr<AssimpNode> AssimpModel::getRootNode() {
+  return mRootNode;
 }

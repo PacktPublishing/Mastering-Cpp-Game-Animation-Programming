@@ -2,8 +2,6 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <map>
-#include <functional>
 #include <chrono>
 
 #include <glm/glm.hpp>
@@ -19,19 +17,16 @@
 #include "UniformBuffer.h"
 #include "ShaderStorageBuffer.h"
 #include "UserInterface.h"
-#include "Camera.h"
+#include "CameraSettings.h"
+#include "ModelSettings.h"
 #include "CoordArrowsModel.h"
 #include "RotationArrowsModel.h"
 #include "ScaleArrowsModel.h"
 #include "AssimpModel.h"
 #include "AssimpInstance.h"
-#include "YamlParser.h"
 
 #include "OGLRenderData.h"
 #include "ModelInstanceCamData.h"
-
-using GetWindowTitleCallback = std::function<std::string(void)>;
-using SetWindowTitleCallback = std::function<void(std::string)>;
 
 class OGLRenderer {
   public:
@@ -45,8 +40,6 @@ class OGLRenderer {
     void handleMouseButtonEvents(int button, int action, int mods);
     void handleMousePositionEvents(double xPos, double yPos);
     void handleMouseWheelEvents(double xOffset, double yOffset);
-
-    void cleanup();
 
     void addNullModelAndInstance();
     void removeAllModelsAndInstances();
@@ -70,8 +63,9 @@ class OGLRenderer {
     void requestExitApplication();
     void doExitApplication();
 
-    SetWindowTitleCallback setWindowTitle;
-    GetWindowTitleCallback getWindowTitle;
+    ModelInstanceCamData& getModInstCamData();
+
+    void cleanup();
 
   private:
     OGLRenderData mRenderData{};
@@ -130,8 +124,8 @@ class OGLRenderer {
     float mMouseWheelScale = 1.0f;
     int mMouseWheelScaleShiftKey = 0;
     bool mMouseWheelScrolling = false;
-    std::chrono::time_point<std::chrono::steady_clock> mMouseWheelLastScrollTime;
-    CameraSettings mSavedCameraWheelSettings;
+    std::chrono::time_point<std::chrono::steady_clock> mMouseWheelLastScrollTime{};
+    CameraSettings mSavedCameraWheelSettings{};
 
     bool mMousePick = false;
     int mSavedSelectedInstanceId = 0;
@@ -139,7 +133,7 @@ class OGLRenderer {
     bool mMouseMove = false;
     bool mMouseMoveVertical = false;
     int mMouseMoveVerticalShiftKey = 0;
-    InstanceSettings mSavedInstanceSettings;
+    InstanceSettings mSavedInstanceSettings{};
 
     void handleMovementKeys(float deltaTime);
 
@@ -178,7 +172,7 @@ class OGLRenderer {
 
     void cloneCamera();
     void deleteCamera();
-    CameraSettings mSavedCameraSettings;
+    CameraSettings mSavedCameraSettings{};
 
     std::string generateUniqueCameraName(std::string camBaseName);
     bool checkCameraNameUsed(std::string cameraName);

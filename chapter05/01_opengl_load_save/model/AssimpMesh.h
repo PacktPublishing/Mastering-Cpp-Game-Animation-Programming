@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <memory>
+
 #include <assimp/scene.h>
 
 #include "OGLRenderData.h"
@@ -11,7 +13,8 @@
 
 class AssimpMesh {
   public:
-    bool processMesh(aiMesh* mesh, const aiScene* scene, std::string assetDirectory);
+    bool processMesh(aiMesh* mesh, const aiScene* scene, std::string assetDirectory,
+      std::unordered_map<std::string, std::shared_ptr<Texture>>& textures);
 
     std::string getMeshName();
     unsigned int getTriangleCount();
@@ -19,7 +22,6 @@ class AssimpMesh {
 
     OGLMesh getMesh();
     std::vector<uint32_t> getIndices();
-    std::unordered_map<std::string, std::shared_ptr<Texture>> getTextures();
     std::vector<std::shared_ptr<AssimpBone>> getBoneList();
 
   private:
@@ -27,7 +29,6 @@ class AssimpMesh {
     unsigned int mTriangleCount = 0;
     unsigned int mVertexCount = 0;
 
-    OGLMesh mMesh {};
-    std::unordered_map<std::string, std::shared_ptr<Texture>> mTextures;
-    std::vector<std::shared_ptr<AssimpBone>> mBoneList;
+    OGLMesh mMesh{};
+    std::vector<std::shared_ptr<AssimpBone>> mBoneList{};
 };

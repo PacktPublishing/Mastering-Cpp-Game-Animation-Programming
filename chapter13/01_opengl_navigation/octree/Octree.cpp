@@ -211,7 +211,7 @@ bool Octree::remove(std::shared_ptr<OctreeNode> node, BoundingBox3D box, int ins
 
 void Octree::removeInstance(std::shared_ptr<OctreeNode> node, int instanceId) {
   auto it = std::find_if(std::begin(node->instancIds), std::end(node->instancIds),
-    [&instanceId](const auto& rhs){ return instanceId == rhs; });
+    [&instanceId](const auto& rhs) { return instanceId == rhs; });
   if (it == std::end(node->instancIds)) {
     Logger::log(1, "%s error: could not remove not existing instance with id %i\n", __FUNCTION__, instanceId);
     return;

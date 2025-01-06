@@ -33,11 +33,10 @@ struct InstanceSettings {
   moveDirection isMoveDirection = moveDirection::none;
   moveState isMoveState = moveState::idle;
 
-  bool isIsNPC = false;
   std::string isNodeTreeName;
 };
 
 /* temporary struct to catch the camera names from the save file */
 struct ExtendedInstanceSettings : InstanceSettings {
-  std::vector<std::string> eisCameraNames;
+  std::vector<std::string> eisCameraNames{};
 };

@@ -12,7 +12,7 @@
 class AssimpAnimChannel {
   public:
     void loadChannelData(aiNodeAnim* nodeAnim);
-    const std::string& getTargetNodeName();
+    std::string getTargetNodeName();
     float getMaxTime();
 
     glm::vec4 getTranslation(float time); // last element is ignored

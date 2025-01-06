@@ -1,5 +1,6 @@
 #include "Window.h"
 #include "Logger.h"
+#include "ModelAndInstanceData.h"
 
 bool Window::init(unsigned int width, unsigned int height, std::string title) {
   if (!glfwInit()) {
@@ -26,8 +27,9 @@ bool Window::init(unsigned int width, unsigned int height, std::string title) {
   mRenderer = std::make_unique<OGLRenderer>(mWindow);
 
   /* allow to set window title in renderer */
-  mRenderer->getWindowTitle = [this]() { return getWindowTitle(); };
-  mRenderer->setWindowTitle = [this](std::string windowTitle) { setWindowTitle(windowTitle); };
+  ModelAndInstanceData& rendererMIData = mRenderer->getModInstData();
+  rendererMIData.miGetWindowTitleFunction = [this]() { return getWindowTitle(); };
+  rendererMIData.miSetWindowTitleFunction = [this](std::string windowTitle) { setWindowTitle(windowTitle); };
 
   glfwSetWindowUserPointer(mWindow, mRenderer.get());
   glfwSetWindowSizeCallback(mWindow, [](GLFWwindow *win, int width, int height) {
@@ -66,7 +68,6 @@ bool Window::init(unsigned int width, unsigned int height, std::string title) {
     return false;
   }
 
-  mStartTime = std::chrono::steady_clock::now();
   Logger::log(1, "%s: Window with OpenGL 4.6 successfully initialized\n", __FUNCTION__);
   return true;
 }

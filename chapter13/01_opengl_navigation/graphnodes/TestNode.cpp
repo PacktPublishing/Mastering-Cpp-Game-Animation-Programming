@@ -33,6 +33,6 @@ void TestNode::draw(ModelInstanceCamData modInstCamData) {
   ImNodes::EndNode();
 }
 
-void TestNode::fireOutput(){
+void TestNode::fireOutput() {
   fireNodeOutputTriggerCallback(mOutId);
 }

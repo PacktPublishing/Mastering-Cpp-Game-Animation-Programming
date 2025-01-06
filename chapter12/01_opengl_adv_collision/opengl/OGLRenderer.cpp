@@ -38,7 +38,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mRenderData.mAppModeMap[appMode::view] = "View";
 
   /* save orig window title, add current mode */
-  mOrigWindowTitle = getWindowTitle();
+  mOrigWindowTitle = mModelInstCamData.micGetWindowTitleFunction();
   setModeInWindowTitle();
 
   /* required for perspective */
@@ -325,6 +325,10 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   return true;
 }
 
+ModelInstanceCamData& OGLRenderer::getModInstCamData() {
+  return mModelInstCamData;
+}
+
 bool OGLRenderer::loadConfigFile(std::string configFileName) {
   YamlParser parser;
   if (!parser.loadYamlFile(configFileName)) {
@@ -343,6 +347,37 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   /* reset octree display */
   mUserInterface.resetPositionWindowOctreeView();
 
+
+  /* load level data */
+  std::vector<LevelSettings> savedLevelSettings = parser.getLevelConfigs();
+  if (savedLevelSettings.size() == 0) {
+    Logger::log(1, "%s warning: no level in file '%s', skipping\n", __FUNCTION__, parser.getFileName().c_str());
+  } else {
+    for (auto& levelSetting : savedLevelSettings) {
+      if (!addLevel(levelSetting.lsLevelFilenamePath)) {
+        return false;
+      }
+
+      std::shared_ptr<AssimpLevel> level = getLevel(levelSetting.lsLevelFilenamePath);
+      if (!level) {
+        return false;
+      }
+
+      level->setLevelSettings(levelSetting);
+    }
+
+    /* regenerate vertex data */
+    generateLevelVertexData();
+
+    /* restore selected level num */
+    int selectedLevel = parser.getSelectedLevelNum();
+    if (selectedLevel < mModelInstCamData.micLevels.size()) {
+      mModelInstCamData.micSelectedLevel = selectedLevel;
+    } else {
+      mModelInstCamData.micSelectedLevel = 0;
+    }
+  }
+
   /* get models */
   std::vector<ModelSettings> savedModelSettings = parser.getModelConfigs();
   if (savedModelSettings.size() == 0) {
@@ -359,8 +394,8 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
       return false;
     }
 
-    /* migration config version 4.0 to 5.0+  */
-    if (yamlFileVersion == "4.0") {
+    /* migration config version 4.0 to 4.0+  */
+    if (yamlFileVersion == "3.0") {
       Logger::log(1, "%s: adding empty bounding sphere adjustment vector\n", __FUNCTION__);
       std::vector<glm::vec4> boundingSphereAdjustments = model->getModelSettings().msBoundingSphereAdjustments;
       modSetting.msBoundingSphereAdjustments = boundingSphereAdjustments;
@@ -501,37 +536,6 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
     }
   }
 
-  /* load level data */
-  std::vector<LevelSettings> savedLevelSettings = parser.getLevelConfigs();
-  if (savedLevelSettings.size() == 0) {
-    Logger::log(1, "%s warning: no level in file '%s', skipping\n", __FUNCTION__, parser.getFileName().c_str());
-  } else {
-    for (auto& levelSetting : savedLevelSettings) {
-      if (!addLevel(levelSetting.lsLevelFilenamePath)) {
-        return false;
-      }
-
-      std::shared_ptr<AssimpLevel> level = getLevel(levelSetting.lsLevelFilenamePath);
-      if (!level) {
-        return false;
-      }
-
-      level->setLevelSettings(levelSetting);
-    }
-
-    /* regenerate vertex data */
-    generateLevelVertexData();
-
-    /* restore selected level num */
-    int selectedLevel = parser.getSelectedLevelNum();
-    if (selectedLevel < mModelInstCamData.micLevels.size()) {
-      mModelInstCamData.micSelectedLevel = selectedLevel;
-    } else {
-      mModelInstCamData.micSelectedLevel = 0;
-    }
-  }
-
-
   /* restore hightlight status, set default edit mode */
   mRenderData.rdHighlightSelectedInstance = parser.getHighlightActivated();
   mRenderData.rdInstanceEditMode = instanceEditMode::move;
@@ -626,7 +630,7 @@ void OGLRenderer::redoLastOperation() {
   }
 }
 
-void OGLRenderer::addNullModelAndInstance(){
+void OGLRenderer::addNullModelAndInstance() {
   /* create an empty null model and an instance from it */
   std::shared_ptr<AssimpModel> nullModel = std::make_shared<AssimpModel>();
   mModelInstCamData.micModelList.emplace_back(nullModel);
@@ -995,7 +999,7 @@ void OGLRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
 }
 
 /* keep scaling and axis flipping */
-void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int numClones){
+void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int numClones) {
   std::shared_ptr<AssimpModel> model = instance->getModel();
   std::vector<std::shared_ptr<AssimpInstance>> newInstances;
   for (int i = 0; i < numClones; ++i) {
@@ -1189,9 +1193,6 @@ void OGLRenderer::addBehavior(int instanceId, std::shared_ptr<SingleInstanceBeha
     return;
   }
 
-  //std::shared_ptr<AssimpInstance> instance = mModelInstCamData.micAssimpInstances.at(instanceId);
-  //instance->isNPC(true);
-
   mBehviorTimer.start();
   mBehavior->addInstance(instanceId, behavior);
   mRenderData.rdBehaviorTime += mBehviorTimer.stop();
@@ -1207,9 +1208,6 @@ void OGLRenderer::delBehavior(int instanceId) {
   mBehviorTimer.start();
   mBehavior->removeInstance(instanceId);
   mRenderData.rdBehaviorTime += mBehviorTimer.stop();
-
-  //std::shared_ptr<AssimpInstance> instance = mModelInstCamData.micAssimpInstances.at(instanceId);
-  //instance->isNPC(false);
 
   Logger::log(1, "%s: removed behavior from instance %i\n", __FUNCTION__, instanceId);
 }
@@ -1806,7 +1804,9 @@ bool OGLRenderer::getConfigDirtyFlag() {
 }
 
 void OGLRenderer::setModeInWindowTitle() {
-  setWindowTitle(mOrigWindowTitle + " (" + mRenderData.mAppModeMap.at(mRenderData.rdApplicationMode) + " Mode)" + mWindowTitleDirtySign);
+  mModelInstCamData.micSetWindowTitleFunction(mOrigWindowTitle + " (" +
+    mRenderData.mAppModeMap.at(mRenderData.rdApplicationMode) + " Mode)" +
+    mWindowTitleDirtySign);
 }
 
 void OGLRenderer::toggleFullscreen() {
@@ -2732,6 +2732,7 @@ void OGLRenderer::resetLevelData() {
   mRenderData.rdLevelOctreeThreshold = 10;
   mRenderData.rdLevelOctreeMaxDepth = 5;
 
+  mRenderData.rdEnableFeetIK = false;
   mRenderData.rdDrawIKDebugLines = false;
 
   mModelInstCamData.micLevels.erase(mModelInstCamData.micLevels.begin(), mModelInstCamData.micLevels.end());
@@ -2791,10 +2792,10 @@ void OGLRenderer::drawCollisionDebug() {
 
     std::vector<std::shared_ptr<AssimpInstance>> instancestoDraw;
     glm::vec4 aabbColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    /* draw colliding instances in res */
+    /* draw colliding instances in red */
     if (mRenderData.rdDrawCollisionAABBs == collisionDebugDraw::colliding ||
         mRenderData.rdDrawCollisionAABBs == collisionDebugDraw::all) {
-      for (const auto id : uniqueInstanceIds){
+      for (const auto id : uniqueInstanceIds) {
         instancestoDraw.push_back(mModelInstCamData.micAssimpInstances.at(id));
       }
       /* draw red lines for collisions */
@@ -3673,7 +3674,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
       mCoordArrowsLineIndexCount += mCoordArrowsMesh.vertices.size();
       std::for_each(mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end(),
-        [=](auto &n){
+        [=](auto &n) {
           n.color /= 2.0f;
           n.position = glm::quat(glm::radians(instSettings.isWorldRotation)) * n.position;
           n.position += instSettings.isWorldPosition;
@@ -3791,12 +3792,15 @@ void OGLRenderer::cleanup() {
   mBoundingSphereBuffer.cleanup();
   mBoundingSphereAdjustmentBuffer.cleanup();
   mShaderTRSMatrixBuffer.cleanup();
+  mFaceAnimPerInstanceDataBuffer.cleanup();
+  mEmptyWorldPositionBuffer.cleanup();
 
   mAssimpTransformHeadMoveComputeShader.cleanup();
   mAssimpTransformComputeShader.cleanup();
   mAssimpMatrixComputeShader.cleanup();
   mAssimpBoundingBoxComputeShader.cleanup();
 
+  mAssimpLevelShader.cleanup();
   mAssimpSkinningMorphSelectionShader.cleanup();
   mAssimpSkinningSelectionShader.cleanup();
   mAssimpSkinningMorphShader.cleanup();
@@ -3808,6 +3812,7 @@ void OGLRenderer::cleanup() {
 
   mUserInterface.cleanup();
 
+  mIKLinesVertexBuffer.cleanup();
   mLevelWireframeVertexBuffer.cleanup();
   mLevelOctreeVertexBuffer.cleanup();
   mLevelAABBVertexBuffer.cleanup();

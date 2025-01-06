@@ -2,7 +2,7 @@
 layout (location = 0) in vec4 aPos; // last float is uv.x :)
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec4 aNormal; // last float is uv.y
-layout (location = 3) in ivec4 aBoneNum;
+layout (location = 3) in uvec4 aBoneNum;
 layout (location = 4) in vec4 aBoneWeight;
 
 layout (location = 0) out vec4 color;

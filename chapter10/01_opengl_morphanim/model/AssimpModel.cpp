@@ -1,12 +1,7 @@
 #include <algorithm>
-#include <chrono>
-#include <cmath>
 #include <filesystem>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+
 #include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/dual_quaternion.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
@@ -291,12 +286,11 @@ void AssimpModel::processNode(std::shared_ptr<AssimpNode> node, aiNode* aNode, c
       aiMesh* modelMesh = scene->mMeshes[aNode->mMeshes[i]];
 
       AssimpMesh mesh;
-      mesh.processMesh(modelMesh, scene, assetDirectory);
+      mesh.processMesh(modelMesh, scene, assetDirectory, mTextures);
       OGLMesh vertexMesh = mesh.getMesh();
       mNumAnimatedMeshes += vertexMesh.morphMeshes.size();
 
       mModelMeshes.emplace_back(vertexMesh);
-      mTextures.merge(mesh.getTextures());
 
       /* avoid inserting duplicate bone Ids - meshes can reference the same bones */
       std::vector<std::shared_ptr<AssimpBone>> flatBones = mesh.getBoneList();
@@ -487,7 +481,7 @@ float AssimpModel::getMaxClipDuration() {
   return mMaxClipDuration;
 }
 
-void AssimpModel::setAABBLokkup(std::vector<std::vector<AABB>> lookupData) {
+void AssimpModel::setAABBLookup(std::vector<std::vector<AABB>> lookupData) {
   mAabbLookups = lookupData;
 }
 
@@ -524,31 +518,31 @@ AABB AssimpModel::getAABB(InstanceSettings instSettings) {
   interpAabb.setMaxPos(interpAabb.getMaxPos() * instSettings.isScale);
 
   /* honour swap axis */
-  glm::quat swaxAxisQuat = glm::identity<glm::quat>();
+  glm::quat swapAxisQuat = glm::identity<glm::quat>();
   if (instSettings.isSwapYZAxis) {
     glm::mat4 flipMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    swaxAxisQuat = glm::quat_cast(glm::rotate(flipMatrix, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+    swapAxisQuat = glm::quat_cast(glm::rotate(flipMatrix, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
   }
 
   /* rotate and re-create AABB from min and max positions */
   AABB rotatedAabb;
   glm::vec3 interpMinPos = interpAabb.getMinPos();
   glm::vec3 interpMaxPos = interpAabb.getMaxPos();
-  glm::vec3 p1 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat * interpMinPos;
-  glm::vec3 p2 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+  glm::vec3 p1 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swapAxisQuat * interpMinPos;
+  glm::vec3 p2 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swapAxisQuat *
     glm::vec3(interpMaxPos.x, interpMinPos.y, interpMinPos.z);
-  glm::vec3 p3 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+  glm::vec3 p3 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swapAxisQuat *
     glm::vec3(interpMinPos.x, interpMaxPos.y, interpMinPos.z);
-  glm::vec3 p4 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+  glm::vec3 p4 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swapAxisQuat *
     glm::vec3(interpMaxPos.x, interpMaxPos.y, interpMinPos.z);
 
-  glm::vec3 p5 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+  glm::vec3 p5 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swapAxisQuat *
     glm::vec3(interpMinPos.x, interpMinPos.y, interpMaxPos.z);
-  glm::vec3 p6 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+  glm::vec3 p6 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swapAxisQuat *
     glm::vec3(interpMaxPos.x, interpMinPos.y, interpMaxPos.z);
-  glm::vec3 p7 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat *
+  glm::vec3 p7 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swapAxisQuat *
     glm::vec3(interpMinPos.x, interpMaxPos.y, interpMaxPos.z);
-  glm::vec3 p8 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swaxAxisQuat * interpMaxPos;
+  glm::vec3 p8 = glm::quat(glm::radians(instSettings.isWorldRotation)) * swapAxisQuat * interpMaxPos;
 
   rotatedAabb.create(p1);
   rotatedAabb.addPoint(p2);

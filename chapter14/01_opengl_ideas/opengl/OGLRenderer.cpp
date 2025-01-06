@@ -460,8 +460,8 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
       return false;
     }
 
-    /* migration config version 4.0 to 5.0+  */
-    if (yamlFileVersion == "4.0") {
+    /* migration config version 3.0 to 4.0+  */
+    if (yamlFileVersion == "3.0") {
       Logger::log(1, "%s: adding empty bounding sphere adjustment vector\n", __FUNCTION__);
       std::vector<glm::vec4> boundingSphereAdjustments = model->getModelSettings().msBoundingSphereAdjustments;
       modSetting.msBoundingSphereAdjustments = boundingSphereAdjustments;
@@ -703,7 +703,7 @@ void OGLRenderer::redoLastOperation() {
   }
 }
 
-void OGLRenderer::addNullModelAndInstance(){
+void OGLRenderer::addNullModelAndInstance() {
   /* create an empty null model and an instance from it */
   std::shared_ptr<AssimpModel> nullModel = std::make_shared<AssimpModel>();
   mModelInstCamData.micModelList.emplace_back(nullModel);
@@ -1072,7 +1072,7 @@ void OGLRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
 }
 
 /* keep scaling and axis flipping */
-void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int numClones){
+void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int numClones) {
   std::shared_ptr<AssimpModel> model = instance->getModel();
   std::vector<std::shared_ptr<AssimpInstance>> newInstances;
   for (int i = 0; i < numClones; ++i) {
@@ -1266,9 +1266,6 @@ void OGLRenderer::addBehavior(int instanceId, std::shared_ptr<SingleInstanceBeha
     return;
   }
 
-  //std::shared_ptr<AssimpInstance> instance = mModelInstCamData.micAssimpInstances.at(instanceId);
-  //instance->isNPC(true);
-
   mBehviorTimer.start();
   mBehavior->addInstance(instanceId, behavior);
   mRenderData.rdBehaviorTime += mBehviorTimer.stop();
@@ -1284,9 +1281,6 @@ void OGLRenderer::delBehavior(int instanceId) {
   mBehviorTimer.start();
   mBehavior->removeInstance(instanceId);
   mRenderData.rdBehaviorTime += mBehviorTimer.stop();
-
-  //std::shared_ptr<AssimpInstance> instance = mModelInstCamData.micAssimpInstances.at(instanceId);
-  //instance->isNPC(false);
 
   Logger::log(1, "%s: removed behavior from instance %i\n", __FUNCTION__, instanceId);
 }
@@ -1940,7 +1934,7 @@ bool OGLRenderer::getConfigDirtyFlag() {
 }
 
 void OGLRenderer::setModeInWindowTitle() {
-  mModelInstCamData.micSetWindowTitleFunction (mOrigWindowTitle + " (" +
+  mModelInstCamData.micSetWindowTitleFunction(mOrigWindowTitle + " (" +
     mRenderData.mAppModeMap.at(mRenderData.rdApplicationMode) + " Mode)" +
     mWindowTitleDirtySign);
 }
@@ -3013,10 +3007,10 @@ void OGLRenderer::drawCollisionDebug() {
 
     std::vector<std::shared_ptr<AssimpInstance>> instancestoDraw;
     glm::vec4 aabbColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    /* draw colliding instances in res */
+    /* draw colliding instances in red */
     if (mRenderData.rdDrawCollisionAABBs == collisionDebugDraw::colliding ||
         mRenderData.rdDrawCollisionAABBs == collisionDebugDraw::all) {
-      for (const auto id : uniqueInstanceIds){
+      for (const auto id : uniqueInstanceIds) {
         instancestoDraw.push_back(mModelInstCamData.micAssimpInstances.at(id));
       }
       /* draw red lines for collisions */
@@ -3301,6 +3295,11 @@ bool OGLRenderer::draw(float deltaTime) {
 
   /* reset timers and other values */
   mRenderData.rdMatricesSize = 0;
+  mRenderData.rdMatrixGenerateTime = 0.0f;
+  mRenderData.rdUploadToUBOTime = 0.0f;
+  mRenderData.rdUploadToVBOTime = 0.0f;
+  mRenderData.rdUIGenerateTime = 0.0f;
+  mRenderData.rdUIDrawTime = 0.0f;
   mRenderData.rdNumberOfCollisions = 0;
   mRenderData.rdCollisionDebugDrawTime = 0.0f;
   mRenderData.rdCollisionCheckTime = 0.0f;
@@ -3308,14 +3307,14 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdNumberOfInteractionCandidates = 0;
   mRenderData.rdInteractWithInstanceId = 0;
   mRenderData.rdFaceAnimTime = 0.0f;
-  mRenderData.rdUploadToUBOTime = 0.0f;
   mRenderData.rdDownloadFromUBOTime = 0.0f;
-  mRenderData.rdUploadToVBOTime = 0.0f;
   mRenderData.rdNumberOfCollidingTriangles = 0;
   mRenderData.rdNumberOfCollidingGroundTriangles = 0;
   mRenderData.rdLevelCollisionTime = 0.0f;
   mRenderData.rdIKTime = 0.0f;
   mRenderData.rdPathFindingTime = 0.0f;
+  mRenderData.rdInteraction = 0.0f;
+  mRenderData.rdLevelGRoundNeighborUpdateTime = 0.0f;
 
   mLevelGroundNeighborsMesh->vertices.clear();
   mInstancePathMesh->vertices.clear();
@@ -3363,7 +3362,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mViewMatrix = cam->getViewMatrix();
 
-  mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
+  mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
 
   mUploadToUBOTimer.start();
   std::vector<glm::mat4> matrixData;
@@ -4099,7 +4098,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
       mCoordArrowsLineIndexCount += mCoordArrowsMesh.vertices.size();
       std::for_each(mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end(),
-        [=](auto &n){
+        [=](auto &n) {
           n.color /= 2.0f;
           n.position = glm::quat(glm::radians(instSettings.isWorldRotation)) * n.position;
           n.position += instSettings.isWorldPosition;
@@ -4122,7 +4121,7 @@ bool OGLRenderer::draw(float deltaTime) {
   mInteractionTimer.start();
   findInteractionInstances();
   drawInteractionDebug();
-  mRenderData.rdInteractionTime = mInteractionTimer.stop();
+  mRenderData.rdInteractionTime += mInteractionTimer.stop();
 
   /* check for collisions */
   mCollisionCheckTimer.start();
@@ -4160,7 +4159,7 @@ bool OGLRenderer::draw(float deltaTime) {
     if (mRenderData.rdDrawNeighborTriangles) {
       drawAdjacentDebugTriangles();
     }
-    mRenderData.rdLevelGRoundNeighborUpdateTime = mLevelGroundNeighborUpdateTimer.stop();
+    mRenderData.rdLevelGRoundNeighborUpdateTime += mLevelGroundNeighborUpdateTimer.stop();
 
     if (mRenderData.rdDrawGroundTriangles) {
       drawGroundTriangles();
@@ -4213,11 +4212,11 @@ bool OGLRenderer::draw(float deltaTime) {
     mGraphEditor->createNodeEditorWindow(mRenderData, mModelInstCamData);
   }
 
-  mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
+  mRenderData.rdUIGenerateTime += mUIGenerateTimer.stop();
 
   mUIDrawTimer.start();
   mUserInterface.render();
-  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
 
   return true;
 }
@@ -4231,6 +4230,8 @@ void OGLRenderer::cleanup() {
   mBoundingSphereBuffer.cleanup();
   mBoundingSphereAdjustmentBuffer.cleanup();
   mShaderTRSMatrixBuffer.cleanup();
+  mFaceAnimPerInstanceDataBuffer.cleanup();
+  mEmptyWorldPositionBuffer.cleanup();
 
   mAssimpTransformHeadMoveComputeShader.cleanup();
   mAssimpTransformComputeShader.cleanup();
@@ -4251,6 +4252,8 @@ void OGLRenderer::cleanup() {
 
   mUserInterface.cleanup();
 
+  mGroundMeshVertexBuffer.cleanup();
+  mIKLinesVertexBuffer.cleanup();
   mLevelWireframeVertexBuffer.cleanup();
   mLevelOctreeVertexBuffer.cleanup();
   mLevelAABBVertexBuffer.cleanup();
@@ -4258,6 +4261,7 @@ void OGLRenderer::cleanup() {
   mUniformBuffer.cleanup();
 
   mSkyboxTexture.cleanup();
+  mSkyboxBuffer.cleanup();
 
   mFramebuffer.cleanup();
 }

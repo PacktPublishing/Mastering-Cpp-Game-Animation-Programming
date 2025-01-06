@@ -8,24 +8,24 @@
 #include "OGLRenderData.h"
 
 class IndexBuffer {
-public:
-  void init();
-  void uploadData(std::vector<uint32_t> indices);
+  public:
+    void init();
+    void uploadData(std::vector<uint32_t> indices);
 
-  void bind();
-  void unbind();
+    void bind();
+    void unbind();
 
-  void draw(GLuint mode, unsigned int start, unsigned int num);
-  void drawIndirect(GLuint mode, unsigned int num);
-  void drawIndirectInstanced(GLuint mode, unsigned int num, int instanceCount);
+    void draw(GLuint mode, unsigned int start, unsigned int num);
+    void drawIndirect(GLuint mode, unsigned int num);
+    void drawIndirectInstanced(GLuint mode, unsigned int num, int instanceCount);
 
-  void bindAndDraw(GLuint mode, unsigned int start, unsigned int num);
-  void bindAndDrawIndirect(GLuint mode, unsigned int num);
-  void bindAndDrawIndirectInstanced(GLuint mode, unsigned int num, int instanceCount);
+    void bindAndDraw(GLuint mode, unsigned int start, unsigned int num);
+    void bindAndDrawIndirect(GLuint mode, unsigned int num);
+    void bindAndDrawIndirectInstanced(GLuint mode, unsigned int num, int instanceCount);
 
-  void cleanup();
+    void cleanup();
 
-private:
-  GLuint mVAO = 0;
-  GLuint mIndexVBO = 0;
+  private:
+    GLuint mVAO = 0;
+    GLuint mIndexVBO = 0;
 };

@@ -11,5 +11,5 @@ class ScaleArrowsModel {
 
   private:
     void init();
-    OGLLineMesh mVertexData;
+    OGLLineMesh mVertexData{};
 };

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+
 #include <yaml-cpp/yaml.h>
 
 #include "YamlParserTypes.h"

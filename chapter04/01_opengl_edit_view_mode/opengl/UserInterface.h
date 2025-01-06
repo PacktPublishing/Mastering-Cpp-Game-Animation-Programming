@@ -4,7 +4,6 @@
 
 #include "OGLRenderData.h"
 #include "ModelAndInstanceData.h"
-#include "InstanceSettings.h"
 
 class UserInterface {
   public:

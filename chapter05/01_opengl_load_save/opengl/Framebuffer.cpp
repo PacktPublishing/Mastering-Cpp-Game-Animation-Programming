@@ -1,5 +1,3 @@
-#include <cmath>
-
 #include "Framebuffer.h"
 #include "Logger.h"
 
@@ -29,8 +27,6 @@ bool Framebuffer::init(unsigned int width, unsigned int height) {
   glBindTexture(GL_TEXTURE_2D, mSelectionTex);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, nullptr);
 
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glBindTexture(GL_TEXTURE_2D, 0);
 
   glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mSelectionTex, 0);

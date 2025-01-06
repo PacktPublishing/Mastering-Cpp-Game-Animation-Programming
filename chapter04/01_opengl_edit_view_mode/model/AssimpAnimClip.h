@@ -13,11 +13,10 @@ class AssimpAnimClip {
   public:
     void addChannels(aiAnimation* animation, std::vector<std::shared_ptr<AssimpBone>> boneList);
     const std::vector<std::shared_ptr<AssimpAnimChannel>>& getChannels();
-    const std::shared_ptr<AssimpAnimChannel> getChannel(unsigned int index);
 
-    const std::string& getClipName();
-    const float& getClipDuration();
-    const float& getClipTicksPerSecond();
+    std::string getClipName();
+    float getClipDuration();
+    float getClipTicksPerSecond();
 
     void setClipName(std::string name);
 

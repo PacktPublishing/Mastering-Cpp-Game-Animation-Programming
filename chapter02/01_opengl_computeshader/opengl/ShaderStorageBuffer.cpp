@@ -47,17 +47,6 @@ void ShaderStorageBuffer::uploadSsboData(std::vector<glm::mat4> bufferData) {
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
-std::vector<glm::mat4> ShaderStorageBuffer::getSsboDataMat4() {
-  std::vector<glm::mat4> ssboData;
-  ssboData.resize(mBufferSize / sizeof(glm::mat4));
-
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, mShaderStorageBuffer);
-  glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, mBufferSize, ssboData.data());
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-  return ssboData;
-}
-
 void ShaderStorageBuffer::uploadSsboData(std::vector<glm::mat2x4> bufferData, int bindingPoint) {
   if (bufferData.size() == 0) {
     return;

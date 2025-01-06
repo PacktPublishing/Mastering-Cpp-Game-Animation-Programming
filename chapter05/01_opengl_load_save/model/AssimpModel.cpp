@@ -1,12 +1,5 @@
 #include <algorithm>
-#include <chrono>
-#include <cmath>
 #include <filesystem>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/dual_quaternion.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
@@ -131,7 +124,7 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
 
 
   /* create vertex buffers for the meshes */
-  for (auto mesh : mModelMeshes) {
+  for (const auto& mesh : mModelMeshes) {
     VertexIndexBuffer buffer;
     buffer.init();
     buffer.uploadData(mesh.vertices, mesh.indices);
@@ -182,10 +175,9 @@ void AssimpModel::processNode(std::shared_ptr<AssimpNode> node, aiNode* aNode, c
       aiMesh* modelMesh = scene->mMeshes[aNode->mMeshes[i]];
 
       AssimpMesh mesh;
-      mesh.processMesh(modelMesh, scene, assetDirectory);
+      mesh.processMesh(modelMesh, scene, assetDirectory, mTextures);
 
       mModelMeshes.emplace_back(mesh.getMesh());
-      mTextures.merge(mesh.getTextures());
 
       /* avoid inserting duplicate bone Ids - meshes can reference the same bones */
       std::vector<std::shared_ptr<AssimpBone>> flatBones = mesh.getBoneList();

@@ -11,6 +11,6 @@ class UniformBuffer {
     void cleanup();
 
   private:
-    size_t mBufferSize;
+    size_t mBufferSize = 0;
     GLuint mUboBuffer = 0;
 };

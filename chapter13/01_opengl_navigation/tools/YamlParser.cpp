@@ -885,6 +885,28 @@ int YamlParser::getIKNumIterations() {
   return iterations;
 }
 
+bool YamlParser::getNavEnabled() {
+  bool navEnabled = false;
+  if (!hasKey("settings")) {
+    Logger::log(1, "%s error: no settings found in config file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
+    return navEnabled;
+  }
+
+  YAML::Node settingsNode = mYamlNode["settings"];
+  try {
+    for(auto it = settingsNode.begin(); it != settingsNode.end(); ++it) {
+      if (it->first.as<std::string>() == "navigation-enabled") {
+        navEnabled = it->second.as<bool>();
+      }
+    }
+  } catch (...) {
+    Logger::log(1, "%s error: could not parse file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
+    return navEnabled;
+  }
+
+  return navEnabled;
+}
+
 void YamlParser::createInstanceToCamMap(ModelInstanceCamData modInstCamData) {
   mInstanceToCamMap.clear();
   for (const auto& camera : modInstCamData.micCameras) {
@@ -940,6 +962,8 @@ bool YamlParser::createConfigFile(OGLRenderData renderData, ModelInstanceCamData
   mYamlEmit << YAML::Value << renderData.rdEnableFeetIK;
   mYamlEmit << YAML::Key << "inverse-kinematics-iterations";
   mYamlEmit << YAML::Value << renderData.rdNumberOfIkIteratons;
+  mYamlEmit << YAML::Key << "navigation-enabled";
+  mYamlEmit << YAML::Value << renderData.rdEnableNavigation;
   mYamlEmit << YAML::EndMap;
   mYamlEmit << YAML::EndMap;
 

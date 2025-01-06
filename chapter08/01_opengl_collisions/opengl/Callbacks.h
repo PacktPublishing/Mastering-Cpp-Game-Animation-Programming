@@ -18,6 +18,8 @@ class AssimpInstance;
 class AssimpSettingsContainer;
 class Camera;
 
+using getWindowTitleCallback = std::function<std::string(void)>;
+using setWindowTitleCallback = std::function<void(std::string)>;
 
 using getInstanceEditModeCallback = std::function<instanceEditMode(void)>;
 using setInstanceEditModeCallback = std::function<void(instanceEditMode)>;
@@ -44,8 +46,8 @@ using instanceCloneManyCallback = std::function<void(std::shared_ptr<AssimpInsta
 
 using instanceCenterCallback = std::function<void(std::shared_ptr<AssimpInstance>)>;
 
-using instanceGetPositions = std::function<std::vector<glm::vec2>(void)>;
-using instanceGetBoundingBox2D = std::function<BoundingBox2D(int)>;
+using instanceGetPositionsCallback = std::function<std::vector<glm::vec2>(void)>;
+using instanceGetBoundingBox2DCallvack = std::function<BoundingBox2D(int)>;
 
 using undoRedoCallback = std::function<void(void)>;
 using newConfigCallback = std::function<void(void)>;

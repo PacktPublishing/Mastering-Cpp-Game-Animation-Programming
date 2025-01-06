@@ -6,7 +6,6 @@
 class Shader {
   public:
     bool loadShaders(std::string vertexShaderFileName, std::string fragmentShaderFileName);
-    bool loadShaders(std::string vertexShaderFileName, std::string geometryShaderFileName, std::string fragmentShaderFileName);
     bool loadComputeShader(std::string computeShaderFileName);
 
     void use();
@@ -20,7 +19,6 @@ class Shader {
     GLint mUniformLocation = -1;
 
     bool createShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName);
-    bool createShaderProgram(std::string vertexShaderFileName, std::string geometryShaderFileName, std::string fragmentShaderFileName);
     bool createComputeShaderProgram(std::string computeShaderName);
 
     GLuint loadShader(std::string shaderFileName, GLuint shaderType);
@@ -28,6 +26,5 @@ class Shader {
 
     bool checkCompileStats(std::string shaderFileName, GLuint shader);
     bool checkLinkStats(std::string vertexShaderFileName, std::string fragmentShaderFileName, GLuint shaderProgram);
-    bool checkLinkStats(std::string vertexShaderFileName, std::string geometryShaderFileName, std::string fragmentShaderFileName, GLuint shaderProgram);
     bool checkLinkStats(std::string computeShaderFileName, GLuint shaderProgram);
 };

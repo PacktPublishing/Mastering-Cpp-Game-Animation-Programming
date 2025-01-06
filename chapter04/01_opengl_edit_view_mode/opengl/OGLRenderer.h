@@ -2,7 +2,6 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <map>
 #include <functional>
 
 #include <glm/glm.hpp>
@@ -28,8 +27,8 @@
 #include "OGLRenderData.h"
 #include "ModelAndInstanceData.h"
 
-using GetWindowTitleCallback = std::function<std::string(void)>;
-using SetWindowTitleCallback = std::function<void(std::string)>;
+using getWindowTitleCallback = std::function<std::string(void)>;
+using setWindowTitleCallback = std::function<void(std::string)>;
 
 class OGLRenderer {
   public:
@@ -37,13 +36,13 @@ class OGLRenderer {
 
     bool init(unsigned int width, unsigned int height);
     void setSize(unsigned int width, unsigned int height);
+
     void uploadAssimpData(OGLMesh vertexData);
     bool draw(float deltaTime);
+
     void handleKeyEvents(int key, int scancode, int action, int mods);
     void handleMouseButtonEvents(int button, int action, int mods);
     void handleMousePositionEvents(double xPos, double yPos);
-
-    void cleanup();
 
     bool hasModel(std::string modelFileName);
     bool addModel(std::string modelFileName);
@@ -57,8 +56,10 @@ class OGLRenderer {
 
     void centerInstance(std::shared_ptr<AssimpInstance> instance);
 
-    SetWindowTitleCallback setWindowTitle;
-    GetWindowTitleCallback getWindowTitle;
+    void cleanup();
+
+    setWindowTitleCallback setWindowTitle;
+    getWindowTitleCallback getWindowTitle;
 
   private:
     OGLRenderData mRenderData{};
@@ -120,7 +121,7 @@ class OGLRenderer {
     bool mMouseMove = false;
     bool mMouseMoveVertical = false;
     int mMouseMoveVerticalShiftKey = 0;
-    InstanceSettings mSavedInstanceSettings;
+    InstanceSettings mSavedInstanceSettings{};
 
     void handleMovementKeys();
     void updateTriangleCount();

@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "Enums.h"
-#include "OGLRenderData.h"
 
 #include "GraphNodeBase.h"
 

@@ -16,6 +16,7 @@
 #include "AssimpAnimClip.h"
 #include "AssimpInstance.h"
 #include "AssimpSettingsContainer.h"
+#include "InstanceSettings.h"
 #include "Logger.h"
 
 void UserInterface::init(OGLRenderData &renderData) {
@@ -792,7 +793,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
         savedInstanceSettings = settings;
       }
     } else {
-      /* TODO: besster solution if no instances or no clips are found */
+      /* TODO: better solution if no instances or no clips are found */
       ImGui::BeginDisabled();
 
       ImGui::Text("Animation Clip:");

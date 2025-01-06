@@ -15,7 +15,7 @@ class AssimpBone {
     glm::mat4 getOffsetMatrix();
 
   private:
-    unsigned int mBoneId = 0;;
+    unsigned int mBoneId = 0;
     std::string mNodeName;
     glm::mat4 mOffsetMatrix = glm::mat4(1.0f);
 };

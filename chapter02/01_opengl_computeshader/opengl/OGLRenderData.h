@@ -1,27 +1,26 @@
 /* OpenGL */
 #pragma once
+
 #include <vector>
 #include <string>
 #include <unordered_map>
 #include <memory>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 
+/* GL headers before GLFW */
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <assimp/material.h>
 
-#pragma pack(push, 1) // exact fit to match std430
 struct OGLVertex {
   glm::vec4 position = glm::vec4(0.0f); // last float is uv.x
   glm::vec4 color = glm::vec4(1.0f);
   glm::vec4 normal = glm::vec4(0.0f); // last float is uv.y
-  glm::ivec4 boneNumber = glm::ivec4(0);
+  glm::uvec4 boneNumber = glm::uvec4(0);
   glm::vec4 boneWeight = glm::vec4(0.0f);
 };
-#pragma pack(pop) // exact fit
 
 struct OGLMesh {
   std::vector<OGLVertex> vertices{};

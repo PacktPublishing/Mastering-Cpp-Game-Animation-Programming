@@ -4,6 +4,7 @@
 #include "AssimpModel.h"
 #include "AssimpInstance.h"
 #include "Camera.h"
+#include "Enums.h"
 #include "Logger.h"
 
 /* overloads */

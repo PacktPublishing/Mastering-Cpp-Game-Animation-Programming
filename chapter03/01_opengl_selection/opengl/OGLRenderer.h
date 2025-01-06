@@ -33,13 +33,13 @@ class OGLRenderer {
 
     bool init(unsigned int width, unsigned int height);
     void setSize(unsigned int width, unsigned int height);
+
     void uploadAssimpData(OGLMesh vertexData);
     bool draw(float deltaTime);
+
     void handleKeyEvents(int key, int scancode, int action, int mods);
     void handleMouseButtonEvents(int button, int action, int mods);
     void handleMousePositionEvents(double xPos, double yPos);
-
-    void cleanup();
 
     bool hasModel(std::string modelFileName);
     bool addModel(std::string modelFileName);
@@ -52,6 +52,8 @@ class OGLRenderer {
     void cloneInstances(std::shared_ptr<AssimpInstance> instance, int numClones);
 
     void centerInstance(std::shared_ptr<AssimpInstance> instance);
+
+    void cleanup();
 
   private:
     OGLRenderData mRenderData{};

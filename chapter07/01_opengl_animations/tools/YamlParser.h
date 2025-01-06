@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+
 #include <yaml-cpp/yaml.h>
 
 #include "YamlParserTypes.h"
@@ -48,6 +49,6 @@ class YamlParser {
     YAML::Node mYamlNode{};
     YAML::Emitter mYamlEmit{};
 
-    const std::string mYamlConfigFileVersion = "4.0";
+    const std::string mYamlConfigFileVersion = "3.0";
     std::string mYamlFileVersion;
 };

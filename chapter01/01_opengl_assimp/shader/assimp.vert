@@ -3,7 +3,7 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec3 aNormal;
 layout (location = 3) in vec2 aTexCoord;
-layout (location = 4) in vec4 aBoneNum; // ignored
+layout (location = 4) in uvec4 aBoneNum; // ignored
 layout (location = 5) in vec4 aBoneWeight; // ignored
 
 layout (location = 0) out vec4 color;
@@ -15,7 +15,7 @@ layout (std140, binding = 0) uniform Matrices {
   mat4 projection;
 };
 
-layout (std430, binding = 1) readonly buffer WorldPosMatrices {
+layout (std430, binding = 1) readonly restrict buffer WorldPosMatrices {
   mat4 worldPosMat[];
 };
 

@@ -28,6 +28,7 @@ struct ModelAndInstanceData {
   std::map<std::string, std::vector<std::shared_ptr<AssimpInstance>>> miAssimpInstancesPerModel{};
   int miSelectedInstance = 0;
 
+  /* callbacks */
   modelCheckCallback miModelCheckCallbackFunction;
   modelAddCallback miModelAddCallbackFunction;
   modelDeleteCallback miModelDeleteCallbackFunction;

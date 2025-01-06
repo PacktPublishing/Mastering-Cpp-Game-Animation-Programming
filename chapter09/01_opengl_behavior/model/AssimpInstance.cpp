@@ -18,8 +18,9 @@ AssimpInstance::AssimpInstance(std::shared_ptr<AssimpModel> model, glm::vec3 pos
 
   updateModelRootMatrix();
 
-  mBoundingBox = BoundingBox2D{glm::vec2(mInstanceSettings.isWorldPosition.x - 4.0f, mInstanceSettings.isWorldPosition.z - 4.0f),
-    {8.0f, 8.0f}};
+  mBoundingBox = BoundingBox2D{
+    glm::vec2(mInstanceSettings.isWorldPosition.x - 4.0f, mInstanceSettings.isWorldPosition.z - 4.0f), { 8.0f, 8.0f }
+  };
 }
 
 void AssimpInstance::updateModelRootMatrix() {
@@ -121,7 +122,6 @@ void AssimpInstance::updateAnimStateMachine(float deltaTime) {
           mInstanceSettings.isSpeed = glm::vec3(0.0f);
         }
 
-        //mKeepInstanceSpeed = true;
       }
       break;
     case animationState::transitionFromIdleWalkRun:
@@ -144,10 +144,6 @@ void AssimpInstance::updateAnimStateMachine(float deltaTime) {
 }
 
 void AssimpInstance::updateInstanceState(moveState state, moveDirection dir) {
-  //if (mKeepInstanceSpeed || !mInstanceSettings.isIsNPC) {
-  //  return;
-  //}
-
   mInstanceSettings.isMoveKeyPressed = false;
 
   if (state == moveState::walk || state == moveState::run) {
@@ -190,16 +186,11 @@ void AssimpInstance::stopInstance() {
 }
 
 void AssimpInstance::updateInstanceSpeed(float deltaTime) {
-  //if (mKeepInstanceSpeed || mInstanceSettings.rdNoMovement || !mInstanceSettings.isIsNPC) {
-  //  return;
-  //}
-
   float currentSpeed = glm::length(mInstanceSettings.isSpeed);
 
   /* limit to max speed */
   static float maxSpeed = mMaxInstanceSpeed;
 
-  //if (!mInstanceSettings.isMoveKeyPressed && !mKeepInstanceSpeed && !mInstanceSettings.isIsNPC) {
   if (!mInstanceSettings.isMoveKeyPressed) {
     /* deaccelerate */
     if (currentSpeed > 0.0f) {
@@ -246,7 +237,6 @@ void AssimpInstance::updateInstanceSpeed(float deltaTime) {
   }
 
   if (currentSpeed > maxSpeed) {
-    //if (mInstanceSettings.isMoveState != moveState::run && !mKeepInstanceSpeed && !mInstanceSettings.isIsNPC) {
     if (mInstanceSettings.isMoveState != moveState::run) {
       /* we may come from run state, lower speed gradually */
       maxSpeed -= glm::length(mInstanceSettings.isAccel) * deltaTime;
@@ -283,10 +273,6 @@ void AssimpInstance::updateInstancePosition(float deltaTime) {
 }
 
 void AssimpInstance::rotateInstance(float angle) {
-  //if (mKeepInstanceSpeed || !mInstanceSettings.isIsNPC) {
-  //  return;
-  //}
-
   mInstanceSettings.isWorldRotation.y -= angle;
   if (mInstanceSettings.isWorldRotation.y < -180.0f) {
      mInstanceSettings.isWorldRotation.y += 360.0f;
@@ -297,11 +283,7 @@ void AssimpInstance::rotateInstance(float angle) {
 }
 
 void AssimpInstance::rotateInstance(glm::vec3 angles) {
-  //if (mKeepInstanceSpeed || !mInstanceSettings.isIsNPC) {
-   // return;
-  //}
-
-  /* keep a;; angles between -180 and 180 degree */
+  /* keep all angles between -180 and 180 degree */
   if (angles.x < -180.0f) {
    angles.x += 360.0f;
   }
@@ -369,7 +351,6 @@ void AssimpInstance::blendActionAnimation(float deltaTime, bool backwards) {
     if (mInstanceSettings.isAnimBlendFactor <= 0.0f) {
       mAnimState = animationState::playIdleWalkRun;
       mNextMoveState = moveState::idle;
-      mKeepInstanceSpeed = false;
     }
   } else {
     mInstanceSettings.isAnimBlendFactor += blendSpeedFactor;
@@ -505,8 +486,4 @@ BoundingBox2D AssimpInstance::getBoundingBox() {
 
 void AssimpInstance::setBoundingBox(BoundingBox2D box) {
   mBoundingBox = box;
-}
-
-void AssimpInstance::isNPC(bool value) {
-  mInstanceSettings.isIsNPC = value;
 }

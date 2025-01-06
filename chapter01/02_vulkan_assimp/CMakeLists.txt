@@ -286,6 +286,9 @@ endif()
 # enable experimental GLM functions globally
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 
+# Fix "wrong" depth in Vulkan
+add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
+
 if(MSVC)
   target_link_libraries(${PROJECT_NAME} PRIVATE glfw ${ASSIMP_LIBRARY} ${ASSIMP_ZLIB_LIBRARY} Vulkan::Vulkan vk-bootstrap::vk-bootstrap)
 else()

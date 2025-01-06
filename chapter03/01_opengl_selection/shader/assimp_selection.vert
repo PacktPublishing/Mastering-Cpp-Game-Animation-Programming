@@ -2,7 +2,7 @@
 layout (location = 0) in vec4 aPos; // last float is uv.x
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec4 aNormal; // last float is uv.y
-layout (location = 3) in ivec4 aBoneNum; // ignored
+layout (location = 3) in uvec4 aBoneNum; // ignored
 layout (location = 4) in vec4 aBoneWeight; // ignored
 
 layout (location = 0) out vec4 color;
@@ -37,6 +37,6 @@ void main() {
   normal = transpose(inverse(modelMat)) * vec4(aNormal.x, aNormal.y, aNormal.z, 1.0);
   texCoord = vec2(aPos.w, aNormal.w);
 
-  /* we need screen width (y -> x) and vertex id only (z -> y) */
+  /* we need vertex id only (z -> y) */
   selectInfo = selected[gl_InstanceID].y;
 }

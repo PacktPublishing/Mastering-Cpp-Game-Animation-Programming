@@ -1,5 +1,6 @@
 #include <string>
 #include <limits>
+#include <filesystem>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -9,12 +10,11 @@
 #include <imgui_impl_opengl3.h>
 #include <ImGuiFileDialog.h>
 
-#include <filesystem>
-
 #include "UserInterface.h"
 #include "AssimpModel.h"
 #include "AssimpAnimClip.h"
 #include "AssimpInstance.h"
+#include "InstanceSettings.h"
 #include "Logger.h"
 
 void UserInterface::init(OGLRenderData &renderData) {
@@ -558,7 +558,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       ImGui::SameLine();
       ImGui::SliderFloat("##ClipSpeed", &settings.isAnimSpeedFactor, 0.0f, 2.0f, "%.3f", flags);
     } else {
-      /* TODO: besster solution if no instances or no clips are found */
+      /* TODO: better solution if no instances or no clips are found */
       ImGui::BeginDisabled();
 
       ImGui::Text("Animation Clip:");

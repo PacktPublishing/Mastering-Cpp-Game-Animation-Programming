@@ -31,7 +31,6 @@ bool AssimpMesh::processMesh(VkRenderData &renderData, aiMesh* mesh, const aiSce
     vertex.position.y = mesh->mVertices[i].y;
     vertex.position.z = mesh->mVertices[i].z;
 
-
     if (mesh->HasVertexColors(0)) {
       vertex.color.r = mesh->mColors[0][i].r;
       vertex.color.g = mesh->mColors[0][i].g;

@@ -4,6 +4,7 @@
 #include "AssimpModel.h"
 #include "AssimpInstance.h"
 #include "Camera.h"
+#include "Enums.h"
 #include "Logger.h"
 
 /* overloads */
@@ -344,7 +345,6 @@ void YamlParser::createInstanceToCamMap(ModelInstanceCamData modInstCamData) {
     }
   }
 }
-
 
 bool YamlParser::createConfigFile(OGLRenderData renderData, ModelInstanceCamData modInstCamData) {
   createInstanceToCamMap(modInstCamData);

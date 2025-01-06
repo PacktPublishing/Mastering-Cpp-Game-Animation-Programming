@@ -3,7 +3,8 @@
 #include "Logger.h"
 #include "Tools.h"
 
-bool AssimpMesh::processMesh(aiMesh* mesh, const aiScene* scene, std::string assetDirectory) {
+bool AssimpMesh::processMesh(aiMesh* mesh, const aiScene* scene, std::string assetDirectory,
+    std::unordered_map<std::string, std::shared_ptr<Texture>>& textures) {
   mMeshName = mesh->mName.C_Str();
 
   mTriangleCount = mesh->mNumFaces;
@@ -50,6 +51,9 @@ bool AssimpMesh::processMesh(aiMesh* mesh, const aiScene* scene, std::string ass
     if (mesh->HasTextureCoords(0)) {
       vertex.position.w = mesh->mTextureCoords[0][i].x;
       vertex.normal.w = mesh->mTextureCoords[0][i].y;
+    } else {
+      vertex.position.w = 0.0f;
+      vertex.normal.w = 0.0f;
     }
 
     mMesh.vertices.emplace_back(vertex);
@@ -82,6 +86,12 @@ bool AssimpMesh::processMesh(aiMesh* mesh, const aiScene* scene, std::string ass
             std::string texName = textureName.C_Str();
             mMesh.textures.insert({texType, texName});
 
+            /* skip already loaded textures */
+            if (textures.count(texName) > 0) {
+              Logger::log(1, "%s: texture '%s' already loaded, skipping\n", __FUNCTION__, texName.c_str());
+              continue;
+            }
+
             // do not try to load internal textures
             if (!texName.empty() && texName.find("*") != 0) {
               std::shared_ptr<Texture> newTex = std::make_shared<Texture>();
@@ -91,7 +101,7 @@ bool AssimpMesh::processMesh(aiMesh* mesh, const aiScene* scene, std::string ass
                 continue;
               }
 
-              mTextures.insert({texName, newTex});
+              textures.insert({texName, newTex});
             }
           }
         }
@@ -114,7 +124,7 @@ bool AssimpMesh::processMesh(aiMesh* mesh, const aiScene* scene, std::string ass
         unsigned int vertexId = mesh->mBones[boneId]->mWeights[weight].mVertexId;
         float vertexWeight = mesh->mBones[boneId]->mWeights[weight].mWeight;
 
-        glm::ivec4 currentIds = mMesh.vertices.at(vertexId).boneNumber;
+        glm::uvec4 currentIds = mMesh.vertices.at(vertexId).boneNumber;
         glm::vec4 currentWeights = mMesh.vertices.at(vertexId).boneWeight;
 
         /* insert weight and bone id into first free slot (weight => 0.0f) */
@@ -190,10 +200,6 @@ OGLMesh AssimpMesh::getMesh() {
 
 std::string AssimpMesh::getMeshName() {
   return mMeshName;
-}
-
-std::unordered_map<std::string, std::shared_ptr<Texture>> AssimpMesh::getTextures() {
-  return mTextures;
 }
 
 unsigned int AssimpMesh::getTriangleCount() {

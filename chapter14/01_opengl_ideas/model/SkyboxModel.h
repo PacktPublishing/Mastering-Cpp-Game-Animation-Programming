@@ -11,5 +11,5 @@ class SkyboxModel {
     OGLSkyboxMesh getVertexData();
 
   private:
-    OGLSkyboxMesh mVertexData;
+    OGLSkyboxMesh mVertexData{};
 };

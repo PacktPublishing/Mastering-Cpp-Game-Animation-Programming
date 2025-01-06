@@ -34,7 +34,7 @@ struct OGLVertex {
   glm::vec4 position = glm::vec4(0.0f); // last float is uv.x
   glm::vec4 color = glm::vec4(1.0f);
   glm::vec4 normal = glm::vec4(0.0f); // last float is uv.y
-  glm::ivec4 boneNumber = glm::ivec4(0);
+  glm::uvec4 boneNumber = glm::uvec4(0);
   glm::vec4 boneWeight = glm::vec4(0.0f);
 };
 
@@ -74,7 +74,7 @@ struct MeshTriangle {
   int index;
   std::array<glm::vec3, 3> points{};
   glm::vec3 normal;
-  BoundingBox3D boundingBox;
+  BoundingBox3D boundingBox{};
   std::array<glm::vec3, 3> edges{};
   std::array<float, 3> edgeLengths{};
 };
@@ -177,6 +177,8 @@ struct OGLRenderData {
   bool rdEnableFeetIK = false;
   int rdNumberOfIkIteratons = 10;
   bool rdDrawIKDebugLines = false;
+
+  bool rdEnableNavigation = false;
 
   bool rdDrawNeighborTriangles = false;
   bool rdDrawGroundTriangles = false;

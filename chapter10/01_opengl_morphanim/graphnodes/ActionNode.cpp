@@ -86,7 +86,7 @@ std::optional<std::map<std::string, std::string>> ActionNode::exportData() {
   if (mSetState) {
     data["action-move-state"] = std::to_string(static_cast<int>(mMoveState));
   }
-  if (data.empty()){
+  if (data.empty()) {
     return {};
   }
   return data;

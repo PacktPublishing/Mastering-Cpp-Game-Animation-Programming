@@ -29,8 +29,6 @@ FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui
   GIT_TAG        v1.91.2
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
 )
 
 FetchContent_MakeAvailable(imgui)
@@ -46,8 +44,6 @@ FetchContent_Declare(
   filedialog
   GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog
   GIT_TAG        v0.6.7
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
 )
 
 # ugly hack to have ImGui available when the file dialog source getch fetched
@@ -68,8 +64,6 @@ FetchContent_Declare(
   stbi
   GIT_REPOSITORY https://github.com/nothings/stb
   GIT_TAG        master
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
 )
 
 FetchContent_MakeAvailable(stbi)
@@ -177,7 +171,8 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC include src window tools opengl model quadtree graphnodes)
 
 # non-standard include dirs
-target_include_directories(${PROJECT_NAME} PRIVATE ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends ${filedialog_SOURCE_DIR} ${stbi_SOURCE_DIR} ${yaml-cpp_SOURCE_DIR} ${imnodes_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends
+  ${filedialog_SOURCE_DIR} ${stbi_SOURCE_DIR} ${yaml-cpp_SOURCE_DIR} ${imnodes_SOURCE_DIR})
 
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
@@ -187,7 +182,7 @@ find_package(glm REQUIRED)
 find_package(assimp REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
-include_directories(${GLFW3_INCLUDE_DIR} ${GLM_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${YAML_CPP_INCLUDE_DIR})
+include_directories(${GLFW3_INCLUDE_DIR} ${GLM_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${yaml-cpp_INCLUDE_DIR})
 
 
 # copy shader files
@@ -243,7 +238,7 @@ add_custom_command(TARGET Assets POST_BUILD
   "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/assets"
 )
 
-# copy config file
+# copy config files
 file(GLOB CONFIG_FILE
   config/*
 )
@@ -283,7 +278,7 @@ if(UNIX)
   set(ASSIMP_ZLIB_LIBRARY z)
 endif()
 
-# enable experimental GLM functions globally
+# enable experimental GLM functions globally, plus add ImGui define for imnodes etc
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL -DIMGUI_DEFINE_MATH_OPERATORS)
 
 if(MSVC)

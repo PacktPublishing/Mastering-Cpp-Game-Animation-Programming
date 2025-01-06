@@ -16,6 +16,7 @@
 #include "AssimpAnimClip.h"
 #include "AssimpInstance.h"
 #include "AssimpSettingsContainer.h"
+#include "InstanceSettings.h"
 #include "Logger.h"
 
 void UserInterface::init(OGLRenderData &renderData) {
@@ -64,7 +65,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
 
   ImGui::SetNextWindowBgAlpha(0.8f);
 
-  /* remove dimming of background for modal dialogs */
+  /* dim background for modal dialogs */
   ImGuiStyle& style = ImGui::GetStyle();
   style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
 
@@ -685,7 +686,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
         savedInstanceSettings = settings;
       }
     } else {
-      /* TODO: besster solution if no instances or no clips are found */
+      /* TODO: better solution if no instances or no clips are found */
       ImGui::BeginDisabled();
 
       ImGui::Text("Animation Clip:");

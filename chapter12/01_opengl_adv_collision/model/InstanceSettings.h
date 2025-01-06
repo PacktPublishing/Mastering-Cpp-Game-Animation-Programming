@@ -48,5 +48,5 @@ struct InstanceSettings {
 
 /* temporary struct to catch the camera names from the save file */
 struct ExtendedInstanceSettings : InstanceSettings {
-  std::vector<std::string> eisCameraNames;
+  std::vector<std::string> eisCameraNames{};
 };

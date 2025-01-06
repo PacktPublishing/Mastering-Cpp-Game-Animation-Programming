@@ -10,6 +10,7 @@ AssimpInstance::AssimpInstance(std::shared_ptr<AssimpModel> model, glm::vec3 pos
     Logger::log(1, "%s error: invalid model given\n", __FUNCTION__);
     return;
   }
+
   mInstanceSettings.isModelFile = model->getModelFileName();
   mInstanceSettings.isWorldPosition = position;
   mInstanceSettings.isWorldRotation = rotation;

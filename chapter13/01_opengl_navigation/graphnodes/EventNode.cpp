@@ -96,7 +96,7 @@ void EventNode::handleEvent() {
   mEventTriggered = true;
 }
 
-void EventNode::update(float deltaTime){
+void EventNode::update(float deltaTime) {
   if (mCooldown > 0.0f) {
     mCooldown -= deltaTime;
   } else {

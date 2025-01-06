@@ -1,0 +1,304 @@
+# Application viewer config file
+version: 6.0
+
+settings:
+  selected-model: 1
+  selected-instance: 0
+  selected-camera: 3
+  highlight-selection: false
+  collision-enabled: 2
+  interaction-enabled: true
+  interaction-min-range: 1.5
+  interaction-max-range: 10
+  interaction-fov: 45
+
+cameras:
+  - camera-name: FreeCam
+    position: [-0.482649922, 8.61966705, 42.042675]
+    view-azimuth: 76.7000122
+    view-elevation: -21.4000149
+    camera-type: 0
+    camera-projection: 0
+    field-of-view: 94
+  - camera-name: OrthoCam
+    position: [-0.0973121524, 8.39158821, 2.11331558]
+    view-azimuth: 4.69999981
+    view-elevation: -18.2000122
+    camera-type: 0
+    camera-projection: 1
+    ortho-scale: 20
+  - camera-name: ThirdPersonCam
+    position: [112.631668, 5, 15.70191]
+    view-azimuth: 38.8796844
+    view-elevation: -22.5
+    camera-type: 2
+    camera-projection: 0
+    field-of-view: 91
+    3rd-person-view-distance: 5
+    3rd-person-height-offset: 0
+  - camera-name: FollowCam
+    position: [-30.5423527, 7.98344994, 34.188446]
+    view-azimuth: 234.473022
+    view-elevation: -5.32697296
+    camera-type: 4
+    camera-projection: 0
+    field-of-view: 44
+    follow-cam-height-offset: 4
+  - camera-name: FirstPersonCam
+    position: [8.93500805, 4.27555943, -34.2996635]
+    view-azimuth: 159.799286
+    view-elevation: -2.40000606
+    camera-type: 1
+    camera-projection: 0
+    field-of-view: 40
+    1st-person-view-lock: true
+    1st-person-bone-to-follow: 5
+    1st-person-view-offsets: [0, 0.100000001, 0.449999988]
+
+models:
+  - model-name: Man.gltf
+    model-file: assets/man/Man.gltf
+    idle-walk-run-clips:
+      - 0:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 22
+          walk-clip-speed: 1.5
+          run-clip: 17
+          run-clip-speed: 1.5
+      - 1:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 22
+          walk-clip-speed: 2
+          run-clip: 17
+          run-clip-speed: 3
+      - 2:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 16
+          walk-clip-speed: 2
+          run-clip: 16
+          run-clip-speed: 3
+      - 4:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 19
+          walk-clip-speed: 1
+          run-clip: 19
+          run-clip-speed: 3
+      - 8:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 18
+          walk-clip-speed: 1
+          run-clip: 18
+          run-clip-speed: 3
+    action-clips:
+      - 5:
+          clip: 14
+          clip-speed: 1.5
+      - 7:
+          clip: 15
+          clip-speed: 1.20000005
+      - 8:
+          clip: 12
+          clip-speed: 1.20000005
+      - 9:
+          clip: 10
+          clip-speed: 1.20000005
+      - 10:
+          clip: 23
+          clip-speed: 1.20000005
+    action-sequences:
+      - 0: 5
+      - 0: 8
+      - 0: 9
+      - 0: 10
+      - 1: 7
+      - 2: 7
+    bounding-sphere-adjustments:
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 10]
+      - [0, 0, 0, 3]
+      - [0, 0, 0, 2]
+      - [0, 0, 0, 2]
+      - [0, 0.207000002, 0, 0.00999999978]
+      - [0, 0.409000009, -0.0329999998, 2]
+      - [0, 0, 0, 0.00999999978]
+      - [-0.200000003, 0, -0.100000001, 1.70000005]
+      - [0, 0, 0, 0.00999999978]
+      - [0, -0.100000001, 0, 1.39999998]
+      - [0, 0, 0, 0.778500021]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1.52209997]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0.200000003, 0, 0.100000001, 1.70000005]
+      - [0, 0, 0, 0.00999999978]
+      - [0, -0.100000001, 0, 1.39999998]
+      - [0, 0, 0, 0.752099991]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1.57009995]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1]
+      - [-0.100000001, -0.200000003, 0, 1]
+      - [0, 0, 0, 1]
+      - [-0.100000001, -0.200000003, 0, 1]
+      - [0, 0.25, 0, 0.699999988]
+      - [0, 0.25, 0, 0.699999988]
+    head-movement-mappings:
+      - 0: 25
+      - 1: 26
+      - 2: 27
+      - 3: 24
+
+node-trees:
+  - node-tree-name: AllRunCollisionMan
+    editor-settings: "[editor]\npanning=-827,481\n\n[node.0]\norigin=-208,-111\n\n[node.2]\norigin=554,-130\n\n[node.1]\norigin=-76,-113\n\n[node.3]\norigin=138,-119\n\n[node.14]\norigin=332,-131\n\n[node.11]\norigin=2662,-173\n\n[node.8]\norigin=2245,-141\n\n[node.45]\norigin=1723,-146\n\n[node.9]\norigin=2478,-131\n\n[node.7]\norigin=2073,-142\n\n[node.4]\norigin=1039,-144\n\n[node.6]\norigin=1465,-145\n\n[node.12]\norigin=2946,-149\n\n[node.36]\norigin=704,-140\n\n[node.5]\norigin=1305,-140\n"
+    nodes:
+      - node-type: 1
+        node-id: 0
+      - node-type: 7
+        node-id: 1
+        node-data:
+          - instance-move-direction: 1
+          - instance-move-state: 1
+          - instance-position-x: 0.000000
+          - instance-position-y: 0.000000
+          - instance-position-z: 0.000000
+      - node-type: 7
+        node-id: 14
+        node-data:
+          - instance-move-direction: 0
+          - instance-move-state: 0
+      - node-type: 12
+        node-id: 36
+        node-data:
+          - head-anim-left-right: 1
+          - head-anim-left-right-blend-time: 2.000000
+          - head-anim-left-right-end-weight: 1.000000
+          - head-anim-left-right-start-weight: 0.000000
+          - head-anim-up-down: 1
+          - head-anim-up-down-blend-time: 2.000000
+          - head-anim-up-down-end-weight: 0.500000
+          - head-anim-up-down-start-weight: 0.000000
+      - node-type: 12
+        node-id: 45
+        node-data:
+          - head-anim-left-right: 1
+          - head-anim-left-right-blend-time: 2.000000
+          - head-anim-left-right-end-weight: 0.000000
+          - head-anim-left-right-start-weight: 1.000000
+          - head-anim-up-down: 1
+          - head-anim-up-down-blend-time: 2.000000
+          - head-anim-up-down-end-weight: 0.000000
+          - head-anim-up-down-start-weight: 0.500000
+      - node-type: 3
+        node-id: 2
+        node-data:
+          - wait-time: 3.000000
+      - node-type: 11
+        node-id: 4
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 2.000000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 3
+        node-id: 5
+        node-data:
+          - wait-time: 1.000000
+      - node-type: 7
+        node-id: 6
+        node-data:
+          - instance-move-direction: 1
+          - instance-move-state: 1
+      - node-type: 3
+        node-id: 7
+        node-data:
+          - wait-time: 3.000000
+      - node-type: 7
+        node-id: 8
+        node-data:
+          - instance-move-direction: 1
+          - instance-move-state: 2
+      - node-type: 3
+        node-id: 9
+        node-data:
+          - wait-time: 6.000000
+      - node-type: 11
+        node-id: 11
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 1.000000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 12
+      - node-type: 3
+        node-id: 3
+        node-data:
+          - wait-time: 10.000000
+    links:
+      - 10007: [5200, 6000]
+      - 10005: [4200, 5000]
+      - 10006: [6200, 45000]
+      - 10002: [2200, 36000]
+      - 10003: [36200, 4000]
+      - 10004: [1200, 3000]
+      - 10000: [3200, 14000]
+      - 10026: [0, 1000]
+      - 10013: [11200, 12000]
+      - 10011: [9200, 11000]
+      - 10001: [14200, 2000]
+      - 10010: [8200, 9000]
+      - 10009: [7200, 8000]
+      - 10008: [45200, 7000]
+
+instances:
+  - model-file: Man.gltf
+    position: [-81.183754, 0, 73.3556061]
+    rotation: [0, -47.8998299, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 22
+    2nd-anim-clip-number: 17
+    anim-clip-speed: 3
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 0.839572012
+    target-of-cameras:
+      - FollowCam

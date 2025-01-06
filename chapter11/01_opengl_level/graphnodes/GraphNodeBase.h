@@ -53,8 +53,8 @@ class GraphNodeBase {
     std::string mNodeName;
     graphNodeType mNodeType = graphNodeType::none;
 
-    fireNodeOutputCallback mNodeCallbackFunction{};
-    nodeActionCallback mNodeActionCallbackFunction{};
+    fireNodeOutputCallback mNodeCallbackFunction;
+    nodeActionCallback mNodeActionCallbackFunction;
 
   /* allow factory to set name directly  */
   friend class GraphNodeFactory;

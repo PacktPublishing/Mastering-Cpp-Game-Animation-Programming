@@ -33,7 +33,7 @@ class GraphEditor {
     int findNextFreeNodeId();
     int findNextFreeLinkId();
 
-    fireNodeOutputCallback mFireNodeOutputCallbackFunction{};
+    fireNodeOutputCallback mFireNodeOutputCallbackFunction;
 
     std::shared_ptr<GraphNodeFactory> mNodeFactory = nullptr;;
     std::shared_ptr<SingleInstanceBehavior> mBehavior = nullptr;

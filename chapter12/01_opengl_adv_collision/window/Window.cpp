@@ -1,5 +1,6 @@
 #include "Window.h"
 #include "Logger.h"
+#include "ModelInstanceCamData.h"
 
 bool Window::init(unsigned int width, unsigned int height, std::string title) {
   if (!glfwInit()) {
@@ -26,8 +27,9 @@ bool Window::init(unsigned int width, unsigned int height, std::string title) {
   mRenderer = std::make_unique<OGLRenderer>(mWindow);
 
   /* allow to set window title in renderer */
-  mRenderer->getWindowTitle = [this]() { return getWindowTitle(); };
-  mRenderer->setWindowTitle = [this](std::string windowTitle) { setWindowTitle(windowTitle); };
+  ModelInstanceCamData& rendererMICData = mRenderer->getModInstCamData();
+  rendererMICData.micGetWindowTitleFunction = [this]() { return getWindowTitle(); };
+  rendererMICData.micSetWindowTitleFunction = [this](std::string windowTitle) { setWindowTitle(windowTitle); };
 
   glfwSetWindowUserPointer(mWindow, mRenderer.get());
   glfwSetWindowSizeCallback(mWindow, [](GLFWwindow *win, int width, int height) {

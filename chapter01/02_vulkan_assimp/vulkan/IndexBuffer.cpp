@@ -60,7 +60,7 @@ bool IndexBuffer::uploadData(VkRenderData& renderData, VkIndexBufferData& buffer
   void* data;
   VkResult result = vmaMapMemory(renderData.rdAllocator, bufferData.stagingBufferAlloc, &data);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: coult not map index buffer memory (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: could not map index buffer memory (error: %i)\n", __FUNCTION__, result);
     return false;
   }
   std::memcpy(data, vertexData.indices.data(), vertexDataSize);

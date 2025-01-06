@@ -257,7 +257,7 @@ std::optional<std::map<std::string, std::string>> HeadAnimNode::exportData() {
     data["head-anim-up-down-blend-time"] = std::to_string(mHeadMoveUpDownBlendTime);
   }
 
-  if (data.empty()){
+  if (data.empty()) {
     return {};
   }
   return data;

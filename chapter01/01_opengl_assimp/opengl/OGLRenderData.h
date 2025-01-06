@@ -1,5 +1,6 @@
 /* OpenGL */
 #pragma once
+
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -7,6 +8,7 @@
 
 #include <glm/glm.hpp>
 
+/* GL headers before GLFW */
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -17,7 +19,7 @@ struct OGLVertex {
   glm::vec4 color = glm::vec4(1.0f);
   glm::vec3 normal = glm::vec3(0.0f);
   glm::vec2 uv = glm::vec2(0.0f);
-  glm::vec4 boneNumber = glm::vec4(0.0f);
+  glm::uvec4 boneNumber = glm::uvec4(0);
   glm::vec4 boneWeight = glm::vec4(0.0f);
 };
 

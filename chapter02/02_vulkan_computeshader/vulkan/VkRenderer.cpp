@@ -1,12 +1,11 @@
+#include <imgui_impl_glfw.h>
+
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <ctime>
 #include <cstdlib>
 #include <algorithm>
 #include <filesystem>
-#include <memory>
-
-#include <imgui_impl_glfw.h>
-
-#include <glm/gtc/matrix_transform.hpp>
 
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
@@ -34,6 +33,10 @@ VkRenderer::VkRenderer(GLFWwindow *window) {
 }
 
 bool VkRenderer::init(unsigned int width, unsigned int height) {
+  /* randomize rand() */
+  std::srand(static_cast<int>(time(nullptr)));
+
+  /* save orig window title, add current mode */
   mRenderData.rdWidth = width;
   mRenderData.rdHeight = height;
 
@@ -118,7 +121,7 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
   mWorldPosMatrices.resize(1);
   mWorldPosMatrices.at(0) = glm::mat4(1.0f);
 
-  // register callbacks
+  /* register callbacks */
   mModelInstData.miModelCheckCallbackFunction = [this](std::string fileName) { return hasModel(fileName); };
   mModelInstData.miModelAddCallbackFunction = [this](std::string fileName) { return addModel(fileName); };
   mModelInstData.miModelDeleteCallbackFunction = [this](std::string modelName) { deleteModel(modelName); };
@@ -128,7 +131,7 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
   mModelInstData.miInstanceDeleteCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { deleteInstance(instance) ;};
   mModelInstData.miInstanceCloneCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { cloneInstance(instance); };
 
-  /* signal graphics semaphor before doing anything else to be able to run compute submit */
+  /* signal graphics semaphore before doing anything else to be able to run compute submit */
   VkSubmitInfo submitInfo{};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
   submitInfo.signalSemaphoreCount = 1;
@@ -378,14 +381,14 @@ bool VkRenderer::createDescriptorLayouts() {
     assimpTransformSsboBind.pImmutableSamplers = nullptr;
     assimpTransformSsboBind.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
-    VkDescriptorSetLayoutBinding assimpTsSsboBind{};
-    assimpTsSsboBind.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    assimpTsSsboBind.binding = 1;
-    assimpTsSsboBind.descriptorCount = 1;
-    assimpTsSsboBind.pImmutableSamplers = nullptr;
-    assimpTsSsboBind.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    VkDescriptorSetLayoutBinding assimpTrsSsboBind{};
+    assimpTrsSsboBind.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    assimpTrsSsboBind.binding = 1;
+    assimpTrsSsboBind.descriptorCount = 1;
+    assimpTrsSsboBind.pImmutableSamplers = nullptr;
+    assimpTrsSsboBind.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
-    std::vector<VkDescriptorSetLayoutBinding> assimpTransformBindings = { assimpTransformSsboBind, assimpTsSsboBind };
+    std::vector<VkDescriptorSetLayoutBinding> assimpTransformBindings = { assimpTransformSsboBind, assimpTrsSsboBind };
 
     VkDescriptorSetLayoutCreateInfo assimpTransformCreateInfo{};
     assimpTransformCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -1266,20 +1269,20 @@ void VkRenderer::handleMovementKeys() {
   }
 }
 
-void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances, int32_t modelOffset) {
+void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances, uint32_t modelOffset) {
   uint32_t numberOfBones = model->getBoneList().size();
 
   /* node transformation */
+  vkCmdBindPipeline(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+    mRenderData.rdAssimpComputeTransformPipeline);
+  vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+    mRenderData.rdAssimpComputeTransformaPipelineLayout, 0, 1, &mRenderData.rdAssimpComputeTransformDescriptorSet, 0, 0);
+
   mUploadToUBOTimer.start();
   mComputeModelData.pkModelOffset = modelOffset;
   vkCmdPushConstants(mRenderData.rdComputeCommandBuffer, mRenderData.rdAssimpComputeTransformaPipelineLayout,
     VK_SHADER_STAGE_COMPUTE_BIT, 0, static_cast<uint32_t>(sizeof(VkComputePushConstants)), &mComputeModelData);
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
-
-  vkCmdBindPipeline(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-    mRenderData.rdAssimpComputeTransformPipeline);
-  vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-    mRenderData.rdAssimpComputeTransformaPipelineLayout, 0, 1, &mRenderData.rdAssimpComputeTransformDescriptorSet, 0, 0);
 
   vkCmdDispatch(mRenderData.rdComputeCommandBuffer, numberOfBones, static_cast<uint32_t>(std::ceil(numInstances / 32.0f)), 1);
 
@@ -1300,12 +1303,6 @@ void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numIn
     &trsBufferBarrier, 0, nullptr);
 
   /* matrix multiplication */
-  mUploadToUBOTimer.start();
-  mComputeModelData.pkModelOffset = modelOffset;
-  vkCmdPushConstants(mRenderData.rdComputeCommandBuffer, mRenderData.rdAssimpComputeMatrixMultPipelineLayout,
-    VK_SHADER_STAGE_COMPUTE_BIT, 0, static_cast<uint32_t>(sizeof(VkComputePushConstants)), &mComputeModelData);
-  mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
-
   vkCmdBindPipeline(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
     mRenderData.rdAssimpComputeMatrixMultPipeline);
 
@@ -1313,6 +1310,12 @@ void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numIn
   std::vector<VkDescriptorSet> computeSets = { mRenderData.rdAssimpComputeMatrixMultDescriptorSet, modelDescriptorSet };
   vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
     mRenderData.rdAssimpComputeMatrixMultPipelineLayout, 0, static_cast<uint32_t>(computeSets.size()), computeSets.data(), 0, 0);
+
+  mUploadToUBOTimer.start();
+  mComputeModelData.pkModelOffset = modelOffset;
+  vkCmdPushConstants(mRenderData.rdComputeCommandBuffer, mRenderData.rdAssimpComputeMatrixMultPipelineLayout,
+    VK_SHADER_STAGE_COMPUTE_BIT, 0, static_cast<uint32_t>(sizeof(VkComputePushConstants)), &mComputeModelData);
+  mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   vkCmdDispatch(mRenderData.rdComputeCommandBuffer, numberOfBones, static_cast<uint32_t>(std::ceil(numInstances / 32.0f)), 1);
 
@@ -1334,6 +1337,11 @@ void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numIn
 }
 
 bool VkRenderer::draw(float deltaTime) {
+  /* no update on zero diff */
+  if (deltaTime == 0.0f) {
+    return true;
+  }
+
   mRenderData.rdFrameTime = mFrameTimer.stop();
   mFrameTimer.start();
 
@@ -1348,15 +1356,14 @@ bool VkRenderer::draw(float deltaTime) {
   size_t boneMatrixBufferSize = 0;
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
     size_t numberOfInstances = modelType.second.size();
-    if (numberOfInstances > 0) {
-      std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
+    std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
+    if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
       if (model->hasAnimations() && model->getBoneList().size() > 0) {
         size_t numberOfBones = model->getBoneList().size();
 
-        size_t trsMatrixSize = numberOfBones * numberOfInstances;
-        boneMatrixBufferSize += trsMatrixSize;
+        boneMatrixBufferSize += numberOfBones * numberOfInstances;
       }
     }
   }
@@ -1377,8 +1384,8 @@ bool VkRenderer::draw(float deltaTime) {
   size_t animatedInstancesToStore = 0;
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
     size_t numberOfInstances = modelType.second.size();
-    if (numberOfInstances > 0) {
-      std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
+    std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
+    if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
       if (model->hasAnimations() && model->getBoneList().size() > 0) {
@@ -1429,7 +1436,7 @@ bool VkRenderer::draw(float deltaTime) {
   ShaderStorageBuffer::uploadData(mRenderData, mShaderNodeTransformBuffer, mNodeTransFormData);
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
-  /* reseize SSBO if needed */
+  /* resize SSBO if needed */
   ShaderStorageBuffer::checkForResize(mRenderData, mShaderTRSMatrixBuffer, boneMatrixBufferSize * sizeof(glm::mat4));
   ShaderStorageBuffer::checkForResize(mRenderData, mShaderBoneMatrixBuffer, boneMatrixBufferSize * sizeof(glm::mat4));
 
@@ -1445,7 +1452,6 @@ bool VkRenderer::draw(float deltaTime) {
   }
 
   if (animatedModelLoaded) {
-    uint32_t computeShaderModelOffset = 0;
     if (!CommandBuffer::reset(mRenderData.rdComputeCommandBuffer, 0)) {
       Logger::log(1, "%s error: failed to reset compute command buffer\n", __FUNCTION__);
       return false;
@@ -1456,12 +1462,13 @@ bool VkRenderer::draw(float deltaTime) {
       return false;
     }
 
+    uint32_t computeShaderModelOffset = 0;
     for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
       size_t numberOfInstances = modelType.second.size();
-      if (numberOfInstances > 0) {
-        std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
+      std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
+      if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
-        /* comput shader for animated models only */
+        /* compute shader for animated models only */
         if (model->hasAnimations() && model->getBoneList().size() > 0) {
           size_t numberOfBones = model->getBoneList().size();
 
@@ -1540,24 +1547,20 @@ bool VkRenderer::draw(float deltaTime) {
   mMatrices.viewMatrix = mCamera.getViewMatrix(mRenderData);
   mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
 
-  mUploadToUBOTimer.start();
-  UniformBuffer::uploadData(mRenderData, mPerspectiveViewMatrixUBO, mMatrices);
-  mRenderData.rdUploadToUBOTime = mUploadToUBOTimer.stop();
-
   /* we need to update descriptors after the upload if buffer size changed */
   bool doDescriptorUpdates = false;
-  if (mShaderModelRootMatrixBuffer.bufferSize != mWorldPosMatrices.size() * sizeof(glm::mat4) ||
-    mShaderBoneMatrixBuffer.bufferSize != boneMatrixBufferSize * sizeof(glm::mat4)) {
+  if (mShaderModelRootMatrixBuffer.bufferSize != mWorldPosMatrices.size() * sizeof(glm::mat4)) {
     doDescriptorUpdates = true;
   }
 
   mUploadToUBOTimer.start();
+  UniformBuffer::uploadData(mRenderData, mPerspectiveViewMatrixUBO, mMatrices);
   ShaderStorageBuffer::uploadData(mRenderData, mShaderModelRootMatrixBuffer, mWorldPosMatrices);
+  mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
-  if (doDescriptorUpdates) {
+  if (doDescriptorUpdates || doComputeDescriptorUpdates) {
     updateDescriptorSets();
   }
-  mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   uint32_t imageIndex = 0;
   result = vkAcquireNextImageKHR(mRenderData.rdVkbDevice.device,
@@ -1632,16 +1635,22 @@ bool VkRenderer::draw(float deltaTime) {
   vkCmdSetScissor(mRenderData.rdCommandBuffer, 0, 1, &scissor);
 
   /* draw the models */
-  int worldPosOffset = 0;
-  int skinMatOffset = 0;
+  uint32_t worldPosOffset = 0;
+  uint32_t skinMatOffset = 0;
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
     size_t numberOfInstances = modelType.second.size();
-    if (numberOfInstances > 0) {
-      std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
+    std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
+
+    if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
       if (model->hasAnimations() && model->getBoneList().size() > 0) {
-        size_t numberOfBones = model->getBoneList().size();
+        uint32_t numberOfBones = model->getBoneList().size();
+
+        vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpSkinningPipeline);
+
+        vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+          mRenderData.rdAssimpSkinningPipelineLayout, 1, 1, &mRenderData.rdAssimpSkinningDescriptorSet, 0, nullptr);
 
         mUploadToUBOTimer.start();
         mModelData.pkModelStride = numberOfBones;
@@ -1651,29 +1660,31 @@ bool VkRenderer::draw(float deltaTime) {
           VK_SHADER_STAGE_VERTEX_BIT, 0, static_cast<uint32_t>(sizeof(VkPushConstants)), &mModelData);
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
-        vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpSkinningPipeline);
-
-        vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-          mRenderData.rdAssimpSkinningPipelineLayout, 1, 1, &mRenderData.rdAssimpSkinningDescriptorSet, 0, nullptr);
         model->drawInstanced(mRenderData, numberOfInstances);
 
+        worldPosOffset += numberOfInstances;
         skinMatOffset += numberOfInstances * numberOfBones;
       } else {
         /* non-animated models */
-        mUploadToUBOTimer.start();
-        mModelData.pkWorldPosOffset = worldPosOffset;
-        vkCmdPushConstants(mRenderData.rdCommandBuffer, mRenderData.rdAssimpPipelineLayout,
-          VK_SHADER_STAGE_VERTEX_BIT, 0, static_cast<uint32_t>(sizeof(VkPushConstants)), &mModelData);
-        mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
         vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpPipeline);
 
         vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
           mRenderData.rdAssimpPipelineLayout, 1, 1, &mRenderData.rdAssimpDescriptorSet, 0, nullptr);
+
+        mUploadToUBOTimer.start();
+        mModelData.pkModelStride = 0;
+        mModelData.pkWorldPosOffset = worldPosOffset;
+        mModelData.pkSkinMatOffset = 0;
+        vkCmdPushConstants(mRenderData.rdCommandBuffer, mRenderData.rdAssimpPipelineLayout,
+          VK_SHADER_STAGE_VERTEX_BIT, 0, static_cast<uint32_t>(sizeof(VkPushConstants)), &mModelData);
+        mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
+
         model->drawInstanced(mRenderData, numberOfInstances);
+
+        worldPosOffset += numberOfInstances;
       }
     }
-    worldPosOffset += numberOfInstances;
   }
 
   /* imGui overlay */

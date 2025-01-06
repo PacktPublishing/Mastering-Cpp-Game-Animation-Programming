@@ -1,5 +1,3 @@
-#include <cmath>
-
 #include "Framebuffer.h"
 #include "Logger.h"
 

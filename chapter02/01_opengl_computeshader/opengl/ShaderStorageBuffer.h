@@ -1,6 +1,8 @@
 /* OpenGL shader stroage buffer */
 #pragma once
+
 #include <vector>
+
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
@@ -21,12 +23,10 @@ class ShaderStorageBuffer {
 
     void bind(int bindingPoint);
 
-    std::vector<glm::mat4> getSsboDataMat4();
-
     void checkForResize(size_t newBufferSize);
     void cleanup();
 
   private:
-    size_t mBufferSize;
+    size_t mBufferSize = 0;
     GLuint mShaderStorageBuffer = 0;
 };

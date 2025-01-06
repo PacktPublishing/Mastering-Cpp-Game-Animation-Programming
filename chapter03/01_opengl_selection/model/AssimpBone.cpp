@@ -14,7 +14,6 @@ unsigned int AssimpBone::getBoneId() {
   return mBoneId;
 }
 
-
 glm::mat4 AssimpBone::getOffsetMatrix() {
   return mOffsetMatrix;
 }

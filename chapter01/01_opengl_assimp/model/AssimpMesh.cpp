@@ -117,7 +117,7 @@ bool AssimpMesh::processMesh(aiMesh* mesh, const aiScene* scene, std::string ass
         unsigned int vertexId = mesh->mBones[boneId]->mWeights[weight].mVertexId;
         float vertexWeight = mesh->mBones[boneId]->mWeights[weight].mWeight;
 
-        glm::vec4 currentIds = mMesh.vertices.at(vertexId).boneNumber;
+        glm::uvec4 currentIds = mMesh.vertices.at(vertexId).boneNumber;
         glm::vec4 currentWeights = mMesh.vertices.at(vertexId).boneWeight;
 
         /* insert weight and bone id into first free slot (weight => 0.0f) */
@@ -156,7 +156,6 @@ std::string AssimpMesh::getMeshName() {
 std::unordered_map<std::string, std::shared_ptr<Texture>> AssimpMesh::getTextures() {
   return mTextures;
 }
-
 
 unsigned int AssimpMesh::getTriangleCount() {
   return mTriangleCount;

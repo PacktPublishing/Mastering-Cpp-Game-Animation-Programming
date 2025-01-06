@@ -29,8 +29,6 @@ FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui
   GIT_TAG        v1.91.2
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
 )
 
 FetchContent_MakeAvailable(imgui)
@@ -46,8 +44,6 @@ FetchContent_Declare(
   filedialog
   GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog
   GIT_TAG        v0.6.7
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
 )
 
 # ugly hack to have ImGui available when the file dialog source getch fetched
@@ -68,8 +64,6 @@ FetchContent_Declare(
   stbi
   GIT_REPOSITORY https://github.com/nothings/stb
   GIT_TAG        master
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
 )
 
 FetchContent_MakeAvailable(stbi)
@@ -160,7 +154,8 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC include src window tools opengl model quadtree)
 
 # non-standard include dirs
-target_include_directories(${PROJECT_NAME} PRIVATE ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends ${filedialog_SOURCE_DIR} ${stbi_SOURCE_DIR} ${yaml-cpp_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends
+  ${filedialog_SOURCE_DIR} ${stbi_SOURCE_DIR} ${yaml-cpp_SOURCE_DIR})
 
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
@@ -226,7 +221,7 @@ add_custom_command(TARGET Assets POST_BUILD
   "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/assets"
 )
 
-# copy config file
+# copy config files
 file(GLOB CONFIG_FILE
   config/*
 )

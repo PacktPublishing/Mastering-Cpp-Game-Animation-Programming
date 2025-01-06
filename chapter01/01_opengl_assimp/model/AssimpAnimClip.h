@@ -12,7 +12,6 @@ class AssimpAnimClip {
   public:
     void addChannels(aiAnimation* animation);
     std::vector<std::shared_ptr<AssimpAnimChannel>> getChannels();
-    std::shared_ptr<AssimpAnimChannel> getChannel(unsigned int index);
 
     std::string getClipName();
     float getClipDuration();

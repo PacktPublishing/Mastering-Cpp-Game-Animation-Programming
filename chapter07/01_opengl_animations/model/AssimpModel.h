@@ -1,11 +1,11 @@
 /* Assimp model, ready to draw */
 #pragma once
+
 #include <string>
 #include <vector>
 #include <memory>
 #include <map>
 #include <unordered_map>
-#include <glad/glad.h>
 
 #include <glm/glm.hpp>
 
@@ -65,7 +65,6 @@ private:
     /* and a 'flat' map to keep the order of insertation  */
     std::vector<std::shared_ptr<AssimpNode>> mNodeList{};
 
-    /* TODO: bone map/list per mesh */
     std::vector<std::shared_ptr<AssimpBone>> mBoneList{};
     std::vector<std::string> mBoneNameList{};
     std::map<std::string, glm::mat4> mBoneOffsetMatrices{};
@@ -85,5 +84,5 @@ private:
 
     glm::mat4 mRootTransformMatrix = glm::mat4(1.0f);
 
-    ModelSettings mModelSettings;
+    ModelSettings mModelSettings{};
 };

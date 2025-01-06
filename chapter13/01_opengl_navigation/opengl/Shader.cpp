@@ -9,18 +9,6 @@
 #include "Shader.h"
 #include "Logger.h"
 
-bool Shader::loadShaders(std::string vertexShaderFileName, std::string geometryShaderFileName, std::string fragmentShaderFileName) {
-  Logger::log(1, "%s: loading vertex shader '%s', geometry shader ''%s', and fragment shader '%s'\n", __FUNCTION__,
-              vertexShaderFileName.c_str(), geometryShaderFileName.c_str(), fragmentShaderFileName.c_str());
-
-  if (!createShaderProgram(vertexShaderFileName, geometryShaderFileName, fragmentShaderFileName)) {
-    Logger::log(1, "%s error: shader program creation failed\n", __FUNCTION__);
-    return false;
-  }
-
-  return true;
-}
-
 bool Shader::loadShaders(std::string vertexShaderFileName, std::string fragmentShaderFileName) {
   Logger::log(1, "%s: loading vertex shader '%s' and fragment shader '%s'\n", __FUNCTION__, vertexShaderFileName.c_str(), fragmentShaderFileName.c_str());
 
@@ -129,58 +117,6 @@ bool Shader::createShaderProgram(std::string vertexShaderFileName, std::string f
   return true;
 }
 
-bool Shader::createShaderProgram(std::string vertexShaderFileName, std::string geometryShaderFileName, std::string fragmentShaderFileName) {
-  GLuint vertexShader = loadShader(vertexShaderFileName, GL_VERTEX_SHADER);
-  if (!vertexShader) {
-    Logger::log(1, "%s: loading of vertex shader '%s' failed\n", __FUNCTION__, vertexShaderFileName.c_str());
-    return false;
-  }
-
-  GLuint geometryShader = loadShader(geometryShaderFileName, GL_GEOMETRY_SHADER);
-  if (!geometryShader) {
-    Logger::log(1, "%s: loading of geometry shader '%s' failed\n", __FUNCTION__, geometryShaderFileName.c_str());
-    return false;
-  }
-
-  GLuint fragmentShader = loadShader(fragmentShaderFileName, GL_FRAGMENT_SHADER);
-  if (!fragmentShader) {
-    Logger::log(1, "%s: loading of fragment shader '%s' failed\n", __FUNCTION__, fragmentShaderFileName.c_str());
-    return false;
-  }
-
-  mShaderProgram = glCreateProgram();
-
-  glAttachShader(mShaderProgram, vertexShader);
-  glAttachShader(mShaderProgram, geometryShader);
-  glAttachShader(mShaderProgram, fragmentShader);
-
-  glLinkProgram(mShaderProgram);
-
-  if (!checkLinkStats(vertexShaderFileName, geometryShaderFileName ,fragmentShaderFileName, mShaderProgram)) {
-    Logger::log(1, "%s error: program linking from vertex shader '%s' / geometry shader '%s' / fragment shader '%s' failed\n",
-                __FUNCTION__, vertexShaderFileName.c_str(), fragmentShaderFileName.c_str());
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(geometryShader);
-    glDeleteShader(fragmentShader);
-
-    return false;
-  }
-
-  /* bind UBO in shader */
-  GLint uboIndex = glGetUniformBlockIndex(mShaderProgram, "Matrices");
-  glUniformBlockBinding(mShaderProgram, uboIndex, 0);
-
-  /* it is safe to delete the original shaders here */
-  glDeleteShader(vertexShader);
-  glDeleteShader(geometryShader);
-  glDeleteShader(fragmentShader);
-
-  Logger::log(1, "%s: shader program %#x successfully compiled from vertex shader '%s', geometry shader '%s', and fragment shader '%s'\n",
-              __FUNCTION__, mShaderProgram, vertexShaderFileName.c_str(), geometryShaderFileName.c_str(), fragmentShaderFileName.c_str());
-  return true;
-}
-
 bool Shader::createComputeShaderProgram(std::string computeShaderName) {
   GLuint computeShader = loadShader(computeShaderName, GL_COMPUTE_SHADER);
   if (!computeShader) {
@@ -241,26 +177,6 @@ bool Shader::checkLinkStats(std::string vertexShaderFileName, std::string fragme
     glGetProgramInfoLog(shaderProgram, logMessageLength, &logMessageLength, programLog.data());
     programLog.at(logMessageLength) = '\0';
     Logger::log(1, "%s error: program linking of shaders '%s' and '%s' failed\n", __FUNCTION__, vertexShaderFileName.c_str(), fragmentShaderFileName.c_str());
-    Logger::log(1, "%s compile log:\n%s\n", __FUNCTION__, programLog.data());
-    return false;
-  }
-
-  return true;
-}
-
-bool Shader::checkLinkStats(std::string vertexShaderFileName, std::string geometryShaderFileName, std::string fragmentShaderFileName, GLuint shaderProgram) {
-  GLint isProgramLinked;
-  int logMessageLength;
-  std::vector<char> programLog;
-
-  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &isProgramLinked);
-  if (!isProgramLinked) {
-    glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &logMessageLength);
-    programLog = std::vector<char>(logMessageLength + 1);
-    glGetProgramInfoLog(shaderProgram, logMessageLength, &logMessageLength, programLog.data());
-    programLog.at(logMessageLength) = '\0';
-    Logger::log(1, "%s error: program linking of shaders '%s', '%s' and '%s' failed\n", __FUNCTION__,
-                vertexShaderFileName.c_str(), geometryShaderFileName.c_str(), fragmentShaderFileName.c_str());
     Logger::log(1, "%s compile log:\n%s\n", __FUNCTION__, programLog.data());
     return false;
   }

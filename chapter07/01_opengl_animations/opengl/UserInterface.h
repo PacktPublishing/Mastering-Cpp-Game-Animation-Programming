@@ -7,14 +7,13 @@
 
 #include "OGLRenderData.h"
 #include "ModelInstanceCamData.h"
-#include "InstanceSettings.h"
 
 class UserInterface {
   public:
     void init(OGLRenderData &renderData);
     void hideMouse(bool hide);
 
-    void createFrame(OGLRenderData &renderData);
+    void createFrame(OGLRenderData& renderData);
     void createSettingsWindow(OGLRenderData &renderData, ModelInstanceCamData &modInstCamData);
     void createStatusBar(OGLRenderData &renderData, ModelInstanceCamData &modInstCamData);
 

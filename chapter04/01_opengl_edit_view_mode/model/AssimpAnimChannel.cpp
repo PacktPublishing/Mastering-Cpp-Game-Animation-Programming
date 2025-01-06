@@ -43,7 +43,7 @@ void AssimpAnimChannel::loadChannelData(aiNodeAnim* nodeAnim) {
   mPostState = postState;
 }
 
-const std::string& AssimpAnimChannel::getTargetNodeName() {
+std::string AssimpAnimChannel::getTargetNodeName() {
   return mNodeName;
 }
 

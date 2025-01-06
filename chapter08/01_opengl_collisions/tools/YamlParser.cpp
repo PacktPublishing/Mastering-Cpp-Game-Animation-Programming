@@ -4,8 +4,8 @@
 #include "AssimpModel.h"
 #include "AssimpInstance.h"
 #include "Camera.h"
-#include "Logger.h"
 #include "Enums.h"
+#include "Logger.h"
 
 /* overloads */
 YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& vec) {

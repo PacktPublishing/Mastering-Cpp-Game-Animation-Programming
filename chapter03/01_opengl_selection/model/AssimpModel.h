@@ -1,5 +1,6 @@
 /* Assimp model, ready to draw */
 #pragma once
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -56,7 +57,6 @@ private:
     /* and a 'flat' map to keep the order of insertation  */
     std::vector<std::shared_ptr<AssimpNode>> mNodeList{};
 
-    /* TODO: bone map/list per mesh */
     std::vector<std::shared_ptr<AssimpBone>> mBoneList{};
     std::map<std::string, glm::mat4> mBoneOffsetMatrices{};
 
