@@ -1,0 +1,97 @@
+#version 460 core
+layout(local_size_x = 1, local_size_y = 32, local_size_z = 1) in;
+
+struct TRSMat {
+  vec4 translation;
+  vec4 rotation; // a quaternion!
+  vec4 scale;
+};
+
+layout (push_constant) uniform Constants {
+  uint modelOffset;
+  uint instanceOffset;
+};
+
+layout (std430, set = 0, binding = 0) readonly restrict buffer TRSData {
+  TRSMat trsMat[];
+};
+
+layout (std430, set = 1, binding = 0) readonly restrict buffer ParentMatrixIndices {
+  int parentIndex[];
+};
+
+layout (std430, set = 1, binding = 1) readonly restrict buffer BoneOffsets {
+  mat4 boneOff[];
+};
+
+layout (std430, set = 0, binding = 1) writeonly restrict buffer NodeMatrices {
+  mat4 nodeMat[];
+};
+
+mat4 createTranslationMatrix(vec4 t) {
+  return mat4(
+    1.0, 0.0, 0.0, 0.0,
+    0.0, 1.0, 0.0, 0.0,
+    0.0, 0.0, 1.0, 0.0,
+    t.x, t.y, t.z, 1.0
+  );
+}
+
+mat4 createScaleMatrix(vec4 s) {
+  return mat4(
+    s.x, 0.0, 0.0, 0.0,
+    0.0, s.y, 0.0, 0.0,
+    0.0, 0.0, s.z, 0.0,
+    0.0, 0.0, 0.0, 1.0
+  );
+}
+
+mat4 createRotationMatrix(vec4 q) {
+  /* this is mat3_cast from GLM */
+  float qxx = q.x * q.x;
+  float qyy = q.y * q.y;
+  float qzz = q.z * q.z;
+  float qxz = q.x * q.z;
+  float qxy = q.x * q.y;
+  float qyz = q.y * q.z;
+  float qwx = q.w * q.x;
+  float qwy = q.w * q.y;
+  float qwz = q.w * q.z;
+
+  return mat4(
+    1.0 - 2.0 * (qyy + qzz),       2.0 * (qxy + qwz),       2.0 * (qxz - qwy), 0.0,
+          2.0 * (qxy - qwz), 1.0 - 2.0 * (qxx + qzz),       2.0 * (qyz + qwx), 0.0,
+          2.0 * (qxz + qwy),       2.0 * (qyz - qwx), 1.0 - 2.0 * (qxx + qyy), 0.0,
+          0.0,                     0.0,                     0.0,               1.0);
+}
+
+mat4 createTRSMatrix(uint index) {
+  return createTranslationMatrix(trsMat[index].translation) * createRotationMatrix(trsMat[index].rotation) * createScaleMatrix(trsMat[index].scale);
+}
+
+void main() {
+  uint node = gl_GlobalInvocationID.x;
+  uint instance = gl_GlobalInvocationID.y;
+
+  /* X work group size is number of bones */
+  uint numberOfBones = gl_NumWorkGroups.x;
+
+  uint index = node + numberOfBones * instance + modelOffset;
+
+  /* get node matrix, always valid */
+  mat4 nodeMatrix = createTRSMatrix(index);
+
+  uint parent = 0;
+
+  int parentNode = parentIndex[node];
+  while (parentNode >= 0) {
+    parent = parentNode + numberOfBones * instance + modelOffset;
+    nodeMatrix = createTRSMatrix(parent) * nodeMatrix;
+    parentNode = parentIndex[parentNode];
+  }
+
+  /* root node has index -1 */
+  if (parentNode == -1) {
+    nodeMat[index] = nodeMatrix * boneOff[node];
+  }
+}

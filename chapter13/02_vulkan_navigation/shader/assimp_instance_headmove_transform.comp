@@ -1,0 +1,202 @@
+#version 460 core
+layout(local_size_x = 1, local_size_y = 32, local_size_z = 1) in;
+
+struct PerInstanceAnimData {
+  uint firstAnimClipNum;
+  uint secondAnimClipNum;
+  uint headLeftRightAnimClipNum;
+  uint headUpDownAnimClipNum;
+  float firstClipReplayTimestamp;
+  float secondClipReplayTimestamp;
+  float headLeftRightReplayTimestamp;
+  float headUpDownReplayTimestamp;
+  float blendFactor;
+};
+
+struct TRSMat {
+  vec4 translation;
+  vec4 rotation; // a quaternion!
+  vec4 scale;
+};
+
+layout (push_constant) uniform Constants {
+  uint modelOffset;
+  uint instanceOffset;
+};
+
+/* lookups */
+layout (std430, set = 1, binding = 0) readonly restrict buffer AnimLookup {
+  vec4 lookupData[];
+};
+
+/* animation data per instance */
+layout (std430, set = 0, binding = 0) readonly restrict buffer InstanceAnimData {
+  PerInstanceAnimData instAnimData[];
+};
+
+/* resulting TRS matrix per node and instance */
+layout (std430, set = 0, binding = 1) writeonly restrict buffer TRSData {
+  TRSMat trsMat[];
+};
+
+/* quaternions! */
+vec4 slerp(vec4 a, vec4 b, float t) {
+  float dotAB = dot(a, b);
+
+  if (abs(dotAB) >= 1.0) {
+    return a;
+  }
+
+  if (dotAB < 0.0) {
+    b = -b;
+    dotAB = -dotAB;
+  }
+
+  float theta = acos(dotAB);
+  float sinTheta = sin(theta);
+
+  if (abs(sinTheta) < 0.001) {
+    return a * 0.5 + b * 0.5;
+  }
+
+  float af = sin((1.0 - t) * theta) / sinTheta;
+  float bf = sin(t * theta) / sinTheta;
+
+  return a * af + b * bf;
+}
+
+/* quaternion multiplication */
+vec4 qMult(vec4 a, vec4 b) {
+  return vec4(
+    a.x * b.w + a.w * b.x + a.z * b.y - a.y * b.z,
+    a.y * b.w + a.w * b.y + a.x * b.z - a.z * b.x,
+    a.z * b.w + a.w * b.z + a.y * b.x - a.x * b.y,
+    a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z
+  );
+}
+
+/* calculate the inverse of a quaternion */
+vec4 qInverse(vec4 a) {
+  /* inverse(quat) = conjugate(quat) / abs(quat) -> abs = dot by itself */
+  return vec4(-a.x, -a.y, -a.z, a.w) / dot(a, a);
+}
+
+void main() {
+  /* we store the inverse time scaling factor in x component at index 0 */
+  int lookupWidth = 1023 + 1;
+
+  uint node = gl_GlobalInvocationID.x;
+  uint instance = gl_GlobalInvocationID.y;
+
+  /* X work group size is number of bones */
+  uint numberOfBones = gl_NumWorkGroups.x;
+
+  /* offset of a node in the lookup data  */
+  uint boneOffset = lookupWidth * 3;
+
+  /* offset between two clips */
+  uint clipOffset = numberOfBones * boneOffset;
+
+  uint firstClip = instAnimData[instance + instanceOffset].firstAnimClipNum;
+  uint secondClip = instAnimData[instance + instanceOffset].secondAnimClipNum;
+  uint headLeftRightClip = instAnimData[instance + instanceOffset].headLeftRightAnimClipNum;
+  uint headUpDownClip = instAnimData[instance + instanceOffset].headUpDownAnimClipNum;
+  float blendFactor = instAnimData[instance + instanceOffset].blendFactor;
+
+  /* first element of every lookup row contains in the .x component the inverse scale factor */
+  float firstTransInvScaleFactor = lookupData[firstClip * clipOffset + node * boneOffset].x;
+  float firstRotInvScaleFactor = lookupData[firstClip * clipOffset + node * boneOffset + lookupWidth].x;
+  float firstScaleInvScaleFactor = lookupData[firstClip * clipOffset + node * boneOffset + lookupWidth * 2].x;
+
+  float secondTransInvScaleFactor = lookupData[secondClip * clipOffset + node * boneOffset].x;
+  float secondRotInvScaleFactor = lookupData[secondClip * clipOffset + node * boneOffset + lookupWidth].x;
+  float secondScaleInvScaleFactor = lookupData[secondClip * clipOffset + node * boneOffset + lookupWidth * 2].x;
+
+  float headLeftRightTransInvScaleFactor = lookupData[headLeftRightClip * clipOffset + node * boneOffset].x;
+  float headLeftRightRotInvScaleFactor = lookupData[headLeftRightClip * clipOffset + node * boneOffset + lookupWidth].x;
+  float headLeftRightScaleInvScaleFactor = lookupData[headLeftRightClip * clipOffset + node * boneOffset + lookupWidth * 2].x;
+
+  float headUpDownTransInvScaleFactor = lookupData[headUpDownClip * clipOffset + node * boneOffset].x;
+  float headUpDownRotInvScaleFactor = lookupData[headUpDownClip * clipOffset + node * boneOffset + lookupWidth].x;
+  float headUpDownScaleInvScaleFactor = lookupData[headUpDownClip * clipOffset + node * boneOffset + lookupWidth * 2].x;
+
+  /* get the right index */
+  int firstTransLookupIndex = clamp(int(instAnimData[instance + instanceOffset].firstClipReplayTimestamp *
+    firstTransInvScaleFactor) + 1, 0, lookupWidth - 1);
+  int firstRotLookupIndex = clamp(int(instAnimData[instance + instanceOffset].firstClipReplayTimestamp *
+    firstRotInvScaleFactor) + 1, 0, lookupWidth - 1);
+  int firstScaleLookupIndex = clamp(int(instAnimData[instance + instanceOffset].firstClipReplayTimestamp *
+    firstScaleInvScaleFactor) + 1, 0, lookupWidth - 1);
+
+  int secondTransLookupIndex = clamp(int(instAnimData[instance + instanceOffset].secondClipReplayTimestamp *
+   secondTransInvScaleFactor) + 1, 0, lookupWidth - 1);
+  int secondRotLookupIndex = clamp(int(instAnimData[instance + instanceOffset].secondClipReplayTimestamp *
+    secondRotInvScaleFactor) + 1, 0, lookupWidth - 1);
+  int secondScaleLookupIndex = clamp(int(instAnimData[instance + instanceOffset].secondClipReplayTimestamp *
+    secondScaleInvScaleFactor) + 1, 0, lookupWidth - 1);
+
+  int headLeftRightTransLookupIndex = clamp(int(instAnimData[instance + instanceOffset].headLeftRightReplayTimestamp *
+    headLeftRightTransInvScaleFactor) + 1, 0, lookupWidth - 1);
+  int headLeftRightRotLookupIndex = clamp(int(instAnimData[instance + instanceOffset].headLeftRightReplayTimestamp *
+    headLeftRightRotInvScaleFactor) + 1, 0, lookupWidth - 1);
+  int headLeftRightScaleLookupIndex = clamp(int(instAnimData[instance + instanceOffset].headLeftRightReplayTimestamp *
+    headLeftRightScaleInvScaleFactor) + 1, 0, lookupWidth - 1);
+
+  int headUpDownTransLookupIndex = clamp(int(instAnimData[instance + instanceOffset].headUpDownReplayTimestamp *
+    headUpDownTransInvScaleFactor) + 1, 0, lookupWidth - 1);
+  int headUpDownRotLookupIndex = clamp(int(instAnimData[instance + instanceOffset].headUpDownReplayTimestamp *
+    headUpDownRotInvScaleFactor) + 1, 0, lookupWidth - 1);
+  int headUpDownScaleLookupIndex = clamp(int(instAnimData[instance + instanceOffset].headUpDownReplayTimestamp *
+    headUpDownScaleInvScaleFactor) + 1, 0, lookupWidth - 1);
+
+  /* data lookup */
+  vec4 firstTranslation = lookupData[firstClip * clipOffset + node * boneOffset + firstTransLookupIndex];
+  vec4 firstRotation = lookupData[firstClip * clipOffset + node * boneOffset + lookupWidth + firstRotLookupIndex]; // this is a quaternion
+  vec4 firstScale = lookupData[firstClip * clipOffset + node * boneOffset + lookupWidth * 2 + firstScaleLookupIndex];
+
+  vec4 secondTranslation = lookupData[secondClip * clipOffset + node * boneOffset + secondTransLookupIndex];
+  vec4 secondRotation = lookupData[secondClip * clipOffset + node * boneOffset + lookupWidth + secondRotLookupIndex]; // this is also a quaternion
+  vec4 secondScale = lookupData[secondClip * clipOffset + node * boneOffset + lookupWidth * 2 + secondScaleLookupIndex];
+
+  /* get first animation frame as base */
+  vec4 headLeftRightBaseTranslation = lookupData[headLeftRightClip * clipOffset + node * boneOffset + 1];
+  vec4 headLeftRightBaseRotation = lookupData[headLeftRightClip * clipOffset + node * boneOffset + lookupWidth + 1]; // this is also a quaternion
+  vec4 headLeftRightBaseScale = lookupData[headLeftRightClip * clipOffset + node * boneOffset + lookupWidth * 2 + 1];
+
+  vec4 headUpDownBaseTranslation = lookupData[headUpDownClip * clipOffset + node * boneOffset + 1];
+  vec4 headUpDownBaseRotation = lookupData[headUpDownClip * clipOffset + node * boneOffset + lookupWidth + 1]; // this is also a quaternion
+  vec4 headUpDownBaseScale = lookupData[headUpDownClip * clipOffset + node * boneOffset + lookupWidth * 2 + 1];
+
+  /* and extract the difference to the first frame */
+  vec4 headLeftRightTranslation = lookupData[headLeftRightClip * clipOffset + node * boneOffset + headLeftRightTransLookupIndex];
+  vec4 headLeftRightRotation = lookupData[headLeftRightClip * clipOffset + node * boneOffset + lookupWidth + headLeftRightRotLookupIndex]; // this is also a quaternion
+  vec4 headLeftRightScale = lookupData[headLeftRightClip * clipOffset + node * boneOffset + lookupWidth * 2 + headLeftRightScaleLookupIndex];
+
+  vec4 headUpDownTranslation = lookupData[headUpDownClip * clipOffset + node * boneOffset + headUpDownTransLookupIndex];
+  vec4 headUpDownRotation = lookupData[headUpDownClip * clipOffset + node * boneOffset + lookupWidth + headUpDownRotLookupIndex]; // this is also a quaternion
+  vec4 headUpDownScale = lookupData[headUpDownClip * clipOffset + node * boneOffset + lookupWidth * 2 + headUpDownScaleLookupIndex];
+
+  vec4 headLeftRightTranslationDiff = headLeftRightTranslation - headLeftRightBaseTranslation;
+  vec4 headLeftRightRotationDiff = qMult(qInverse(headLeftRightBaseRotation), headLeftRightRotation);
+  vec4 headLeftRightScaleDiff = headLeftRightScale - headLeftRightBaseScale;
+
+  vec4 headUpDownTranslationDiff = headUpDownTranslation - headUpDownBaseTranslation;
+  vec4 headUpDownRotationDiff = qMult(qInverse(headUpDownBaseRotation), headUpDownRotation);
+  vec4 headUpDownScaleDiff = headUpDownScale - headUpDownBaseScale;
+
+  /* combine both diffs into one */
+  vec4 headTranslationDiff = headLeftRightTranslationDiff + headUpDownTranslationDiff;
+  vec4 headScaleDiff = headLeftRightScaleDiff + headUpDownScaleDiff;
+  vec4 headRotationDiff = qMult(headUpDownRotationDiff, headLeftRightRotationDiff);
+
+  /* blend between animations */
+  vec4 finalTranslation = mix(firstTranslation + headTranslationDiff, secondTranslation + headTranslationDiff, blendFactor);
+  vec4 finalScale = mix(firstScale + headScaleDiff, secondScale + headScaleDiff, blendFactor);
+  vec4 finalRotation = slerp(qMult(headRotationDiff, firstRotation), qMult(headRotationDiff, secondRotation), blendFactor);
+
+  /* create the TRS matrix from interpolated values */
+  uint index = node + numberOfBones * instance + modelOffset;
+  trsMat[index].translation = finalTranslation;
+  trsMat[index].rotation = finalRotation;
+  trsMat[index].scale = finalScale;
+}
