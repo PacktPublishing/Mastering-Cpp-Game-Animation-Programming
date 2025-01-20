@@ -44,3 +44,8 @@ In this chapter you will learn how to add sounds, music, and advanced visuals
   * U: interact (Man only when idle)
   * F: wave (Man only when idle)
   * R: roll (Man only when running)
+* Instance position window control
+  * Left mouse button: move window
+  * Middle mouse button: move instance octree/level minimap
+  * Right mouse button: rotate instance octree/level minimap
+  * Mouse wheel: zoom instance octree/level minimap in/out
