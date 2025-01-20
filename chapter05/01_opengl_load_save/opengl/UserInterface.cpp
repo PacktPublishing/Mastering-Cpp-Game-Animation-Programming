@@ -127,13 +127,13 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::OpenPopup("Do you want to quit?");
   }
 
-  if (ImGui::BeginPopupModal("Do you want to quit?", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
+  if (ImGui::BeginPopupModal("Do you want to quit?", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
     ImGui::Text("  Exit Application?  ");
 
     /* cheating a bit to get buttons more to the center */
     ImGui::Indent();
     if (ImGui::Button("OK")) {
-      renderData.rdAppExitCallback();
+      renderData.rdAppExitCallbackFunction();
       ImGui::CloseCurrentPopup();
     }
 
@@ -172,7 +172,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::OpenPopup("Load Error!");
   }
 
-  if (ImGui::BeginPopupModal("Load Error!", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
+  if (ImGui::BeginPopupModal("Load Error!", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
     ImGui::Text("Error loading config!");
     ImGui::Text("Check console output!");
 
@@ -186,7 +186,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::EndPopup();
   }
 
-  /* save config*/
+  /* save config */
   if (saveConfigRequest) {
     IGFD::FileDialogConfig config;
     config.path = ".";
@@ -213,7 +213,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::OpenPopup("Save Error!");
   }
 
-  if (ImGui::BeginPopupModal("Save Error!", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
+  if (ImGui::BeginPopupModal("Save Error!", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
     ImGui::Text("Error saving config!");
     ImGui::Text("Check console output!");
 
@@ -227,7 +227,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::EndPopup();
   }
 
-  /* load model*/
+  /* load model */
   if (loadModelRequest) {
     IGFD::FileDialogConfig config;
     config.path = ".";
@@ -253,7 +253,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       std::replace(filePathName.begin(), filePathName.end(), '\\', '/');
 
       if (!modInstData.miModelAddCallbackFunction(filePathName, true, true)) {
-        Logger::log(1, "%s error: unable to load model file '%s', unnown error \n", __FUNCTION__, filePathName.c_str());
+        Logger::log(1, "%s error: unable to load model file '%s', unknown error \n", __FUNCTION__, filePathName.c_str());
       }
     }
     ImGuiFileDialog::Instance()->Close();
@@ -513,7 +513,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       ImGui::OpenPopup("Delete Model?");
     }
 
-    if (ImGui::BeginPopupModal("Delete Model?", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
+    if (ImGui::BeginPopupModal("Delete Model?", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
       ImGui::Text("Delete Model '%s'?", modInstData.miModelList.at(modInstData.miSelectedModel)->getModelFileName().c_str());
 
       /* cheating a bit to get buttons more to the center */

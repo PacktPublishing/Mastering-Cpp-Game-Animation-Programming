@@ -83,7 +83,7 @@ int TriangleOctree::getOctantId(BoundingBox3D nodeBox, BoundingBox3D valueBox) {
         /* not found */
         return -1;
       }
-    /* East*/
+    /* East */
     } else if (valueBox.getFrontTopLeft().x >= center.x) {
       if (valueBox.getBottom() < center.y) {
         /* FNE */
@@ -113,7 +113,7 @@ int TriangleOctree::getOctantId(BoundingBox3D nodeBox, BoundingBox3D valueBox) {
         /* not found */
         return -1;
       }
-    /* East*/
+    /* East */
     } else if (valueBox.getFrontTopLeft().x >= center.x) {
       if (valueBox.getBottom() < center.y) {
         /* BNE */

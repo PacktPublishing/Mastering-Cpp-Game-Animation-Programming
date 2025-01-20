@@ -26,8 +26,8 @@ std::string GraphEditor::getCurrentEditedTreeName() {
 void GraphEditor::createEmptyGraph() {
   mBehavior = std::make_shared<SingleInstanceBehavior>();
 
-  mFireNodeOutputCallbackFunction = [this](int nodeId) { mBehavior->updateNodeStatus(nodeId); };
-  mNodeFactory = std::make_shared<GraphNodeFactory>(mFireNodeOutputCallbackFunction);
+  mFireNodeOutputCallbackFunctionFunction = [this](int nodeId) { mBehavior->updateNodeStatus(nodeId); };
+  mNodeFactory = std::make_shared<GraphNodeFactory>(mFireNodeOutputCallbackFunctionFunction);
 
   std::shared_ptr<BehaviorData> behaviorData = mBehavior->getBehaviorData();
 
@@ -38,12 +38,12 @@ void GraphEditor::createEmptyGraph() {
 void GraphEditor::loadData(std::shared_ptr<BehaviorData> data) {
   mBehavior = std::make_shared<SingleInstanceBehavior>();
 
-  mFireNodeOutputCallbackFunction = [this](int nodeId) { mBehavior->updateNodeStatus(nodeId); };
-  mNodeFactory = std::make_shared<GraphNodeFactory>(mFireNodeOutputCallbackFunction);
+  mFireNodeOutputCallbackFunctionFunction = [this](int nodeId) { mBehavior->updateNodeStatus(nodeId); };
+  mNodeFactory = std::make_shared<GraphNodeFactory>(mFireNodeOutputCallbackFunctionFunction);
 
   /* update node fire callback, may be invalidated by a std::move() */
   for (auto& node : data->bdGraphNodes) {
-    node->setNodeOutputTriggerCallback(mFireNodeOutputCallbackFunction);
+    node->setNodeOutputTriggerCallback(mFireNodeOutputCallbackFunctionFunction);
   }
   mBehavior->setBehaviorData(data);
 
@@ -183,7 +183,7 @@ void GraphEditor::createNodeEditorWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SeparatorText("Add Node");
     ImGui::Spacing();
     /* skip root node, added at start */
-    for (graphNodeType nodeType = graphNodeType::root + 1; nodeType < graphNodeType::NUM; nodeType++) {
+    for (graphNodeType nodeType = graphNodeType::root + 1; nodeType < graphNodeType::NUM; ++nodeType) {
       if (ImGui::Selectable(mNodeFactory->getNodeTypeName(nodeType).c_str())) {
         int nodeId = findNextFreeNodeId();
         std::shared_ptr<GraphNodeBase> newNode = behavior->bdGraphNodes.emplace_back(mNodeFactory->makeNode(nodeType, nodeId));

@@ -81,7 +81,7 @@ int Octree::getOctantId(BoundingBox3D nodeBox, BoundingBox3D valueBox) {
         /* not found */
         return -1;
       }
-    /* East*/
+    /* East */
     } else if (valueBox.getFrontTopLeft().x >= center.x) {
       if (valueBox.getBottom() < center.y) {
         /* FNE */
@@ -111,7 +111,7 @@ int Octree::getOctantId(BoundingBox3D nodeBox, BoundingBox3D valueBox) {
         /* not found */
         return -1;
       }
-    /* East*/
+    /* East */
     } else if (valueBox.getFrontTopLeft().x >= center.x) {
       if (valueBox.getBottom() < center.y) {
         /* BNE */
@@ -135,7 +135,7 @@ void Octree::add(int instanceId) {
 }
 
 void Octree::add(std::shared_ptr<OctreeNode> node, int depth, BoundingBox3D box, int instanceId) {
-  if (!box.intersects(instanceGetBoundingBoxCallback(instanceId))) {
+  if (!box.intersects(mInstanceGetBoundingBoxCallbackFunction(instanceId))) {
     Logger::log(1, "%s error: current octree node bounding box does not contain the bounding box of instance %i \n", __FUNCTION__, instanceId);
     return;
   }
@@ -149,7 +149,7 @@ void Octree::add(std::shared_ptr<OctreeNode> node, int depth, BoundingBox3D box,
       add(node, depth, box, instanceId);
     }
   } else {
-    int i = getOctantId(box, instanceGetBoundingBoxCallback(instanceId));
+    int i = getOctantId(box, mInstanceGetBoundingBoxCallbackFunction(instanceId));
     if (i != -1) {
       add(node->childs.at(i), depth + 1, getChildOctant(box, i), instanceId);
     } else {
@@ -171,12 +171,12 @@ void Octree::split(std::shared_ptr<OctreeNode> node, BoundingBox3D box) {
   std::vector<int> newInstanceIds{};
 
   for (const auto& instanceId : node->instancIds) {
-    int i = getOctantId(box, instanceGetBoundingBoxCallback(instanceId));
+    int i = getOctantId(box, mInstanceGetBoundingBoxCallbackFunction(instanceId));
     if (i != -1) {
-      /* found child, store in child ids*/
+      /* found child, store in child ids */
       node->childs[i]->instancIds.emplace_back(instanceId);
     } else {
-      /* not found, store in parent*/
+      /* not found, store in parent */
       newInstanceIds.emplace_back(instanceId);
     }
   }
@@ -188,7 +188,7 @@ void Octree::remove(int instanceId) {
 }
 
 bool Octree::remove(std::shared_ptr<OctreeNode> node, BoundingBox3D box, int instanceId) {
-  if (!box.intersects(instanceGetBoundingBoxCallback(instanceId))) {
+  if (!box.intersects(mInstanceGetBoundingBoxCallbackFunction(instanceId))) {
     Logger::log(1, "%s error: current octree node bounding box does not contain the bounding box of instance %i \n", __FUNCTION__, instanceId);
     return false;
   }
@@ -197,7 +197,7 @@ bool Octree::remove(std::shared_ptr<OctreeNode> node, BoundingBox3D box, int ins
     removeInstance(node, instanceId);
     return true;
   } else {
-    int i = getOctantId(box, instanceGetBoundingBoxCallback(instanceId));
+    int i = getOctantId(box, mInstanceGetBoundingBoxCallbackFunction(instanceId));
     if (i != -1) {
       if (remove(node->childs[i], getChildOctant(box, i), instanceId)) {
         return tryMerge(node);
@@ -260,7 +260,7 @@ std::vector<int> Octree::query(std::shared_ptr<OctreeNode> node, BoundingBox3D b
   std::vector<int> values;
 
   for (const auto& instanceId : node->instancIds) {
-    if (queryBox.intersects(instanceGetBoundingBoxCallback(instanceId))) {
+    if (queryBox.intersects(mInstanceGetBoundingBoxCallbackFunction(instanceId))) {
       values.emplace_back(instanceId);
     }
   }
@@ -303,7 +303,7 @@ std::set<std::pair<int, int>> Octree::findAllIntersections(std::shared_ptr<Octre
 
   for (int i = 0; i < node->instancIds.size(); ++i) {
     for (int j = 0; j < i; ++j) {
-      if (instanceGetBoundingBoxCallback(node->instancIds.at(i)).intersects(instanceGetBoundingBoxCallback(node->instancIds.at(j)))) {
+      if (mInstanceGetBoundingBoxCallbackFunction(node->instancIds.at(i)).intersects(mInstanceGetBoundingBoxCallbackFunction(node->instancIds.at(j)))) {
         values.insert({node->instancIds[i], node->instancIds[j]});
       }
     }
@@ -330,7 +330,7 @@ std::set<std::pair<int, int>> Octree::findIntersectionsInDescendants(std::shared
   std::set<std::pair<int, int>> values;
 
   for (const auto& other : node->instancIds) {
-    if (instanceGetBoundingBoxCallback(instanceId).intersects(instanceGetBoundingBoxCallback(other))) {
+    if (mInstanceGetBoundingBoxCallbackFunction(instanceId).intersects(mInstanceGetBoundingBoxCallbackFunction(other))) {
       values.insert({instanceId, other});
     }
   }

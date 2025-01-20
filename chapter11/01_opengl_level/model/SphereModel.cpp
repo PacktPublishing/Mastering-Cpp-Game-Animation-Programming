@@ -1,6 +1,7 @@
 #include "SphereModel.h"
 
 #include <vector>
+#include <cmath>
 
 #include "Logger.h"
 

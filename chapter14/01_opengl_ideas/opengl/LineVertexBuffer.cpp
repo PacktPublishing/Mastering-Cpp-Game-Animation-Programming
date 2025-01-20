@@ -30,11 +30,13 @@ void LineVertexBuffer::uploadData(OGLLineMesh vertexData) {
     return;
   }
 
+  glBindVertexArray(mVAO);
   glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO);
 
   glBufferData(GL_ARRAY_BUFFER, vertexData.vertices.size() * sizeof(OGLLineVertex), &vertexData.vertices.at(0), GL_DYNAMIC_DRAW);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
 }
 
 void LineVertexBuffer::bind() {

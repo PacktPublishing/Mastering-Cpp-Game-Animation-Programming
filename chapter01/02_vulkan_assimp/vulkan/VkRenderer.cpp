@@ -117,9 +117,6 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  mWorldPosMatrices.resize(1);
-  mWorldPosMatrices.at(0) = glm::mat4(1.0f);
-
   /* register callbacks */
   mModelInstData.miModelCheckCallbackFunction = [this](std::string fileName) { return hasModel(fileName); };
   mModelInstData.miModelAddCallbackFunction = [this](std::string fileName) { return addModel(fileName); };
@@ -504,6 +501,7 @@ bool VkRenderer::recreateSwapchain() {
     glfwGetFramebufferSize(mRenderData.rdWindow, &mRenderData.rdWidth, &mRenderData.rdHeight);
     glfwWaitEvents();
   }
+
   vkDeviceWaitIdle(mRenderData.rdVkbDevice.device);
 
   /* cleanup */
@@ -691,7 +689,7 @@ bool VkRenderer::addModel(std::string modelFileName) {
 
   mModelInstData.miModelList.emplace_back(model);
 
-  /* also add a new instance here to see the model*/
+  /* also add a new instance here to see the model */
   addInstance(model);
 
   return true;
@@ -887,7 +885,7 @@ void VkRenderer::handleMousePositionEvents(double xPos, double yPos) {
     mRenderData.rdViewElevation = std::clamp(mRenderData.rdViewElevation, -89.0f, 89.0f);
   }
 
-  /* save old values*/
+  /* save old values */
   mMouseXPos = static_cast<int>(xPos);
   mMouseYPos = static_cast<int>(yPos);
 }
@@ -941,17 +939,19 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdFrameTime = mFrameTimer.stop();
   mFrameTimer.start();
 
+  /* reset timers and other values */
+  mRenderData.rdMatricesSize = 0;
+  mRenderData.rdUploadToUBOTime = 0.0f;
+  mRenderData.rdUploadToVBOTime = 0.0f;
+  mRenderData.rdMatrixGenerateTime = 0.0f;
+  mRenderData.rdUIGenerateTime = 0.0f;
+  mRenderData.rdUIDrawTime = 0.0f;
+
   handleMovementKeys();
 
   VkResult result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence, VK_TRUE, UINT64_MAX);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: waiting for fence failed (error: %i)\n", __FUNCTION__, result);
-    return false;
-  }
-
-  result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error:  fence reset failed (error: %i)\n", __FUNCTION__, result);
     return false;
   }
 
@@ -972,6 +972,12 @@ bool VkRenderer::draw(float deltaTime) {
     }
   }
 
+  result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence);
+  if (result != VK_SUCCESS) {
+    Logger::log(1, "%s error:  fence reset failed (error: %i)\n", __FUNCTION__, result);
+    return false;
+  }
+
   /* here it is safe to delete the Vulkan objects in the pending deletion models */
   for (auto& model : mModelInstData.miPendingDeleteAssimpModels) {
     model->cleanup(mRenderData);
@@ -987,11 +993,11 @@ bool VkRenderer::draw(float deltaTime) {
     0.1f, 500.0f);
 
   mMatrices.viewMatrix = mCamera.getViewMatrix(mRenderData);
-  mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
+  mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
 
   mUploadToUBOTimer.start();
   UniformBuffer::uploadData(mRenderData, mPerspectiveViewMatrixUBO, mMatrices);
-  mRenderData.rdUploadToUBOTime = mUploadToUBOTimer.stop();
+  mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   /* fill the world position matrices */
   mRenderData.rdMatricesSize = 0;
@@ -1049,7 +1055,6 @@ bool VkRenderer::draw(float deltaTime) {
   }
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
-  /* Vulkan render preparations */
   if (!CommandBuffer::reset(mRenderData.rdCommandBuffer)) {
     Logger::log(1, "%s error: failed to reset command buffer\n", __FUNCTION__);
     return false;
@@ -1146,11 +1151,11 @@ bool VkRenderer::draw(float deltaTime) {
   mUIGenerateTimer.start();
   mUserInterface.hideMouse(mMouseLock);
   mUserInterface.createFrame(mRenderData, mModelInstData);
-  mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
+  mRenderData.rdUIGenerateTime += mUIGenerateTimer.stop();
 
   mUIDrawTimer.start();
   mUserInterface.render(mRenderData);
-  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
 
   vkCmdEndRenderPass(mRenderData.rdCommandBuffer);
 

@@ -5,7 +5,6 @@
 #include <memory>
 #include <map>
 #include <unordered_map>
-#include <glad/glad.h>
 
 #include <glm/glm.hpp>
 
@@ -17,6 +16,7 @@
 #include "ShaderStorageBuffer.h"
 #include "ModelSettings.h"
 #include "InstanceSettings.h"
+#include "AABB.h"
 
 #include "OGLRenderData.h"
 
@@ -53,7 +53,7 @@ class AssimpModel {
     void setModelSettings(ModelSettings settings);
     ModelSettings getModelSettings();
 
-    void setAABBLokkup(std::vector<std::vector<AABB>> lookupData);
+    void setAABBLookup(std::vector<std::vector<AABB>> lookupData);
     AABB getAABB(InstanceSettings instSettings);
     AABB getAnimatedAABB(InstanceSettings instSettings);
     AABB getNonAnimatedAABB(InstanceSettings instSettings);

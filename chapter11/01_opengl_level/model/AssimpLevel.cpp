@@ -8,7 +8,7 @@
 #include "Logger.h"
 
 bool AssimpLevel::loadLevel(std::string levelFilename, unsigned int extraImportFlags) {
-  Logger::log(1, "%s: loading model from file '%s'\n", __FUNCTION__, levelFilename.c_str());
+  Logger::log(1, "%s: loading level from file '%s'\n", __FUNCTION__, levelFilename.c_str());
 
   Assimp::Importer importer;
   const aiScene *scene = importer.ReadFile(levelFilename, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_ValidateDataStructure | extraImportFlags);
@@ -110,7 +110,8 @@ bool AssimpLevel::loadLevel(std::string levelFilename, unsigned int extraImportF
   Logger::log(1, "%s: - level has a total of %i texture%s\n", __FUNCTION__, mTextures.size(), mTextures.size() == 1 ? "" : "s");
 
   Logger::log(1, "%s: successfully loaded level '%s' (%s)\n", __FUNCTION__, levelFilename.c_str(),
-              mLevelSettings.lsLevelFilename.c_str());
+    mLevelSettings.lsLevelFilename.c_str());
+
   return true;
 }
 
@@ -199,6 +200,12 @@ unsigned int AssimpLevel::getTriangleCount() {
   return mTriangleCount;
 }
 
+void AssimpLevel::cleanup(){
+  for (auto buffer : mVertexBuffers) {
+    buffer.cleanup();
+  }
+}
+
 glm::mat4 AssimpLevel::getWorldTransformMatrix() {
   return mLevelRootMatrix;
 }
@@ -211,7 +218,6 @@ void AssimpLevel::setLevelSettings(LevelSettings settings) {
   mLevelSettings = settings;
   updateLevelRootMatrix();
 }
-
 
 std::string AssimpLevel::getLevelFileName() {
   return mLevelSettings.lsLevelFilename;

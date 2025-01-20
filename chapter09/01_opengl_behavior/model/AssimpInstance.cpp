@@ -260,7 +260,7 @@ void AssimpInstance::updateInstancePosition(float deltaTime) {
     float xSpeed = mInstanceSettings.isSpeed.x * sinRot + mInstanceSettings.isSpeed.z * cosRot;
     float zSpeed = mInstanceSettings.isSpeed.x * cosRot - mInstanceSettings.isSpeed.z * sinRot;
 
-    /* scale speed by scaling factor of the instanc e*/
+    /* scale speed by scaling factor of the instance */
     float speedFactor = mInstanceSettings.isScale;
 
     mInstanceSettings.isWorldPosition.z += zSpeed * speedFactor * deltaTime;

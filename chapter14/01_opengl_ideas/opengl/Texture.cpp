@@ -14,7 +14,7 @@ bool Texture::loadTexture(std::string textureFilename, bool flipImage) {
   mTextureName = textureFilename;
 
   stbi_set_flip_vertically_on_load(flipImage);
-  /* always convert to RGBA */
+  /* always load as RGBA */
   unsigned char *textureData = stbi_load(textureFilename.c_str(), &mTexWidth, &mTexHeight, &mNumberOfChannels, STBI_rgb_alpha);
 
   if (!textureData) {
@@ -61,14 +61,12 @@ bool Texture::loadTexture(std::string textureName, aiTexel* textureData, int wid
   /* allow to flip the image, similar to file loaded from disk */
   stbi_set_flip_vertically_on_load(flipImage);
 
-  /* we must use stbi to detect the in-memory format */
+  /* we use stbi to detect the in-memory format, but always request RGBA */
   unsigned char *data = nullptr;
   if (height == 0)   {
-    /* always convert to RGBA */
     data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(textureData), width, &mTexWidth, &mTexHeight, &mNumberOfChannels, STBI_rgb_alpha);
   }
   else   {
-    /* always convert to RGBA */
     data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(textureData), width * height, &mTexWidth, &mTexHeight, &mNumberOfChannels, STBI_rgb_alpha);
   }
 
@@ -140,7 +138,7 @@ bool Texture::loadCubemapTexture(std::string textureFilename, bool flipImage) {
   std::vector<unsigned char> subImage{};
   subImage.resize(cubeFaceHeight * cubeFaceWidth * 4);
 
-  for (int face = 0; face < 6; face++) {
+  for (int face = 0; face < 6; ++face) {
     for (int i = 0; i < cubeFaceHeight; ++i) {
       std::memcpy(subImage.data() + i * cubeFaceWidth * 4, textureData + cubeFacePositions[face][0] * 4  + (cubeFacePositions[face][1] + i) * mTexWidth * 4, cubeFaceWidth * 4);
     }

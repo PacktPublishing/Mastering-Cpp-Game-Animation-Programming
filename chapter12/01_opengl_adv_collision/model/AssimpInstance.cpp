@@ -1,7 +1,5 @@
 #include "AssimpInstance.h"
 
-#include <algorithm>
-
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
@@ -20,8 +18,12 @@ AssimpInstance::AssimpInstance(std::shared_ptr<AssimpModel> model, glm::vec3 pos
 
   updateModelRootMatrix();
 
-  mBoundingBox3D = BoundingBox3D{glm::vec3(mInstanceSettings.isWorldPosition.x - 4.0f, mInstanceSettings.isWorldPosition.z - 4.0f, mInstanceSettings.isWorldPosition.z - 4.0f),
-    {8.0f, 8.0f, 8.0f}};
+  mBoundingBox3D = BoundingBox3D{
+    glm::vec3(mInstanceSettings.isWorldPosition.x - 4.0f,
+              mInstanceSettings.isWorldPosition.z - 4.0f,
+              mInstanceSettings.isWorldPosition.z - 4.0f),
+    { 8.0f, 8.0f, 8.0f }
+  };
 }
 
 void AssimpInstance::updateModelRootMatrix() {
@@ -261,7 +263,7 @@ void AssimpInstance::updateInstancePosition(float deltaTime) {
     float xSpeed = mInstanceSettings.isSpeed.x * sinRot + mInstanceSettings.isSpeed.z * cosRot;
     float zSpeed = mInstanceSettings.isSpeed.x * cosRot - mInstanceSettings.isSpeed.z * sinRot;
 
-    /* scale speed by scaling factor of the instanc e*/
+    /* scale speed by scaling factor of the instance */
     float speedFactor = mInstanceSettings.isScale;
 
     mInstanceSettings.isWorldPosition.z += zSpeed * speedFactor * deltaTime;
@@ -498,7 +500,7 @@ BoundingBox3D AssimpInstance::getBoundingBox() {
   return mBoundingBox3D;
 }
 
-void AssimpInstance::setBoundingBox3D(BoundingBox3D box) {
+void AssimpInstance::setBoundingBox(BoundingBox3D box) {
   mBoundingBox3D = box;
 }
 
@@ -526,7 +528,6 @@ void AssimpInstance::setHeadAnim(glm::vec2 leftRightUpDownValues) {
   mInstanceSettings.isHeadLeftRightMove = leftRightUpDownValues.x;
   mInstanceSettings.isHeadUpDownMove = leftRightUpDownValues.y;
 }
-
 
 void AssimpInstance::setInstanceOnGround(bool value) {
   mInstanceSettings.isInstanceOnGround = value;

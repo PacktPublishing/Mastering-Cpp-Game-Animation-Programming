@@ -13,7 +13,7 @@
 #include "Enums.h"
 #include "BoundingBox3D.h"
 
-/* forward declarations*/
+/* forward declarations */
 class AssimpModel;
 class AssimpInstance;
 class AssimpSettingsContainer;
@@ -49,14 +49,14 @@ using instanceCloneManyCallback = std::function<void(std::shared_ptr<AssimpInsta
 
 using instanceCenterCallback = std::function<void(std::shared_ptr<AssimpInstance>)>;
 
-using instanceGetPositions = std::function<std::vector<glm::vec3>(void)>;
-using instanceGetBoundingBox = std::function<BoundingBox3D(int)>;
+using instanceGetPositionsCallback = std::function<std::vector<glm::vec3>(void)>;
+using instanceGetBoundingBoxCallback = std::function<BoundingBox3D(int)>;
 
 using undoRedoCallback = std::function<void(void)>;
 using newConfigCallback = std::function<void(void)>;
 using loadSaveCallback = std::function<bool(std::string)>;
-using setConfigDirtyCallbackFunction = std::function<void(bool)>;
-using getConfigDirtyCallbackFunction = std::function<bool(void)>;
+using setConfigDirtyCallback = std::function<void(bool)>;
+using getConfigDirtyCallback = std::function<bool(void)>;
 
 using cameraCloneCallback = std::function<void()>;
 using cameraDeleteCallback = std::function<void()>;

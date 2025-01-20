@@ -15,7 +15,7 @@ class GraphNodeFactory {
     std::string getNodeTypeName(graphNodeType nodeType);
 
   private:
-    fireNodeOutputCallback mFireNodeOutputCallback;
+    fireNodeOutputCallback mFireNodeOutputCallbackFunction;
     std::unordered_map<graphNodeType, std::string> mGraphNodeTypeMap{};
 };
 

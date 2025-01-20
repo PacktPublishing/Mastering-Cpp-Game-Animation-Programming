@@ -146,9 +146,9 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
 
   mModelInstCamData.micCameraCloneCallbackFunction = [this]() { cloneCamera(); };
   mModelInstCamData.micCameraDeleteCallbackFunction = [this]() { deleteCamera(); };
-  mModelInstCamData.micCameraNameCheckCallback = [this](std::string cameraName) { return checkCameraNameUsed(cameraName); };
+  mModelInstCamData.micCameraNameCheckCallbackFunction = [this](std::string cameraName) { return checkCameraNameUsed(cameraName); };
 
-  mRenderData.rdAppExitCallback = [this]() { doExitApplication(); };
+  mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
 
   /* init camera strings */
   mModelInstCamData.micCameraProjectionMap[cameraProjection::perspective] = "Perspective";
@@ -364,8 +364,8 @@ void OGLRenderer::undoLastOperation() {
    * and the settings files still contain the old index number */
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -385,8 +385,8 @@ void OGLRenderer::redoLastOperation() {
   mModelInstCamData.micSettingsContainer->redo();
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -1204,7 +1204,7 @@ void OGLRenderer::handleMousePositionEvents(double xPos, double yPos) {
     }
   }
 
-  /* save old values*/
+  /* save old values */
   mMouseXPos = static_cast<int>(xPos);
   mMouseYPos = static_cast<int>(yPos);
 }
@@ -1257,7 +1257,7 @@ void OGLRenderer::handleMouseWheelEvents(double xOffset, double yOffset) {
   }
 }
 
-void OGLRenderer::handleMovementKeys(float deltaTime) {
+void OGLRenderer::handleMovementKeys() {
   if (mRenderData.rdApplicationMode == appMode::edit) {
     mRenderData.rdMoveForward = 0;
     mRenderData.rdMoveRight = 0;
@@ -1396,7 +1396,15 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdFrameTime = mFrameTimer.stop();
   mFrameTimer.start();
 
-  handleMovementKeys(deltaTime);
+  /* reset timers and other values */
+  mRenderData.rdMatricesSize = 0;
+  mRenderData.rdUploadToUBOTime = 0.0f;
+  mRenderData.rdUploadToVBOTime = 0.0f;
+  mRenderData.rdMatrixGenerateTime = 0.0f;
+  mRenderData.rdUIGenerateTime = 0.0f;
+  mRenderData.rdUIDrawTime = 0.0f;
+
+  handleMovementKeys();
 
   std::shared_ptr<Camera> cam = mModelInstCamData.micCameras.at(mModelInstCamData.micSelectedCamera);
   CameraSettings camSettings = cam->getCameraSettings();
@@ -1437,14 +1445,14 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mViewMatrix = cam->getViewMatrix();
 
-  mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
+  mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
 
   mUploadToUBOTimer.start();
   std::vector<glm::mat4> matrixData;
   matrixData.emplace_back(mViewMatrix);
   matrixData.emplace_back(mProjectionMatrix);
   mUniformBuffer.uploadUboData(matrixData, 0);
-  mRenderData.rdUploadToUBOTime = mUploadToUBOTimer.stop();
+  mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   /* save the selected instance for color highlight */
   std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
@@ -1629,7 +1637,7 @@ bool OGLRenderer::draw(float deltaTime) {
     if (mModelInstCamData.micSelectedInstance > 0) {
       InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance)->getInstanceSettings();
 
-      /* draw coordiante arrows at origin of selected instance*/
+      /* draw coordiante arrows at origin of selected instance */
       switch(mRenderData.rdInstanceEditMode) {
         case instanceEditMode::move:
           mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
@@ -1655,7 +1663,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
     mUploadToVBOTimer.start();
     mLineVertexBuffer.uploadData(*mLineMesh);
-    mRenderData.rdUploadToVBOTime = mUploadToVBOTimer.stop();
+    mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
 
     /* draw the coordinate arrow WITH depth buffer */
     if (mCoordArrowsLineIndexCount > 0) {
@@ -1704,7 +1712,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mUIDrawTimer.start();
   mUserInterface.render();
-  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
 
   return true;
 }

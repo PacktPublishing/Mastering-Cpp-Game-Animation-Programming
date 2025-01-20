@@ -130,9 +130,9 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mWorldBoundaries = std::make_shared<BoundingBox2D>(mRenderData.rdWorldStartPos, mRenderData.rdWorldSize);
   initQuadTree(10, 5);
 
-  mModelInstCamData.micQuadTreeFindAllIntersectionsCallback = [this]() { return mQuadtree->findAllIntersections(); };
-  mModelInstCamData.micQuadTreeGetBoxesCallback = [this]() { return mQuadtree->getTreeBoxes(); };
-  mModelInstCamData.micWorldGetBoundariesCallback = [this]() { return getWorldBoundaries(); };
+  mModelInstCamData.micQuadTreeFindAllIntersectionsCallbackFunction = [this]() { return mQuadtree->findAllIntersections(); };
+  mModelInstCamData.micQuadTreeGetBoxesCallbackFunction = [this]() { return mQuadtree->getTreeBoxes(); };
+  mModelInstCamData.micWorldGetBoundariesCallbackFunction = [this]() { return getWorldBoundaries(); };
 
   /* register instance/model callbacks */
   mModelInstCamData.micModelCheckCallbackFunction = [this](std::string fileName) { return hasModel(fileName); };
@@ -159,12 +159,12 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
 
   mModelInstCamData.micCameraCloneCallbackFunction = [this]() { cloneCamera(); };
   mModelInstCamData.micCameraDeleteCallbackFunction = [this]() { deleteCamera(); };
-  mModelInstCamData.micCameraNameCheckCallback = [this](std::string cameraName) { return checkCameraNameUsed(cameraName); };
+  mModelInstCamData.micCameraNameCheckCallbackFunction = [this](std::string cameraName) { return checkCameraNameUsed(cameraName); };
 
-  mModelInstCamData.micInstanceGetPositionsCallback = [this]() { return get2DPositionOfAllInstances(); };
-  mModelInstCamData.micQuadTreeQueryBBoxCallback = [this](BoundingBox2D box) { return mQuadtree->query(box); };
+  mModelInstCamData.micInstanceGetPositionsCallbackFunction = [this]() { return get2DPositionOfAllInstances(); };
+  mModelInstCamData.micQuadTreeQueryBBoxCallbackFunction = [this](BoundingBox2D box) { return mQuadtree->query(box); };
 
-  mRenderData.rdAppExitCallback = [this]() { doExitApplication(); };
+  mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
 
   /* init camera strings */
   mModelInstCamData.micCameraProjectionMap[cameraProjection::perspective] = "Perspective";
@@ -402,8 +402,8 @@ void OGLRenderer::undoLastOperation() {
    * and the settings files still contain the old index number */
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -423,8 +423,8 @@ void OGLRenderer::redoLastOperation() {
   mModelInstCamData.micSettingsContainer->redo();
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -582,7 +582,7 @@ bool OGLRenderer::addModel(std::string modelFileName, bool addInitialInstance, b
       mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
-  /* create AABBs for the model*/
+  /* create AABBs for the model */
   createAABBLookup(model);
 
   return true;
@@ -847,7 +847,7 @@ void OGLRenderer::initQuadTree(int thresholdPerBox, int maxDepth) {
   mQuadtree = std::make_shared<QuadTree>(mWorldBoundaries, thresholdPerBox, maxDepth);
 
   /* quadtree needs to get bounding box of the instances */
-  mQuadtree->instanceGetBoundingBox2DCallbackFunction = [this](int instanceId) {
+  mQuadtree->mInstanceGetBoundingBox2DCallbackFunction = [this](int instanceId) {
     return mModelInstCamData.micAssimpInstances.at(instanceId)->getBoundingBox();
   };
 }
@@ -1290,7 +1290,7 @@ void OGLRenderer::handleMousePositionEvents(double xPos, double yPos) {
     }
   }
 
-  /* save old values*/
+  /* save old values */
   mMouseXPos = static_cast<int>(xPos);
   mMouseYPos = static_cast<int>(yPos);
 }
@@ -1343,7 +1343,7 @@ void OGLRenderer::handleMouseWheelEvents(double xOffset, double yOffset) {
   }
 }
 
-void OGLRenderer::handleMovementKeys(float deltaTime) {
+void OGLRenderer::handleMovementKeys() {
   if (mRenderData.rdApplicationMode == appMode::edit) {
     mRenderData.rdMoveForward = 0;
     mRenderData.rdMoveRight = 0;
@@ -1465,7 +1465,7 @@ void OGLRenderer::handleMovementKeys(float deltaTime) {
 
 void OGLRenderer::createAABBLookup(std::shared_ptr<AssimpModel> model) {
   const int LOOKUP_SIZE = 1023;
-  /* we use a single instance per clip*/
+  /* we use a single instance per clip */
   size_t numberOfClips = model->getAnimClips().size();
   size_t numberOfBones = model->getBoneList().size();
 
@@ -1490,7 +1490,7 @@ void OGLRenderer::createAABBLookup(std::shared_ptr<AssimpModel> model) {
 
     /* play all animation steps */
     float timeScaleFactor = model->getMaxClipDuration() / static_cast<float>(LOOKUP_SIZE);
-    for (int lookups = 0; lookups < LOOKUP_SIZE; lookups++) {
+    for (int lookups = 0; lookups < LOOKUP_SIZE; ++lookups) {
       for (size_t i = 0; i < numberOfClips; ++i) {
 
         PerInstanceAnimData animData{};
@@ -1680,7 +1680,7 @@ void OGLRenderer::checkForBoundingSphereCollisions() {
       glm::vec4 firstSphereData = mBoundingSpheresPerInstance[firstId].at(first);
       float firstRadius = firstSphereData.w;
 
-      /* no need to check disabled spheres*/
+      /* no need to check disabled spheres */
       if (firstRadius == 0.0f) {
         continue;
       }
@@ -1691,7 +1691,7 @@ void OGLRenderer::checkForBoundingSphereCollisions() {
         glm::vec4 secondSphereData = mBoundingSpheresPerInstance[secondId].at(second);
         float secondRadius = secondSphereData.w;
 
-        /* no need to check disabled spheres*/
+        /* no need to check disabled spheres */
         if (secondRadius == 0.0f) {
           continue;
         }
@@ -1764,7 +1764,7 @@ void OGLRenderer::drawAABBs() {
   for (size_t i = 0; i < instances.size(); ++i) {
     InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
 
-    /* skip null instance*/
+    /* skip null instance */
     if (instSettings.isInstanceIndexPosition == 0) {
       continue;
     }
@@ -2038,7 +2038,18 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdFrameTime = mFrameTimer.stop();
   mFrameTimer.start();
 
-  handleMovementKeys(deltaTime);
+  /* reset timers and other values */
+  mRenderData.rdMatricesSize = 0;
+  mRenderData.rdMatrixGenerateTime = 0.0f;
+  mRenderData.rdUploadToUBOTime = 0.0f;
+  mRenderData.rdUploadToVBOTime = 0.0f;
+  mRenderData.rdUIGenerateTime = 0.0f;
+  mRenderData.rdUIDrawTime = 0.0f;
+  mRenderData.rdNumberOfCollisions = 0;
+  mRenderData.rdCollisionDebugDrawTime = 0.0f;
+  mRenderData.rdCollisionCheckTime = 0.0f;
+
+  handleMovementKeys();
 
   std::shared_ptr<Camera> cam = mModelInstCamData.micCameras.at(mModelInstCamData.micSelectedCamera);
   CameraSettings camSettings = cam->getCameraSettings();
@@ -2079,7 +2090,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mViewMatrix = cam->getViewMatrix();
 
-  mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
+  mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
 
   mUploadToUBOTimer.start();
   std::vector<glm::mat4> matrixData;
@@ -2099,17 +2110,6 @@ bool OGLRenderer::draw(float deltaTime) {
       }
     }
   }
-
-  /* reset timers and other values */
-  mRenderData.rdMatricesSize = 0;
-  mRenderData.rdMatrixGenerateTime = 0.0f;
-  mRenderData.rdUploadToUBOTime = 0.0f;
-  mRenderData.rdUploadToVBOTime = 0.0f;
-  mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
-  mRenderData.rdNumberOfCollisions = 0;
-  mRenderData.rdCollisionDebugDrawTime = 0.0f;
-  mRenderData.rdCollisionCheckTime = 0.0f;
 
   mQuadtree->clear();
 
@@ -2172,7 +2172,7 @@ bool OGLRenderer::draw(float deltaTime) {
           BoundingBox2D box{position, size};
           instances.at(i)->setBoundingBox(box);
 
-          /* add instance to quadtree*/
+          /* add instance to quadtree */
           mQuadtree->add(instSettings.isInstanceIndexPosition);
         }
 
@@ -2299,7 +2299,7 @@ bool OGLRenderer::draw(float deltaTime) {
     if (mModelInstCamData.micSelectedInstance > 0) {
       InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance)->getInstanceSettings();
 
-      /* draw coordiante arrows at origin of selected instance*/
+      /* draw coordiante arrows at origin of selected instance */
       switch(mRenderData.rdInstanceEditMode) {
         case instanceEditMode::move:
           mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
@@ -2403,11 +2403,11 @@ bool OGLRenderer::draw(float deltaTime) {
   /* always draw the status bar and instance positions window */
   mUserInterface.createStatusBar(mRenderData, mModelInstCamData);
   mUserInterface.createPositionsWindow(mRenderData, mModelInstCamData);
-  mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
+  mRenderData.rdUIGenerateTime += mUIGenerateTimer.stop();
 
   mUIDrawTimer.start();
   mUserInterface.render();
-  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
 
   return true;
 }

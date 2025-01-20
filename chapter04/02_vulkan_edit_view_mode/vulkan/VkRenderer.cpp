@@ -134,9 +134,6 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  mWorldPosMatrices.resize(1);
-  mWorldPosMatrices.at(0) = glm::mat4(1.0f);
-
   /* register callbacks */
   mModelInstData.miModelCheckCallbackFunction = [this](std::string fileName) { return hasModel(fileName); };
   mModelInstData.miModelAddCallbackFunction = [this](std::string fileName) { return addModel(fileName); };
@@ -1230,12 +1227,7 @@ bool VkRenderer::recreateSwapchain() {
     glfwWaitEvents();
   }
 
-  /* only wait for graphics queue, not the whole device here */
-  VkResult result = vkQueueWaitIdle(mRenderData.rdGraphicsQueue);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s fatal error: could not wait for device idle (error: %i)\n", __FUNCTION__, result);
-    return false;
-  }
+  vkDeviceWaitIdle(mRenderData.rdVkbDevice.device);
 
   /* cleanup */
   Framebuffer::cleanup(mRenderData);
@@ -1590,7 +1582,7 @@ bool VkRenderer::addModel(std::string modelFileName) {
 
   mModelInstData.miModelList.emplace_back(model);
 
-  /* also add a new instance here to see the model*/
+  /* also add a new instance here to see the model */
   addInstance(model);
 
   if (mModelInstData.miAssimpInstances.size() == 2) {
@@ -2019,7 +2011,7 @@ void VkRenderer::handleMousePositionEvents(double xPos, double yPos) {
     }
   }
 
-  /* save old values*/
+  /* save old values */
   mMouseXPos = static_cast<int>(xPos);
   mMouseYPos = static_cast<int>(yPos);
 }
@@ -2140,11 +2132,38 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdFrameTime = mFrameTimer.stop();
   mFrameTimer.start();
 
-  /* wait for previous compute shader run */
-  VkResult result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence, VK_TRUE, UINT64_MAX);
+  /* reset timers and other values */
+  mRenderData.rdMatricesSize = 0;
+  mRenderData.rdUploadToUBOTime = 0.0f;
+  mRenderData.rdUploadToVBOTime = 0.0f;
+  mRenderData.rdMatrixGenerateTime = 0.0f;
+  mRenderData.rdUIGenerateTime = 0.0f;
+  mRenderData.rdUIDrawTime = 0.0f;
+
+  /* wait for both fences before getting the new framebuffer image */
+  std::vector<VkFence> waitFences = { mRenderData.rdComputeFence, mRenderData.rdRenderFence };
+  VkResult result = vkWaitForFences(mRenderData.rdVkbDevice.device,
+    static_cast<uint32_t>(waitFences.size()), waitFences.data(), VK_TRUE, UINT64_MAX);
   if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: waiting for compute fence failed (error: %i)\n", __FUNCTION__, result);
+    Logger::log(1, "%s error: waiting for fences failed (error: %i)\n", __FUNCTION__, result);
     return false;
+  }
+
+  uint32_t imageIndex = 0;
+  result = vkAcquireNextImageKHR(mRenderData.rdVkbDevice.device,
+    mRenderData.rdVkbSwapchain.swapchain,
+    UINT64_MAX,
+    mRenderData.rdPresentSemaphore,
+    VK_NULL_HANDLE,
+    &imageIndex);
+
+  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+    return recreateSwapchain();
+  } else {
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+      Logger::log(1, "%s error: failed to acquire swapchain image. Error is '%i'\n", __FUNCTION__, result);
+      return false;
+    }
   }
 
   /* calculate the size of the node matrix buffer over all animated instances */
@@ -2162,9 +2181,6 @@ bool VkRenderer::draw(float deltaTime) {
       }
     }
   }
-
-  /* fill the matrices */
-  mRenderData.rdMatricesSize = 0;
 
   /* clear and resize world pos matrices */
   mWorldPosMatrices.clear();
@@ -2339,7 +2355,7 @@ bool VkRenderer::draw(float deltaTime) {
 
     result = vkQueueSubmit(mRenderData.rdComputeQueue, 1, &computeSubmitInfo, mRenderData.rdComputeFence);
     if (result != VK_SUCCESS) {
-      Logger::log(1, "%s error: failed to submit draw command buffer (%i)\n", __FUNCTION__, result);
+      Logger::log(1, "%s error: failed to submit compute command buffer (%i)\n", __FUNCTION__, result);
       return false;
     };
   } else {
@@ -2356,16 +2372,9 @@ bool VkRenderer::draw(float deltaTime) {
 
     result = vkQueueSubmit(mRenderData.rdComputeQueue, 1, &computeSubmitInfo, mRenderData.rdComputeFence);
     if (result != VK_SUCCESS) {
-      Logger::log(1, "%s error: failed to submit draw command buffer (%i)\n", __FUNCTION__, result);
+      Logger::log(1, "%s error: failed to submit compute command buffer (%i)\n", __FUNCTION__, result);
       return false;
     };
-  }
-
-  /* wait for graphics */
-  result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence, VK_TRUE, UINT64_MAX);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: waiting for fence failed (error: %i)\n", __FUNCTION__, result);
-    return false;
   }
 
   handleMovementKeys();
@@ -2385,7 +2394,7 @@ bool VkRenderer::draw(float deltaTime) {
     0.1f, 500.0f);
 
   mMatrices.viewMatrix = mCamera.getViewMatrix(mRenderData);
-  mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
+  mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
 
   /* we need to update descriptors after the upload if buffer size changed */
   bool doDescriptorUpdates = false;
@@ -2403,30 +2412,13 @@ bool VkRenderer::draw(float deltaTime) {
     updateDescriptorSets();
   }
 
-  uint32_t imageIndex = 0;
-  result = vkAcquireNextImageKHR(mRenderData.rdVkbDevice.device,
-      mRenderData.rdVkbSwapchain.swapchain,
-      UINT64_MAX,
-      mRenderData.rdPresentSemaphore,
-      VK_NULL_HANDLE,
-      &imageIndex);
-
-  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-    return recreateSwapchain();
-  } else {
-    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-      Logger::log(1, "%s error: failed to acquire swapchain image. Error is '%i'\n", __FUNCTION__, result);
-      return false;
-    }
-  }
-
+  /* start with graphics rendering */
   result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error:  fence reset failed (error: %i)\n", __FUNCTION__, result);
     return false;
   }
 
-  /* Vulkan render preparations */
   if (!CommandBuffer::reset(mRenderData.rdCommandBuffer, 0)) {
     Logger::log(1, "%s error: failed to reset command buffer\n", __FUNCTION__);
     return false;
@@ -2588,7 +2580,7 @@ bool VkRenderer::draw(float deltaTime) {
     if (mModelInstData.miSelectedInstance > 0) {
       InstanceSettings instSettings = mModelInstData.miAssimpInstances.at(mModelInstData.miSelectedInstance)->getInstanceSettings();
 
-      /* draw coordiante arrows at origin of selected instance*/
+      /* draw coordiante arrows at origin of selected instance */
       switch(mRenderData.rdInstanceEditMode) {
         case instanceEditMode::move:
           mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
@@ -2614,7 +2606,7 @@ bool VkRenderer::draw(float deltaTime) {
 
     mUploadToVBOTimer.start();
     VertexBuffer::uploadData(mRenderData, mLineVertexBuffer, *mLineMesh);
-    mRenderData.rdUploadToVBOTime = mUploadToVBOTimer.stop();
+    mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
 
     if (mCoordArrowsLineIndexCount > 0) {
       vkCmdBindPipeline(mRenderData.rdLineCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdLinePipeline);
@@ -2641,7 +2633,7 @@ bool VkRenderer::draw(float deltaTime) {
     mUIGenerateTimer.start();
     mUserInterface.hideMouse(mMouseLock);
     mUserInterface.createFrame(mRenderData, mModelInstData);
-    mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
+    mRenderData.rdUIGenerateTime += mUIGenerateTimer.stop();
   }
 
   /* use separate ImGui render pass (with VK_ATTACHMENT_LOAD_OP_LOAD) to avoid renderpass incomatibilities */
@@ -2666,7 +2658,7 @@ bool VkRenderer::draw(float deltaTime) {
   if (mRenderData.rdApplicationMode == appMode::edit) {
     mUIDrawTimer.start();
     mUserInterface.render(mRenderData);
-    mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
+    mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
   }
 
   vkCmdEndRenderPass(mRenderData.rdImGuiCommandBuffer);
@@ -2684,7 +2676,7 @@ bool VkRenderer::draw(float deltaTime) {
   std::vector<VkPipelineStageFlags> waitStages = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
   /* compute shader: contine if in vertex input ready
-   * vertex shader: wait for color attachment output ready*/
+   * vertex shader: wait for color attachment output ready */
   submitInfo.pWaitDstStageMask = waitStages.data();
 
   submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());

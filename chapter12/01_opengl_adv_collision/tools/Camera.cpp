@@ -1,10 +1,4 @@
-#define _USE_MATH_DEFINES
 #include <cmath>
-
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtx/euler_angles.hpp>
 
 #include "Camera.h"
 #include "InstanceSettings.h"

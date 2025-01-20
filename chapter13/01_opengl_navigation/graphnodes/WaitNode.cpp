@@ -91,7 +91,7 @@ void WaitNode::deactivate(bool informParentNodes) {
   mCurrentTime = mWaitTime;
 
   if (informParentNodes) {
-    /* inform parent that we are done*/
+    /* inform parent that we are done */
     fireNodeOutputTriggerCallback(mInId);
   }
 }

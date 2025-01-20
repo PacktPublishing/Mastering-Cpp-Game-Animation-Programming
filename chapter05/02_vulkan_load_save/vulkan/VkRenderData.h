@@ -139,7 +139,7 @@ struct VkRenderData {
   appMode rdApplicationMode = appMode::edit;
   instanceEditMode rdInstanceEditMode = instanceEditMode::move;
 
-  appExitCallback rdAppExitCallback;
+  appExitCallback rdAppExitCallbackFunction;
   bool rdRequestApplicationExit = false;
 
   /* Vulkan specific stuff */

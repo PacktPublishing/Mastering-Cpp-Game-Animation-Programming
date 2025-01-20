@@ -3,7 +3,7 @@
 #include "RootNode.h"
 #include "TestNode.h"
 #include "WaitNode.h"
-#include "RandowWaitNode.h"
+#include "RandomWaitNode.h"
 #include "SequenceNode.h"
 #include "SelectorNode.h"
 #include "InstanceNode.h"
@@ -17,7 +17,7 @@
 #include "Logger.h"
 
 GraphNodeFactory::GraphNodeFactory(fireNodeOutputCallback callback) :
- mFireNodeOutputCallback(callback) {
+ mFireNodeOutputCallbackFunction(callback) {
   mGraphNodeTypeMap[graphNodeType::root] = "Root";
   mGraphNodeTypeMap[graphNodeType::test] = "Test";
   mGraphNodeTypeMap[graphNodeType::wait] = "Wait";
@@ -39,7 +39,7 @@ std::string GraphNodeFactory::getNodeTypeName(graphNodeType nodeType) {
 
 std::shared_ptr<GraphNodeBase> GraphNodeFactory::makeNode(graphNodeType type, int nodeId) {
   std::shared_ptr<GraphNodeBase> newNode = nullptr;
-  if (!mFireNodeOutputCallback) {
+  if (!mFireNodeOutputCallbackFunction) {
     Logger::log(1, "%s error: node fire callback not set\n", __FUNCTION__);
     return newNode;
   }
@@ -89,7 +89,7 @@ std::shared_ptr<GraphNodeBase> GraphNodeFactory::makeNode(graphNodeType type, in
       break;
   }
 
-  newNode->setNodeOutputTriggerCallback(mFireNodeOutputCallback);
+  newNode->setNodeOutputTriggerCallback(mFireNodeOutputCallbackFunction);
   newNode->mNodeName = mGraphNodeTypeMap.at(type);
   newNode->mNodeType = type;
 

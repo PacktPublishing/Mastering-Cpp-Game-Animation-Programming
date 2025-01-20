@@ -1,7 +1,6 @@
 /* OpenGL shader stroage buffer */
 #pragma once
 #include <vector>
-#include <map>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 

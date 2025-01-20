@@ -137,7 +137,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mModelInstData.miLoadConfigCallbackFunction = [this](std::string configFileName) { return loadConfigFile(configFileName); };
   mModelInstData.miSaveConfigCallbackFunction = [this](std::string configFileName) { return saveConfigFile(configFileName); };
 
-  mRenderData.rdAppExitCallback = [this]() { doExitApplication(); };
+  mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
 
   /* valid, but emtpy line mesh */
   mLineMesh = std::make_shared<OGLLineMesh>();
@@ -161,7 +161,6 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
 ModelAndInstanceData& OGLRenderer::getModInstData() {
   return mModelInstData;
 }
-
 
 bool OGLRenderer::loadConfigFile(std::string configFileName) {
   YamlParser parser;
@@ -264,8 +263,8 @@ void OGLRenderer::undoLastOperation() {
    * and the settings files still contain the old index number */
   enumerateInstances();
 
-  int selectedInstace = mModelInstData.miSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstData.miAssimpInstances.size()) {
+  int selectedInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstData.miAssimpInstances.size()) {
     mModelInstData.miSelectedInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
   } else {
     mModelInstData.miSelectedInstance = 0;
@@ -280,8 +279,8 @@ void OGLRenderer::redoLastOperation() {
   mModelInstData.miSettingsContainer->redo();
   enumerateInstances();
 
-  int selectedInstace = mModelInstData.miSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstData.miAssimpInstances.size()) {
+  int selectedInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstData.miAssimpInstances.size()) {
     mModelInstData.miSelectedInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
   } else {
     mModelInstData.miSelectedInstance = 0;
@@ -945,7 +944,7 @@ void OGLRenderer::handleMousePositionEvents(double xPos, double yPos) {
     }
   }
 
-  /* save old values*/
+  /* save old values */
   mMouseXPos = static_cast<int>(xPos);
   mMouseYPos = static_cast<int>(yPos);
 }
@@ -1013,6 +1012,14 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdFrameTime = mFrameTimer.stop();
   mFrameTimer.start();
 
+  /* reset timers and other values */
+  mRenderData.rdMatricesSize = 0;
+  mRenderData.rdUploadToUBOTime = 0.0f;
+  mRenderData.rdUploadToVBOTime = 0.0f;
+  mRenderData.rdMatrixGenerateTime = 0.0f;
+  mRenderData.rdUIGenerateTime = 0.0f;
+  mRenderData.rdUIDrawTime = 0.0f;
+
   handleMovementKeys();
 
   /* draw to framebuffer */
@@ -1029,14 +1036,14 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mViewMatrix = mCamera.getViewMatrix(mRenderData);
 
-  mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
+  mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
 
   mUploadToUBOTimer.start();
   std::vector<glm::mat4> matrixData;
   matrixData.emplace_back(mViewMatrix);
   matrixData.emplace_back(mProjectionMatrix);
   mUniformBuffer.uploadUboData(matrixData, 0);
-  mRenderData.rdUploadToUBOTime = mUploadToUBOTimer.stop();
+  mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   /* save the selected instance for color highlight */
   std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
@@ -1194,7 +1201,7 @@ bool OGLRenderer::draw(float deltaTime) {
     if (mModelInstData.miSelectedInstance > 0) {
       InstanceSettings instSettings = mModelInstData.miAssimpInstances.at(mModelInstData.miSelectedInstance)->getInstanceSettings();
 
-      /* draw coordiante arrows at origin of selected instance*/
+      /* draw coordiante arrows at origin of selected instance */
       switch(mRenderData.rdInstanceEditMode) {
         case instanceEditMode::move:
           mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
@@ -1220,7 +1227,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
     mUploadToVBOTimer.start();
     mLineVertexBuffer.uploadData(*mLineMesh);
-    mRenderData.rdUploadToVBOTime = mUploadToVBOTimer.stop();
+    mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
 
     /* draw the coordinate arrow WITH depth buffer */
     if (mCoordArrowsLineIndexCount > 0) {
@@ -1258,13 +1265,13 @@ bool OGLRenderer::draw(float deltaTime) {
     mUIGenerateTimer.start();
     mUserInterface.hideMouse(mMouseLock);
     mUserInterface.createFrame(mRenderData, mModelInstData);
-    mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
+    mRenderData.rdUIGenerateTime += mUIGenerateTimer.stop();
   }
 
   if (mRenderData.rdApplicationMode == appMode::edit) {
     mUIDrawTimer.start();
     mUserInterface.render();
-    mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
+    mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
   }
 
   return true;

@@ -103,8 +103,7 @@ void AssimpSettingsContainer::applyEditInstanceSettings(std::shared_ptr<AssimpIn
   mUndoStack.emplace(undoSettings);
 
   /* clear redo history on apply, makes no sense to keep */
-  std::stack<UndoRedoSettings> emptyStack = std::stack<UndoRedoSettings>();
-  mRedoStack.swap(emptyStack);
+  removeRedoStack();
 }
 
 void AssimpSettingsContainer::applyNewMultiInstance(std::vector<std::shared_ptr<AssimpInstance>> instances, int selectedInstanceId, int prevSelectedInstanceId) {
@@ -162,8 +161,9 @@ void AssimpSettingsContainer::applySelectInstance(int selectedInstanceId, int sa
   removeRedoStack();
 }
 
-void AssimpSettingsContainer::applyLoadModel(std::shared_ptr<AssimpModel> model, int indexPos, std::shared_ptr<AssimpInstance> firstInstance,
-                                             int selectedModelId, int prevSelectedModelId, int selectedInstanceId, int prevSelectedInstanceId) {
+void AssimpSettingsContainer::applyLoadModel(std::shared_ptr<AssimpModel> model, int indexPos,
+    std::shared_ptr<AssimpInstance> firstInstance,
+    int selectedModelId, int prevSelectedModelId, int selectedInstanceId, int prevSelectedInstanceId) {
   Logger::log(1, "%s: add model\n", __FUNCTION__);
 
   UndoRedoSettings undoSettings;
@@ -238,8 +238,7 @@ void AssimpSettingsContainer::applyEditCameraSettings(std::shared_ptr<Camera> ca
   mUndoStack.emplace(undoSettings);
 
   /* clear redo history on apply, makes no sense to keep */
-  std::stack<UndoRedoSettings> emptyStack = std::stack<UndoRedoSettings>();
-  mRedoStack.swap(emptyStack);
+  removeRedoStack();
 }
 
 int AssimpSettingsContainer::getUndoSize() {

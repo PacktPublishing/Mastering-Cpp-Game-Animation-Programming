@@ -12,7 +12,7 @@
 #include "Enums.h"
 #include "BoundingBox2D.h"
 
-/* forward declarations*/
+/* forward declarations */
 class AssimpModel;
 class AssimpInstance;
 class AssimpSettingsContainer;
@@ -47,22 +47,22 @@ using instanceCloneManyCallback = std::function<void(std::shared_ptr<AssimpInsta
 using instanceCenterCallback = std::function<void(std::shared_ptr<AssimpInstance>)>;
 
 using instanceGetPositionsCallback = std::function<std::vector<glm::vec2>(void)>;
-using instanceGetBoundingBox2DCallvack = std::function<BoundingBox2D(int)>;
+using instanceGetBoundingBox2DCallback = std::function<BoundingBox2D(int)>;
 
 using undoRedoCallback = std::function<void(void)>;
 using newConfigCallback = std::function<void(void)>;
 using loadSaveCallback = std::function<bool(std::string)>;
-using setConfigDirtyCallbackFunction = std::function<void(bool)>;
-using getConfigDirtyCallbackFunction = std::function<bool(void)>;
+using setConfigDirtyCallback = std::function<void(bool)>;
+using getConfigDirtyCallback = std::function<bool(void)>;
 
 using cameraCloneCallback = std::function<void()>;
 using cameraDeleteCallback = std::function<void()>;
 using cameraNameCheckCallback = std::function<bool(std::string)>;
 
-using quadTreeQueryBBox = std::function<std::vector<int>(BoundingBox2D)>;
-using quadTreeFindAllIntersections = std::function<std::set<std::pair<int, int>>()>;
-using quadTreeGetBoxes = std::function<std::vector<BoundingBox2D>()>;
-using worldGetBoundaries = std::function<std::shared_ptr<BoundingBox2D>()>;
+using quadTreeQueryBBoxCallback = std::function<std::vector<int>(BoundingBox2D)>;
+using quadTreeFindAllIntersectionsCallback = std::function<std::set<std::pair<int, int>>()>;
+using quadTreeGetBoxesCallback = std::function<std::vector<BoundingBox2D>()>;
+using worldGetBoundariesCallback = std::function<std::shared_ptr<BoundingBox2D>()>;
 
 using appExitCallback = std::function<void(void)>;
 

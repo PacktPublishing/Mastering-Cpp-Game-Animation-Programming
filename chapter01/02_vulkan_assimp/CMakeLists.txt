@@ -6,7 +6,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(Main)
 
 # use custom file to find libraries
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+if(WIN32)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+endif()
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_vma")
 
 # optimize for speed on Clang or GCC
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -27,6 +30,7 @@ FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui
   GIT_TAG        v1.91.2
+  GIT_SHALLOW 1
 )
 
 FetchContent_MakeAvailable(imgui)
@@ -42,6 +46,7 @@ FetchContent_Declare(
   filedialog
   GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog
   GIT_TAG        v0.6.7
+  GIT_SHALLOW 1
 )
 
 # ugly hack to have ImGui available when the file dialog source getch fetched
@@ -62,6 +67,7 @@ FetchContent_Declare(
   stbi
   GIT_REPOSITORY https://github.com/nothings/stb
   GIT_TAG        master
+  GIT_SHALLOW 1
 )
 
 FetchContent_MakeAvailable(stbi)
@@ -79,6 +85,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/charles-lunarg/vk-bootstrap
   # with Ubuntu, v1.3.296 and newer broke compile in PFN_vkCmdSetDepthClampRangeEXT
   GIT_TAG        v1.3.295
+  GIT_SHALLOW 1
 )
 
 FetchContent_MakeAvailable(vk_bootstrap)
@@ -97,6 +104,7 @@ if (NOT DEFINED ENV{VK_SDK_PATH})
     vma
     GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
     GIT_TAG        v3.1.0
+    GIT_SHALLOW 1
   )
 
   FetchContent_MakeAvailable(vma)
@@ -115,6 +123,7 @@ if(WIN32)
     glfw3
     GIT_REPOSITORY https://github.com/glfw/glfw
     GIT_TAG        3.4
+    GIT_SHALLOW 1
   )
 
   FetchContent_MakeAvailable(glfw3)
@@ -136,6 +145,7 @@ if(WIN32)
       glm
       GIT_REPOSITORY https://github.com/g-truc/glm
       GIT_TAG        1.0.1
+      GIT_SHALLOW 1
     )
 
     # GLM is header only, but needs to be populated for the download

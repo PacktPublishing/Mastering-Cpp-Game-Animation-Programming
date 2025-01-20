@@ -117,7 +117,7 @@ class OGLRenderer {
     ShaderStorageBuffer mPerInstanceAnimDataBuffer{};
     ShaderStorageBuffer mEmptyBoneOffsetBuffer{};
 
-    /* x/y/z is shpere center, w is radius*/
+    /* x/y/z is shpere center, w is radius */
     ShaderStorageBuffer mBoundingSphereBuffer{};
     /* per-model-and-node adjustments for the spheres */
     ShaderStorageBuffer mBoundingSphereAdjustmentBuffer{};
@@ -159,7 +159,7 @@ class OGLRenderer {
     int mMouseMoveVerticalShiftKey = 0;
     InstanceSettings mSavedInstanceSettings{};
 
-    void handleMovementKeys(float deltaTime);
+    void handleMovementKeys();
 
     void updateTriangleCount();
     void enumerateInstances();

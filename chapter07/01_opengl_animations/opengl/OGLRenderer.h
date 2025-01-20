@@ -135,7 +135,7 @@ class OGLRenderer {
     int mMouseMoveVerticalShiftKey = 0;
     InstanceSettings mSavedInstanceSettings{};
 
-    void handleMovementKeys(float deltaTime);
+    void handleMovementKeys();
 
     void updateTriangleCount();
     void enumerateInstances();

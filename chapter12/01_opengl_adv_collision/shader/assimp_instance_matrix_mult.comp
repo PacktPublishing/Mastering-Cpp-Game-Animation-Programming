@@ -38,7 +38,7 @@ mat4 createScaleMatrix(vec4 s) {
     0.0, s.y, 0.0, 0.0,
     0.0, 0.0, s.z, 0.0,
     0.0, 0.0, 0.0, 1.0
- );
+  );
 }
 
 mat4 createRotationMatrix(vec4 q) {

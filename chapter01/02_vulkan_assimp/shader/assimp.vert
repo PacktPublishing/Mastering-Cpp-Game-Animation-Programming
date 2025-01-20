@@ -15,7 +15,7 @@ layout (push_constant) uniform Constants {
   int worldPosOffset;
 };
 
-layout (set = 1, binding = 0) uniform Matrices {
+layout (std140, set = 1, binding = 0) uniform Matrices {
   mat4 view;
   mat4 projection;
 };

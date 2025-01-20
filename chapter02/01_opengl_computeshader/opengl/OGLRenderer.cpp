@@ -126,7 +126,7 @@ bool OGLRenderer::addModel(std::string modelFileName) {
 
   mModelInstData.miModelList.emplace_back(model);
 
-  /* also add a new instance here to see the model*/
+  /* also add a new instance here to see the model */
   addInstance(model);
 
   return true;
@@ -308,7 +308,7 @@ void OGLRenderer::handleMousePositionEvents(double xPos, double yPos) {
     mRenderData.rdViewElevation = std::clamp(mRenderData.rdViewElevation, -89.0f, 89.0f);
   }
 
-  /* save old values*/
+  /* save old values */
   mMouseXPos = static_cast<int>(xPos);
   mMouseYPos = static_cast<int>(yPos);
 }
@@ -362,6 +362,14 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdFrameTime = mFrameTimer.stop();
   mFrameTimer.start();
 
+  /* reset timers and other values */
+  mRenderData.rdMatricesSize = 0;
+  mRenderData.rdUploadToUBOTime = 0.0f;
+  mRenderData.rdUploadToVBOTime = 0.0f;
+  mRenderData.rdMatrixGenerateTime = 0.0f;
+  mRenderData.rdUIGenerateTime = 0.0f;
+  mRenderData.rdUIDrawTime = 0.0f;
+
   handleMovementKeys();
 
   /* draw to framebuffer */
@@ -382,14 +390,14 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mViewMatrix = mCamera.getViewMatrix(mRenderData);
 
-  mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
+  mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
 
   mUploadToUBOTimer.start();
   std::vector<glm::mat4> matrixData;
   matrixData.emplace_back(mViewMatrix);
   matrixData.emplace_back(mProjectionMatrix);
   mUniformBuffer.uploadUboData(matrixData, 0);
-  mRenderData.rdUploadToUBOTime = mUploadToUBOTimer.stop();
+  mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   /* draw the models */
   mRenderData.rdMatricesSize = 0;
@@ -489,11 +497,11 @@ bool OGLRenderer::draw(float deltaTime) {
   mUIGenerateTimer.start();
   mUserInterface.hideMouse(mMouseLock);
   mUserInterface.createFrame(mRenderData, mModelInstData);
-  mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
+  mRenderData.rdUIGenerateTime += mUIGenerateTimer.stop();
 
   mUIDrawTimer.start();
   mUserInterface.render();
-  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
 
   return true;
 }

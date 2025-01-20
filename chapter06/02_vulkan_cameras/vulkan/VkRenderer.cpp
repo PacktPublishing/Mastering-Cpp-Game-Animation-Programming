@@ -135,9 +135,6 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  mWorldPosMatrices.resize(1);
-  mWorldPosMatrices.at(0) = glm::mat4(1.0f);
-
   /* register callbacks */
   mModelInstCamData.micModelCheckCallbackFunction = [this](std::string fileName) { return hasModel(fileName); };
   mModelInstCamData.micModelAddCallbackFunction = [this](std::string fileName, bool initialInstance, bool withUndo) { return addModel(fileName, initialInstance, withUndo); };
@@ -163,9 +160,9 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
 
   mModelInstCamData.micCameraCloneCallbackFunction = [this]() { cloneCamera(); };
   mModelInstCamData.micCameraDeleteCallbackFunction = [this]() { deleteCamera(); };
-  mModelInstCamData.micCameraNameCheckCallback = [this](std::string cameraName) { return checkCameraNameUsed(cameraName); };
+  mModelInstCamData.micCameraNameCheckCallbackFunction = [this](std::string cameraName) { return checkCameraNameUsed(cameraName); };
 
-  mRenderData.rdAppExitCallback = [this]() { doExitApplication(); };
+  mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
 
   /* init camera strings */
   mModelInstCamData.micCameraProjectionMap[cameraProjection::perspective] = "Perspective";
@@ -369,8 +366,8 @@ void VkRenderer::undoLastOperation() {
    * and the settings files still contain the old index number */
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -390,8 +387,8 @@ void VkRenderer::redoLastOperation() {
   mModelInstCamData.micSettingsContainer->redo();
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -1498,12 +1495,7 @@ bool VkRenderer::recreateSwapchain() {
     glfwWaitEvents();
   }
 
-  /* only wait for graphics queue, not the whole device here */
-  VkResult result = vkQueueWaitIdle(mRenderData.rdGraphicsQueue);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s fatal error: could not wait for device idle (error: %i)\n", __FUNCTION__, result);
-    return false;
-  }
+  vkDeviceWaitIdle(mRenderData.rdVkbDevice.device);
 
   /* cleanup */
   Framebuffer::cleanup(mRenderData);
@@ -2560,7 +2552,7 @@ void VkRenderer::handleMousePositionEvents(double xPos, double yPos) {
     }
   }
 
-  /* save old values*/
+  /* save old values */
   mMouseXPos = static_cast<int>(xPos);
   mMouseYPos = static_cast<int>(yPos);
 }
@@ -2752,6 +2744,32 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdUIGenerateTime = 0.0f;
   mRenderData.rdUIDrawTime = 0.0f;
 
+  /* wait for both fences before getting the new framebuffer image */
+  std::vector<VkFence> waitFences = { mRenderData.rdComputeFence, mRenderData.rdRenderFence };
+  VkResult result = vkWaitForFences(mRenderData.rdVkbDevice.device,
+    static_cast<uint32_t>(waitFences.size()), waitFences.data(), VK_TRUE, UINT64_MAX);
+  if (result != VK_SUCCESS) {
+    Logger::log(1, "%s error: waiting for fences failed (error: %i)\n", __FUNCTION__, result);
+    return false;
+  }
+
+  uint32_t imageIndex = 0;
+  result = vkAcquireNextImageKHR(mRenderData.rdVkbDevice.device,
+    mRenderData.rdVkbSwapchain.swapchain,
+    UINT64_MAX,
+    mRenderData.rdPresentSemaphore,
+    VK_NULL_HANDLE,
+    &imageIndex);
+
+  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+    return recreateSwapchain();
+  } else {
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+      Logger::log(1, "%s error: failed to acquire swapchain image. Error is '%i'\n", __FUNCTION__, result);
+      return false;
+    }
+  }
+
   /* calculate the size of the node matrix buffer over all animated instances */
   size_t boneMatrixBufferSize = 0;
   for (const auto& model : mModelInstCamData.micModelList) {
@@ -2901,7 +2919,7 @@ bool VkRenderer::draw(float deltaTime) {
   }
 
   /* record compute commands */
-  VkResult result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence);
+  result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: compute fence reset failed (error: %i)\n", __FUNCTION__, result);
     return false;
@@ -2954,7 +2972,7 @@ bool VkRenderer::draw(float deltaTime) {
 
     result = vkQueueSubmit(mRenderData.rdComputeQueue, 1, &computeSubmitInfo, mRenderData.rdComputeFence);
     if (result != VK_SUCCESS) {
-      Logger::log(1, "%s error: failed to submit draw command buffer (%i)\n", __FUNCTION__, result);
+      Logger::log(1, "%s error: failed to submit compute command buffer (%i)\n", __FUNCTION__, result);
       return false;
     };
   } else {
@@ -2971,12 +2989,12 @@ bool VkRenderer::draw(float deltaTime) {
 
     result = vkQueueSubmit(mRenderData.rdComputeQueue, 1, &computeSubmitInfo, mRenderData.rdComputeFence);
     if (result != VK_SUCCESS) {
-      Logger::log(1, "%s error: failed to submit draw command buffer (%i)\n", __FUNCTION__, result);
+      Logger::log(1, "%s error: failed to submit compute command buffer (%i)\n", __FUNCTION__, result);
       return false;
     };
   }
 
-  /* we must wait for the compute shaders to finish before we can read the bone data*/
+  /* we must wait for the compute shaders to finish before we can read the bone data */
   result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence, VK_TRUE, UINT64_MAX);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: waiting for compute fence failed (error: %i)\n", __FUNCTION__, result);
@@ -3000,13 +3018,6 @@ bool VkRenderer::draw(float deltaTime) {
 
       cam->setCameraSettings(camSettings);
     }
-  }
-
-  /* wait for graphics */
-  result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence, VK_TRUE, UINT64_MAX);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: waiting for fence failed (error: %i)\n", __FUNCTION__, result);
-    return false;
   }
 
   handleMovementKeys();
@@ -3070,30 +3081,13 @@ bool VkRenderer::draw(float deltaTime) {
     updateDescriptorSets();
   }
 
-  uint32_t imageIndex = 0;
-  result = vkAcquireNextImageKHR(mRenderData.rdVkbDevice.device,
-      mRenderData.rdVkbSwapchain.swapchain,
-      UINT64_MAX,
-      mRenderData.rdPresentSemaphore,
-      VK_NULL_HANDLE,
-      &imageIndex);
-
-  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-    return recreateSwapchain();
-  } else {
-    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-      Logger::log(1, "%s error: failed to acquire swapchain image. Error is '%i'\n", __FUNCTION__, result);
-      return false;
-    }
-  }
-
+  /* start with graphics rendering */
   result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error:  fence reset failed (error: %i)\n", __FUNCTION__, result);
     return false;
   }
 
-  /* Vulkan render preparations */
   if (!CommandBuffer::reset(mRenderData.rdCommandBuffer, 0)) {
     Logger::log(1, "%s error: failed to reset command buffer\n", __FUNCTION__);
     return false;
@@ -3255,7 +3249,7 @@ bool VkRenderer::draw(float deltaTime) {
     if (mModelInstCamData.micSelectedInstance > 0) {
       InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance)->getInstanceSettings();
 
-      /* draw coordiante arrows at origin of selected instance*/
+      /* draw coordiante arrows at origin of selected instance */
       switch(mRenderData.rdInstanceEditMode) {
         case instanceEditMode::move:
           mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
@@ -3354,7 +3348,7 @@ bool VkRenderer::draw(float deltaTime) {
   std::vector<VkPipelineStageFlags> waitStages = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
   /* compute shader: contine if in vertex input ready
-   * vertex shader: wait for color attachment output ready*/
+   * vertex shader: wait for color attachment output ready */
   submitInfo.pWaitDstStageMask = waitStages.data();
 
   submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());

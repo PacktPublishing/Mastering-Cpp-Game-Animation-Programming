@@ -53,7 +53,7 @@ void main() {
 
   mat4 worldPosSkinMat = worldPos[gl_InstanceID] * skinMat;
 
-  /* y and z data contain the offset into the morph anim buffer*/
+  /* y and z data contain the offset into the morph anim buffer */
   int morphAnimOffset = int(perInstanceMorphData[gl_InstanceID].y * perInstanceMorphData[gl_InstanceID].z);
 
   vec4 origVertex = vec4(aPos.x, aPos.y, aPos.z, 1.0);

@@ -3,10 +3,7 @@
 #include <string>
 #include <memory>
 #include <map>
-#include <functional>
 #include <chrono>
-#include <unordered_map>
-#include <unordered_set>
 #include <random>
 
 #include <glm/glm.hpp>
@@ -22,17 +19,18 @@
 #include "UniformBuffer.h"
 #include "ShaderStorageBuffer.h"
 #include "UserInterface.h"
-#include "Camera.h"
+#include "CameraSettings.h"
+#include "ModelSettings.h"
 #include "CoordArrowsModel.h"
 #include "RotationArrowsModel.h"
 #include "ScaleArrowsModel.h"
 #include "SphereModel.h"
 #include "AssimpModel.h"
 #include "AssimpInstance.h"
-#include "YamlParser.h"
 #include "Octree.h"
 #include "TriangleOctree.h"
 #include "GraphEditor.h"
+#include "SingleInstanceBehavior.h"
 #include "Behavior.h"
 #include "AssimpLevel.h"
 #include "IKSolver.h"
@@ -59,8 +57,6 @@ class OGLRenderer {
     void handleMousePositionEvents(double xPos, double yPos);
     void handleMouseWheelEvents(double xOffset, double yOffset);
 
-    void cleanup();
-
     void addNullModelAndInstance();
     void removeAllModelsAndInstances();
 
@@ -83,7 +79,8 @@ class OGLRenderer {
     void addBehavior(int instanceId, std::shared_ptr<SingleInstanceBehavior> behavior);
     void delBehavior(int instanceId);
     void postDelNodeTree(std::string nodeTreeName);
-    void updateInstanceSettings(int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting);
+    void updateInstanceSettings(int instanceId, graphNodeType nodeType, instanceUpdateType updateType,
+      nodeCallbackVariant data, bool extraSetting);
     void addBehaviorEvent(int instanceId, nodeEvent event);
 
     void addModelBehavior(std::string modelName, std::shared_ptr<SingleInstanceBehavior> behavior);
@@ -103,16 +100,17 @@ class OGLRenderer {
 
     std::shared_ptr<BoundingBox3D> getWorldBoundaries();
 
+    void cleanup();
+
   private:
     OGLRenderData mRenderData{};
     ModelInstanceCamData mModelInstCamData{};
 
     Timer mFrameTimer{};
     Timer mMatrixGenerateTimer{};
-    Timer mIKTimer{};
     Timer mUploadToVBOTimer{};
-    Timer mDownloadFromUBOTimer{};
     Timer mUploadToUBOTimer{};
+    Timer mDownloadFromUBOTimer{};
     Timer mUIGenerateTimer{};
     Timer mUIDrawTimer{};
     Timer mCollisionDebugDrawTimer{};
@@ -121,6 +119,7 @@ class OGLRenderer {
     Timer mInteractionTimer{};
     Timer mFaceAnimTimer{};
     Timer mLevelCollisionTimer{};
+    Timer mIKTimer{};
     Timer mLevelGroundNeighborUpdateTimer{};
     Timer mPathFindingTimer{};
 
@@ -170,7 +169,7 @@ class OGLRenderer {
     ShaderStorageBuffer mEmptyWorldPositionBuffer{};
     std::vector<glm::mat4> mShaderBoneMatrices{};
 
-    /* x/y/z is shpere center, w is radius*/
+    /* x/y/z is shpere center, w is radius */
     ShaderStorageBuffer mBoundingSphereBuffer{};
     /* per-model-and-node adjustments for the spheres */
     ShaderStorageBuffer mBoundingSphereAdjustmentBuffer{};
@@ -212,7 +211,7 @@ class OGLRenderer {
     int mMouseMoveVerticalShiftKey = 0;
     InstanceSettings mSavedInstanceSettings{};
 
-    void handleMovementKeys(float deltaTime);
+    void handleMovementKeys();
 
     void updateTriangleCount();
     void updateLevelTriangleCount();
@@ -277,17 +276,17 @@ class OGLRenderer {
     void checkForBoundingSphereCollisions();
     void reactToInstanceCollisions();
 
+    void resetCollisionData();
+
     void findInteractionInstances();
     void drawInteractionDebug();
-
-    void resetCollisionData();
 
     std::shared_ptr<GraphEditor> mGraphEditor = nullptr;
     void editGraph(std::string graphName);
     std::shared_ptr<SingleInstanceBehavior> createEmptyGraph();
 
     std::shared_ptr<Behavior> mBehavior = nullptr;
-    instanceNodeActionCallback mInstanceNodeActionCallback;
+    instanceNodeActionCallback mInstanceNodeActionCallbackFunction;
 
     std::vector<glm::vec4> mFaceAnimPerInstanceData{};
     ShaderStorageBuffer mFaceAnimPerInstanceDataBuffer{};
@@ -298,8 +297,8 @@ class OGLRenderer {
     void generateLevelWireframe();
 
     void drawLevelAABB();
-    void drawLevelWireframe();
     void drawLevelOctree();
+    void drawLevelWireframe();
     void drawLevelCollisionTriangles();
 
     void resetLevelData();

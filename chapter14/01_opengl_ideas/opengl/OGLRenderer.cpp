@@ -1,33 +1,18 @@
-#include <algorithm>
-
 #include <imgui_impl_glfw.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
-#include <glm/gtc/epsilon.hpp>
-#include <glm/gtx/vector_query.hpp>
 
 #include <ctime>
 #include <cstdlib>
 #include <algorithm>
 #include <filesystem>
-#include <memory>
 #include <set>
-#include <map>
-#include <tuple>
-#include <array>
-#include <limits>
-#include <queue>
-#include <unordered_set>
 
 #include "OGLRenderer.h"
 #include "InstanceSettings.h"
-#include "CameraSettings.h"
-#include "ModelSettings.h"
 #include "AssimpSettingsContainer.h"
-#include "GraphEditor.h"
+#include "YamlParser.h"
 #include "Logger.h"
 #include "Tools.h"
 
@@ -208,7 +193,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   Logger::log(1, "%s: triangle octree initialized\n", __FUNCTION__);
 
   mModelInstCamData.micOctreeFindAllIntersectionsCallbackFunction = [this]() { return mOctree->findAllIntersections(); };
-  mModelInstCamData.micOctreeGetBoxesCallback = [this]() { return mOctree->getTreeBoxes(); };
+  mModelInstCamData.micOctreeGetBoxesCallbackFunction = [this]() { return mOctree->getTreeBoxes(); };
   mModelInstCamData.micWorldGetBoundariesCallbackFunction = [this]() { return getWorldBoundaries(); };
 
   /* register instance/model callbacks */
@@ -264,7 +249,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
 
   mModelInstCamData.micGetNavTargetsCallbackFunction = [this]() { return getNavTargets(); };
 
-  mRenderData.rdAppExitCallback = [this]() { doExitApplication(); };
+  mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
   Logger::log(1, "%s: callbacks initialized\n", __FUNCTION__);
 
   /* init camera strings */
@@ -344,6 +329,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mLevelWireframeMesh = std::make_shared<OGLLineMesh>();
   mLevelCollidingTriangleMesh = std::make_shared<OGLLineMesh>();
   mIKFootPointMesh = std::make_shared<OGLLineMesh>();
+  mRenderData.rdLevelWireframeMiniMapMesh = std::make_shared<OGLLineMesh>();
   mLevelGroundNeighborsMesh = std::make_shared<OGLLineMesh>();
   mInstancePathMesh = std::make_shared<OGLLineMesh>();
   Logger::log(1, "%s: line mesh storages initialized\n", __FUNCTION__);
@@ -357,10 +343,10 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   Logger::log(1, "%s: Colliding sphere line mesh storage initialized\n", __FUNCTION__);
 
   mBehavior = std::make_shared<Behavior>();
-  mInstanceNodeActionCallback = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
+  mInstanceNodeActionCallbackFunction = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
     updateInstanceSettings(instanceId, nodeType, updateType, data, extraSetting);
   };
-  mBehavior->setNodeActionCallback(mInstanceNodeActionCallback);
+  mBehavior->setNodeActionCallback(mInstanceNodeActionCallbackFunction);
   Logger::log(1, "%s: behavior data initialized\n", __FUNCTION__);
 
   mGraphEditor = std::make_shared<GraphEditor>();
@@ -371,7 +357,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
     Logger::log(1, "%s: loaded default config file '%s'\n", __FUNCTION__, mDefaultConfigFileName.c_str());
   } else {
     Logger::log(1, "%s: could not load default config file '%s'\n", __FUNCTION__, mDefaultConfigFileName.c_str());
-    /* only add null instance if we don't have default config */
+    /* clear everything and add null model/instance/settings container */
     createEmptyConfig();
   }
 
@@ -669,8 +655,8 @@ void OGLRenderer::undoLastOperation() {
    * and the settings files still contain the old index number */
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -690,8 +676,8 @@ void OGLRenderer::redoLastOperation() {
   mModelInstCamData.micSettingsContainer->redo();
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -856,12 +842,11 @@ bool OGLRenderer::addModel(std::string modelFileName, bool addInitialInstance, b
 
   if (withUndo) {
     mModelInstCamData.micSettingsContainer->applyLoadModel(model, mModelInstCamData.micSelectedModel, firstInstance,
-                                                       mModelInstCamData.micSelectedModel, prevSelectedModelId,
-                                                       mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
+      mModelInstCamData.micSelectedModel, prevSelectedModelId,
+      mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
-
-  /* create AABBs for the model*/
+  /* create AABBs for the model */
   createAABBLookup(model);
 
   return true;
@@ -928,8 +913,8 @@ void OGLRenderer::deleteModel(std::string modelFileName, bool withUndo) {
 
   if (withUndo) {
     mModelInstCamData.micSettingsContainer->applyDeleteModel(model, indexPos, deletedInstances,
-                                                         mModelInstCamData.micSelectedModel, prevSelectedModelId,
-                                                         mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
+      mModelInstCamData.micSelectedModel, prevSelectedModelId,
+      mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
   enumerateInstances();
@@ -955,7 +940,8 @@ std::shared_ptr<AssimpInstance> OGLRenderer::addInstance(std::shared_ptr<AssimpM
   /* select new instance */
   mModelInstCamData.micSelectedInstance = mModelInstCamData.micAssimpInstances.size() - 1;
   if (withUndo) {
-    mModelInstCamData.micSettingsContainer->applyNewInstance(newInstance, mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
+    mModelInstCamData.micSettingsContainer->applyNewInstance(newInstance,
+      mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
   enumerateInstances();
@@ -967,7 +953,8 @@ std::shared_ptr<AssimpInstance> OGLRenderer::addInstance(std::shared_ptr<AssimpM
 void OGLRenderer::addExistingInstance(std::shared_ptr<AssimpInstance> instance, int indexPos, int indexPerModelPos) {
   Logger::log(2, "%s: inserting instance on pos %i\n", __FUNCTION__, indexPos);
   mModelInstCamData.micAssimpInstances.insert(mModelInstCamData.micAssimpInstances.begin() + indexPos, instance);
-  mModelInstCamData.micAssimpInstancesPerModel[instance->getModel()->getModelFileName()].insert(mModelInstCamData.micAssimpInstancesPerModel[instance->getModel()->getModelFileName()].begin() +
+  mModelInstCamData.micAssimpInstancesPerModel[
+    instance->getModel()->getModelFileName()].insert(mModelInstCamData.micAssimpInstancesPerModel[instance->getModel()->getModelFileName()].begin() +
     indexPerModelPos, instance);
 
   enumerateInstances();
@@ -1090,11 +1077,13 @@ void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int n
     newInstances.emplace_back(newInstance);
     mModelInstCamData.micAssimpInstances.emplace_back(newInstance);
     mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].emplace_back(newInstance);
+  }
 
-    enumerateInstances();
+  enumerateInstances();
 
-    /* add behavior tree after new id was set */
-    InstanceSettings newInstanceSettings = newInstance->getInstanceSettings();
+  /* add behavior tree after new id was set */
+  for (int i = 0; i < numClones; ++i) {
+    InstanceSettings newInstanceSettings = newInstances.at(i)->getInstanceSettings();
     if (!newInstanceSettings.isNodeTreeName.empty()) {
       addBehavior(newInstanceSettings.isInstanceIndexPosition, mModelInstCamData.micBehaviorData.at(newInstanceSettings.isNodeTreeName));
     }
@@ -1143,7 +1132,7 @@ void OGLRenderer::initOctree(int thresholdPerBox, int maxDepth) {
   mOctree = std::make_shared<Octree>(mWorldBoundaries, thresholdPerBox, maxDepth);
 
   /* octree needs to get bounding box of the instances */
-  mOctree->instanceGetBoundingBoxCallback = [this](int instanceId) {
+  mOctree->mInstanceGetBoundingBoxCallbackFunction = [this](int instanceId) {
     return mModelInstCamData.micAssimpInstances.at(instanceId)->getBoundingBox();
   };
 }
@@ -1154,110 +1143,6 @@ std::shared_ptr<BoundingBox3D> OGLRenderer::getWorldBoundaries() {
 
 void OGLRenderer::initTriangleOctree(int thresholdPerBox, int maxDepth) {
   mTriangleOctree = std::make_shared<TriangleOctree>(mWorldBoundaries, thresholdPerBox, maxDepth);
-}
-
-void OGLRenderer::createAABBLookup(std::shared_ptr<AssimpModel> model) {
-  const int LOOKUP_SIZE = 1023;
-  /* we use a single instance per clip*/
-  size_t numberOfClips = model->getAnimClips().size();
-
-  mPerInstanceAnimData.resize(numberOfClips);
-
-  auto boneList =  model->getBoneList();
-  size_t numberOfBones = boneList.size();
-
-  /* we need valid model with triangels and animations */
-  if (numberOfClips > 0 && numberOfBones > 0 &&
-      model->getTriangleCount() > 0) {
-
-    Logger::log(1, "%s: playing animations for model %s\n", __FUNCTION__, model->getModelFileName().c_str());
-
-    /* we MUST set the bone offsets to identity matrices to get the skeleton data */
-    std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
-    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
-
-    std::vector<std::vector<AABB>> aabbLookups;
-    aabbLookups.resize(numberOfClips);
-
-    std::vector<glm::mat4> boneMatrix;
-
-    size_t numberOfBones = model->getBoneList().size();
-    size_t trsMatrixSize = numberOfBones * numberOfClips * 3 * sizeof(glm::vec4);
-    size_t bufferMatrixSize = numberOfBones * numberOfClips * sizeof(glm::mat4);
-    mShaderBoneMatrixBuffer.checkForResize(bufferMatrixSize);
-    mShaderTRSMatrixBuffer.checkForResize(trsMatrixSize);
-    mPerInstanceAnimDataBuffer.checkForResize(numberOfClips);
-
-    /* some models have a scaling set here... */
-    glm::mat4 rootTransformMat = glm::transpose(model->getRootTranformationMatrix());
-
-    /* our axis aligned bounding box */
-    AABB aabb;
-
-    /* play all animation steps */
-    float timeScaleFactor = model->getMaxClipDuration() / static_cast<float>(LOOKUP_SIZE);
-    for (int lookups = 0; lookups < LOOKUP_SIZE; lookups++) {
-      for (size_t i = 0; i < numberOfClips; ++i) {
-
-        PerInstanceAnimData animData{};
-        animData.firstAnimClipNum = i;
-        animData.secondAnimClipNum = 0;
-        animData.firstClipReplayTimestamp = lookups * timeScaleFactor;
-        animData.secondClipReplayTimestamp = 0.0f;
-        animData.blendFactor = 0.0f;
-
-        mPerInstanceAnimData.at(i) = animData;
-      }
-
-      /* do a single iteration of all clips in parallel */
-      mAssimpTransformComputeShader.use();
-
-      mUploadToUBOTimer.start();
-      model->bindAnimLookupBuffer(0);
-      mPerInstanceAnimDataBuffer.uploadSsboData(mPerInstanceAnimData, 1);
-      mShaderTRSMatrixBuffer.bind(2);
-      mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
-
-      glDispatchCompute(numberOfBones, std::ceil(numberOfClips/ 32.0f), 1);
-      glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-
-      mAssimpMatrixComputeShader.use();
-
-      mUploadToUBOTimer.start();
-      mShaderTRSMatrixBuffer.bind(0);
-      model->bindBoneParentBuffer(1);
-      mEmptyBoneOffsetBuffer.bind(2);
-      mShaderBoneMatrixBuffer.bind(3);
-      mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
-
-      glDispatchCompute(numberOfBones, std::ceil(numberOfClips/ 32.0f), 1);
-      glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-      /* extract bone matrix from SSBO */
-      mDownloadFromUBOTimer.start();
-      boneMatrix = mShaderBoneMatrixBuffer.getSsboDataMat4();
-      mRenderData.rdDownloadFromUBOTime += mDownloadFromUBOTimer.stop();
-
-      /* and loop over clips and bones */
-      for (size_t i = 0; i < numberOfClips; ++i) {
-        /* add first point */
-        glm::vec3 bonePos = (rootTransformMat * boneMatrix.at(numberOfBones * i))[3];
-        aabb.create(bonePos);
-
-        /* extend AABB for other points */
-        for (size_t j = 1; j < numberOfBones; ++j) {
-          /* Shader:  uint index = node + numberOfBones * instance; */
-          glm::vec3 bonePos = (rootTransformMat * boneMatrix.at(j + numberOfBones * i))[3];
-          aabb.addPoint(bonePos);
-        }
-
-        aabbLookups.at(i).emplace_back(aabb);
-      }
-    }
-
-    model->setAABBLokkup(aabbLookups);
-  }
 }
 
 void OGLRenderer::addBehavior(int instanceId, std::shared_ptr<SingleInstanceBehavior> behavior) {
@@ -1322,7 +1207,8 @@ void OGLRenderer::delModelBehavior(std::string modelName) {
   Logger::log(1, "%s: removed behavior from all instances of model %s\n", __FUNCTION__, modelName.c_str());
 }
 
-void OGLRenderer::updateInstanceSettings(int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
+void OGLRenderer::updateInstanceSettings(int instanceId, graphNodeType nodeType,
+    instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
   if (instanceId >= mModelInstCamData.micAssimpInstances.size()) {
     Logger::log(1, "%s error: number of instances is smaller than instance id %i\n", __FUNCTION__, instanceId);
     return;
@@ -1622,6 +1508,7 @@ void OGLRenderer::generateLevelOctree() {
 
 void OGLRenderer::generateLevelWireframe() {
   mLevelWireframeMesh->vertices.clear();
+  mRenderData.rdLevelWireframeMiniMapMesh->vertices.clear();
 
   float r = 0.0f;
   float g = 0.0f;
@@ -1633,6 +1520,8 @@ void OGLRenderer::generateLevelWireframe() {
     }
     Logger::log(1, "%s: generating wireframe data for level '%s'\n", __FUNCTION__, level->getLevelFileName().c_str());
     std::vector<OGLMesh> levelMeshes = level->getLevelMeshes();
+    glm::mat4 transformMat = level->getWorldTransformMatrix();
+    glm::mat3 normalMat = level->getNormalTransformMatrix();
     for (const auto& mesh : levelMeshes) {
       OGLLineVertex vert;
       OGLLineVertex normalVert;
@@ -1642,10 +1531,9 @@ void OGLRenderer::generateLevelWireframe() {
       g = std::fmod(g + 0.81f, 1.0f);
       b = std::fmod(b + 0.75f, 1.0f);
       vert.color = glm::vec3(r, g, b);
+      normalVert.color = glm::vec3(0.6, 0.0f, 0.6f);
 
       for (int i = 0; i < mesh.indices.size(); i += 3) {
-        glm::mat4 transformMat = level->getWorldTransformMatrix();
-        glm::mat3 normalMat = level->getNormalTransformMatrix();
 
         /* move wireframe overdraw a bit above the planes */
         glm::vec3 point0 = transformMat * glm::vec4(glm::vec3(mesh.vertices.at(mesh.indices.at(i)).position), 1.0f);
@@ -1658,28 +1546,32 @@ void OGLRenderer::generateLevelWireframe() {
 
         /* move vertices in direction of normal  */
         vert.position = point0 + normal0 * 0.005f;
-        mLevelWireframeMesh->vertices.push_back(vert);
+        mLevelWireframeMesh->vertices.emplace_back(vert);
+        mRenderData.rdLevelWireframeMiniMapMesh->vertices.emplace_back(vert);
         vert.position = point1 + normal1 * 0.005f;
-        mLevelWireframeMesh->vertices.push_back(vert);
+        mLevelWireframeMesh->vertices.emplace_back(vert);
+        mRenderData.rdLevelWireframeMiniMapMesh->vertices.emplace_back(vert);
 
         vert.position = point1 + normal1 * 0.005f;
-        mLevelWireframeMesh->vertices.push_back(vert);
+        mLevelWireframeMesh->vertices.emplace_back(vert);
+        mRenderData.rdLevelWireframeMiniMapMesh->vertices.emplace_back(vert);
         vert.position = point2 + normal2 * 0.005f;
-        mLevelWireframeMesh->vertices.push_back(vert);
+        mLevelWireframeMesh->vertices.emplace_back(vert);
+        mRenderData.rdLevelWireframeMiniMapMesh->vertices.emplace_back(vert);
 
         vert.position = point2 + normal2 * 0.005f;
-        mLevelWireframeMesh->vertices.push_back(vert);
+        mLevelWireframeMesh->vertices.emplace_back(vert);
+        mRenderData.rdLevelWireframeMiniMapMesh->vertices.emplace_back(vert);
         vert.position = point0 + normal0 * 0.005f;
-        mLevelWireframeMesh->vertices.push_back(vert);
+        mLevelWireframeMesh->vertices.emplace_back(vert);
+        mRenderData.rdLevelWireframeMiniMapMesh->vertices.emplace_back(vert);
 
-        /* draw normal vector in the middle of the triangle*/
-        normalVert.color = glm::vec3(0.6, 0.0f, 0.6f);
+        /* draw normal vector in the middle of the triangle */
         glm::vec3 normalPos = (point0 + point1 + point2) / 3.0f;
         normalVert.position = normalPos;
-        mLevelWireframeMesh->vertices.push_back(normalVert);
+        mLevelWireframeMesh->vertices.emplace_back(normalVert);
         normalVert.position = normalPos + normal0;
-        mLevelWireframeMesh->vertices.push_back(normalVert);
-
+        mLevelWireframeMesh->vertices.emplace_back(normalVert);
       }
     }
   }
@@ -1687,6 +1579,16 @@ void OGLRenderer::generateLevelWireframe() {
   mUploadToVBOTimer.start();
   mLevelWireframeVertexBuffer.uploadData(*mLevelWireframeMesh);
   mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
+
+  /* adjust color for mini map */
+  std::transform(mRenderData.rdLevelWireframeMiniMapMesh->vertices.begin(),
+    mRenderData.rdLevelWireframeMiniMapMesh->vertices.end(),
+    mRenderData.rdLevelWireframeMiniMapMesh->vertices.begin(),
+    [](OGLLineVertex& v) {
+      v.color = glm::vec3(0.0f, 1.0f, 1.0f);
+      return v;
+    }
+  );
 }
 
 std::vector<int> OGLRenderer::getNavTargets() {
@@ -1804,6 +1706,58 @@ void OGLRenderer::setSize(unsigned int width, unsigned int height) {
   Logger::log(1, "%s: resized window to %dx%d\n", __FUNCTION__, width, height);
 }
 
+void OGLRenderer::setConfigDirtyFlag(bool flag) {
+  mConfigIsDirty = flag;
+  if (mConfigIsDirty) {
+    mWindowTitleDirtySign = "*";
+  } else {
+    mWindowTitleDirtySign = " ";
+  }
+  setModeInWindowTitle();
+}
+
+bool OGLRenderer::getConfigDirtyFlag() {
+  return mConfigIsDirty;
+}
+
+void OGLRenderer::setModeInWindowTitle() {
+  mModelInstCamData.micSetWindowTitleFunction(mOrigWindowTitle + " (" +
+    mRenderData.mAppModeMap.at(mRenderData.rdApplicationMode) + " Mode)" +
+    mWindowTitleDirtySign);
+}
+
+void OGLRenderer::toggleFullscreen() {
+  mRenderData.rdFullscreen = mRenderData.rdFullscreen ? false : true;
+
+  static int xPos = 0;
+  static int yPos = 0;
+  static int width = mRenderData.rdWidth;
+  static int height = mRenderData.rdHeight;
+  if (mRenderData.rdFullscreen) {
+    /* save position and resolution */
+    glfwGetWindowPos(mRenderData.rdWindow, &xPos, &yPos);
+    glfwGetWindowSize(mRenderData.rdWindow, &width, &height);
+
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    glfwSetWindowMonitor(mRenderData.rdWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+  } else {
+    glfwSetWindowMonitor(mRenderData.rdWindow, nullptr, xPos, yPos, width, height, 0);
+  }
+}
+
+void OGLRenderer::checkMouseEnable() {
+  if (mMouseLock || mMouseMove || mRenderData.rdApplicationMode != appMode::edit) {
+    glfwSetInputMode(mRenderData.rdWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    /* enable raw mode if possible */
+    if (glfwRawMouseMotionSupported()) {
+      glfwSetInputMode(mRenderData.rdWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
+  } else {
+    glfwSetInputMode(mRenderData.rdWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+  }
+}
+
 void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
   /* forward to ImGui only when in edit mode */
   if (mRenderData.rdApplicationMode == appMode::edit) {
@@ -1827,6 +1781,7 @@ void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
     setModeInWindowTitle();
   }
 
+  /* toggle between full-screen and window mode by pressing F11 */
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_F11) == GLFW_PRESS) {
    toggleFullscreen();
   }
@@ -1917,58 +1872,6 @@ void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
   }
 
   checkMouseEnable();
-}
-
-void OGLRenderer::setConfigDirtyFlag(bool flag) {
-  mConfigIsDirty = flag;
-  if (mConfigIsDirty) {
-    mWindowTitleDirtySign = "*";
-  } else {
-    mWindowTitleDirtySign = " ";
-  }
-  setModeInWindowTitle();
-}
-
-bool OGLRenderer::getConfigDirtyFlag() {
-  return mConfigIsDirty;
-}
-
-void OGLRenderer::setModeInWindowTitle() {
-  mModelInstCamData.micSetWindowTitleFunction(mOrigWindowTitle + " (" +
-    mRenderData.mAppModeMap.at(mRenderData.rdApplicationMode) + " Mode)" +
-    mWindowTitleDirtySign);
-}
-
-void OGLRenderer::toggleFullscreen() {
-  mRenderData.rdFullscreen = mRenderData.rdFullscreen ? false : true;
-
-  static int xPos = 0;
-  static int yPos = 0;
-  static int width = mRenderData.rdWidth;
-  static int height = mRenderData.rdHeight;
-  if (mRenderData.rdFullscreen) {
-    /* save position and resolution */
-    glfwGetWindowPos(mRenderData.rdWindow, &xPos, &yPos);
-    glfwGetWindowSize(mRenderData.rdWindow, &width, &height);
-
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-    glfwSetWindowMonitor(mRenderData.rdWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-  } else {
-    glfwSetWindowMonitor(mRenderData.rdWindow, nullptr, xPos, yPos, width, height, 0);
-  }
-}
-
-void OGLRenderer::checkMouseEnable() {
-  if (mMouseLock || mMouseMove || mRenderData.rdApplicationMode != appMode::edit) {
-    glfwSetInputMode(mRenderData.rdWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    /* enable raw mode if possible */
-    if (glfwRawMouseMotionSupported()) {
-      glfwSetInputMode(mRenderData.rdWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-    }
-  } else {
-    glfwSetInputMode(mRenderData.rdWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-  }
 }
 
 void OGLRenderer::handleMouseButtonEvents(int button, int action, int mods) {
@@ -2144,7 +2047,7 @@ void OGLRenderer::handleMousePositionEvents(double xPos, double yPos) {
     }
   }
 
-  /* save old values*/
+  /* save old values */
   mMouseXPos = static_cast<int>(xPos);
   mMouseYPos = static_cast<int>(yPos);
 }
@@ -2197,7 +2100,7 @@ void OGLRenderer::handleMouseWheelEvents(double xOffset, double yOffset) {
   }
 }
 
-void OGLRenderer::handleMovementKeys(float deltaTime) {
+void OGLRenderer::handleMovementKeys() {
   mRenderData.rdMoveForward = 0;
   mRenderData.rdMoveRight = 0;
   mRenderData.rdMoveUp = 0;
@@ -2320,7 +2223,10 @@ void OGLRenderer::handleMovementKeys(float deltaTime) {
       currentInstance->setNextInstanceState(nextState);
 
       /* run and walk soundsteps */
-      if (currentInstance->getAnimState() == animationState::playIdleWalkRun) {
+      if (currentInstance->getAnimState() == animationState::playIdleWalkRun &&
+        mRenderData.rdApplicationMode == appMode::view &&
+        (camSettings.csCamType == cameraType::firstPerson || camSettings.csCamType == cameraType::thirdPerson) &&
+        cam->getInstanceToFollow() && currentInstance == cam->getInstanceToFollow()) {
         switch (state) {
           case moveState::run:
             mModelInstCamData.micPlayRunFootstepCallbackFunction();
@@ -2336,6 +2242,110 @@ void OGLRenderer::handleMovementKeys(float deltaTime) {
         mModelInstCamData.micStopFootstepCallbackFunction();
       }
     }
+  }
+}
+
+void OGLRenderer::createAABBLookup(std::shared_ptr<AssimpModel> model) {
+  const int LOOKUP_SIZE = 1023;
+  /* we use a single instance per clip */
+  size_t numberOfClips = model->getAnimClips().size();
+
+  mPerInstanceAnimData.resize(numberOfClips);
+
+  auto boneList =  model->getBoneList();
+  size_t numberOfBones = boneList.size();
+
+  /* we need valid model with triangels and animations */
+  if (numberOfClips > 0 && numberOfBones > 0 &&
+      model->getTriangleCount() > 0) {
+
+    Logger::log(1, "%s: playing animations for model %s\n", __FUNCTION__, model->getModelFileName().c_str());
+
+    /* we MUST set the bone offsets to identity matrices to get the skeleton data */
+    std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
+    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
+
+    std::vector<std::vector<AABB>> aabbLookups;
+    aabbLookups.resize(numberOfClips);
+
+    std::vector<glm::mat4> boneMatrix;
+
+    size_t numberOfBones = model->getBoneList().size();
+    size_t trsMatrixSize = numberOfBones * numberOfClips * 3 * sizeof(glm::vec4);
+    size_t bufferMatrixSize = numberOfBones * numberOfClips * sizeof(glm::mat4);
+    mShaderBoneMatrixBuffer.checkForResize(bufferMatrixSize);
+    mShaderTRSMatrixBuffer.checkForResize(trsMatrixSize);
+    mPerInstanceAnimDataBuffer.checkForResize(numberOfClips);
+
+    /* some models have a scaling set here... */
+    glm::mat4 rootTransformMat = glm::transpose(model->getRootTranformationMatrix());
+
+    /* our axis aligned bounding box */
+    AABB aabb;
+
+    /* play all animation steps */
+    float timeScaleFactor = model->getMaxClipDuration() / static_cast<float>(LOOKUP_SIZE);
+    for (int lookups = 0; lookups < LOOKUP_SIZE; ++lookups) {
+      for (size_t i = 0; i < numberOfClips; ++i) {
+
+        PerInstanceAnimData animData{};
+        animData.firstAnimClipNum = i;
+        animData.secondAnimClipNum = 0;
+        animData.firstClipReplayTimestamp = lookups * timeScaleFactor;
+        animData.secondClipReplayTimestamp = 0.0f;
+        animData.blendFactor = 0.0f;
+
+        mPerInstanceAnimData.at(i) = animData;
+      }
+
+      /* do a single iteration of all clips in parallel */
+      mAssimpTransformComputeShader.use();
+
+      mUploadToUBOTimer.start();
+      model->bindAnimLookupBuffer(0);
+      mPerInstanceAnimDataBuffer.uploadSsboData(mPerInstanceAnimData, 1);
+      mShaderTRSMatrixBuffer.bind(2);
+      mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
+
+      glDispatchCompute(numberOfBones, std::ceil(numberOfClips/ 32.0f), 1);
+      glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+
+      mAssimpMatrixComputeShader.use();
+
+      mUploadToUBOTimer.start();
+      mShaderTRSMatrixBuffer.bind(0);
+      model->bindBoneParentBuffer(1);
+      mEmptyBoneOffsetBuffer.bind(2);
+      mShaderBoneMatrixBuffer.bind(3);
+      mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
+
+      glDispatchCompute(numberOfBones, std::ceil(numberOfClips/ 32.0f), 1);
+      glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+      /* extract bone matrix from SSBO */
+      mDownloadFromUBOTimer.start();
+      boneMatrix = mShaderBoneMatrixBuffer.getSsboDataMat4();
+      mRenderData.rdDownloadFromUBOTime += mDownloadFromUBOTimer.stop();
+
+      /* and loop over clips and bones */
+      for (size_t i = 0; i < numberOfClips; ++i) {
+        /* add first point */
+        glm::vec3 bonePos = (rootTransformMat * boneMatrix.at(numberOfBones * i))[3];
+        aabb.create(bonePos);
+
+        /* extend AABB for other points */
+        for (size_t j = 1; j < numberOfBones; ++j) {
+          /* Shader:  uint index = node + numberOfBones * instance; */
+          glm::vec3 bonePos = (rootTransformMat * boneMatrix.at(j + numberOfBones * i))[3];
+          aabb.addPoint(bonePos);
+        }
+
+        aabbLookups.at(i).emplace_back(aabb);
+      }
+    }
+
+    model->setAABBLookup(aabbLookups);
   }
 }
 
@@ -2375,10 +2385,6 @@ void OGLRenderer::checkForInstanceCollisions() {
       size_t bufferMatrixSize = numInstances * numberOfBones * sizeof(glm::mat4);
 
       mPerInstanceAnimData.resize(numInstances);
-
-      /* we MUST set the bone offsets to identity matrices to get the skeleton data */
-      std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
-      mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
 
       /* reusing the array and SSBO for now */
       mWorldPosMatrices.resize(numInstances);
@@ -2420,12 +2426,6 @@ void OGLRenderer::checkForInstanceCollisions() {
     checkForBoundingSphereCollisions();
   }
 
-  size_t remainingCollisions = mModelInstCamData.micInstanceCollisions.size();
-
-  if (mRenderData.rdDrawBoundingSpheres == collisionDebugDraw::colliding && remainingCollisions > 0) {
-    drawCollidingBoundingSpheres();
-  }
-
   /* add up non-animated collisions */
   mModelInstCamData.micInstanceCollisions.merge(nonAnimatedCollisions);
 
@@ -2460,7 +2460,8 @@ void OGLRenderer::checkForLevelCollisions() {
         AABB instanceAABB = instance->getModel()->getAABB(instSettings);
         float instanceHeight = instanceAABB.getMaxPos().y - instanceAABB.getMinPos().y;
         float instanceHalfHeight = instanceHeight / 2.0f;
-        std::optional<glm::vec3> result = Tools::rayTriangleIntersection(instSettings.isWorldPosition + glm::vec3(0.0f, instanceHalfHeight, 0.0f), glm::vec3(0.0f, -instanceHeight, 0.0f), tri);
+        std::optional<glm::vec3> result = Tools::rayTriangleIntersection(instSettings.isWorldPosition +
+          glm::vec3(0.0f, instanceHalfHeight, 0.0f), glm::vec3(0.0f, -instanceHeight, 0.0f), tri);
         if (result.has_value()) {
           instance->setCurrentGroundTriangleIndex(tri.index);
         }
@@ -2560,7 +2561,7 @@ void OGLRenderer::checkForBoundingSphereCollisions() {
       glm::vec4 firstSphereData = mBoundingSpheresPerInstance[firstId].at(first);
       float firstRadius = firstSphereData.w;
 
-      /* no need to check disabled spheres*/
+      /* no need to check disabled spheres */
       if (firstRadius == 0.0f) {
         continue;
       }
@@ -2571,7 +2572,7 @@ void OGLRenderer::checkForBoundingSphereCollisions() {
         glm::vec4 secondSphereData = mBoundingSpheresPerInstance[secondId].at(second);
         float secondRadius = secondSphereData.w;
 
-        /* no need to check disabled spheres*/
+        /* no need to check disabled spheres */
         if (secondRadius == 0.0f) {
           continue;
         }
@@ -2746,48 +2747,48 @@ void OGLRenderer::drawInteractionDebug() {
     glm::vec2 maxQueryBoxBottomRight = glm::vec2(instancePos2D) + glm::vec2(mRenderData.rdInteractionMaxRange / 2.0f);
 
     /* min range */
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxTopLeft.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxTopLeft.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
     /* max range */
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxTopLeft.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxTopLeft.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxTopLeft.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxBottomRight.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
   }
+
   /* draw FOV lines */
   if (mRenderData.rdDrawInteractionFOV) {
     std::set<int> drawFOVLines = mRenderData.rdInteractionCandidates;
@@ -2838,7 +2839,7 @@ void OGLRenderer::drawInteractionDebug() {
     mLineVertexBuffer.bindAndDraw(GL_LINES, 0, InteractionMesh.vertices.size());
   }
 
-  /* draw instanca AABBs */
+  /* draw instance AABBs */
   if (mRenderData.rdInteractionCandidates.empty()) {
     return;
   }
@@ -2861,7 +2862,7 @@ void OGLRenderer::drawAABBs(std::vector<std::shared_ptr<AssimpInstance>> instanc
   for (size_t i = 0; i < instances.size(); ++i) {
     InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
 
-    /* skip null instance*/
+    /* skip null instance */
     if (instSettings.isInstanceIndexPosition == 0) {
       continue;
     }
@@ -2872,7 +2873,8 @@ void OGLRenderer::drawAABBs(std::vector<std::shared_ptr<AssimpInstance>> instanc
     aabbLineMesh = instanceAABB.getAABBLines(aabbColor);
 
     if (aabbLineMesh) {
-      std::copy(aabbLineMesh->vertices.begin(), aabbLineMesh->vertices.end(), mAABBMesh->vertices.begin() + i * aabbLineMesh->vertices.size());
+      std::copy(aabbLineMesh->vertices.begin(), aabbLineMesh->vertices.end(),
+        mAABBMesh->vertices.begin() + i * aabbLineMesh->vertices.size());
     }
   }
 
@@ -2896,6 +2898,7 @@ void OGLRenderer::resetLevelData() {
 
   mRenderData.rdDrawLevelAABB = false;
   mRenderData.rdDrawLevelWireframe = false;
+  mRenderData.rdDrawLevelWireframeMiniMap = false;
   mRenderData.rdDrawLevelOctree = false;
   mRenderData.rdDrawLevelCollisionTriangles = false;
   mRenderData.rdEnableSimpleGravity = false;
@@ -2912,6 +2915,7 @@ void OGLRenderer::resetLevelData() {
   mRenderData.rdDrawInstancePaths = false;
 
   mRenderData.rdEnableNavigation = false;
+
   mRenderData.rdDrawSkybox = false;
   mRenderData.rdFogDensity = 0.0f;
 
@@ -2930,6 +2934,11 @@ void OGLRenderer::resetLevelData() {
   addNullLevel();
 
   mModelInstCamData.micSelectedLevel = 0;
+
+  /* stop music too */
+  if (mModelInstCamData.micStopMusicCallbackFunction) {
+    mModelInstCamData.micStopMusicCallbackFunction();
+  }
 }
 
 void OGLRenderer::drawLevelAABB() {
@@ -2978,7 +2987,7 @@ void OGLRenderer::drawAdjacentDebugTriangles() {
 }
 
 void OGLRenderer::drawGroundTriangles() {
-  /* enable transparency for ground triangles*/
+  /* enable transparency for ground triangles */
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   mGroundMeshShader.use();
@@ -3027,13 +3036,21 @@ void OGLRenderer::drawCollisionDebug() {
     }
   }
 
-  /* no bounding sphere collision will be done with this setting, so run the computer shaders just for the selected instance */
-  if (mRenderData.rdDrawBoundingSpheres == collisionDebugDraw::selected) {
-    drawSelectedBoundingSpheres();
-  }
-
-  if (mRenderData.rdDrawBoundingSpheres == collisionDebugDraw::all) {
-    drawAllBoundingSpheres();
+  switch (mRenderData.rdDrawBoundingSpheres) {
+    case collisionDebugDraw::none:
+      break;
+    case collisionDebugDraw::colliding:
+      if (mModelInstCamData.micInstanceCollisions.size() > 0) {
+        drawCollidingBoundingSpheres();
+      }
+      break;
+    case collisionDebugDraw::selected:
+      /* no bounding sphere collision will be done with this setting, so run the computer shaders just for the selected instance */
+      drawSelectedBoundingSpheres();
+      break;
+    case collisionDebugDraw::all:
+      drawAllBoundingSpheres();
+      break;
   }
 }
 
@@ -3042,6 +3059,10 @@ void OGLRenderer::drawSelectedBoundingSpheres() {
     std::shared_ptr<AssimpInstance> instance = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance);
     std::shared_ptr<AssimpModel> model = instance->getModel();
 
+   if (!model->hasAnimations()) {
+     return;
+   }
+
     size_t numberOfBones = model->getBoneList().size();
 
     size_t numberOfSpheres = numberOfBones;
@@ -3049,10 +3070,6 @@ void OGLRenderer::drawSelectedBoundingSpheres() {
     size_t bufferMatrixSize = numberOfBones * sizeof(glm::mat4);
 
     mPerInstanceAnimData.resize(1);
-
-    /* we MUST set the bone offsets to identity matrices to get the skeleton data */
-    std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
-    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
 
     /* reusing the array and SSBO for now */
     mWorldPosMatrices.resize(1);
@@ -3113,10 +3130,6 @@ void OGLRenderer::drawCollidingBoundingSpheres() {
 
     mPerInstanceAnimData.resize(numInstances);
 
-    /* we MUST set the bone offsets to identity matrices to get the skeleton data */
-    std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
-    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
-
     /* reusing the array and SSBO for now */
     mWorldPosMatrices.resize(numInstances);
 
@@ -3170,10 +3183,6 @@ void OGLRenderer::drawAllBoundingSpheres() {
     size_t bufferMatrixSize = numInstances * numberOfBones * sizeof(glm::mat4);
 
     mPerInstanceAnimData.resize(numInstances);
-
-    /* we MUST set the bone offsets to identity matrices to get the skeleton data */
-    std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
-    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
 
     /* reusing the array and SSBO for now */
     mWorldPosMatrices.resize(numInstances);
@@ -3298,28 +3307,28 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdMatrixGenerateTime = 0.0f;
   mRenderData.rdUploadToUBOTime = 0.0f;
   mRenderData.rdUploadToVBOTime = 0.0f;
+  mRenderData.rdDownloadFromUBOTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
   mRenderData.rdUIDrawTime = 0.0f;
   mRenderData.rdNumberOfCollisions = 0;
   mRenderData.rdCollisionDebugDrawTime = 0.0f;
   mRenderData.rdCollisionCheckTime = 0.0f;
   mRenderData.rdBehaviorTime = 0.0f;
+  mRenderData.rdInteractionTime = 0.0f;
   mRenderData.rdNumberOfInteractionCandidates = 0;
   mRenderData.rdInteractWithInstanceId = 0;
   mRenderData.rdFaceAnimTime = 0.0f;
-  mRenderData.rdDownloadFromUBOTime = 0.0f;
   mRenderData.rdNumberOfCollidingTriangles = 0;
   mRenderData.rdNumberOfCollidingGroundTriangles = 0;
   mRenderData.rdLevelCollisionTime = 0.0f;
   mRenderData.rdIKTime = 0.0f;
   mRenderData.rdPathFindingTime = 0.0f;
-  mRenderData.rdInteraction = 0.0f;
-  mRenderData.rdLevelGRoundNeighborUpdateTime = 0.0f;
+  mRenderData.rdLevelGroundNeighborUpdateTime = 0.0f;
 
   mLevelGroundNeighborsMesh->vertices.clear();
   mInstancePathMesh->vertices.clear();
 
-  handleMovementKeys(deltaTime);
+  handleMovementKeys();
 
   std::shared_ptr<Camera> cam = mModelInstCamData.micCameras.at(mModelInstCamData.micSelectedCamera);
   CameraSettings camSettings = cam->getCameraSettings();
@@ -3362,9 +3371,6 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mViewMatrix = cam->getViewMatrix();
 
-  mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
-
-  mUploadToUBOTimer.start();
   std::vector<glm::mat4> matrixData;
   matrixData.emplace_back(mViewMatrix);
   matrixData.emplace_back(mProjectionMatrix);
@@ -3407,6 +3413,9 @@ bool OGLRenderer::draw(float deltaTime) {
   glm::mat4 lightMatrix = glm::mat4(lightPos, lightColor, glm::vec4(mRenderData.rdFogDensity, glm::vec3()), glm::vec4());
   matrixData.emplace_back(lightMatrix);
 
+  mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
+
+  mUploadToUBOTimer.start();
   mUniformBuffer.uploadUboData(matrixData, 0);
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
@@ -3453,8 +3462,7 @@ bool OGLRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() &&
-        model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && model->getBoneList().size() > 0) {
 
         size_t numberOfBones = model->getBoneList().size();
         ModelSettings modSettings = model->getModelSettings();
@@ -3513,7 +3521,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
           instances.at(i)->updateAnimation(deltaTime);
 
-          /* get AABB and calculate 2D boundaries */
+          /* get AABB and calculate 3D boundaries */
           AABB instanceAABB = model->getAABB(instSettings);
 
           glm::vec3 position = instanceAABB.getMinPos();
@@ -3522,9 +3530,9 @@ bool OGLRenderer::draw(float deltaTime) {
                                      std::fabs(instanceAABB.getMaxPos().z - instanceAABB.getMinPos().z));
 
           BoundingBox3D box{position, size};
-          instances.at(i)->setBoundingBox3D(box);
+          instances.at(i)->setBoundingBox(box);
 
-          /* add instance to octree*/
+          /* add instance to octree */
           mOctree->add(instSettings.isInstanceIndexPosition);
 
           /* use a glm::vec3 to transport all morph data */
@@ -3673,7 +3681,7 @@ bool OGLRenderer::draw(float deltaTime) {
             mRenderData.rdPathFindingTime += mPathFindingTimer.stop();
           }
 
-          /* neighbor triangles*/
+          /* neighbor triangles */
           mLevelGroundNeighborUpdateTimer.start();
           int groundTri = instSettings.isCurrentGroundTriangleIndex;
           if (groundTri > -1) {
@@ -3685,7 +3693,7 @@ bool OGLRenderer::draw(float deltaTime) {
             mLevelGroundNeighborsMesh->vertices.insert(mLevelGroundNeighborsMesh->vertices.end(),
               neighborMesh->vertices.begin(), neighborMesh->vertices.end());
           }
-          mRenderData.rdLevelGRoundNeighborUpdateTime += mLevelGroundNeighborUpdateTimer.stop();
+          mRenderData.rdLevelGroundNeighborUpdateTime += mLevelGroundNeighborUpdateTimer.stop();
         }
 
         size_t trsMatrixSize = numberOfBones * numberOfInstances * 3 * sizeof(glm::vec4);
@@ -3717,7 +3725,6 @@ bool OGLRenderer::draw(float deltaTime) {
 
         /* do the computation - in groups of 32 invocations */
         glDispatchCompute(numberOfBones, std::ceil(numberOfInstances / 32.0f), 1);
-        //glDispatchCompute(numberOfBones, numberOfInstances, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         /* multiply every bone TRS matrix with its parent bones TRS matrices, until the root bone has been reached
@@ -3733,7 +3740,6 @@ bool OGLRenderer::draw(float deltaTime) {
 
         /* do the computation - in groups of 32 invocations */
         glDispatchCompute(numberOfBones, std::ceil(numberOfInstances / 32.0f), 1);
-        //glDispatchCompute(numberOfBones, numberOfInstances, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         std::shared_ptr<Camera> cam = mModelInstCamData.micCameras.at(mModelInstCamData.micSelectedCamera);
@@ -3748,7 +3754,8 @@ bool OGLRenderer::draw(float deltaTime) {
           /* get the bone matrix of the selected bone from the SSBO */
           glm::mat4 boneMatrix = mShaderBoneMatrixBuffer.getSsboDataMat4(selectedInstance * numberOfBones + selectedBone, 1).at(0);
 
-          cam->setBoneMatrix(mWorldPosMatrices.at(selectedInstance) * boneMatrix * offsetMatrix * model->getInverseBoneOffsetMatrix(selectedBone));
+          cam->setBoneMatrix(mWorldPosMatrices.at(selectedInstance) * boneMatrix * offsetMatrix *
+            model->getInverseBoneOffsetMatrix(selectedBone));
           cam->setCameraSettings(camSettings);
         }
 
@@ -3769,6 +3776,12 @@ bool OGLRenderer::draw(float deltaTime) {
           for (size_t i = 0; i < numberOfInstances; ++i) {
             InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
             for (int foot = 0; foot < modSettings.msFootIKChainPair.size(); ++foot) {
+              int nodeChainSize = modSettings.msFootIKChainNodes[foot].size();
+
+              /* no data (yet), continue */
+              if (nodeChainSize == 0) {
+                continue;
+              }
 
               /* extract foot position from world position matrix */
               int footNodeId = modSettings.msFootIKChainPair.at(foot).first;
@@ -3795,6 +3808,7 @@ bool OGLRenderer::draw(float deltaTime) {
                 if (result.has_value()) {
                   hitPoint = result.value() + glm::vec3(0.0f, footDistAboveGround, 0.0f);
 
+                  /* draw a cross onto the surface to mark the hit point */
                   if (mRenderData.rdDrawIKDebugLines) {
                     vert.color = glm::vec3(1.0f);
 
@@ -3827,6 +3841,7 @@ bool OGLRenderer::draw(float deltaTime) {
               mNewNodePositions.at(foot).insert(mNewNodePositions.at(foot).end(),
                 mIKSolvedPositions.begin(), mIKSolvedPositions.end());
 
+              /* draw a cross for every node in the node chain to mark the final position */
               if (mRenderData.rdDrawIKDebugLines) {
                 for (const auto& position : mIKSolvedPositions) {
                   vert.color = glm::vec3(0.1f, 0.6f, 0.8f);
@@ -3844,7 +3859,7 @@ bool OGLRenderer::draw(float deltaTime) {
             }
           }
 
-          /* read TRS values */
+          /* read current TRS values */
           mDownloadFromUBOTimer.start();
           mTRSData = mShaderTRSMatrixBuffer.getSsboDataTRSMatrixData();
           mRenderData.rdDownloadFromUBOTime += mDownloadFromUBOTimer.stop();
@@ -3901,7 +3916,6 @@ bool OGLRenderer::draw(float deltaTime) {
 
               /* do the computation - in groups of 32 invocations */
               glDispatchCompute(numberOfBones, std::ceil(numberOfInstances / 32.0f), 1);
-              //glDispatchCompute(numberOfBones, numberOfInstances, 1);
               glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
               /* read (new) bone positions */
@@ -3920,17 +3934,17 @@ bool OGLRenderer::draw(float deltaTime) {
           mAssimpSkinningShader.use();
         }
 
+        /* draw all meshes without morph anims first */
         mUploadToUBOTimer.start();
-
         mAssimpSkinningShader.setUniformValue(numberOfBones);
         mShaderBoneMatrixBuffer.bind(1);
         mShaderModelRootMatrixBuffer.bind(2);
         mSelectedInstanceBuffer.uploadSsboData(mSelectedInstance, 3);
-
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
         model->drawInstancedNoMorphAnims(numberOfInstances);
 
+        /* and if the model has morph anims, draw them in a separate pass */
         if (model->hasAnimMeshes()) {
           mFaceAnimTimer.start();
 
@@ -3941,14 +3955,12 @@ bool OGLRenderer::draw(float deltaTime) {
           }
 
           mUploadToUBOTimer.start();
-
           mAssimpSkinningMorphShader.setUniformValue(numberOfBones);
           mShaderBoneMatrixBuffer.bind(1);
           mShaderModelRootMatrixBuffer.bind(2);
           mSelectedInstanceBuffer.bind(3);
           model->bindMorphAnimBuffer(4);
           mFaceAnimPerInstanceDataBuffer.uploadSsboData(mFaceAnimPerInstanceData, 5);
-
           mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
           model->drawInstancedMorphAnims(numberOfInstances);
@@ -3981,7 +3993,7 @@ bool OGLRenderer::draw(float deltaTime) {
             mSelectedInstance.at(i).x = 1.0f;
           }
 
-          /* get AABB and calculate 2D boundaries */
+          /* get AABB and calculate 3D boundaries */
           AABB instanceAABB = model->getAABB(instSettings);
 
           glm::vec3 position = instanceAABB.getMinPos();
@@ -3990,9 +4002,9 @@ bool OGLRenderer::draw(float deltaTime) {
                                      std::fabs(instanceAABB.getMaxPos().z - instanceAABB.getMinPos().z));
 
           BoundingBox3D box{position, size};
-          instances.at(i)->setBoundingBox3D(box);
+          instances.at(i)->setBoundingBox(box);
 
-          /* add instance to octree*/
+          /* add instance to octree */
           mOctree->add(instSettings.isInstanceIndexPosition);
 
           /* gravity and ground collisions */
@@ -4050,7 +4062,6 @@ bool OGLRenderer::draw(float deltaTime) {
         mUploadToUBOTimer.start();
         mShaderModelRootMatrixBuffer.uploadSsboData(mWorldPosMatrices, 1);
         mSelectedInstanceBuffer.uploadSsboData(mSelectedInstance, 2);
-
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
         model->drawInstanced(numberOfInstances);
@@ -4062,28 +4073,10 @@ bool OGLRenderer::draw(float deltaTime) {
   mCoordArrowsLineIndexCount = 0;
   mLineMesh->vertices.clear();
   if (mRenderData.rdApplicationMode == appMode::edit) {
-
-    if (mMousePick) {
-      /* wait until selection buffer has been filled */
-      glFlush();
-      glFinish();
-
-      /* inverted Y */
-      float selectedInstanceId = mFramebuffer.readPixelFromPos(mMouseXPos, (mRenderData.rdHeight - mMouseYPos - 1));
-
-      if (selectedInstanceId >= 0.0f) {
-        mModelInstCamData.micSelectedInstance = static_cast<int>(selectedInstanceId);
-      } else {
-        mModelInstCamData.micSelectedInstance = 0;
-      }
-      mModelInstCamData.micSettingsContainer->applySelectInstance(mModelInstCamData.micSelectedInstance, mSavedSelectedInstanceId);
-      mMousePick = false;
-    }
-
     if (mModelInstCamData.micSelectedInstance > 0) {
       InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance)->getInstanceSettings();
 
-      /* draw coordiante arrows at origin of selected instance*/
+      /* draw coordiante arrows at origin of selected instance */
       switch(mRenderData.rdInstanceEditMode) {
         case instanceEditMode::move:
           mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
@@ -4115,6 +4108,25 @@ bool OGLRenderer::draw(float deltaTime) {
     if (mCoordArrowsLineIndexCount > 0) {
       mLineShader.use();
       mLineVertexBuffer.bindAndDraw(GL_LINES, 0, mCoordArrowsLineIndexCount);
+    }
+  }
+
+  if (mRenderData.rdApplicationMode == appMode::edit) {
+    if (mMousePick) {
+      /* wait until selection buffer has been filled */
+      glFlush();
+      glFinish();
+
+      /* inverted Y */
+      float selectedInstanceId = mFramebuffer.readPixelFromPos(mMouseXPos, (mRenderData.rdHeight - mMouseYPos - 1));
+
+      if (selectedInstanceId >= 0.0f) {
+        mModelInstCamData.micSelectedInstance = static_cast<int>(selectedInstanceId);
+      } else {
+        mModelInstCamData.micSelectedInstance = 0;
+      }
+      mModelInstCamData.micSettingsContainer->applySelectInstance(mModelInstCamData.micSelectedInstance, mSavedSelectedInstanceId);
+      mMousePick = false;
     }
   }
 
@@ -4159,7 +4171,7 @@ bool OGLRenderer::draw(float deltaTime) {
     if (mRenderData.rdDrawNeighborTriangles) {
       drawAdjacentDebugTriangles();
     }
-    mRenderData.rdLevelGRoundNeighborUpdateTime += mLevelGroundNeighborUpdateTimer.stop();
+    mRenderData.rdLevelGroundNeighborUpdateTime += mLevelGroundNeighborUpdateTimer.stop();
 
     if (mRenderData.rdDrawGroundTriangles) {
       drawGroundTriangles();
@@ -4170,7 +4182,7 @@ bool OGLRenderer::draw(float deltaTime) {
     }
   }
 
-  /* draw inverse kinematics debug lines*/
+  /* draw inverse kinematics debug lines */
   mIKTimer.start();
   if (mRenderData.rdDrawIKDebugLines) {
     drawIKDebugLines();
@@ -4223,13 +4235,13 @@ bool OGLRenderer::draw(float deltaTime) {
 
 void OGLRenderer::cleanup() {
   mShaderModelRootMatrixBuffer.cleanup();
-  mSelectedInstanceBuffer.cleanup();
   mShaderBoneMatrixBuffer.cleanup();
+  mShaderTRSMatrixBuffer.cleanup();
   mPerInstanceAnimDataBuffer.cleanup();
+  mSelectedInstanceBuffer.cleanup();
   mEmptyBoneOffsetBuffer.cleanup();
   mBoundingSphereBuffer.cleanup();
   mBoundingSphereAdjustmentBuffer.cleanup();
-  mShaderTRSMatrixBuffer.cleanup();
   mFaceAnimPerInstanceDataBuffer.cleanup();
   mEmptyWorldPositionBuffer.cleanup();
 

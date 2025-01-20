@@ -42,8 +42,8 @@ struct OGLLineMesh {
 };
 
 struct PerInstanceAnimData {
-  unsigned int firstAnimClipNum;
-  unsigned int secondAnimClipNum;
+  uint32_t firstAnimClipNum;
+  uint32_t secondAnimClipNum;
   float firstClipReplayTimestamp;
   float secondClipReplayTimestamp;
   float blendFactor;
@@ -80,7 +80,7 @@ struct OGLRenderData {
 
   instanceEditMode rdInstanceEditMode = instanceEditMode::move;
 
-  appExitCallback rdAppExitCallback;
+  appExitCallback rdAppExitCallbackFunction;
   bool rdRequestApplicationExit = false;
   bool rdNewConfigRequest = false;
   bool rdLoadConfigRequest = false;

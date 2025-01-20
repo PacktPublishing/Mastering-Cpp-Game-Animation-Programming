@@ -1,7 +1,3 @@
-#include <cmath>
-
-#include <glm/glm.hpp>
-
 #include "Framebuffer.h"
 #include "Logger.h"
 

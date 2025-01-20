@@ -1,5 +1,4 @@
 #include "Window.h"
-#include "Tools.h"
 #include "Logger.h"
 #include "ModelInstanceCamData.h"
 
@@ -9,7 +8,7 @@ bool Window::init(unsigned int width, unsigned int height, std::string title) {
     return false;
   }
 
-  /* set a "hint" for the NEXT window created*/
+  /* set a "hint" for the NEXT window created */
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -115,7 +114,6 @@ bool Window::init(unsigned int width, unsigned int height, std::string title) {
   rendererMICData.micPlayRunFootstepCallbackFunction = [this]() { mAudioManager.playRunFootsteps(); };
   rendererMICData.micStopFootstepCallbackFunction = [this]() { mAudioManager.stopFootsteps(); };
 
-  mStartTime = std::chrono::steady_clock::now();
   Logger::log(1, "%s: Window with OpenGL 4.6 successfully initialized\n", __FUNCTION__);
   return true;
 }

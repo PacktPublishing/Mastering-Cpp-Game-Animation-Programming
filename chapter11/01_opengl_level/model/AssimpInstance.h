@@ -54,7 +54,7 @@ class AssimpInstance {
     void stopInstance();
 
     BoundingBox3D getBoundingBox();
-    void setBoundingBox3D(BoundingBox3D box);
+    void setBoundingBox(BoundingBox3D box);
 
     void setFaceAnim(faceAnimation faceAnim);
     void setFaceAnimWeight(float weight);

@@ -58,7 +58,7 @@ int QuadTree::getQuadrantId(BoundingBox2D nodeBox, BoundingBox2D valueBox) {
       /* not found */
       return -1;
     }
-  /* East*/
+  /* East */
   } else if (valueBox.getTopLeft().x >= center.x) {
     if (valueBox.getBottom() < center.y) {
       /* NE */
@@ -81,7 +81,7 @@ void QuadTree::add(int instanceId) {
 }
 
 void QuadTree::add(std::shared_ptr<QuadTreeNode> node, int depth, BoundingBox2D box, int instanceId) {
-  if (!box.intersects(instanceGetBoundingBox2DCallbackFunction(instanceId))) {
+  if (!box.intersects(mInstanceGetBoundingBox2DCallbackFunction(instanceId))) {
     Logger::log(1, "%s error: current quadtree node bounding box does not contain the bounding box of instance %i \n", __FUNCTION__, instanceId);
     return;
   }
@@ -95,7 +95,7 @@ void QuadTree::add(std::shared_ptr<QuadTreeNode> node, int depth, BoundingBox2D 
       add(node, depth, box, instanceId);
     }
   } else {
-    int i = getQuadrantId(box, instanceGetBoundingBox2DCallbackFunction(instanceId));
+    int i = getQuadrantId(box, mInstanceGetBoundingBox2DCallbackFunction(instanceId));
     if (i != -1) {
       add(node->childs.at(i), depth + 1, getChildQuadrant(box, i), instanceId);
     } else {
@@ -117,12 +117,12 @@ void QuadTree::split(std::shared_ptr<QuadTreeNode> node, BoundingBox2D box) {
   std::vector<int> newInstanceIds{};
 
   for (const auto& instanceId : node->instancIds) {
-    int i = getQuadrantId(box, instanceGetBoundingBox2DCallbackFunction(instanceId));
+    int i = getQuadrantId(box, mInstanceGetBoundingBox2DCallbackFunction(instanceId));
     if (i != -1) {
-      /* found child, store in child ids*/
+      /* found child, store in child ids */
       node->childs[i]->instancIds.emplace_back(instanceId);
     } else {
-      /* not found, store in parent*/
+      /* not found, store in parent */
       newInstanceIds.emplace_back(instanceId);
     }
   }
@@ -134,7 +134,7 @@ void QuadTree::remove(int instanceId) {
 }
 
 bool QuadTree::remove(std::shared_ptr<QuadTreeNode> node, BoundingBox2D box, int instanceId) {
-  if (!box.intersects(instanceGetBoundingBox2DCallbackFunction(instanceId))) {
+  if (!box.intersects(mInstanceGetBoundingBox2DCallbackFunction(instanceId))) {
     Logger::log(1, "%s error: current quadtree node bounding box does not contain the bounding box of instance %i \n", __FUNCTION__, instanceId);
     return false;
   }
@@ -143,7 +143,7 @@ bool QuadTree::remove(std::shared_ptr<QuadTreeNode> node, BoundingBox2D box, int
     removeInstance(node, instanceId);
     return true;
   } else {
-    int i = getQuadrantId(box, instanceGetBoundingBox2DCallbackFunction(instanceId));
+    int i = getQuadrantId(box, mInstanceGetBoundingBox2DCallbackFunction(instanceId));
     if (i != -1) {
       if (remove(node->childs[i], getChildQuadrant(box, i), instanceId)) {
         return tryMerge(node);
@@ -206,7 +206,7 @@ std::vector<int> QuadTree::query(std::shared_ptr<QuadTreeNode> node, BoundingBox
   std::vector<int> values;
 
   for (const auto& instanceId : node->instancIds) {
-    if (queryBox.intersects(instanceGetBoundingBox2DCallbackFunction(instanceId))) {
+    if (queryBox.intersects(mInstanceGetBoundingBox2DCallbackFunction(instanceId))) {
       values.emplace_back(instanceId);
     }
   }
@@ -249,7 +249,7 @@ std::set<std::pair<int, int>> QuadTree::findAllIntersections(std::shared_ptr<Qua
 
   for (int i = 0; i < node->instancIds.size(); ++i) {
     for (int j = 0; j < i; ++j) {
-      if (instanceGetBoundingBox2DCallbackFunction(node->instancIds.at(i)).intersects(instanceGetBoundingBox2DCallbackFunction(node->instancIds.at(j)))) {
+      if (mInstanceGetBoundingBox2DCallbackFunction(node->instancIds.at(i)).intersects(mInstanceGetBoundingBox2DCallbackFunction(node->instancIds.at(j)))) {
         values.insert({node->instancIds[i], node->instancIds[j]});
       }
     }
@@ -276,7 +276,7 @@ std::set<std::pair<int, int>> QuadTree::findIntersectionsInDescendants(std::shar
   std::set<std::pair<int, int>> values;
 
   for (const auto& other : node->instancIds) {
-    if (instanceGetBoundingBox2DCallbackFunction(instanceId).intersects(instanceGetBoundingBox2DCallbackFunction(other))) {
+    if (mInstanceGetBoundingBox2DCallbackFunction(instanceId).intersects(mInstanceGetBoundingBox2DCallbackFunction(other))) {
       values.insert({instanceId, other});
     }
   }

@@ -1,6 +1,5 @@
-#include "AABB.h"
-
 #include <limits>
+#include "AABB.h"
 
 AABB::AABB() {
   mAabbMesh = std::make_shared<OGLLineMesh>();

@@ -19,6 +19,7 @@
 #include "AssimpAnimClip.h"
 #include "AssimpInstance.h"
 #include "AssimpSettingsContainer.h"
+#include "InstanceSettings.h"
 #include "Camera.h"
 #include "Logger.h"
 
@@ -152,7 +153,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         openUnsavedChangesExitDialog = true;
         renderData.rdRequestApplicationExit = false;
       } else {
-        renderData.rdAppExitCallback();
+        renderData.rdAppExitCallbackFunction();
       }
       ImGui::CloseCurrentPopup();
     }
@@ -178,7 +179,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     /* cheating a bit to get buttons more to the center */
     ImGui::Indent();
     if (ImGui::Button("OK")) {
-      renderData.rdAppExitCallback();
+      renderData.rdAppExitCallbackFunction();
       ImGui::CloseCurrentPopup();
     }
 
@@ -195,7 +196,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     if (modInstCamData.micGetConfigDirtyCallbackFunction()) {
       openUnsavedChangesNewDialog = true;
     } else {
-      renderData.rdNewConfigRequest = false;
       modInstCamData.micNewConfigCallbackFunction();
     }
   }
@@ -213,14 +213,12 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     /* cheating a bit to get buttons more to the center */
     ImGui::Indent();
     if (ImGui::Button("OK")) {
-      renderData.rdNewConfigRequest = false;
       modInstCamData.micNewConfigCallbackFunction();
       ImGui::CloseCurrentPopup();
     }
 
     ImGui::SameLine();
     if (ImGui::Button("Cancel")) {
-      renderData.rdNewConfigRequest = false;
       ImGui::CloseCurrentPopup();
     }
     ImGui::EndPopup();
@@ -248,7 +246,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         loadSuccessful = modInstCamData.micLoadConfigCallbackFunction(filePathName);
       }
     }
-    renderData.rdLoadConfigRequest = false;
     ImGuiFileDialog::Instance()->Close();
   }
 
@@ -268,14 +265,12 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
       loadSuccessful = modInstCamData.micLoadConfigCallbackFunction(filePathName);
       if (loadSuccessful) {
-        renderData.rdLoadConfigRequest = false;
       }
       ImGui::CloseCurrentPopup();
     }
 
     ImGui::SameLine();
     if (ImGui::Button("Cancel")) {
-      renderData.rdLoadConfigRequest = false;
       ImGui::CloseCurrentPopup();
     }
     ImGui::EndPopup();
@@ -296,13 +291,12 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::Indent();
     ImGui::Indent();
     if (ImGui::Button("OK")) {
-      renderData.rdLoadConfigRequest = false;
       ImGui::CloseCurrentPopup();
     }
     ImGui::EndPopup();
   }
 
-  /* save config*/
+  /* save config */
   if (renderData.rdSaveConfigRequest) {
     IGFD::FileDialogConfig config;
     config.path = ".";
@@ -324,7 +318,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         modInstCamData.micSetConfigDirtyCallbackFunction(false);
       }
     }
-    renderData.rdSaveConfigRequest = false;
     ImGuiFileDialog::Instance()->Close();
   }
 
@@ -343,13 +336,12 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::Indent();
     ImGui::Indent();
     if (ImGui::Button("OK")) {
-      renderData.rdSaveConfigRequest = false;
       ImGui::CloseCurrentPopup();
     }
     ImGui::EndPopup();
   }
 
-  /* load model*/
+  /* load model */
   if (loadModelRequest) {
     IGFD::FileDialogConfig config;
     config.path = ".";
@@ -375,11 +367,16 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       std::replace(filePathName.begin(), filePathName.end(), '\\', '/');
 
       if (!modInstCamData.micModelAddCallbackFunction(filePathName, true, true)) {
-        Logger::log(1, "%s error: unable to load model file '%s', unnown error \n", __FUNCTION__, filePathName.c_str());
+        Logger::log(1, "%s error: unable to load model file '%s', unknown error \n", __FUNCTION__, filePathName.c_str());
       }
     }
     ImGuiFileDialog::Instance()->Close();
   }
+
+  /* reset values to false to avoid side-effects */
+  renderData.rdNewConfigRequest = false;
+  renderData.rdLoadConfigRequest = false;
+  renderData.rdSaveConfigRequest = false;
 
   /* clamp manual input on all sliders to min/max */
   ImGuiSliderFlags flags = ImGuiSliderFlags_AlwaysClamp;
@@ -667,7 +664,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::Text("Camera Name:     ");
     ImGui::SameLine();
     if (ImGui::InputText("##CamName", &camName, textinputFlags, cameraNameInputFilter)) {
-      if (modInstCamData.micCameraNameCheckCallback(camName)) {
+      if (modInstCamData.micCameraNameCheckCallbackFunction(camName)) {
         showDuplicateCamNameDialog = true;
       } else {
         settings.csCamName = camName;

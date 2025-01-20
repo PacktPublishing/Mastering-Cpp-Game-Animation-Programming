@@ -103,7 +103,7 @@ vec4 qMult(vec4 a, vec4 b) {
 
 /* calculate the inverse of a quaternion */
 vec4 qInverse(vec4 a) {
-  /* inverse(quat) = conjugate(quat) / abs(quat) -> abs = dot by itsel f*/
+  /* inverse(quat) = conjugate(quat) / abs(quat) -> abs = dot by itself */
   return vec4(-a.x, -a.y, -a.z, a.w) / dot(a, a);
 }
 

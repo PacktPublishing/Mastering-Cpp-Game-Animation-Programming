@@ -4,7 +4,6 @@
 #include <array>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 #include <memory>
 #include <set>
 
@@ -59,10 +58,10 @@ struct OGLLineMesh {
 };
 
 struct PerInstanceAnimData {
-  unsigned int firstAnimClipNum;
-  unsigned int secondAnimClipNum;
-  unsigned int headLeftRightAnimClipNum;
-  unsigned int headUpDownAnimClipNum;
+  uint32_t firstAnimClipNum;
+  uint32_t secondAnimClipNum;
+  uint32_t headLeftRightAnimClipNum;
+  uint32_t headUpDownAnimClipNum;
   float firstClipReplayTimestamp;
   float secondClipReplayTimestamp;
   float headLeftRightReplayTimestamp;
@@ -73,7 +72,7 @@ struct PerInstanceAnimData {
 struct MeshTriangle {
   int index;
   std::array<glm::vec3, 3> points{};
-  glm::vec3 normal;
+  glm::vec3 normal{};
   BoundingBox3D boundingBox{};
   std::array<glm::vec3, 3> edges{};
   std::array<float, 3> edgeLengths{};
@@ -110,7 +109,7 @@ struct OGLRenderData {
   float rdFaceAnimTime = 0.0f;
   float rdLevelCollisionTime = 0.0f;
   float rdIKTime = 0.0f;
-  float rdLevelGRoundNeighborUpdateTime = 0.0f;
+  float rdLevelGroundNeighborUpdateTime = 0.0f;
   float rdPathFindingTime = 0.0f;
 
   int rdMoveForward = 0;
@@ -125,7 +124,7 @@ struct OGLRenderData {
 
   instanceEditMode rdInstanceEditMode = instanceEditMode::move;
 
-  appExitCallback rdAppExitCallback;
+  appExitCallback rdAppExitCallbackFunction;
   bool rdRequestApplicationExit = false;
   bool rdNewConfigRequest = false;
   bool rdLoadConfigRequest = false;
@@ -164,6 +163,9 @@ struct OGLRenderData {
   bool rdDrawLevelWireframe = false;
   bool rdDrawLevelOctree = false;
   bool rdDrawLevelCollisionTriangles = false;
+
+  bool rdDrawLevelWireframeMiniMap = false;
+  std::shared_ptr<OGLLineMesh> rdLevelWireframeMiniMapMesh = nullptr;
 
   float rdMaxLevelGroundSlopeAngle = 0.0f;
   float rdMaxStairstepHeight = 1.0f;

@@ -50,12 +50,12 @@ struct ModelInstanceCamData {
   loadSaveCallback micLoadConfigCallbackFunction;
 
   newConfigCallback micNewConfigCallbackFunction;
-  setConfigDirtyCallbackFunction micSetConfigDirtyCallbackFunction;
-  getConfigDirtyCallbackFunction micGetConfigDirtyCallbackFunction;
+  setConfigDirtyCallback micSetConfigDirtyCallbackFunction;
+  getConfigDirtyCallback micGetConfigDirtyCallbackFunction;
 
   cameraCloneCallback micCameraCloneCallbackFunction;
   cameraDeleteCallback micCameraDeleteCallbackFunction;
-  cameraNameCheckCallback micCameraNameCheckCallback;
+  cameraNameCheckCallback micCameraNameCheckCallbackFunction;
 
   std::unordered_map<cameraType, std::string> micCameraTypeMap{};
   std::unordered_map<cameraProjection, std::string> micCameraProjectionMap{};

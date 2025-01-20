@@ -332,10 +332,21 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
 
     if (ImGuiFileDialog::Instance()->Display("ChooseModelFile")) {
       if (ImGuiFileDialog::Instance()->IsOk()) {
-
         std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 
-        if (modInstData.miModelAddCallbackFunction(filePathName)) {
+        /* try to construct a relative path */
+        std::filesystem::path currentPath = std::filesystem::current_path();
+        std::string relativePath =  std::filesystem::relative(filePathName, currentPath).generic_string();
+
+        if (!relativePath.empty()) {
+          filePathName = relativePath;
+        }
+        /* Windows does understand forward slashes, but std::filesystem preferres backslashes... */
+        std::replace(filePathName.begin(), filePathName.end(), '\\', '/');
+
+        if (!modInstData.miModelAddCallbackFunction(filePathName)) {
+          Logger::log(1, "%s error: unable to load model file '%s', unknown error \n", __FUNCTION__, filePathName.c_str());
+        } else {
           /* select new model and new instance */
           modInstData.miSelectedModel = modInstData.miModelList.size() - 1;
           modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;

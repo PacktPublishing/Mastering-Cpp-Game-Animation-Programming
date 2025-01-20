@@ -1,4 +1,4 @@
-#include "RandowWaitNode.h"
+#include "RandomWaitNode.h"
 
 #include "Logger.h"
 
@@ -137,7 +137,7 @@ void RandomWaitNode::deactivate(bool informParentNodes) {
   mFired = false;
 
   if (informParentNodes) {
-    /* inform parent that we are done*/
+    /* inform parent that we are done */
     fireNodeOutputTriggerCallback(mInId);
   }
 }

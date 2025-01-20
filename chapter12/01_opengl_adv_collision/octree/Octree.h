@@ -28,7 +28,7 @@ class Octree {
 
     void clear();
 
-    instanceGetBoundingBox instanceGetBoundingBoxCallback;
+    instanceGetBoundingBoxCallback mInstanceGetBoundingBoxCallbackFunction;
 
   private:
     struct OctreeNode {

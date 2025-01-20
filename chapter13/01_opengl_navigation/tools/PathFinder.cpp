@@ -291,7 +291,7 @@ std::shared_ptr<OGLLineMesh> PathFinder::getAsTriangleMesh(std::vector<int> indi
     vert.position = tri.points.at(0) + tri.normal * offset;
     pointMesh->vertices.push_back(vert);
 
-    /* draw normal vector in the middle of the triangle*/
+    /* draw normal vector in the middle of the triangle */
     normalVert.color = normalColor;
     glm::vec3 normalPos = tri.center;
     normalVert.position = normalPos;

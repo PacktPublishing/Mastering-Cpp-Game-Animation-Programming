@@ -8,6 +8,7 @@
 #include <set>
 
 #include <glm/glm.hpp>
+
 #include <glm/gtc/quaternion.hpp>
 
 #include <glad/glad.h>
@@ -58,10 +59,10 @@ struct OGLLineMesh {
 };
 
 struct PerInstanceAnimData {
-  unsigned int firstAnimClipNum;
-  unsigned int secondAnimClipNum;
-  unsigned int headLeftRightAnimClipNum;
-  unsigned int headUpDownAnimClipNum;
+  uint32_t firstAnimClipNum;
+  uint32_t secondAnimClipNum;
+  uint32_t headLeftRightAnimClipNum;
+  uint32_t headUpDownAnimClipNum;
   float firstClipReplayTimestamp;
   float secondClipReplayTimestamp;
   float headLeftRightReplayTimestamp;
@@ -120,7 +121,7 @@ struct OGLRenderData {
 
   instanceEditMode rdInstanceEditMode = instanceEditMode::move;
 
-  appExitCallback rdAppExitCallback;
+  appExitCallback rdAppExitCallbackFunction;
   bool rdRequestApplicationExit = false;
   bool rdNewConfigRequest = false;
   bool rdLoadConfigRequest = false;
@@ -159,6 +160,9 @@ struct OGLRenderData {
   bool rdDrawLevelWireframe = false;
   bool rdDrawLevelOctree = false;
   bool rdDrawLevelCollisionTriangles = false;
+
+  bool rdDrawLevelWireframeMiniMap = false;
+  std::shared_ptr<OGLLineMesh> rdLevelWireframeMiniMapMesh = nullptr;
 
   float rdMaxLevelGroundSlopeAngle = 0.0f;
   float rdMaxStairstepHeight = 1.0f;

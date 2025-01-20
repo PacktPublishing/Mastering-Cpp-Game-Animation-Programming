@@ -4,7 +4,7 @@
 
 /* use internal logging as callback by default  */
 Behavior::Behavior() {
-  mInstanceNodeActionCallback = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
+  mInstanceNodeActionCallbackFunction = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
     updateInstanceSettings(instanceId, nodeType, updateType, data, extraSetting);
   };
 }
@@ -15,7 +15,7 @@ void Behavior::updateInstanceSettings(int instanceId, graphNodeType nodeType, in
 }
 
 void Behavior::setNodeActionCallback(instanceNodeActionCallback callbackFunction) {
-  mInstanceNodeActionCallback = callbackFunction;
+  mInstanceNodeActionCallbackFunction = callbackFunction;
 }
 
 void Behavior::update(float deltaTime) {
@@ -36,7 +36,7 @@ void Behavior::addInstance(int instanceId, std::shared_ptr<SingleInstanceBehavio
   mInstanceToBehaviorMap.emplace(std::make_pair(instanceId, SingleInstanceBehavior(*behavior)));
 
   mInstanceToBehaviorMap[instanceId].setInstanceId(instanceId);
-  mInstanceToBehaviorMap[instanceId].setInstanceNodeActionCallback(mInstanceNodeActionCallback);
+  mInstanceToBehaviorMap[instanceId].setInstanceNodeActionCallback(mInstanceNodeActionCallbackFunction);
 
   std::shared_ptr<BehaviorData> behaviorData = mInstanceToBehaviorMap[instanceId].getBehaviorData();
   Logger::log(1, "%s: added behavior for instance %i with %i nodes and %i links (%i total behaviors)\n",

@@ -72,7 +72,7 @@ struct OGLRenderData {
   appMode rdApplicationMode = appMode::edit;
   instanceEditMode rdInstanceEditMode = instanceEditMode::move;
 
-  appExitCallback rdAppExitCallback;
+  appExitCallback rdAppExitCallbackFunction;
   bool rdRequestApplicationExit = false;
   bool rdNewConfigRequest = false;
   bool rdLoadConfigRequest = false;

@@ -2,16 +2,11 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <memory>
-#include <tuple>
-#include <unordered_map>
 
 #include <imgui.h>
-#include <imnodes.h>
 
 #include "OGLRenderData.h"
 #include "ModelInstanceCamData.h"
-#include "InstanceSettings.h"
 
 class UserInterface {
   public:

@@ -143,7 +143,7 @@ struct VkRenderData {
 
   instanceEditMode rdInstanceEditMode = instanceEditMode::move;
 
-  appExitCallback rdAppExitCallback;
+  appExitCallback rdAppExitCallbackFunction;
   bool rdRequestApplicationExit = false;
   bool rdNewConfigRequest = false;
   bool rdLoadConfigRequest = false;
@@ -258,11 +258,11 @@ struct VkRenderData {
   VkDescriptorSet rdAssimpComputeMatrixMultDescriptorSet = VK_NULL_HANDLE;
   VkDescriptorSet rdAssimpSelectionDescriptorSet = VK_NULL_HANDLE;
   VkDescriptorSet rdAssimpSkinningSelectionDescriptorSet = VK_NULL_HANDLE;
-  VkDescriptorSet rdLineDescriptorSet = VK_NULL_HANDLE;
-  VkDescriptorSet rdSphereDescriptorSet = VK_NULL_HANDLE;
   VkDescriptorSet rdAssimpComputeSphereTransformDescriptorSet = VK_NULL_HANDLE;
   VkDescriptorSet rdAssimpComputeSphereMatrixMultDescriptorSet = VK_NULL_HANDLE;
   VkDescriptorSet rdAssimpComputeBoundingSpheresDescriptorSet = VK_NULL_HANDLE;
+  VkDescriptorSet rdLineDescriptorSet = VK_NULL_HANDLE;
+  VkDescriptorSet rdSphereDescriptorSet = VK_NULL_HANDLE;
 
   VkDescriptorPool rdDescriptorPool = VK_NULL_HANDLE;
   VkDescriptorPool rdImguiDescriptorPool = VK_NULL_HANDLE;

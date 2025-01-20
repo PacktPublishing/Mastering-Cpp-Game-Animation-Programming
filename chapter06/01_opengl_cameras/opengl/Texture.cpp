@@ -12,7 +12,8 @@ bool Texture::loadTexture(std::string textureFilename, bool flipImage) {
   mTextureName = textureFilename;
 
   stbi_set_flip_vertically_on_load(flipImage);
-  unsigned char *textureData = stbi_load(textureFilename.c_str(), &mTexWidth, &mTexHeight, &mNumberOfChannels, 0);
+  /* always load as RGBA */
+  unsigned char *textureData = stbi_load(textureFilename.c_str(), &mTexWidth, &mTexHeight, &mNumberOfChannels, STBI_rgb_alpha);
 
   if (!textureData) {
     Logger::log(1, "%s error: could not load file '%s'\n", __FUNCTION__, mTextureName.c_str());
@@ -28,17 +29,7 @@ bool Texture::loadTexture(std::string textureFilename, bool flipImage) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-  switch(mNumberOfChannels) {
-    case 3:
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, mTexWidth, mTexHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
-      break;
-    case 4:
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, mTexWidth, mTexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
-      break;
-    default:
-      Logger::log(1, "%s error: image has %i channels, supported are only 3 (RGB) or 4 (RGBA)\n", __FUNCTION__, mNumberOfChannels);
-      break;
-  }
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, mTexWidth, mTexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
 
   glGenerateMipmap(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -68,26 +59,16 @@ bool Texture::loadTexture(std::string textureName, aiTexel* textureData, int wid
   /* allow to flip the image, similar to file loaded from disk */
   stbi_set_flip_vertically_on_load(flipImage);
 
-  /* we must use stbi to detect the in-memory format */
+  /* we use stbi to detect the in-memory format, but always request RGBA */
   unsigned char *data = nullptr;
   if (height == 0)   {
-    data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(textureData), width, &mTexWidth, &mTexHeight, &mNumberOfChannels, 0);
+    data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(textureData), width, &mTexWidth, &mTexHeight, &mNumberOfChannels, STBI_rgb_alpha);
   }
   else   {
-    data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(textureData), width * height, &mTexWidth, &mTexHeight, &mNumberOfChannels, 0);
+    data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(textureData), width * height, &mTexWidth, &mTexHeight, &mNumberOfChannels, STBI_rgb_alpha);
   }
 
-  switch(mNumberOfChannels) {
-    case 3:
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, mTexWidth, mTexHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-      break;
-    case 4:
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, mTexWidth, mTexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-      break;
-    default:
-      Logger::log(1, "%s error: image has %i channels, supported are only 3 (RGB) or 4 (RGBA)\n", __FUNCTION__, mNumberOfChannels);
-      break;
-  }
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, mTexWidth, mTexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
   stbi_image_free(data);
 

@@ -1,4 +1,4 @@
-/* Dear ImGui*/
+/* Dear ImGui */
 #pragma once
 #include <vector>
 

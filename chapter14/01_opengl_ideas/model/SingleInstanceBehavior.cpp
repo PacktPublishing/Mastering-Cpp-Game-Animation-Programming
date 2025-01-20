@@ -7,9 +7,9 @@
 
 SingleInstanceBehavior::SingleInstanceBehavior() {
   mBehaviorData = std::make_shared<BehaviorData>();
-  mFireNodeOutputCallback = [this](int pinId) { updateNodeStatus(pinId); };
+  mFireNodeOutputCallbackFunction = [this](int pinId) { updateNodeStatus(pinId); };
 
-  mInstanceNodeActionCallback = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
+  mInstanceNodeActionCallbackFunction = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
     debugInstanceNodeCallback(instanceId, nodeType, updateType, data, extraSetting);
   };
   mBehaviorData->bdNodeActionCallbackFunction = [this](graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
@@ -19,7 +19,7 @@ SingleInstanceBehavior::SingleInstanceBehavior() {
 
 /* custom copy constructor, making a copy of the given nodes and links in Behavior */
 SingleInstanceBehavior::SingleInstanceBehavior(const SingleInstanceBehavior& orig) {
-  mFireNodeOutputCallback = [this](int pinId) { updateNodeStatus(pinId); };
+  mFireNodeOutputCallbackFunction = [this](int pinId) { updateNodeStatus(pinId); };
 
   mBehaviorData = std::make_shared<BehaviorData>();
   mBehaviorData->bdNodeActionCallbackFunction = [this](graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
@@ -37,12 +37,12 @@ SingleInstanceBehavior::SingleInstanceBehavior(const SingleInstanceBehavior& ori
         node->getNodeType() == graphNodeType::randomNavigation) {
       newNode->setNodeActionCallback(mBehaviorData->bdNodeActionCallbackFunction);
     }
-    newNode->setNodeOutputTriggerCallback(mFireNodeOutputCallback);
+    newNode->setNodeOutputTriggerCallback(mFireNodeOutputCallbackFunction);
     mBehaviorData->bdGraphNodes.emplace_back(std::move(newNode));
   }
 
   mInstanceId = orig.mInstanceId;
-  mInstanceNodeActionCallback = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
+  mInstanceNodeActionCallbackFunction = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
     debugInstanceNodeCallback(instanceId, nodeType, updateType, data, extraSetting);
   };
 }
@@ -121,15 +121,15 @@ void SingleInstanceBehavior::debugInstanceNodeCallback(int instanceId, graphNode
 
 /* transform callback to include instance id instead of node type */
 void SingleInstanceBehavior::nodeActionCallback(graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
-  if (mInstanceNodeActionCallback) {
-    mInstanceNodeActionCallback(mInstanceId, nodeType, updateType, data, extraSetting);
+  if (mInstanceNodeActionCallbackFunction) {
+    mInstanceNodeActionCallbackFunction(mInstanceId, nodeType, updateType, data, extraSetting);
   } else {
     Logger::log(1, "%s error: callback not bound\n", __FUNCTION__);
   }
 }
 
 void SingleInstanceBehavior::setInstanceNodeActionCallback(instanceNodeActionCallback callbackFunction) {
-  mInstanceNodeActionCallback = callbackFunction;
+  mInstanceNodeActionCallbackFunction = callbackFunction;
 }
 
 void SingleInstanceBehavior::updateNodeStatus(int pinId) {

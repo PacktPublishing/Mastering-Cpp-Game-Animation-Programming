@@ -69,7 +69,8 @@ class OGLRenderer {
     void addBehavior(int instanceId, std::shared_ptr<SingleInstanceBehavior> behavior);
     void delBehavior(int instanceId);
     void postDelNodeTree(std::string nodeTreeName);
-    void updateInstanceSettings(int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting);
+    void updateInstanceSettings(int instanceId, graphNodeType nodeType, instanceUpdateType updateType,
+      nodeCallbackVariant data, bool extraSetting);
     void addBehaviorEvent(int instanceId, nodeEvent event);
 
     void addModelBehavior(std::string modelName, std::shared_ptr<SingleInstanceBehavior> behavior);
@@ -135,7 +136,7 @@ class OGLRenderer {
     ShaderStorageBuffer mPerInstanceAnimDataBuffer{};
     ShaderStorageBuffer mEmptyBoneOffsetBuffer{};
 
-    /* x/y/z is shpere center, w is radius*/
+    /* x/y/z is shpere center, w is radius */
     ShaderStorageBuffer mBoundingSphereBuffer{};
     /* per-model-and-node adjustments for the spheres */
     ShaderStorageBuffer mBoundingSphereAdjustmentBuffer{};
@@ -177,7 +178,7 @@ class OGLRenderer {
     int mMouseMoveVerticalShiftKey = 0;
     InstanceSettings mSavedInstanceSettings{};
 
-    void handleMovementKeys(float deltaTime);
+    void handleMovementKeys();
 
     void updateTriangleCount();
     void enumerateInstances();
@@ -251,7 +252,7 @@ class OGLRenderer {
     std::shared_ptr<SingleInstanceBehavior> createEmptyGraph();
 
     std::shared_ptr<Behavior> mBehavior = nullptr;
-    instanceNodeActionCallback mInstanceNodeActionCallback;
+    instanceNodeActionCallback mInstanceNodeActionCallbackFunction;
 
     std::vector<glm::vec4> mFaceAnimPerInstanceData{};
     ShaderStorageBuffer mFaceAnimPerInstanceDataBuffer{};

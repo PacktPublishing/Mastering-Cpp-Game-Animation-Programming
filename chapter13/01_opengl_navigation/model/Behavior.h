@@ -26,5 +26,5 @@ class Behavior {
 
     std::map<int, SingleInstanceBehavior> mInstanceToBehaviorMap{};
 
-    instanceNodeActionCallback mInstanceNodeActionCallback;
+    instanceNodeActionCallback mInstanceNodeActionCallbackFunction;
 };

@@ -110,7 +110,7 @@ void SelectorNode::update(float deltaTime) {
 
     /* fire random output */
     fireNodeOutputTriggerCallback(mOutIds.at(mActiveOut) + mOutIdStart);
-    /* inform parent that we triggered*/
+    /* inform parent that we triggered */
     fireNodeOutputTriggerCallback(mInId);
 
     mCurrentTime = mWaitTime;

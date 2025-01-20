@@ -60,7 +60,7 @@ bool VertexBuffer::uploadData(VkRenderData& renderData, VkVertexBufferData &vert
     vertexBufferData.bufferSize = vertexDataSize;
   }
 
-  /* copy data to staging buffer*/
+  /* copy data to staging buffer */
   void* data;
   VkResult result = vmaMapMemory(renderData.rdAllocator, vertexBufferData.stagingBufferAlloc, &data);
   if (result != VK_SUCCESS) {
@@ -117,7 +117,7 @@ bool VertexBuffer::uploadData(VkRenderData& renderData, VkVertexBufferData &vert
     vertexBufferData.bufferSize = vertexDataSize;
   }
 
-  /* copy data to staging buffer*/
+  /* copy data to staging buffer */
   void* data;
   VkResult result = vmaMapMemory(renderData.rdAllocator, vertexBufferData.stagingBufferAlloc, &data);
   if (result != VK_SUCCESS) {

@@ -56,7 +56,7 @@ bool IndexBuffer::uploadData(VkRenderData& renderData, VkIndexBufferData& buffer
     bufferData.bufferSize = vertexDataSize;
   }
 
-  /* copy data to staging buffer*/
+  /* copy data to staging buffer */
   void* data;
   VkResult result = vmaMapMemory(renderData.rdAllocator, bufferData.stagingBufferAlloc, &data);
   if (result != VK_SUCCESS) {

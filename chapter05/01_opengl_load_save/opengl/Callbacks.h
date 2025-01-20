@@ -6,7 +6,7 @@
 
 #include "Enums.h"
 
-/* forward declarations*/
+/* forward declarations */
 class AssimpModel;
 class AssimpInstance;
 class AssimpSettingsContainer;

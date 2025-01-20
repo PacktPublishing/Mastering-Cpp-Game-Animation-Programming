@@ -7,7 +7,8 @@
 #include <glm/glm.hpp>
 
 #include "Enums.h"
-#include "OGLRenderData.h"
+
+struct MeshTriangle;
 
 struct InstanceSettings {
   std::string isModelFile;

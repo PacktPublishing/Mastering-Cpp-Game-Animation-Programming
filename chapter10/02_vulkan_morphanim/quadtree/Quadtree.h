@@ -28,7 +28,7 @@ class QuadTree {
 
     void clear();
 
-    instanceGetBoundingBox2DCallback instanceGetBoundingBox2DCallbackFunction;
+    instanceGetBoundingBox2DCallback mInstanceGetBoundingBox2DCallbackFunction;
 
   private:
     struct QuadTreeNode {

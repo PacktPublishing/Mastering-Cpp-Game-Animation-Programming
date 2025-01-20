@@ -69,18 +69,18 @@ struct ModelInstanceCamData {
   loadSaveCallback micLoadConfigCallbackFunction;
 
   newConfigCallback micNewConfigCallbackFunction;
-  setConfigDirtyCallbackFunction micSetConfigDirtyCallbackFunction;
-  getConfigDirtyCallbackFunction micGetConfigDirtyCallbackFunction;
+  setConfigDirtyCallback micSetConfigDirtyCallbackFunction;
+  getConfigDirtyCallback micGetConfigDirtyCallbackFunction;
 
   cameraCloneCallback micCameraCloneCallbackFunction;
   cameraDeleteCallback micCameraDeleteCallbackFunction;
   cameraNameCheckCallback micCameraNameCheckCallbackFunction;
 
-  instanceGetPositions micInstanceGetPositionsCallbackFunction;
+  instanceGetPositionsCallback micInstanceGetPositionsCallbackFunction;
 
   octreeQueryBBoxCallback micOctreeQueryBBoxCallbackFunction;
   octreeFindAllIntersectionsCallback micOctreeFindAllIntersectionsCallbackFunction;
-  octreeGetBoxesCallback micOctreeGetBoxesCallback;
+  octreeGetBoxesCallback micOctreeGetBoxesCallbackFunction;
 
   worldGetBoundariesCallback micWorldGetBoundariesCallbackFunction;
 

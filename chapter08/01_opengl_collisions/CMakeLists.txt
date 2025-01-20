@@ -29,6 +29,7 @@ FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui
   GIT_TAG        v1.91.2
+  GIT_SHALLOW 1
 )
 
 FetchContent_MakeAvailable(imgui)
@@ -44,6 +45,7 @@ FetchContent_Declare(
   filedialog
   GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog
   GIT_TAG        v0.6.7
+  GIT_SHALLOW 1
 )
 
 # ugly hack to have ImGui available when the file dialog source getch fetched
@@ -64,6 +66,7 @@ FetchContent_Declare(
   stbi
   GIT_REPOSITORY https://github.com/nothings/stb
   GIT_TAG        master
+  GIT_SHALLOW 1
 )
 
 FetchContent_MakeAvailable(stbi)
@@ -81,6 +84,7 @@ if(WIN32)
     yaml-cpp
     GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
     GIT_TAG 0.8.0
+    GIT_SHALLOW 1
   )
 
   FetchContent_MakeAvailable(yaml-cpp)
@@ -96,6 +100,7 @@ if(WIN32)
     glfw3
     GIT_REPOSITORY https://github.com/glfw/glfw
     GIT_TAG        3.4
+    GIT_SHALLOW 1
   )
 
   FetchContent_MakeAvailable(glfw3)
@@ -117,6 +122,7 @@ if(WIN32)
       glm
       GIT_REPOSITORY https://github.com/g-truc/glm
       GIT_TAG        1.0.1
+      GIT_SHALLOW 1
     )
 
     # GLM is header only, but needs to be populated for the download

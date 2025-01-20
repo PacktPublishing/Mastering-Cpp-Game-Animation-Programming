@@ -4,7 +4,7 @@ layout (location = 1) in vec3 aColor;
 
 layout (location = 0) out vec4 lineColor;
 
-layout (set = 0, binding = 0) uniform Matrices {
+layout (std140, set = 0, binding = 0) uniform Matrices {
   mat4 view;
   mat4 projection;
 };

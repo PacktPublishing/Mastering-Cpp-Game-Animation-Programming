@@ -139,9 +139,6 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  mWorldPosMatrices.resize(1);
-  mWorldPosMatrices.at(0) = glm::mat4(1.0f);
-
   /* init quadtree with some default values */
   mWorldBoundaries = std::make_shared<BoundingBox2D>(mRenderData.rdWorldStartPos, mRenderData.rdWorldSize);
   initQuadTree(10, 5);
@@ -195,7 +192,8 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
   mModelInstCamData.micNodeEventCallbackFunction = [this](int instanceId, nodeEvent event) { addBehaviorEvent(instanceId, event); };
   mModelInstCamData.micPostNodeTreeDelBehaviorCallbackFunction = [this](std::string nodeTreeName) { postDelNodeTree(nodeTreeName); };
 
-  mRenderData.rdAppExitCallback = [this]() { doExitApplication(); };
+  mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
+  Logger::log(1, "%s: callbacks initialized\n", __FUNCTION__);
 
   /* init camera strings */
   mModelInstCamData.micCameraProjectionMap[cameraProjection::perspective] = "Perspective";
@@ -261,10 +259,10 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
   Logger::log(1, "%s: Colliding sphere line mesh storage initialized\n", __FUNCTION__);
 
   mBehavior = std::make_shared<Behavior>();
-  mInstanceNodeActionCallback = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
+  mInstanceNodeActionCallbackFunction = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
     updateInstanceSettings(instanceId, nodeType, updateType, data, extraSetting);
   };
-  mBehavior->setNodeActionCallback(mInstanceNodeActionCallback);
+  mBehavior->setNodeActionCallback(mInstanceNodeActionCallbackFunction);
   Logger::log(1, "%s: behavior data initialized\n", __FUNCTION__);
 
   mGraphEditor = std::make_shared<GraphEditor>();
@@ -530,8 +528,8 @@ void VkRenderer::undoLastOperation() {
    * and the settings files still contain the old index number */
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -551,8 +549,8 @@ void VkRenderer::redoLastOperation() {
   mModelInstCamData.micSettingsContainer->redo();
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -1804,28 +1802,6 @@ void VkRenderer::updateDescriptorSets() {
   }
 
   {
-    /* line-drawing shader */
-    VkDescriptorBufferInfo matrixInfo{};
-    matrixInfo.buffer = mPerspectiveViewMatrixUBO.buffer;
-    matrixInfo.offset = 0;
-    matrixInfo.range = VK_WHOLE_SIZE;
-
-    VkWriteDescriptorSet matrixWriteDescriptorSet{};
-    matrixWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    matrixWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    matrixWriteDescriptorSet.dstSet = mRenderData.rdLineDescriptorSet;
-    matrixWriteDescriptorSet.dstBinding = 0;
-    matrixWriteDescriptorSet.descriptorCount = 1;
-    matrixWriteDescriptorSet.pBufferInfo = &matrixInfo;
-
-    std::vector<VkWriteDescriptorSet> writeDescriptorSets =
-    { matrixWriteDescriptorSet };
-
-    vkUpdateDescriptorSets(mRenderData.rdVkbDevice.device, static_cast<uint32_t>(writeDescriptorSets.size()),
-      writeDescriptorSets.data(), 0, nullptr);
-  }
-
-  {
     /* animated plus morph shader */
     VkDescriptorBufferInfo matrixInfo{};
     matrixInfo.buffer = mPerspectiveViewMatrixUBO.buffer;
@@ -2361,12 +2337,7 @@ bool VkRenderer::recreateSwapchain() {
     glfwWaitEvents();
   }
 
-  /* only wait for graphics queue, not the whole device here */
-  VkResult result = vkQueueWaitIdle(mRenderData.rdGraphicsQueue);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s fatal error: could not wait for device idle (error: %i)\n", __FUNCTION__, result);
-    return false;
-  }
+  vkDeviceWaitIdle(mRenderData.rdVkbDevice.device);
 
   /* cleanup */
   Framebuffer::cleanup(mRenderData);
@@ -2872,7 +2843,7 @@ bool VkRenderer::addModel(std::string modelFileName, bool addInitialInstance, bo
       mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
-  /* create AABBs for the model*/
+  /* create AABBs for the model */
   if (!createAABBLookup(model)) {
     return false;
   }
@@ -3164,7 +3135,7 @@ void VkRenderer::initQuadTree(int thresholdPerBox, int maxDepth) {
   mQuadtree = std::make_shared<QuadTree>(mWorldBoundaries, thresholdPerBox, maxDepth);
 
   /* quadtree needs to get bounding box of the instances */
-  mQuadtree->instanceGetBoundingBox2DCallbackFunction = [this](int instanceId) {
+  mQuadtree->mInstanceGetBoundingBox2DCallbackFunction = [this](int instanceId) {
     return mModelInstCamData.micAssimpInstances.at(instanceId)->getBoundingBox();
   };
 }
@@ -3765,7 +3736,7 @@ void VkRenderer::handleMousePositionEvents(double xPos, double yPos) {
     }
   }
 
-  /* save old values*/
+  /* save old values */
   mMouseXPos = static_cast<int>(xPos);
   mMouseYPos = static_cast<int>(yPos);
 }
@@ -3818,7 +3789,7 @@ void VkRenderer::handleMouseWheelEvents(double xOffset, double yOffset) {
   }
 }
 
-void VkRenderer::handleMovementKeys(float deltaTime) {
+void VkRenderer::handleMovementKeys() {
   mRenderData.rdMoveForward = 0;
   mRenderData.rdMoveRight = 0;
   mRenderData.rdMoveUp = 0;
@@ -3945,7 +3916,7 @@ void VkRenderer::handleMovementKeys(float deltaTime) {
 bool VkRenderer::createAABBLookup(std::shared_ptr<AssimpModel> model) {
   const int LOOKUP_SIZE = 1023;
 
-  /* we use a single instance per clip*/
+  /* we use a single instance per clip */
   size_t numberOfClips = model->getAnimClips().size();
   size_t numberOfBones = model->getBoneList().size();
 
@@ -4042,7 +4013,7 @@ bool VkRenderer::createAABBLookup(std::shared_ptr<AssimpModel> model) {
       return false;
     };
 
-    /* we must wait for the compute shaders to finish before we can read the bone data*/
+    /* we must wait for the compute shaders to finish before we can read the bone data */
     result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence, VK_TRUE, UINT64_MAX);
     if (result != VK_SUCCESS) {
       Logger::log(1, "%s error: waiting for compute fence failed (error: %i)\n", __FUNCTION__, result);
@@ -4233,7 +4204,7 @@ bool VkRenderer::checkForInstanceCollisions() {
         return false;
       };
 
-      /* we must wait for the compute shaders to finish before we can read the bone data*/
+      /* we must wait for the compute shaders to finish before we can read the bone data */
       result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence, VK_TRUE, UINT64_MAX);
       if (result != VK_SUCCESS) {
         Logger::log(1, "%s error: waiting for compute fence failed (error: %i)\n", __FUNCTION__, result);
@@ -4320,7 +4291,7 @@ void VkRenderer::checkForBoundingSphereCollisions() {
       glm::vec4 firstSphereData = mBoundingSpheresPerInstance[firstId].at(first);
       float firstRadius = firstSphereData.w;
 
-      /* no need to check disabled spheres*/
+      /* no need to check disabled spheres */
       if (firstRadius == 0.0f) {
         continue;
       }
@@ -4331,7 +4302,7 @@ void VkRenderer::checkForBoundingSphereCollisions() {
         glm::vec4 secondSphereData = mBoundingSpheresPerInstance[secondId].at(second);
         float secondRadius = secondSphereData.w;
 
-        /* no need to check disabled spheres*/
+        /* no need to check disabled spheres */
         if (secondRadius == 0.0f) {
           continue;
         }
@@ -4664,45 +4635,45 @@ void VkRenderer::drawInteractionDebug() {
     glm::vec2 maxQueryBoxBottomRight = glm::vec2(instancePos2D) + glm::vec2(mRenderData.rdInteractionMaxRange / 2.0f);
 
     /* min range */
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxTopLeft.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxTopLeft.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
     /* max range */
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxTopLeft.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxTopLeft.y);
     InteractionMesh.vertices.emplace_back(vertex);
   }
 
@@ -4773,7 +4744,7 @@ void VkRenderer::drawAABBs(std::vector<std::shared_ptr<AssimpInstance>> instance
   for (size_t i = 0; i < instances.size(); ++i) {
     InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
 
-    /* skip null instance*/
+    /* skip null instance */
     if (instSettings.isInstanceIndexPosition == 0) {
       continue;
     }
@@ -4923,7 +4894,7 @@ bool VkRenderer::createSelectedBoundingSpheres() {
       return false;
     };
 
-    /* we must wait for the compute shaders to finish before we can read the bone data*/
+    /* we must wait for the compute shaders to finish before we can read the bone data */
     result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence, VK_TRUE, UINT64_MAX);
     if (result != VK_SUCCESS) {
       Logger::log(1, "%s error: waiting for compute fence failed (error: %i)\n", __FUNCTION__, result);
@@ -5078,7 +5049,7 @@ bool VkRenderer::createCollidingBoundingSpheres() {
       return false;
     };
 
-    /* we must wait for the compute shaders to finish before we can read the bone data*/
+    /* we must wait for the compute shaders to finish before we can read the bone data */
     result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence, VK_TRUE, UINT64_MAX);
     if (result != VK_SUCCESS) {
       Logger::log(1, "%s error: waiting for compute fence failed (error: %i)\n", __FUNCTION__, result);
@@ -5223,7 +5194,7 @@ bool VkRenderer::createAllBoundingSpheres() {
       return false;
     };
 
-    /* we must wait for the compute shaders to finish before we can read the bone data*/
+    /* we must wait for the compute shaders to finish before we can read the bone data */
     result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence, VK_TRUE, UINT64_MAX);
     if (result != VK_SUCCESS) {
       Logger::log(1, "%s error: waiting for compute fence failed (error: %i)\n", __FUNCTION__, result);
@@ -5264,11 +5235,36 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdCollisionDebugDrawTime = 0.0f;
   mRenderData.rdCollisionCheckTime = 0.0f;
   mRenderData.rdBehaviorTime = 0.0f;
+  mRenderData.rdInteractionTime = 0.0f;
   mRenderData.rdNumberOfInteractionCandidates = 0;
   mRenderData.rdInteractWithInstanceId = 0;
   mRenderData.rdFaceAnimTime = 0.0f;
 
-  mQuadtree->clear();
+  /* wait for both fences before getting the new framebuffer image */
+  std::vector<VkFence> waitFences = { mRenderData.rdComputeFence, mRenderData.rdRenderFence };
+  VkResult result = vkWaitForFences(mRenderData.rdVkbDevice.device,
+    static_cast<uint32_t>(waitFences.size()), waitFences.data(), VK_TRUE, UINT64_MAX);
+  if (result != VK_SUCCESS) {
+    Logger::log(1, "%s error: waiting for fences failed (error: %i)\n", __FUNCTION__, result);
+    return false;
+  }
+
+  uint32_t imageIndex = 0;
+  result = vkAcquireNextImageKHR(mRenderData.rdVkbDevice.device,
+    mRenderData.rdVkbSwapchain.swapchain,
+    UINT64_MAX,
+    mRenderData.rdPresentSemaphore,
+    VK_NULL_HANDLE,
+    &imageIndex);
+
+  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+    return recreateSwapchain();
+  } else {
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+      Logger::log(1, "%s error: failed to acquire swapchain image. Error is '%i'\n", __FUNCTION__, result);
+      return false;
+    }
+  }
 
   /* calculate the size of the lookup matrix buffer over all animated instances */
   size_t boneMatrixBufferSize = 0;
@@ -5322,6 +5318,9 @@ bool VkRenderer::draw(float deltaTime) {
   size_t instanceToStore = 0;
   size_t animatedInstancesToStore = 0;
   size_t animatedInstancesLookupToStore = 0;
+
+  mQuadtree->clear();
+
   for (const auto& model : mModelInstCamData.micModelList) {
     size_t numberOfInstances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].size();
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
@@ -5399,7 +5398,7 @@ bool VkRenderer::draw(float deltaTime) {
           BoundingBox2D box{position, size};
           instances.at(i)->setBoundingBox(box);
 
-          /* add instance to quadtree*/
+          /* add instance to quadtree */
           mQuadtree->add(instSettings.isInstanceIndexPosition);
 
           mFaceAnimTimer.start();
@@ -5455,7 +5454,7 @@ bool VkRenderer::draw(float deltaTime) {
           BoundingBox2D box{position, size};
           instances.at(i)->setBoundingBox(box);
 
-          /* add instance to quadtree*/
+          /* add instance to quadtree */
           mQuadtree->add(instSettings.isInstanceIndexPosition);
         }
 
@@ -5492,7 +5491,7 @@ bool VkRenderer::draw(float deltaTime) {
   }
 
   /* record compute commands */
-  VkResult result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence);
+  result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: compute fence reset failed (error: %i)\n", __FUNCTION__, result);
     return false;
@@ -5565,7 +5564,7 @@ bool VkRenderer::draw(float deltaTime) {
     };
   }
 
-  /* we must wait for the compute shaders to finish before we can read the bone data*/
+  /* we must wait for the compute shaders to finish before we can read the bone data */
   result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence, VK_TRUE, UINT64_MAX);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: waiting for compute fence failed (error: %i)\n", __FUNCTION__, result);
@@ -5594,7 +5593,7 @@ bool VkRenderer::draw(float deltaTime) {
   /* find interactions */
   mInteractionTimer.start();
   findInteractionInstances();
-  mRenderData.rdInteractionTime = mInteractionTimer.stop();
+  mRenderData.rdInteractionTime += mInteractionTimer.stop();
 
   /* do collision checks after instances were updated and before drawing */
   mCollisionCheckTimer.start();
@@ -5602,14 +5601,7 @@ bool VkRenderer::draw(float deltaTime) {
   checkForBorderCollisions();
   mRenderData.rdCollisionCheckTime += mCollisionCheckTimer.stop();
 
-  /* wait for graphics */
-  result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence, VK_TRUE, UINT64_MAX);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: waiting for fence failed (error: %i)\n", __FUNCTION__, result);
-    return false;
-  }
-
-  handleMovementKeys(deltaTime);
+  handleMovementKeys();
 
   /* save mouse wheel (FOV/ortho scale) after 250ms of inactiviy */
   if (mMouseWheelScrolling) {
@@ -5670,30 +5662,13 @@ bool VkRenderer::draw(float deltaTime) {
     updateDescriptorSets();
   }
 
-  uint32_t imageIndex = 0;
-  result = vkAcquireNextImageKHR(mRenderData.rdVkbDevice.device,
-      mRenderData.rdVkbSwapchain.swapchain,
-      UINT64_MAX,
-      mRenderData.rdPresentSemaphore,
-      VK_NULL_HANDLE,
-      &imageIndex);
-
-  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-    return recreateSwapchain();
-  } else {
-    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-      Logger::log(1, "%s error: failed to acquire swapchain image. Error is '%i'\n", __FUNCTION__, result);
-      return false;
-    }
-  }
-
+  /* start with graphics rendering */
   result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error:  fence reset failed (error: %i)\n", __FUNCTION__, result);
     return false;
   }
 
-  /* Vulkan render preparations */
   if (!CommandBuffer::reset(mRenderData.rdCommandBuffer, 0)) {
     Logger::log(1, "%s error: failed to reset command buffer\n", __FUNCTION__);
     return false;
@@ -5898,7 +5873,7 @@ bool VkRenderer::draw(float deltaTime) {
     if (mModelInstCamData.micSelectedInstance > 0) {
       InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance)->getInstanceSettings();
 
-      /* draw coordiante arrows at origin of selected instance*/
+      /* draw coordiante arrows at origin of selected instance */
       switch(mRenderData.rdInstanceEditMode) {
         case instanceEditMode::move:
           mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
@@ -5926,7 +5901,7 @@ bool VkRenderer::draw(float deltaTime) {
   /* debug for interaction */
   mInteractionTimer.start();
   drawInteractionDebug();
-  mRenderData.rdInteractionTime = mInteractionTimer.stop();
+  mRenderData.rdInteractionTime += mInteractionTimer.stop();
 
   /* draw AABB lines and bounding sphere of selected instance */
   mCollisionDebugDrawTimer.start();
@@ -6062,7 +6037,7 @@ bool VkRenderer::draw(float deltaTime) {
   std::vector<VkSemaphore> waitSemaphores = { mRenderData.rdPresentSemaphore };
   std::vector<VkPipelineStageFlags> waitStages = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
   /* compute shader: contine if in vertex input ready
-   * vertex shader: wait for color attachment output ready*/
+   * vertex shader: wait for color attachment output ready */
   submitInfo.pWaitDstStageMask = waitStages.data();
 
   submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());

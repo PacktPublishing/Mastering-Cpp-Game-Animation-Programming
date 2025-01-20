@@ -173,13 +173,13 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
     ImGui::OpenPopup("Do you want to quit?");
   }
 
-  if (ImGui::BeginPopupModal("Do you want to quit?", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
+  if (ImGui::BeginPopupModal("Do you want to quit?", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
     ImGui::Text("  Exit Application?  ");
 
     /* cheating a bit to get buttons more to the center */
     ImGui::Indent();
     if (ImGui::Button("OK")) {
-      renderData.rdAppExitCallback();
+      renderData.rdAppExitCallbackFunction();
       ImGui::CloseCurrentPopup();
     }
 
@@ -218,7 +218,7 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
     ImGui::OpenPopup("Load Error!");
   }
 
-  if (ImGui::BeginPopupModal("Load Error!", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
+  if (ImGui::BeginPopupModal("Load Error!", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
     ImGui::Text("Error loading config!");
     ImGui::Text("Check console output!");
 
@@ -232,7 +232,7 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
     ImGui::EndPopup();
   }
 
-  /* save config*/
+  /* save config */
   if (saveConfigRequest) {
     IGFD::FileDialogConfig config;
     config.path = ".";
@@ -259,7 +259,7 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
     ImGui::OpenPopup("Save Error!");
   }
 
-  if (ImGui::BeginPopupModal("Save Error!", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
+  if (ImGui::BeginPopupModal("Save Error!", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
     ImGui::Text("Error saving config!");
     ImGui::Text("Check console output!");
 
@@ -273,14 +273,14 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
     ImGui::EndPopup();
   }
 
-  /* load model*/
+  /* load model */
   if (loadModelRequest) {
     IGFD::FileDialogConfig config;
     config.path = ".";
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal;
     ImGuiFileDialog::Instance()->OpenDialog("ChooseModelFile", "Choose Model File",
-                                            "Supported Model Files{.gltf,.glb,.obj,.fbx,.dae,.mdl,.md3,.pk3}", config);
+      "Supported Model Files{.gltf,.glb,.obj,.fbx,.dae,.mdl,.md3,.pk3}", config);
   }
 
   if (ImGuiFileDialog::Instance()->Display("ChooseModelFile")) {
@@ -559,7 +559,7 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
         ImGui::OpenPopup("Delete Model?");
       }
 
-      if (ImGui::BeginPopupModal("Delete Model?", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
+      if (ImGui::BeginPopupModal("Delete Model?", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
         ImGui::Text("Delete Model '%s'?", modInstData.miModelList.at(modInstData.miSelectedModel)->getModelFileName().c_str());
 
         /* cheating a bit to get buttons more to the center */

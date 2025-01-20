@@ -7,7 +7,6 @@
 #include <cstdlib>
 #include <algorithm>
 #include <filesystem>
-#include <memory>
 #include <set>
 
 #include "OGLRenderer.h"
@@ -152,7 +151,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   Logger::log(1, "%s: quadtree initialized\n", __FUNCTION__);
 
   mModelInstCamData.micQuadTreeFindAllIntersectionsCallbackFunction = [this]() { return mQuadtree->findAllIntersections(); };
-  mModelInstCamData.micQuadTreeGetBoxesCallback = [this]() { return mQuadtree->getTreeBoxes(); };
+  mModelInstCamData.micQuadTreeGetBoxesCallbackFunction = [this]() { return mQuadtree->getTreeBoxes(); };
   mModelInstCamData.micWorldGetBoundariesCallbackFunction = [this]() { return getWorldBoundaries(); };
 
   /* register instance/model callbacks */
@@ -199,7 +198,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mModelInstCamData.micNodeEventCallbackFunction = [this](int instanceId, nodeEvent event) { addBehaviorEvent(instanceId, event); };
   mModelInstCamData.micPostNodeTreeDelBehaviorCallbackFunction = [this](std::string nodeTreeName) { postDelNodeTree(nodeTreeName); };
 
-  mRenderData.rdAppExitCallback = [this]() { doExitApplication(); };
+  mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
   Logger::log(1, "%s: callbacks initialized\n", __FUNCTION__);
 
   /* init camera strings */
@@ -266,10 +265,10 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   Logger::log(1, "%s: Colliding sphere line mesh storage initialized\n", __FUNCTION__);
 
   mBehavior = std::make_shared<Behavior>();
-  mInstanceNodeActionCallback = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
+  mInstanceNodeActionCallbackFunction = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
     updateInstanceSettings(instanceId, nodeType, updateType, data, extraSetting);
   };
-  mBehavior->setNodeActionCallback(mInstanceNodeActionCallback);
+  mBehavior->setNodeActionCallback(mInstanceNodeActionCallbackFunction);
   Logger::log(1, "%s: behavior data initialized\n", __FUNCTION__);
 
   mGraphEditor = std::make_shared<GraphEditor>();
@@ -525,8 +524,8 @@ void OGLRenderer::undoLastOperation() {
    * and the settings files still contain the old index number */
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -546,8 +545,8 @@ void OGLRenderer::redoLastOperation() {
   mModelInstCamData.micSettingsContainer->redo();
   enumerateInstances();
 
-  int selectedInstace = mModelInstCamData.micSettingsContainer->getCurrentInstance();
-  if (selectedInstace < mModelInstCamData.micAssimpInstances.size()) {
+  int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
+  if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
     mModelInstCamData.micSelectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   } else {
     mModelInstCamData.micSelectedInstance = 0;
@@ -706,11 +705,11 @@ bool OGLRenderer::addModel(std::string modelFileName, bool addInitialInstance, b
 
   if (withUndo) {
     mModelInstCamData.micSettingsContainer->applyLoadModel(model, mModelInstCamData.micSelectedModel, firstInstance,
-                                                       mModelInstCamData.micSelectedModel, prevSelectedModelId,
-                                                       mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
+      mModelInstCamData.micSelectedModel, prevSelectedModelId,
+      mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
-  /* create AABBs for the model*/
+  /* create AABBs for the model */
   createAABBLookup(model);
 
   return true;
@@ -995,7 +994,7 @@ void OGLRenderer::initQuadTree(int thresholdPerBox, int maxDepth) {
   mQuadtree = std::make_shared<QuadTree>(mWorldBoundaries, thresholdPerBox, maxDepth);
 
   /* quadtree needs to get bounding box of the instances */
-  mQuadtree->instanceGetBoundingBox2DCallbackFunction = [this](int instanceId) {
+  mQuadtree->mInstanceGetBoundingBox2DCallbackFunction = [this](int instanceId) {
     return mModelInstCamData.micAssimpInstances.at(instanceId)->getBoundingBox();
   };
 }
@@ -1597,7 +1596,7 @@ void OGLRenderer::handleMousePositionEvents(double xPos, double yPos) {
     }
   }
 
-  /* save old values*/
+  /* save old values */
   mMouseXPos = static_cast<int>(xPos);
   mMouseYPos = static_cast<int>(yPos);
 }
@@ -1650,7 +1649,7 @@ void OGLRenderer::handleMouseWheelEvents(double xOffset, double yOffset) {
   }
 }
 
-void OGLRenderer::handleMovementKeys(float deltaTime) {
+void OGLRenderer::handleMovementKeys() {
   mRenderData.rdMoveForward = 0;
   mRenderData.rdMoveRight = 0;
   mRenderData.rdMoveUp = 0;
@@ -1776,7 +1775,7 @@ void OGLRenderer::handleMovementKeys(float deltaTime) {
 
 void OGLRenderer::createAABBLookup(std::shared_ptr<AssimpModel> model) {
   const int LOOKUP_SIZE = 1023;
-  /* we use a single instance per clip*/
+  /* we use a single instance per clip */
   size_t numberOfClips = model->getAnimClips().size();
 
   mPerInstanceAnimData.resize(numberOfClips);
@@ -1813,7 +1812,7 @@ void OGLRenderer::createAABBLookup(std::shared_ptr<AssimpModel> model) {
 
     /* play all animation steps */
     float timeScaleFactor = model->getMaxClipDuration() / static_cast<float>(LOOKUP_SIZE);
-    for (int lookups = 0; lookups < LOOKUP_SIZE; lookups++) {
+    for (int lookups = 0; lookups < LOOKUP_SIZE; ++lookups) {
       for (size_t i = 0; i < numberOfClips; ++i) {
 
         PerInstanceAnimData animData{};
@@ -1996,7 +1995,7 @@ void OGLRenderer::checkForBoundingSphereCollisions() {
       glm::vec4 firstSphereData = mBoundingSpheresPerInstance[firstId].at(first);
       float firstRadius = firstSphereData.w;
 
-      /* no need to check disabled spheres*/
+      /* no need to check disabled spheres */
       if (firstRadius == 0.0f) {
         continue;
       }
@@ -2007,7 +2006,7 @@ void OGLRenderer::checkForBoundingSphereCollisions() {
         glm::vec4 secondSphereData = mBoundingSpheresPerInstance[secondId].at(second);
         float secondRadius = secondSphereData.w;
 
-        /* no need to check disabled spheres*/
+        /* no need to check disabled spheres */
         if (secondRadius == 0.0f) {
           continue;
         }
@@ -2169,45 +2168,45 @@ void OGLRenderer::drawInteractionDebug() {
     glm::vec2 maxQueryBoxBottomRight = glm::vec2(instancePos2D) + glm::vec2(mRenderData.rdInteractionMaxRange / 2.0f);
 
     /* min range */
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxTopLeft.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
-    vertex.position = glm::vec3(minQueryBoxBottomRight.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(minQueryBoxTopLeft.x, 0.0f, minQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+
+    vertex.position = glm::vec3(minQueryBoxBottomRight.x, instancePos.y, minQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+    vertex.position = glm::vec3(minQueryBoxTopLeft.x, instancePos.y, minQueryBoxTopLeft.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
     /* max range */
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxTopLeft.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxBottomRight.y);
-    InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxBottomRight.y);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
 
-    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, 0.0f, maxQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxBottomRight.y);
     InteractionMesh.vertices.emplace_back(vertex);
-    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, 0.0f, maxQueryBoxTopLeft.y);
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+
+    vertex.position = glm::vec3(maxQueryBoxBottomRight.x, instancePos.y, maxQueryBoxTopLeft.y);
+    InteractionMesh.vertices.emplace_back(vertex);
+    vertex.position = glm::vec3(maxQueryBoxTopLeft.x, instancePos.y, maxQueryBoxTopLeft.y);
     InteractionMesh.vertices.emplace_back(vertex);
   }
 
@@ -2284,7 +2283,7 @@ void OGLRenderer::drawAABBs(std::vector<std::shared_ptr<AssimpInstance>> instanc
   for (size_t i = 0; i < instances.size(); ++i) {
     InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
 
-    /* skip null instance*/
+    /* skip null instance */
     if (instSettings.isInstanceIndexPosition == 0) {
       continue;
     }
@@ -2602,7 +2601,23 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdFrameTime = mFrameTimer.stop();
   mFrameTimer.start();
 
-  handleMovementKeys(deltaTime);
+  /* reset timers and other values */
+  mRenderData.rdMatricesSize = 0;
+  mRenderData.rdMatrixGenerateTime = 0.0f;
+  mRenderData.rdUploadToUBOTime = 0.0f;
+  mRenderData.rdUploadToVBOTime = 0.0f;
+  mRenderData.rdUIGenerateTime = 0.0f;
+  mRenderData.rdUIDrawTime = 0.0f;
+  mRenderData.rdNumberOfCollisions = 0;
+  mRenderData.rdCollisionDebugDrawTime = 0.0f;
+  mRenderData.rdCollisionCheckTime = 0.0f;
+  mRenderData.rdBehaviorTime = 0.0f;
+  mRenderData.rdInteractionTime = 0.0f;
+  mRenderData.rdNumberOfInteractionCandidates = 0;
+  mRenderData.rdInteractWithInstanceId = 0;
+  mRenderData.rdFaceAnimTime = 0.0f;
+
+  handleMovementKeys();
 
   std::shared_ptr<Camera> cam = mModelInstCamData.micCameras.at(mModelInstCamData.micSelectedCamera);
   CameraSettings camSettings = cam->getCameraSettings();
@@ -2643,14 +2658,14 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mViewMatrix = cam->getViewMatrix();
 
-  mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
+  mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
 
   mUploadToUBOTimer.start();
   std::vector<glm::mat4> matrixData;
   matrixData.emplace_back(mViewMatrix);
   matrixData.emplace_back(mProjectionMatrix);
   mUniformBuffer.uploadUboData(matrixData, 0);
-  mRenderData.rdUploadToUBOTime = mUploadToUBOTimer.stop();
+  mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   /* save the selected instance for color highlight */
   std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
@@ -2663,21 +2678,6 @@ bool OGLRenderer::draw(float deltaTime) {
       }
     }
   }
-
-  /* reset timers and other values */
-  mRenderData.rdMatricesSize = 0;
-  mRenderData.rdMatrixGenerateTime = 0.0f;
-  mRenderData.rdUploadToUBOTime = 0.0f;
-  mRenderData.rdUploadToVBOTime = 0.0f;
-  mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
-  mRenderData.rdNumberOfCollisions = 0;
-  mRenderData.rdCollisionDebugDrawTime = 0.0f;
-  mRenderData.rdCollisionCheckTime = 0.0f;
-  mRenderData.rdBehaviorTime = 0.0f;
-  mRenderData.rdNumberOfInteractionCandidates = 0;
-  mRenderData.rdInteractWithInstanceId = 0;
-  mRenderData.rdFaceAnimTime = 0.0f;
 
   mQuadtree->clear();
 
@@ -2929,7 +2929,7 @@ bool OGLRenderer::draw(float deltaTime) {
     if (mModelInstCamData.micSelectedInstance > 0) {
       InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance)->getInstanceSettings();
 
-      /* draw coordiante arrows at origin of selected instance*/
+      /* draw coordiante arrows at origin of selected instance */
       switch(mRenderData.rdInstanceEditMode) {
         case instanceEditMode::move:
           mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
@@ -2987,7 +2987,7 @@ bool OGLRenderer::draw(float deltaTime) {
   mInteractionTimer.start();
   findInteractionInstances();
   drawInteractionDebug();
-  mRenderData.rdInteractionTime = mInteractionTimer.stop();
+  mRenderData.rdInteractionTime += mInteractionTimer.stop();
 
   /* check for collisions */
   mCollisionCheckTimer.start();
@@ -3034,11 +3034,11 @@ bool OGLRenderer::draw(float deltaTime) {
     mGraphEditor->createNodeEditorWindow(mRenderData, mModelInstCamData);
   }
 
-  mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
+  mRenderData.rdUIGenerateTime += mUIGenerateTimer.stop();
 
   mUIDrawTimer.start();
   mUserInterface.render();
-  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
 
   return true;
 }

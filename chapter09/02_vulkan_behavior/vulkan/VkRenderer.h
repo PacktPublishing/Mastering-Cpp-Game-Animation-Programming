@@ -140,7 +140,7 @@ class VkRenderer {
     VkShaderStorageBufferData mSphereTRSMatrixBuffer{};
     VkShaderStorageBufferData mSphereBoneMatrixBuffer{};
 
-    /* x/y/z is shpere center, w is radius*/
+    /* x/y/z is shpere center, w is radius */
     VkShaderStorageBufferData mBoundingSphereBuffer{};
 
     CoordArrowsModel mCoordArrowsModel{};
@@ -175,7 +175,7 @@ class VkRenderer {
     int mMouseMoveVerticalShiftKey = 0;
     InstanceSettings mSavedInstanceSettings{};
 
-    void handleMovementKeys(float deltaTime);
+    void handleMovementKeys();
     void updateTriangleCount();
     void enumerateInstances();
 
@@ -244,7 +244,7 @@ class VkRenderer {
     std::shared_ptr<SingleInstanceBehavior> createEmptyGraph();
 
     std::shared_ptr<Behavior> mBehavior = nullptr;
-    instanceNodeActionCallback mInstanceNodeActionCallback;
+    instanceNodeActionCallback mInstanceNodeActionCallbackFunction;
 
     /* Vulkan specific code */
     VkSurfaceKHR mSurface = VK_NULL_HANDLE;

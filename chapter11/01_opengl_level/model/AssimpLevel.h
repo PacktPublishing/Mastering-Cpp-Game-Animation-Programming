@@ -38,6 +38,8 @@ class AssimpLevel {
     void generateAABB();
     AABB getAABB();
 
+    void cleanup();
+
   private:
     void processNode(std::shared_ptr<AssimpNode> node, aiNode* aNode, const aiScene* scene, std::string assetDirectory);
 

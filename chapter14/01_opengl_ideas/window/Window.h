@@ -26,7 +26,5 @@ class Window {
 
     std::unique_ptr<OGLRenderer> mRenderer = nullptr;
 
-    std::chrono::time_point<std::chrono::steady_clock> mStartTime{};
-
     AudioManager mAudioManager{};
 };

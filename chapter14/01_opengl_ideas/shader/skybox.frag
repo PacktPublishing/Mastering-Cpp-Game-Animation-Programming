@@ -14,7 +14,9 @@ layout (std140, binding = 0) uniform Matrices {
 };
 
 void main() {
+  /* scale up fog density to hide skybox */
   float boxFogDensity = 200.0 * fogDensity;
+
   float fogDistance = gl_FragCoord.z / gl_FragCoord.w;
   float fogAmount = 1.0 - clamp(exp(-pow(boxFogDensity * fogDistance, 2.0)), 0.0, 1.0);
   vec4 fogColor = 0.25 * vec4(vec3(lightColor), 1.0);

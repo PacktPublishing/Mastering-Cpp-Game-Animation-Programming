@@ -1,12 +1,7 @@
 #include <algorithm>
-#include <chrono>
-#include <cmath>
 #include <filesystem>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+
 #include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/dual_quaternion.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
@@ -486,7 +481,7 @@ float AssimpModel::getMaxClipDuration() {
   return mMaxClipDuration;
 }
 
-void AssimpModel::setAABBLokkup(std::vector<std::vector<AABB>> lookupData) {
+void AssimpModel::setAABBLookup(std::vector<std::vector<AABB>> lookupData) {
   mAabbLookups = lookupData;
 }
 

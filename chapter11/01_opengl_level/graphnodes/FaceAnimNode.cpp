@@ -164,7 +164,7 @@ void FaceAnimNode::deactivate(bool informParentNodes) {
   resetTimes();
 
   if (informParentNodes) {
-    /* inform parent that we are done*/
+    /* inform parent that we are done */
     fireNodeOutputTriggerCallback(mInId);
   }
 }

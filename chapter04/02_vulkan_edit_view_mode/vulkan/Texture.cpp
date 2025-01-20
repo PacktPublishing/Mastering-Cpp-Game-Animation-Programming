@@ -29,30 +29,6 @@ bool Texture::loadTexture(VkRenderData &renderData, VkTextureData &texData, std:
 
   VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-  VkImageCreateInfo imageInfo{};
-  imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-  imageInfo.imageType = VK_IMAGE_TYPE_2D;
-  imageInfo.extent.width = static_cast<uint32_t>(texWidth);
-  imageInfo.extent.height = static_cast<uint32_t>(texHeight);
-  imageInfo.extent.depth = 1;
-  imageInfo.mipLevels = mipmapLevels;
-  imageInfo.arrayLayers = 1;
-  imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-  imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-  imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-  imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-  imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-
-  VmaAllocationCreateInfo imageAllocInfo{};
-  imageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-
-  VkResult result = vmaCreateImage(renderData.rdAllocator, &imageInfo, &imageAllocInfo, &texData.image,  &texData.imageAlloc, nullptr);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not allocate texture image via VMA (error: %i)\n", __FUNCTION__, result);
-    return false;
-  }
-
   /* staging buffer */
   VkBufferCreateInfo stagingBufferInfo{};
   stagingBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -65,7 +41,7 @@ bool Texture::loadTexture(VkRenderData &renderData, VkTextureData &texData, std:
   VmaAllocationCreateInfo stagingAllocInfo{};
   stagingAllocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
 
-  result = vmaCreateBuffer(renderData.rdAllocator, &stagingBufferInfo, &stagingAllocInfo, &stagingBuffer,  &stagingBufferAlloc, nullptr);
+  VkResult result = vmaCreateBuffer(renderData.rdAllocator, &stagingBufferInfo, &stagingAllocInfo, &stagingBuffer,  &stagingBufferAlloc, nullptr);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: could not allocate texture staging buffer via VMA (error: %i)\n", __FUNCTION__, result);
     return false;
@@ -108,7 +84,7 @@ bool Texture::loadTexture(VkRenderData& renderData, VkTextureData& texData, std:
   /* allow to flip the image, similar to file loaded from disk */
   stbi_set_flip_vertically_on_load(flipImage);
 
-  /* we must use stbi to detect the in-memory format, but always request RGBA */
+  /* we use stbi to detect the in-memory format, but always request RGBA */
   unsigned char *data = nullptr;
   if (height == 0)   {
     data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(textureData), width, &texWidth, &texHeight, &numberOfChannels, STBI_rgb_alpha);
@@ -129,30 +105,6 @@ bool Texture::loadTexture(VkRenderData& renderData, VkTextureData& texData, std:
 
   VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-  VkImageCreateInfo imageInfo{};
-  imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-  imageInfo.imageType = VK_IMAGE_TYPE_2D;
-  imageInfo.extent.width = static_cast<uint32_t>(texWidth);
-  imageInfo.extent.height = static_cast<uint32_t>(texHeight);
-  imageInfo.extent.depth = 1;
-  imageInfo.mipLevels = mipmapLevels;
-  imageInfo.arrayLayers = 1;
-  imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-  imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-  imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-  imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-  imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-
-  VmaAllocationCreateInfo imageAllocInfo{};
-  imageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-
-  VkResult result = vmaCreateImage(renderData.rdAllocator, &imageInfo, &imageAllocInfo, &texData.image,  &texData.imageAlloc, nullptr);
-  if (result != VK_SUCCESS) {
-    Logger::log(1, "%s error: could not allocate texture image via VMA (error: %i)\n", __FUNCTION__, result);
-    return false;
-  }
-
   /* staging buffer */
   VkBufferCreateInfo stagingBufferInfo{};
   stagingBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -165,7 +117,7 @@ bool Texture::loadTexture(VkRenderData& renderData, VkTextureData& texData, std:
   VmaAllocationCreateInfo stagingAllocInfo{};
   stagingAllocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
 
-  result = vmaCreateBuffer(renderData.rdAllocator, &stagingBufferInfo, &stagingAllocInfo, &stagingBuffer,  &stagingBufferAlloc, nullptr);
+  VkResult result = vmaCreateBuffer(renderData.rdAllocator, &stagingBufferInfo, &stagingAllocInfo, &stagingBuffer,  &stagingBufferAlloc, nullptr);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: could not allocate texture staging buffer via VMA (error: %i)\n", __FUNCTION__, result);
     return false;
@@ -197,6 +149,30 @@ bool Texture::uploadToGPU(VkRenderData& renderData, VkTextureData& texData, VkTe
       int width, int height, bool generateMipmaps, int mipmapLevels) {
   /* upload */
   VkCommandBuffer uploadCommandBuffer = CommandBuffer::createSingleShotBuffer(renderData, renderData.rdCommandPool);
+
+  VkImageCreateInfo imageInfo{};
+  imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+  imageInfo.imageType = VK_IMAGE_TYPE_2D;
+  imageInfo.extent.width = static_cast<uint32_t>(width);
+  imageInfo.extent.height = static_cast<uint32_t>(height);
+  imageInfo.extent.depth = 1;
+  imageInfo.mipLevels = mipmapLevels;
+  imageInfo.arrayLayers = 1;
+  imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+  imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+  imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+  imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+
+  VmaAllocationCreateInfo imageAllocInfo{};
+  imageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+
+  VkResult result = vmaCreateImage(renderData.rdAllocator, &imageInfo, &imageAllocInfo, &texData.image,  &texData.imageAlloc, nullptr);
+  if (result != VK_SUCCESS) {
+    Logger::log(1, "%s error: could not allocate texture image via VMA (error: %i)\n", __FUNCTION__, result);
+    return false;
+  }
 
   VkImageSubresourceRange stagingBufferRange{};
   stagingBufferRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -235,7 +211,7 @@ bool Texture::uploadToGPU(VkRenderData& renderData, VkTextureData& texData, VkTe
   stagingBufferShaderBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
   stagingBufferShaderBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
   if (mipmapLevels > 1) {
-    /* VkCmdBlit() requires the original image to be in TRANSFER_DST_OPTIMAL format*/
+    /* VkCmdBlit() requires the original image to be in TRANSFER_DST_OPTIMAL format */
     stagingBufferShaderBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
   } else {
     stagingBufferShaderBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -355,7 +331,7 @@ bool Texture::uploadToGPU(VkRenderData& renderData, VkTextureData& texData, VkTe
   texViewInfo.subresourceRange.baseArrayLayer = 0;
   texViewInfo.subresourceRange.layerCount = 1;
 
-  VkResult result = vkCreateImageView(renderData.rdVkbDevice.device, &texViewInfo, nullptr, &texData.imageView);
+  result = vkCreateImageView(renderData.rdVkbDevice.device, &texViewInfo, nullptr, &texData.imageView);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: could not create image view for texture\n", __FUNCTION__);
     return false;

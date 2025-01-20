@@ -4,8 +4,6 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include <array>
-#include <unordered_set>
 #include <glm/glm.hpp>
 
 #include "AssimpModel.h"
@@ -57,7 +55,7 @@ class AssimpInstance {
     void stopInstance();
 
     BoundingBox3D getBoundingBox();
-    void setBoundingBox3D(BoundingBox3D box);
+    void setBoundingBox(BoundingBox3D box);
 
     void setFaceAnim(faceAnimation faceAnim);
     void setFaceAnimWeight(float weight);

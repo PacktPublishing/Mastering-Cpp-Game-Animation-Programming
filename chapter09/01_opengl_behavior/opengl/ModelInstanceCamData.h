@@ -62,8 +62,8 @@ struct ModelInstanceCamData {
   loadSaveCallback micLoadConfigCallbackFunction;
 
   newConfigCallback micNewConfigCallbackFunction;
-  setConfigDirtyCallbackFunction micSetConfigDirtyCallbackFunction;
-  getConfigDirtyCallbackFunction micGetConfigDirtyCallbackFunction;
+  setConfigDirtyCallback micSetConfigDirtyCallbackFunction;
+  getConfigDirtyCallback micGetConfigDirtyCallbackFunction;
 
   cameraCloneCallback micCameraCloneCallbackFunction;
   cameraDeleteCallback micCameraDeleteCallbackFunction;
@@ -73,7 +73,7 @@ struct ModelInstanceCamData {
 
   quadTreeQueryBBoxCallback micQuadTreeQueryBBoxCallbackFunction;
   quadTreeFindAllIntersectionsCallback micQuadTreeFindAllIntersectionsCallbackFunction;
-  quadTreeGetBoxesCallback micQuadTreeGetBoxesCallback;
+  quadTreeGetBoxesCallback micQuadTreeGetBoxesCallbackFunction;
 
   worldGetBoundariesCallback micWorldGetBoundariesCallbackFunction;
 

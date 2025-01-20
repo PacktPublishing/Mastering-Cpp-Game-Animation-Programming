@@ -463,10 +463,6 @@ void AssimpModel::bindBoneMatrixOffsetBuffer(int bindingPoint) {
   mShaderBoneMatrixOffsetBuffer.bind(bindingPoint);
 }
 
-void AssimpModel::bindInverseBoneMatrixOffsetBuffer(int bindingPoint) {
-  mShaderInverseBoneMatrixOffsetBuffer.bind(bindingPoint);
-}
-
 void AssimpModel::bindBoneParentBuffer(int bindingPoint) {
   mShaderBoneParentBuffer.bind(bindingPoint);
 }
@@ -491,7 +487,7 @@ float AssimpModel::getMaxClipDuration() {
   return mMaxClipDuration;
 }
 
-void AssimpModel::setAABBLokkup(std::vector<std::vector<AABB>> lookupData) {
+void AssimpModel::setAABBLookup(std::vector<std::vector<AABB>> lookupData) {
   mAabbLookups = lookupData;
 }
 

@@ -13,7 +13,7 @@
 #include "Enums.h"
 #include "BoundingBox2D.h"
 
-/* forward declarations*/
+/* forward declarations */
 class AssimpModel;
 class AssimpInstance;
 class AssimpSettingsContainer;
@@ -54,8 +54,8 @@ using instanceGetBoundingBox2DCallback = std::function<BoundingBox2D(int)>;
 using undoRedoCallback = std::function<void(void)>;
 using newConfigCallback = std::function<void(void)>;
 using loadSaveCallback = std::function<bool(std::string)>;
-using setConfigDirtyCallbackFunction = std::function<void(bool)>;
-using getConfigDirtyCallbackFunction = std::function<bool(void)>;
+using setConfigDirtyCallback = std::function<void(bool)>;
+using getConfigDirtyCallback = std::function<bool(void)>;
 
 using cameraCloneCallback = std::function<void()>;
 using cameraDeleteCallback = std::function<void()>;
