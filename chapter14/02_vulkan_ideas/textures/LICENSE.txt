@@ -1,0 +1,17 @@
+skybox.jpg
+----------
+"STORMY DAYS" (https://opengameart.org/content/stormy-days-skybox) by By Jockum Skoglund aka hipshot:
+
+hipshot@zfight.com
+www.zfight.com
+Stockholm, 2005 08 25
+
+Licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/3.0/).
+
+A single JPG file was created from the TGA files.
+
+
+missing_tex.png
+---------------
+Created by Michael Dunsky.
+Licensed under the CC0 License (https://creativecommons.org/publicdomain/zero/1.0/)
