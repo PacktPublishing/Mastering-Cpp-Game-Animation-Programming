@@ -352,6 +352,23 @@ add_custom_command(TARGET ImGuiIniFile POST_BUILD
   "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/imgui.ini"
 )
 
+# Copy SDL2 DLLs
+if (WIN32)
+  add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+   "${SDL2_INCLUDE_DIR}/../lib/x64/SDL2.dll"
+   "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+    VERBATIM)
+
+  add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+   "${SDL2_MIXER_INCLUDE_DIRS}/../lib/x64/SDL2_mixer.dll"
+   "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+    VERBATIM)
+ endif()
+
 # FindAssimp.cmake sets ASSIMP_LIBRARY and ASSIMP_ZLIB_LIBRARY under Windows, reuse the value for Linux
 if(UNIX)
   set(ASSIMP_LIBRARY assimp)
@@ -367,7 +384,7 @@ add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
 if(MSVC)
   # SDL defines its own main(), conflicts on Windows
   add_definitions(-DSDL_MAIN_HANDLED)
-  target_link_libraries(${PROJECT_NAME} PRIVATE glfw ${ASSIMP_LIBRARY} ${ASSIMP_ZLIB_LIBRARY} SDL2 SDL2_mixer Vulkan::Vulkan yaml-cpp::yaml-cpp vk-bootstrap::vk-bootstrap)
+  target_link_libraries(${PROJECT_NAME} PRIVATE glfw ${ASSIMP_LIBRARY} ${ASSIMP_ZLIB_LIBRARY} ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARIES} Vulkan::Vulkan yaml-cpp::yaml-cpp vk-bootstrap::vk-bootstrap)
 else()
   # Clang and GCC may need libstd++ and libmath
   target_link_libraries(${PROJECT_NAME} PRIVATE glfw ${ASSIMP_LIBRARY} ${ASSIMP_ZLIB_LIBRARY} SDL2 SDL2_mixer Vulkan::Vulkan yaml-cpp vk-bootstrap::vk-bootstrap stdc++ m)
