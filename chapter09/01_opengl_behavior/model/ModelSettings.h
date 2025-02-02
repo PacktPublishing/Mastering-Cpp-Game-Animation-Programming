@@ -32,4 +32,6 @@ struct ModelSettings {
   std::set<std::pair<moveState, moveState>> msAllowedStateOrder{};
 
   std::vector<glm::vec4> msBoundingSphereAdjustments{};
+
+  bool msPreviewMode = false;
 };

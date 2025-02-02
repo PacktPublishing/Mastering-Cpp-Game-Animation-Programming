@@ -204,6 +204,17 @@ unsigned int AssimpLevel::getTriangleCount() {
   return mTriangleCount;
 }
 
+void AssimpLevel::cleanup(){
+  for (auto buffer : mVertexBuffers) {
+    buffer.cleanup();
+  }
+
+  for (auto tex : mTextures) {
+    tex.second->cleanup();
+  }
+  mPlaceholderTexture->cleanup();
+}
+
 glm::mat4 AssimpLevel::getWorldTransformMatrix() {
   return mLevelRootMatrix;
 }

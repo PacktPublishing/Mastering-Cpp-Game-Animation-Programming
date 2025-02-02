@@ -30,4 +30,6 @@ struct ModelSettings {
   std::map<moveState, ActionAnimation> msActionClipMappings{};
   std::map<moveDirection, IdleWalkRunBlending> msIWRBlendings{};
   std::set<std::pair<moveState, moveState>> msAllowedStateOrder{};
+
+  bool msPreviewMode = false;
 };

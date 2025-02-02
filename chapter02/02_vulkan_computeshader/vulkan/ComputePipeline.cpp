@@ -15,16 +15,16 @@ bool ComputePipeline::init(VkRenderData& renderData, VkPipelineLayout& pipelineL
       Shader::cleanup(renderData.rdVkbDevice.device, computeModule);
       return false;
   }
-  VkPipelineShaderStageCreateInfo vertexStageInfo{};
-  vertexStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  vertexStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-  vertexStageInfo.module = computeModule;
-  vertexStageInfo.pName = "main";
+  VkPipelineShaderStageCreateInfo computeStageInfo{};
+  computeStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  computeStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+  computeStageInfo.module = computeModule;
+  computeStageInfo.pName = "main";
 
   VkComputePipelineCreateInfo pipelineCreateInfo{};
   pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
   pipelineCreateInfo.layout = pipelineLayout;
-  pipelineCreateInfo.stage = vertexStageInfo;
+  pipelineCreateInfo.stage = computeStageInfo;
 
   VkResult result = vkCreateComputePipelines(renderData.rdVkbDevice.device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &pipeline);
   if (result != VK_SUCCESS) {

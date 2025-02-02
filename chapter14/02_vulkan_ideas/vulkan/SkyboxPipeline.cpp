@@ -34,13 +34,13 @@ bool SkyboxPipeline::init(VkRenderData& renderData, VkPipelineLayout& pipelineLa
   std::vector<VkPipelineShaderStageCreateInfo> shaderStagesInfo = { vertexStageInfo, fragmentStageInfo };
 
   /* assemble the graphics pipeline itself */
-  std::vector<VkVertexInputBindingDescription> vertexBindings = { { 0, sizeof(VkSkyboxVertex), VK_VERTEX_INPUT_RATE_VERTEX } };
+  std::vector<VkVertexInputBindingDescription> vertexBindings = { { 0, static_cast<uint32_t>(sizeof(VkSkyboxVertex)), VK_VERTEX_INPUT_RATE_VERTEX } };
 
   VkVertexInputAttributeDescription positionAttribute{};
   positionAttribute.binding = 0;
   positionAttribute.location = 0;
   positionAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
-  positionAttribute.offset = offsetof(VkSkyboxVertex, position);
+  positionAttribute.offset = static_cast<uint32_t>(offsetof(VkSkyboxVertex, position));
 
   std::vector<VkVertexInputAttributeDescription> attributes{};
   attributes.emplace_back(positionAttribute);

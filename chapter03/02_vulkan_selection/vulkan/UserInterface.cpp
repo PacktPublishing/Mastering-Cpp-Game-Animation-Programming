@@ -116,55 +116,44 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
 
   ImGui::Begin("Control", nullptr, imguiWindowFlags);
 
-  static float newFps = 0.0f;
   /* avoid inf values (division by zero) */
   if (renderData.rdFrameTime > 0.0) {
-    newFps = 1.0f / renderData.rdFrameTime * 1000.f;
+    mNewFps = 1.0f / renderData.rdFrameTime * 1000.f;
   }
   /* make an averge value to avoid jumps */
-  mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * newFps;
+  mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * mNewFps;
 
   /* clamp manual input on all sliders to min/max */
   ImGuiSliderFlags flags = ImGuiSliderFlags_AlwaysClamp;
 
-  static double updateTime = 0.0;
-
   /* avoid literal double compares */
-  if (updateTime < 0.000001) {
-    updateTime = ImGui::GetTime();
+  if (mUpdateTime < 0.000001) {
+    mUpdateTime = ImGui::GetTime();
   }
 
-  static int fpsOffset = 0;
-  static int frameTimeOffset = 0;
-  static int modelUploadOffset = 0;
-  static int matrixGenOffset = 0;
-  static int matrixUploadOffset = 0;
-  static int uiGenOffset = 0;
-  static int uiDrawOffset = 0;
+  while (mUpdateTime < ImGui::GetTime()) {
+    mFPSValues.at(mFpsOffset) = mFramesPerSecond;
+    mFpsOffset = ++mFpsOffset % mNumFPSValues;
 
-  while (updateTime < ImGui::GetTime()) {
-    mFPSValues.at(fpsOffset) = mFramesPerSecond;
-    fpsOffset = ++fpsOffset % mNumFPSValues;
+    mFrameTimeValues.at(mFrameTimeOffset) = renderData.rdFrameTime;
+    mFrameTimeOffset = ++mFrameTimeOffset % mNumFrameTimeValues;
 
-    mFrameTimeValues.at(frameTimeOffset) = renderData.rdFrameTime;
-    frameTimeOffset = ++frameTimeOffset % mNumFrameTimeValues;
+    mModelUploadValues.at(mModelUploadOffset) = renderData.rdUploadToVBOTime;
+    mModelUploadOffset = ++mModelUploadOffset % mNumModelUploadValues;
 
-    mModelUploadValues.at(modelUploadOffset) = renderData.rdUploadToVBOTime;
-    modelUploadOffset = ++modelUploadOffset % mNumModelUploadValues;
+    mMatrixGenerationValues.at(mMatrixGenOffset) = renderData.rdMatrixGenerateTime;
+    mMatrixGenOffset = ++mMatrixGenOffset % mNumMatrixGenerationValues;
 
-    mMatrixGenerationValues.at(matrixGenOffset) = renderData.rdMatrixGenerateTime;
-    matrixGenOffset = ++matrixGenOffset % mNumMatrixGenerationValues;
+    mMatrixUploadValues.at(mMatrixUploadOffset) = renderData.rdUploadToUBOTime;
+    mMatrixUploadOffset = ++mMatrixUploadOffset % mNumMatrixUploadValues;
 
-    mMatrixUploadValues.at(matrixUploadOffset) = renderData.rdUploadToUBOTime;
-    matrixUploadOffset = ++matrixUploadOffset % mNumMatrixUploadValues;
+    mUiGenValues.at(mUiGenOffset) = renderData.rdUIGenerateTime;
+    mUiGenOffset = ++mUiGenOffset % mNumUiGenValues;
 
-    mUiGenValues.at(uiGenOffset) = renderData.rdUIGenerateTime;
-    uiGenOffset = ++uiGenOffset % mNumUiGenValues;
+    mUiDrawValues.at(mIiDrawOffset) = renderData.rdUIDrawTime;
+    mIiDrawOffset = ++mIiDrawOffset % mNumUiDrawValues;
 
-    mUiDrawValues.at(uiDrawOffset) = renderData.rdUIDrawTime;
-    uiDrawOffset = ++uiDrawOffset % mNumUiDrawValues;
-
-    updateTime += 1.0 / 30.0;
+    mUpdateTime += 1.0 / 30.0;
   }
 
   ImGui::Text("FPS: %10.4f", mFramesPerSecond);
@@ -179,8 +168,8 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
     std::string fpsOverlay = "now:     " + std::to_string(mFramesPerSecond) + "\n30s avg: " + std::to_string(averageFPS);
     ImGui::Text("FPS");
     ImGui::SameLine();
-    ImGui::PlotLines("##FrameTimes", mFPSValues.data(), mFPSValues.size(), fpsOffset, fpsOverlay.c_str(), 0.0f,
-                     std::numeric_limits<float>::max(), ImVec2(0, 80));
+    ImGui::PlotLines("##FrameTimes", mFPSValues.data(), mFPSValues.size(), mFpsOffset, fpsOverlay.c_str(), 0.0f,
+      std::numeric_limits<float>::max(), ImVec2(0, 80));
     ImGui::EndTooltip();
   }
 
@@ -200,14 +189,12 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
 
     ImGui::Text("Instance Matrix Size:  %8.2f %2s", memoryUsage, unit.c_str());
 
-
     std::string windowDims = std::to_string(renderData.rdWidth) + "x" + std::to_string(renderData.rdHeight);
     ImGui::Text("Window Dimensions:      %10s", windowDims.c_str());
 
     std::string imgWindowPos = std::to_string(static_cast<int>(ImGui::GetWindowPos().x)) + "/" + std::to_string(static_cast<int>(ImGui::GetWindowPos().y));
     ImGui::Text("ImGui Window Position:  %10s", imgWindowPos.c_str());
   }
-
 
   if (ImGui::CollapsingHeader("Timers")) {
     ImGui::Text("Frame Time:             %10.4f ms", renderData.rdFrameTime);
@@ -219,12 +206,12 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
         averageFrameTime += value;
       }
       averageFrameTime /= static_cast<float>(mNumMatrixGenerationValues);
-      std::string frameTimeOverlay = "now:     " + std::to_string(renderData.rdFrameTime)
-      + " ms\n30s avg: " + std::to_string(averageFrameTime) + " ms";
+      std::string frameTimeOverlay = "now:     " + std::to_string(renderData.rdFrameTime) +
+        " ms\n30s avg: " + std::to_string(averageFrameTime) + " ms";
       ImGui::Text("Frame Time       ");
       ImGui::SameLine();
-      ImGui::PlotLines("##FrameTime", mFrameTimeValues.data(), mFrameTimeValues.size(), frameTimeOffset,
-                       frameTimeOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##FrameTime", mFrameTimeValues.data(), mFrameTimeValues.size(), mFrameTimeOffset,
+        frameTimeOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -237,12 +224,12 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
         averageModelUpload += value;
       }
       averageModelUpload /= static_cast<float>(mNumModelUploadValues);
-      std::string modelUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToVBOTime)
-      + " ms\n30s avg: " + std::to_string(averageModelUpload) + " ms";
+      std::string modelUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToVBOTime) +
+        " ms\n30s avg: " + std::to_string(averageModelUpload) + " ms";
       ImGui::Text("VBO Upload");
       ImGui::SameLine();
-      ImGui::PlotLines("##ModelUploadTimes", mModelUploadValues.data(), mModelUploadValues.size(), modelUploadOffset,
-                       modelUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##ModelUploadTimes", mModelUploadValues.data(), mModelUploadValues.size(), mModelUploadOffset,
+        modelUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -255,12 +242,12 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
         averageMatGen += value;
       }
       averageMatGen /= static_cast<float>(mNumMatrixGenerationValues);
-      std::string matrixGenOverlay = "now:     " + std::to_string(renderData.rdMatrixGenerateTime)
-      + " ms\n30s avg: " + std::to_string(averageMatGen) + " ms";
+      std::string matrixGenOverlay = "now:     " + std::to_string(renderData.rdMatrixGenerateTime) +
+        " ms\n30s avg: " + std::to_string(averageMatGen) + " ms";
       ImGui::Text("Matrix Generation");
       ImGui::SameLine();
-      ImGui::PlotLines("##MatrixGenTimes", mMatrixGenerationValues.data(), mMatrixGenerationValues.size(), matrixGenOffset,
-                       matrixGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##MatrixGenTimes", mMatrixGenerationValues.data(), mMatrixGenerationValues.size(), mMatrixGenOffset,
+        matrixGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -273,12 +260,12 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
         averageMatrixUpload += value;
       }
       averageMatrixUpload /= static_cast<float>(mNumMatrixUploadValues);
-      std::string matrixUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToUBOTime)
-      + " ms\n30s avg: " + std::to_string(averageMatrixUpload) + " ms";
+      std::string matrixUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToUBOTime) +
+        " ms\n30s avg: " + std::to_string(averageMatrixUpload) + " ms";
       ImGui::Text("UBO Upload");
       ImGui::SameLine();
-      ImGui::PlotLines("##MatrixUploadTimes", mMatrixUploadValues.data(), mMatrixUploadValues.size(), matrixUploadOffset,
-                       matrixUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##MatrixUploadTimes", mMatrixUploadValues.data(), mMatrixUploadValues.size(), mMatrixUploadOffset,
+        matrixUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -291,12 +278,12 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
         averageUiGen += value;
       }
       averageUiGen /= static_cast<float>(mNumUiGenValues);
-      std::string uiGenOverlay = "now:     " + std::to_string(renderData.rdUIGenerateTime)
-      + " ms\n30s avg: " + std::to_string(averageUiGen) + " ms";
+      std::string uiGenOverlay = "now:     " + std::to_string(renderData.rdUIGenerateTime) +
+        " ms\n30s avg: " + std::to_string(averageUiGen) + " ms";
       ImGui::Text("UI Generation");
       ImGui::SameLine();
-      ImGui::PlotLines("##UIGenTimes", mUiGenValues.data(), mUiGenValues.size(), uiGenOffset,
-                       uiGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##UIGenTimes", mUiGenValues.data(), mUiGenValues.size(), mUiGenOffset,
+        uiGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -309,12 +296,12 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
         averageUiDraw += value;
       }
       averageUiDraw /= static_cast<float>(mNumUiDrawValues);
-      std::string uiDrawOverlay = "now:     " + std::to_string(renderData.rdUIDrawTime)
-      + " ms\n30s avg: " + std::to_string(averageUiDraw) + " ms";
+      std::string uiDrawOverlay = "now:     " + std::to_string(renderData.rdUIDrawTime) +
+        " ms\n30s avg: " + std::to_string(averageUiDraw) + " ms";
       ImGui::Text("UI Draw");
       ImGui::SameLine();
-      ImGui::PlotLines("##UIDrawTimes", mUiDrawValues.data(), mUiDrawValues.size(), uiDrawOffset,
-                       uiDrawOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##UIDrawTimes", mUiDrawValues.data(), mUiDrawValues.size(), mIiDrawOffset,
+        uiDrawOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
   }
@@ -360,108 +347,108 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
         }
       }
       ImGui::EndCombo();
-      }
-      ImGui::PopItemWidth();
+    }
+    ImGui::PopItemWidth();
 
-      if (modelListEmtpy) {
-        ImGui::EndDisabled();
-      }
+    if (modelListEmtpy) {
+      ImGui::EndDisabled();
+    }
 
-      if (ImGui::Button("Import Model")) {
-        IGFD::FileDialogConfig config;
-        config.path = ".";
-        config.countSelectionMax = 1;
-        config.flags = ImGuiFileDialogFlags_Modal;
-        ImGuiFileDialog::Instance()->OpenDialog("ChooseModelFile", "Choose Model File", "Supported Model Files{.gltf,.glb,.obj,.fbx,.dae,.mdl,.md3,.pk3}", config);
-      }
+    if (ImGui::Button("Import Model")) {
+      IGFD::FileDialogConfig config;
+      config.path = ".";
+      config.countSelectionMax = 1;
+      config.flags = ImGuiFileDialogFlags_Modal;
+      ImGuiFileDialog::Instance()->OpenDialog("ChooseModelFile", "Choose Model File",
+        "Supported Model Files{.gltf,.glb,.obj,.fbx,.dae,.mdl,.md3,.pk3}", config);
+    }
 
-      if (ImGuiFileDialog::Instance()->Display("ChooseModelFile")) {
-        if (ImGuiFileDialog::Instance()->IsOk()) {
-          std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+    if (ImGuiFileDialog::Instance()->Display("ChooseModelFile")) {
+      if (ImGuiFileDialog::Instance()->IsOk()) {
+        std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 
-          /* try to construct a relative path */
-          std::filesystem::path currentPath = std::filesystem::current_path();
-          std::string relativePath =  std::filesystem::relative(filePathName, currentPath).generic_string();
+        /* try to construct a relative path */
+        std::filesystem::path currentPath = std::filesystem::current_path();
+        std::string relativePath =  std::filesystem::relative(filePathName, currentPath).generic_string();
 
-          if (!relativePath.empty()) {
-            filePathName = relativePath;
-          }
-          /* Windows does understand forward slashes, but std::filesystem preferres backslashes... */
-          std::replace(filePathName.begin(), filePathName.end(), '\\', '/');
-
-          if (!modInstData.miModelAddCallbackFunction(filePathName)) {
-            Logger::log(1, "%s error: unable to load model file '%s', unknown error \n", __FUNCTION__, filePathName.c_str());
-          } else {
-            /* select new model and new instance */
-            modInstData.miSelectedModel = modInstData.miModelList.size() - 1;
-            modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
-          }
+        if (!relativePath.empty()) {
+          filePathName = relativePath;
         }
-        ImGuiFileDialog::Instance()->Close();
-      }
+        /* Windows does understand forward slashes, but std::filesystem preferres backslashes... */
+        std::replace(filePathName.begin(), filePathName.end(), '\\', '/');
 
-      if (modelListEmtpy) {
-        ImGui::BeginDisabled();
-      }
-
-      ImGui::SameLine();
-      if (ImGui::Button("Delete Model")) {
-        ImGui::OpenPopup("Delete Model?");
-      }
-
-      if (ImGui::BeginPopupModal("Delete Model?", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
-        ImGui::Text("Delete Model '%s'?", modInstData.miModelList.at(modInstData.miSelectedModel)->getModelFileName().c_str());
-
-        /* cheating a bit to get buttons more to the center */
-        ImGui::Indent();
-        ImGui::Indent();
-        if (ImGui::Button("OK")) {
-          modInstData.miModelDeleteCallbackFunction(modInstData.miModelList.at(modInstData.miSelectedModel)->getModelFileName().c_str());
-
-          /* decrement selected model index to point to model that is in list before the deleted one */
-          if (modInstData.miSelectedModel > 1) {
-            modInstData.miSelectedModel -= 1;
-          }
-
-          /* reset model instance to first instance */
-          if (modInstData.miAssimpInstances.size() > 1) {
-            modInstData.miSelectedInstance = 1;
-          }
-
-          /* if we have only the null instance left, disable selection */
-          if (modInstData.miAssimpInstances.size() == 1) {
-            modInstData.miSelectedInstance = 0;
-            renderData.rdHighlightSelectedInstance = false;
-          }
-
-          ImGui::CloseCurrentPopup();
+        if (!modInstData.miModelAddCallbackFunction(filePathName)) {
+          Logger::log(1, "%s error: unable to load model file '%s', unknown error \n", __FUNCTION__, filePathName.c_str());
+        } else {
+          /* select new model and new instance */
+          modInstData.miSelectedModel = modInstData.miModelList.size() - 1;
+          modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
         }
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel")) {
-          ImGui::CloseCurrentPopup();
+      }
+      ImGuiFileDialog::Instance()->Close();
+    }
+
+    if (modelListEmtpy) {
+      ImGui::BeginDisabled();
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Delete Model")) {
+      ImGui::OpenPopup("Delete Model?");
+    }
+
+    if (ImGui::BeginPopupModal("Delete Model?", nullptr, ImGuiChildFlags_AlwaysAutoResize)) {
+      ImGui::Text("Delete Model '%s'?", modInstData.miModelList.at(modInstData.miSelectedModel)->getModelFileName().c_str());
+
+      /* cheating a bit to get buttons more to the center */
+      ImGui::Indent();
+      ImGui::Indent();
+      if (ImGui::Button("OK")) {
+        modInstData.miModelDeleteCallbackFunction(modInstData.miModelList.at(modInstData.miSelectedModel)->getModelFileName().c_str());
+
+        /* decrement selected model index to point to model that is in list before the deleted one */
+        if (modInstData.miSelectedModel > 1) {
+          modInstData.miSelectedModel -= 1;
         }
-        ImGui::EndPopup();
-      }
 
-      if (ImGui::Button("Create New Instance")) {
-        std::shared_ptr<AssimpModel> currentModel = modInstData.miModelList[modInstData.miSelectedModel];
-        modInstData.miInstanceAddCallbackFunction(currentModel);
-        /* select new instance */
-        modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
-      }
+        /* reset model instance to first instance */
+        if (modInstData.miAssimpInstances.size() > 1) {
+          modInstData.miSelectedInstance = 1;
+        }
 
-      static int manyInstanceCreateNum = 1;
-      if (ImGui::Button("Create Multiple Instances")) {
-        std::shared_ptr<AssimpModel> currentModel = modInstData.miModelList[modInstData.miSelectedModel];
-        modInstData.miInstanceAddManyCallbackFunction(currentModel, manyInstanceCreateNum);
-        modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
+        /* if we have only the null instance left, disable selection */
+        if (modInstData.miAssimpInstances.size() == 1) {
+          modInstData.miSelectedInstance = 0;
+          renderData.rdHighlightSelectedInstance = false;
+        }
+
+        ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
-      ImGui::SliderInt("##MassInstanceCreation", &manyInstanceCreateNum, 1, 100, "%d", flags);
-
-      if (modelListEmtpy) {
-        ImGui::EndDisabled();
+      if (ImGui::Button("Cancel")) {
+        ImGui::CloseCurrentPopup();
       }
+      ImGui::EndPopup();
+    }
+
+    if (ImGui::Button("Create New Instance")) {
+      std::shared_ptr<AssimpModel> currentModel = modInstData.miModelList[modInstData.miSelectedModel];
+      modInstData.miInstanceAddCallbackFunction(currentModel);
+      /* select new instance */
+      modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
+    }
+
+    if (ImGui::Button("Create Multiple Instances")) {
+      std::shared_ptr<AssimpModel> currentModel = modInstData.miModelList[modInstData.miSelectedModel];
+      modInstData.miInstanceAddManyCallbackFunction(currentModel, mManyInstanceCreateNum);
+      modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
+    }
+    ImGui::SameLine();
+    ImGui::SliderInt("##MassInstanceCreation", &mManyInstanceCreateNum, 1, 100, "%d", flags);
+
+    if (modelListEmtpy) {
+      ImGui::EndDisabled();
+    }
   }
 
   if (ImGui::CollapsingHeader("Instances")) {
@@ -485,16 +472,16 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
     if (ImGui::ArrowButton("##Left", ImGuiDir_Left) &&
       modInstData.miSelectedInstance > 1) {
       modInstData.miSelectedInstance--;
-      }
+    }
 
-      if (modelListEmtpy || nullInstanceSelected) {
-        ImGui::BeginDisabled();
-      }
+    if (modelListEmtpy || nullInstanceSelected) {
+      ImGui::BeginDisabled();
+    }
 
-      ImGui::SameLine();
+    ImGui::SameLine();
     ImGui::PushItemWidth(30);
     ImGui::DragInt("##SelInst", &modInstData.miSelectedInstance, 1, 1,
-                   modInstData.miAssimpInstances.size() - 1, "%3d", flags);
+      modInstData.miAssimpInstances.size() - 1, "%3d", flags);
     ImGui::PopItemWidth();
 
     if (modelListEmtpy || nullInstanceSelected) {
@@ -505,8 +492,8 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
     if (ImGui::ArrowButton("##Right", ImGuiDir_Right) &&
       modInstData.miSelectedInstance < (modInstData.miAssimpInstances.size() - 1)) {
       modInstData.miSelectedInstance++;
-      }
-      ImGui::PopButtonRepeat();
+    }
+    ImGui::PopButtonRepeat();
 
     if (modelListEmtpy) {
       ImGui::EndDisabled();
@@ -517,7 +504,8 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
     }
 
     /* DragInt does not like clamp flag */
-    modInstData.miSelectedInstance = std::clamp(modInstData.miSelectedInstance, 0, static_cast<int>(modInstData.miAssimpInstances.size() - 1));
+    modInstData.miSelectedInstance = std::clamp(modInstData.miSelectedInstance, 0,
+      static_cast<int>(modInstData.miAssimpInstances.size() - 1));
 
     InstanceSettings settings;
     if (numberOfInstances > 0) {
@@ -570,10 +558,9 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
       settings = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)->getInstanceSettings();
     }
 
-    static int manyInstanceCloneNum = 1;
     if (ImGui::Button("Create Multiple Clones")) {
       std::shared_ptr<AssimpInstance> currentInstance = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance);
-      modInstData.miInstanceCloneManyCallbackFunction(currentInstance, manyInstanceCloneNum);
+      modInstData.miInstanceCloneManyCallbackFunction(currentInstance, mManyInstanceCloneNum);
 
       /* reset to last position for now */
       modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
@@ -582,7 +569,7 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
       settings = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)->getInstanceSettings();
     }
     ImGui::SameLine();
-    ImGui::SliderInt("##MassInstanceCloning", &manyInstanceCloneNum, 1, 100, "%d", flags);
+    ImGui::SliderInt("##MassInstanceCloning", &mManyInstanceCloneNum, 1, 100, "%d", flags);
 
     if (modelListEmtpy || nullInstanceSelected) {
       ImGui::EndDisabled();
@@ -608,17 +595,17 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
     ImGui::Text("Model Pos (X/Y/Z):     ");
     ImGui::SameLine();
     ImGui::SliderFloat3("##ModelPos", glm::value_ptr(settings.isWorldPosition),
-                        -25.0f, 25.0f, "%.3f", flags);
+      -25.0f, 25.0f, "%.3f", flags);
 
     ImGui::Text("Model Rotation (X/Y/Z):");
     ImGui::SameLine();
     ImGui::SliderFloat3("##ModelRot", glm::value_ptr(settings.isWorldRotation),
-                        -180.0f, 180.0f, "%.3f", flags);
+      -180.0f, 180.0f, "%.3f", flags);
 
     ImGui::Text("Model Scale:           ");
     ImGui::SameLine();
     ImGui::SliderFloat("##ModelScale", &settings.isScale,
-                       0.001f, 10.0f, "%.4f", flags);
+      0.001f, 10.0f, "%.4f", flags);
 
     if (ImGui::Button("Reset Instance Values")) {
       InstanceSettings defaultSettings{};
@@ -662,11 +649,11 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
           }
         }
         ImGui::EndCombo();
-        }
+      }
 
-        ImGui::Text("Replay Speed:  ");
-        ImGui::SameLine();
-        ImGui::SliderFloat("##ClipSpeed", &settings.isAnimSpeedFactor, 0.0f, 2.0f, "%.3f", flags);
+      ImGui::Text("Replay Speed:  ");
+      ImGui::SameLine();
+      ImGui::SliderFloat("##ClipSpeed", &settings.isAnimSpeedFactor, 0.0f, 2.0f, "%.3f", flags);
     } else {
       /* TODO: better solution if no instances or no clips are found */
       ImGui::BeginDisabled();

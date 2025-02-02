@@ -999,9 +999,6 @@ bool VkRenderer::draw(float deltaTime) {
   UniformBuffer::uploadData(mRenderData, mPerspectiveViewMatrixUBO, mMatrices);
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
-  /* fill the world position matrices */
-  mRenderData.rdMatricesSize = 0;
-
   mWorldPosMatrices.clear();
   mModelBoneMatrices.clear();
 

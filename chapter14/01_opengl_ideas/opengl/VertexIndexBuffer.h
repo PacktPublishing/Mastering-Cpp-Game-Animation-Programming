@@ -1,5 +1,6 @@
 /* combined vertex and index buffer for Assimp... it's easier this way */
 #pragma once
+#include <cstdint>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glad/glad.h>

@@ -115,11 +115,15 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glLineWidth(3.0);
+  Logger::log(1, "%s: rendering defaults set\n", __FUNCTION__);
 
   /* SSBO init  */
-  mShaderTRSMatrixBuffer.init(256);
   mShaderBoneMatrixBuffer.init(256);
-  mShaderModelRootMatrixBuffer.init(64);
+  mShaderModelRootMatrixBuffer.init(256);
+  mShaderTRSMatrixBuffer.init(256);
+  mPerInstanceAnimDataBuffer.init(256);
+  mSelectedInstanceBuffer.init(256);
+  Logger::log(1, "%s: SSBOs initialized\n", __FUNCTION__);
 
   /* register callbacks */
   mModelInstCamData.micModelCheckCallbackFunction = [this](std::string fileName) { return hasModel(fileName); };
@@ -465,7 +469,13 @@ void OGLRenderer::loadDefaultFreeCam() {
   mModelInstCamData.micCameras.clear();
 
   std::shared_ptr<Camera> freeCam = std::make_shared<Camera>();
-  freeCam->setName("FreeCam");
+  CameraSettings freeCamSettings{};
+  freeCamSettings.csCamName = "FreeCam";
+  freeCamSettings.csWorldPosition = glm::vec3(5.0f);
+  freeCamSettings.csViewAzimuth = 310.0f;
+  freeCamSettings.csViewElevation = -15.0f;
+
+  freeCam->setCameraSettings(freeCamSettings);
   mModelInstCamData.micCameras.emplace_back(freeCam);
 
   mModelInstCamData.micSelectedCamera = 0;
@@ -528,8 +538,8 @@ bool OGLRenderer::addModel(std::string modelFileName, bool addInitialInstance, b
 
   if (withUndo) {
     mModelInstCamData.micSettingsContainer->applyLoadModel(model, mModelInstCamData.micSelectedModel, firstInstance,
-                                                       mModelInstCamData.micSelectedModel, prevSelectedModelId,
-                                                       mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
+      mModelInstCamData.micSelectedModel, prevSelectedModelId,
+      mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
   return true;
@@ -596,8 +606,8 @@ void OGLRenderer::deleteModel(std::string modelFileName, bool withUndo) {
 
   if (withUndo) {
     mModelInstCamData.micSettingsContainer->applyDeleteModel(model, indexPos, deletedInstances,
-                                                         mModelInstCamData.micSelectedModel, prevSelectedModelId,
-                                                         mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
+      mModelInstCamData.micSelectedModel, prevSelectedModelId,
+      mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
   enumerateInstances();
@@ -820,21 +830,17 @@ void OGLRenderer::deleteCamera() {
 
 std::string OGLRenderer::generateUniqueCameraName(std::string camBaseName) {
   std::string camName = camBaseName;
+  std::string matches("01234567890");
+
   while (checkCameraNameUsed(camName)) {
-    char lastChar = camName.back();
-    if (!std::isdigit(lastChar)) {
+    const auto iter = std::find_first_of(camName.begin(), camName.end(), matches.begin(), matches.end());
+    if (iter == camName.end()) {
       camName.append("1");
     } else {
-      std::string::size_type sz;
-      std::string lastCharString(1, lastChar);
-      int lastDigit = std::stoi(lastCharString, &sz);
-      if (lastDigit != 9) {
-        camName.pop_back();
-        camName.append(std::to_string(lastDigit + 1));
-      } else {
-        camName.pop_back();
-        camName.append("10");
-      }
+      std::string cameraNameString = camName.substr(0, std::distance(camName.begin(), iter));
+      std::string cameraNumString = camName.substr(std::distance(camName.begin(), iter));
+      int cameraNumber = std::stoi(cameraNumString);
+      camName = cameraNameString + std::to_string(++cameraNumber);
     }
   }
   return camName;
@@ -1404,6 +1410,18 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdUIGenerateTime = 0.0f;
   mRenderData.rdUIDrawTime = 0.0f;
 
+  /* save the selected instance for color highlight */
+  std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
+  if (mRenderData.rdApplicationMode == appMode::edit) {
+    if (mRenderData.rdHighlightSelectedInstance) {
+      currentSelectedInstance = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance);
+      mRenderData.rdSelectedInstanceHighlightValue += deltaTime * 4.0f;
+      if (mRenderData.rdSelectedInstanceHighlightValue > 2.0f) {
+        mRenderData.rdSelectedInstanceHighlightValue = 0.1f;
+      }
+    }
+  }
+
   handleMovementKeys();
 
   std::shared_ptr<Camera> cam = mModelInstCamData.micCameras.at(mModelInstCamData.micSelectedCamera);
@@ -1454,19 +1472,8 @@ bool OGLRenderer::draw(float deltaTime) {
   mUniformBuffer.uploadUboData(matrixData, 0);
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
-  /* save the selected instance for color highlight */
-  std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
-  if (mRenderData.rdApplicationMode == appMode::edit) {
-    if (mRenderData.rdHighlightSelectedInstance) {
-      currentSelectedInstance = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance);
-      mRenderData.rdSelectedInstanceHighlightValue += deltaTime * 4.0f;
-      if (mRenderData.rdSelectedInstanceHighlightValue > 2.0f) {
-        mRenderData.rdSelectedInstanceHighlightValue = 0.1f;
-      }
-    }
-  }
+  int firstPersonCamWorldPos = -1;
 
-  mRenderData.rdMatricesSize = 0;
   for (const auto& model : mModelInstCamData.micModelList) {
     size_t numberOfInstances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].size();
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
@@ -1512,7 +1519,12 @@ bool OGLRenderer::draw(float deltaTime) {
               mSelectedInstance.at(i).y = static_cast<float>(instSettings.isInstanceIndexPosition);
             }
           } else {
-          mSelectedInstance.at(i).x = 1.0f;
+            mSelectedInstance.at(i).x = 1.0f;
+          }
+
+          if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
+              instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition) {
+            firstPersonCamWorldPos = instSettings.isInstanceIndexPosition;
           }
         }
 
@@ -1559,7 +1571,8 @@ bool OGLRenderer::draw(float deltaTime) {
         CameraSettings camSettings = cam->getCameraSettings();
 
         if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
-          model == cam->getInstanceToFollow()->getModel()) {
+            model == cam->getInstanceToFollow()->getModel() &&
+            cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition == firstPersonCamWorldPos) {
           int selectedInstance = cam->getInstanceToFollow()->getInstanceSettings().isInstancePerModelIndexPosition;
           int selectedBone = camSettings.csFirstPersonBoneToFollow;
           glm::mat4 offsetMatrix = glm::translate(glm::mat4(1.0f), camSettings.csFirstPersonOffsets);
@@ -1568,7 +1581,19 @@ bool OGLRenderer::draw(float deltaTime) {
           cam->setBoneMatrix(mWorldPosMatrices.at(selectedInstance) * boneMatrix * offsetMatrix *
             glm::inverse(model->getBoneList().at(selectedBone)->getOffsetMatrix()));
 
-          cam->setCameraSettings(camSettings);
+          /* we need to update the camera and the view matrix plus upload the new view matrix  */
+          cam->updateCamera(mRenderData, deltaTime);
+
+          mMatrixGenerateTimer.start();
+          mViewMatrix = cam->getViewMatrix();
+          mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
+
+          mUploadToUBOTimer.start();
+          std::vector<glm::mat4> matrixData;
+          matrixData.emplace_back(mViewMatrix);
+          matrixData.emplace_back(mProjectionMatrix);
+          mUniformBuffer.uploadUboData(matrixData, 0);
+          mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
         }
 
         /* now bind the final bone transforms to the vertex skinning shader */
@@ -1660,17 +1685,19 @@ bool OGLRenderer::draw(float deltaTime) {
       mLineMesh->vertices.insert(mLineMesh->vertices.end(),
                                  mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end());
     }
+  }
 
+  /* draw the coordinate arrow WITH depth buffer */
+  if (mCoordArrowsLineIndexCount > 0) {
     mUploadToVBOTimer.start();
     mLineVertexBuffer.uploadData(*mLineMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
 
-    /* draw the coordinate arrow WITH depth buffer */
-    if (mCoordArrowsLineIndexCount > 0) {
-      mLineShader.use();
-      mLineVertexBuffer.bindAndDraw(GL_LINES, 0, mCoordArrowsLineIndexCount);
-    }
+    mLineShader.use();
+    mLineVertexBuffer.bindAndDraw(GL_LINES, 0, mCoordArrowsLineIndexCount);
+  }
 
+  if (mRenderData.rdApplicationMode == appMode::edit) {
     if (mMousePick) {
       /* wait until selection buffer has been filled */
       glFlush();

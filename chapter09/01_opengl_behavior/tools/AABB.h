@@ -10,6 +10,7 @@ class AABB {
   public:
     AABB();
 
+    void clear();
     void create(glm::vec3 point);
     void addPoint(glm::vec3 point);
 

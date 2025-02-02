@@ -2,6 +2,7 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
 #include <vector>
 #include <memory>
 #include <map>
@@ -62,6 +63,8 @@ class AssimpModel {
 
     void setAABBLookup(std::vector<std::vector<AABB>> lookupData);
     AABB getAABB(InstanceSettings instSettings);
+    AABB getAnimatedAABB(InstanceSettings instSettings);
+    AABB getNonAnimatedAABB(InstanceSettings instSettings);
 
     void cleanup(VkRenderData &renderData);
 

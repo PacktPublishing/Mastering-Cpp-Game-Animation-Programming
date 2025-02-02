@@ -14,9 +14,7 @@
 #include "UserInterface.h"
 #include "AssimpModel.h"
 #include "AssimpAnimClip.h"
-#include "AssimpInstance.h"
 #include "AssimpSettingsContainer.h"
-#include "InstanceSettings.h"
 #include "Logger.h"
 
 void UserInterface::init(OGLRenderData &renderData) {
@@ -97,55 +95,44 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::EndMainMenuBar();
   }
 
-  static float newFps = 0.0f;
   /* avoid inf values (division by zero) */
   if (renderData.rdFrameTime > 0.0) {
-    newFps = 1.0f / renderData.rdFrameTime * 1000.f;
+    mNewFps = 1.0f / renderData.rdFrameTime * 1000.f;
   }
   /* make an averge value to avoid jumps */
-  mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * newFps;
+  mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * mNewFps;
 
   /* clamp manual input on all sliders to min/max */
   ImGuiSliderFlags flags = ImGuiSliderFlags_AlwaysClamp;
 
-  static double updateTime = 0.0;
-
   /* avoid literal double compares */
-  if (updateTime < 0.000001) {
-    updateTime = ImGui::GetTime();
+  if (mUpdateTime < 0.000001) {
+    mUpdateTime = ImGui::GetTime();
   }
 
-  static int fpsOffset = 0;
-  static int frameTimeOffset = 0;
-  static int modelUploadOffset = 0;
-  static int matrixGenOffset = 0;
-  static int matrixUploadOffset = 0;
-  static int uiGenOffset = 0;
-  static int uiDrawOffset = 0;
+  while (mUpdateTime < ImGui::GetTime()) {
+    mFPSValues.at(mFpsOffset) = mFramesPerSecond;
+    mFpsOffset = ++mFpsOffset % mNumFPSValues;
 
-  while (updateTime < ImGui::GetTime()) {
-    mFPSValues.at(fpsOffset) = mFramesPerSecond;
-    fpsOffset = ++fpsOffset % mNumFPSValues;
+    mFrameTimeValues.at(mFrameTimeOffset) = renderData.rdFrameTime;
+    mFrameTimeOffset = ++mFrameTimeOffset % mNumFrameTimeValues;
 
-    mFrameTimeValues.at(frameTimeOffset) = renderData.rdFrameTime;
-    frameTimeOffset = ++frameTimeOffset % mNumFrameTimeValues;
+    mModelUploadValues.at(mModelUploadOffset) = renderData.rdUploadToVBOTime;
+    mModelUploadOffset = ++mModelUploadOffset % mNumModelUploadValues;
 
-    mModelUploadValues.at(modelUploadOffset) = renderData.rdUploadToVBOTime;
-    modelUploadOffset = ++modelUploadOffset % mNumModelUploadValues;
+    mMatrixGenerationValues.at(mMatrixGenOffset) = renderData.rdMatrixGenerateTime;
+    mMatrixGenOffset = ++mMatrixGenOffset % mNumMatrixGenerationValues;
 
-    mMatrixGenerationValues.at(matrixGenOffset) = renderData.rdMatrixGenerateTime;
-    matrixGenOffset = ++matrixGenOffset % mNumMatrixGenerationValues;
+    mMatrixUploadValues.at(mMatrixUploadOffset) = renderData.rdUploadToUBOTime;
+    mMatrixUploadOffset = ++mMatrixUploadOffset % mNumMatrixUploadValues;
 
-    mMatrixUploadValues.at(matrixUploadOffset) = renderData.rdUploadToUBOTime;
-    matrixUploadOffset = ++matrixUploadOffset % mNumMatrixUploadValues;
+    mUiGenValues.at(mUiGenOffset) = renderData.rdUIGenerateTime;
+    mUiGenOffset = ++mUiGenOffset % mNumUiGenValues;
 
-    mUiGenValues.at(uiGenOffset) = renderData.rdUIGenerateTime;
-    uiGenOffset = ++uiGenOffset % mNumUiGenValues;
+    mUiDrawValues.at(mUiDrawOffset) = renderData.rdUIDrawTime;
+    mUiDrawOffset = ++mUiDrawOffset % mNumUiDrawValues;
 
-    mUiDrawValues.at(uiDrawOffset) = renderData.rdUIDrawTime;
-    uiDrawOffset = ++uiDrawOffset % mNumUiDrawValues;
-
-    updateTime += 1.0 / 30.0;
+    mUpdateTime += 1.0 / 30.0;
   }
 
   ImGui::Text("FPS: %10.4f", mFramesPerSecond);
@@ -160,7 +147,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     std::string fpsOverlay = "now:     " + std::to_string(mFramesPerSecond) + "\n30s avg: " + std::to_string(averageFPS);
     ImGui::Text("FPS");
     ImGui::SameLine();
-    ImGui::PlotLines("##FrameTimes", mFPSValues.data(), mFPSValues.size(), fpsOffset, fpsOverlay.c_str(), 0.0f,
+    ImGui::PlotLines("##FrameTimes", mFPSValues.data(), mFPSValues.size(), mFpsOffset, fpsOverlay.c_str(), 0.0f,
       std::numeric_limits<float>::max(), ImVec2(0, 80));
     ImGui::EndTooltip();
   }
@@ -181,14 +168,12 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
 
     ImGui::Text("Instance Matrix Size:  %8.2f %2s", memoryUsage, unit.c_str());
 
-
     std::string windowDims = std::to_string(renderData.rdWidth) + "x" + std::to_string(renderData.rdHeight);
     ImGui::Text("Window Dimensions:      %10s", windowDims.c_str());
 
     std::string imgWindowPos = std::to_string(static_cast<int>(ImGui::GetWindowPos().x)) + "/" + std::to_string(static_cast<int>(ImGui::GetWindowPos().y));
     ImGui::Text("ImGui Window Position:  %10s", imgWindowPos.c_str());
   }
-
 
   if (ImGui::CollapsingHeader("Timers")) {
     ImGui::Text("Frame Time:             %10.4f ms", renderData.rdFrameTime);
@@ -200,11 +185,11 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
         averageFrameTime += value;
       }
       averageFrameTime /= static_cast<float>(mNumMatrixGenerationValues);
-      std::string frameTimeOverlay = "now:     " + std::to_string(renderData.rdFrameTime)
-        + " ms\n30s avg: " + std::to_string(averageFrameTime) + " ms";
+      std::string frameTimeOverlay = "now:     " + std::to_string(renderData.rdFrameTime) +
+        " ms\n30s avg: " + std::to_string(averageFrameTime) + " ms";
       ImGui::Text("Frame Time       ");
       ImGui::SameLine();
-      ImGui::PlotLines("##FrameTime", mFrameTimeValues.data(), mFrameTimeValues.size(), frameTimeOffset,
+      ImGui::PlotLines("##FrameTime", mFrameTimeValues.data(), mFrameTimeValues.size(), mFrameTimeOffset,
         frameTimeOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -218,11 +203,11 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
         averageModelUpload += value;
       }
       averageModelUpload /= static_cast<float>(mNumModelUploadValues);
-      std::string modelUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToVBOTime)
-        + " ms\n30s avg: " + std::to_string(averageModelUpload) + " ms";
+      std::string modelUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToVBOTime) +
+        " ms\n30s avg: " + std::to_string(averageModelUpload) + " ms";
       ImGui::Text("VBO Upload");
       ImGui::SameLine();
-      ImGui::PlotLines("##ModelUploadTimes", mModelUploadValues.data(), mModelUploadValues.size(), modelUploadOffset,
+      ImGui::PlotLines("##ModelUploadTimes", mModelUploadValues.data(), mModelUploadValues.size(), mModelUploadOffset,
         modelUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -236,11 +221,11 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
         averageMatGen += value;
       }
       averageMatGen /= static_cast<float>(mNumMatrixGenerationValues);
-      std::string matrixGenOverlay = "now:     " + std::to_string(renderData.rdMatrixGenerateTime)
-        + " ms\n30s avg: " + std::to_string(averageMatGen) + " ms";
+      std::string matrixGenOverlay = "now:     " + std::to_string(renderData.rdMatrixGenerateTime) +
+        " ms\n30s avg: " + std::to_string(averageMatGen) + " ms";
       ImGui::Text("Matrix Generation");
       ImGui::SameLine();
-      ImGui::PlotLines("##MatrixGenTimes", mMatrixGenerationValues.data(), mMatrixGenerationValues.size(), matrixGenOffset,
+      ImGui::PlotLines("##MatrixGenTimes", mMatrixGenerationValues.data(), mMatrixGenerationValues.size(), mMatrixGenOffset,
         matrixGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -254,11 +239,11 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
         averageMatrixUpload += value;
       }
       averageMatrixUpload /= static_cast<float>(mNumMatrixUploadValues);
-      std::string matrixUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToUBOTime)
-        + " ms\n30s avg: " + std::to_string(averageMatrixUpload) + " ms";
+      std::string matrixUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToUBOTime) +
+        " ms\n30s avg: " + std::to_string(averageMatrixUpload) + " ms";
       ImGui::Text("UBO Upload");
       ImGui::SameLine();
-      ImGui::PlotLines("##MatrixUploadTimes", mMatrixUploadValues.data(), mMatrixUploadValues.size(), matrixUploadOffset,
+      ImGui::PlotLines("##MatrixUploadTimes", mMatrixUploadValues.data(), mMatrixUploadValues.size(), mMatrixUploadOffset,
         matrixUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -272,11 +257,11 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
         averageUiGen += value;
       }
       averageUiGen /= static_cast<float>(mNumUiGenValues);
-      std::string uiGenOverlay = "now:     " + std::to_string(renderData.rdUIGenerateTime)
-        + " ms\n30s avg: " + std::to_string(averageUiGen) + " ms";
+      std::string uiGenOverlay = "now:     " + std::to_string(renderData.rdUIGenerateTime) +
+        " ms\n30s avg: " + std::to_string(averageUiGen) + " ms";
       ImGui::Text("UI Generation");
       ImGui::SameLine();
-      ImGui::PlotLines("##UIGenTimes", mUiGenValues.data(), mUiGenValues.size(), uiGenOffset,
+      ImGui::PlotLines("##UIGenTimes", mUiGenValues.data(), mUiGenValues.size(), mUiGenOffset,
         uiGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -290,11 +275,11 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
         averageUiDraw += value;
       }
       averageUiDraw /= static_cast<float>(mNumUiDrawValues);
-      std::string uiDrawOverlay = "now:     " + std::to_string(renderData.rdUIDrawTime)
-        + " ms\n30s avg: " + std::to_string(averageUiDraw) + " ms";
+      std::string uiDrawOverlay = "now:     " + std::to_string(renderData.rdUIDrawTime) +
+        " ms\n30s avg: " + std::to_string(averageUiDraw) + " ms";
       ImGui::Text("UI Draw");
       ImGui::SameLine();
-      ImGui::PlotLines("##UIDrawTimes", mUiDrawValues.data(), mUiDrawValues.size(), uiDrawOffset,
+      ImGui::PlotLines("##UIDrawTimes", mUiDrawValues.data(), mUiDrawValues.size(), mUiDrawOffset,
         uiDrawOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -434,14 +419,13 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
     }
 
-    static int manyInstanceCreateNum = 1;
     if (ImGui::Button("Create Multiple Instances")) {
       std::shared_ptr<AssimpModel> currentModel = modInstData.miModelList[modInstData.miSelectedModel];
-      modInstData.miInstanceAddManyCallbackFunction(currentModel, manyInstanceCreateNum);
+      modInstData.miInstanceAddManyCallbackFunction(currentModel, mManyInstanceCreateNum);
       modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
     }
     ImGui::SameLine();
-    ImGui::SliderInt("##MassInstanceCreation", &manyInstanceCreateNum, 1, 100, "%d", flags);
+    ImGui::SliderInt("##MassInstanceCreation", &mManyInstanceCreateNum, 1, 100, "%d", flags);
 
 
     if (modelListEmtpy) {
@@ -479,7 +463,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::SameLine();
     ImGui::PushItemWidth(30);
     ImGui::DragInt("##SelInst", &modInstData.miSelectedInstance, 1, 1,
-                   modInstData.miAssimpInstances.size() - 1, "%3d", flags);
+      modInstData.miAssimpInstances.size() - 1, "%3d", flags);
     ImGui::PopItemWidth();
 
     if (modelListEmtpy || nullInstanceSelected) {
@@ -503,22 +487,19 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
 
     /* DragInt does not like clamp flag */
     modInstData.miSelectedInstance = std::clamp(modInstData.miSelectedInstance, 0,
-                                                static_cast<int>(modInstData.miAssimpInstances.size() - 1));
-
-    static InstanceSettings savedInstanceSettings{};
-    static std::shared_ptr<AssimpInstance> currentInstance = nullptr;
+      static_cast<int>(modInstData.miAssimpInstances.size() - 1));
 
     InstanceSettings settings;
     if (numberOfInstances > 0) {
       settings = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)->getInstanceSettings();
-      if (currentInstance != modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)) {
-        currentInstance = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance);
-        savedInstanceSettings = settings;
+      if (mSurrentInstance != modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)) {
+        mSurrentInstance = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance);
+        mSavedInstanceSettings = settings;
       }
     }
 
     if (ImGui::Button("Center This Instance")) {
-      modInstData.miInstanceCenterCallbackFunction(currentInstance);
+      modInstData.miInstanceCenterCallbackFunction(mSurrentInstance);
     }
 
     ImGui::SameLine();
@@ -526,7 +507,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     /* we MUST retain the last model */
     unsigned int numberOfInstancesPerModel = 0;
     if (modInstData.miAssimpInstances.size() > 1) {
-      std::string currentModelName = currentInstance->getModel()->getModelFileName();
+      std::string currentModelName = mSurrentInstance->getModel()->getModelFileName();
       numberOfInstancesPerModel = modInstData.miAssimpInstancesPerModel[currentModelName].size();
     }
 
@@ -536,7 +517,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
 
     ImGui::SameLine();
     if (ImGui::Button("Delete Instance")) {
-      modInstData.miInstanceDeleteCallbackFunction(currentInstance);
+      modInstData.miInstanceDeleteCallbackFunction(mSurrentInstance);
 
       /* hard reset for now */
       if (modInstData.miSelectedInstance > 1) {
@@ -550,7 +531,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     }
 
     if (ImGui::Button("Clone Instance")) {
-      modInstData.miInstanceCloneCallbackFunction(currentInstance);
+      modInstData.miInstanceCloneCallbackFunction(mSurrentInstance);
 
       /* reset to last position for now */
       modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
@@ -559,9 +540,8 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       settings = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)->getInstanceSettings();
     }
 
-    static int manyInstanceCloneNum = 1;
     if (ImGui::Button("Create Multiple Clones")) {
-      modInstData.miInstanceCloneManyCallbackFunction(currentInstance, manyInstanceCloneNum);
+      modInstData.miInstanceCloneManyCallbackFunction(mSurrentInstance, mManyInstanceCloneNum);
 
       /* reset to last position for now */
       modInstData.miSelectedInstance = modInstData.miAssimpInstances.size() - 1;
@@ -570,7 +550,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       settings = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)->getInstanceSettings();
     }
     ImGui::SameLine();
-    ImGui::SliderInt("##MassInstanceCloning", &manyInstanceCloneNum, 1, 100, "%d", flags);
+    ImGui::SliderInt("##MassInstanceCloning", &mManyInstanceCloneNum, 1, 100, "%d", flags);
 
     if (modelListEmtpy || nullInstanceSelected) {
       ImGui::EndDisabled();
@@ -594,8 +574,8 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     ImGui::Checkbox("##ModelAxisSwap", &settings.isSwapYZAxis);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
       modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
-        settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
     }
 
     ImGui::Text("Model Pos (X/Y/Z):     ");
@@ -604,8 +584,8 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       -25.0f, 25.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
       modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
-        settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
     }
 
     ImGui::Text("Model Rotation (X/Y/Z):");
@@ -614,8 +594,8 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       -180.0f, 180.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
       modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
-        settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
     }
 
     ImGui::Text("Model Scale:           ");
@@ -624,16 +604,16 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       0.001f, 10.0f, "%.4f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
       modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
-        settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
     }
 
     if (ImGui::Button("Reset Values to Zero")) {
       modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
-        settings, savedInstanceSettings);
+        settings, mSavedInstanceSettings);
       InstanceSettings defaultSettings{};
       settings = defaultSettings;
-      savedInstanceSettings = settings;
+      mSavedInstanceSettings = settings;
     }
 
     if (numberOfInstances == 0 || nullInstanceSelected) {
@@ -648,17 +628,14 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
   if (ImGui::CollapsingHeader("Animations")) {
     size_t numberOfInstances = modInstData.miAssimpInstances.size() - 1;
 
-    static InstanceSettings savedInstanceSettings{};
-    static std::shared_ptr<AssimpInstance> currentInstance = nullptr;
-
     InstanceSettings settings;
     size_t numberOfClips = 0;
 
     if (numberOfInstances > 0) {
       settings = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)->getInstanceSettings();
-      if (currentInstance != modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)) {
-        currentInstance = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance);
-        savedInstanceSettings = settings;
+      if (mSurrentInstance != modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)) {
+        mSurrentInstance = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance);
+        mSavedInstanceSettings = settings;
       }
       numberOfClips = modInstData.miAssimpInstances.at(modInstData.miSelectedInstance)->getModel()->getAnimClips().size();
     }
@@ -677,8 +654,8 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
             settings.isAnimClipNr = i;
             /* save for undo */
             modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
-              settings, savedInstanceSettings);
-            savedInstanceSettings = settings;
+              settings, mSavedInstanceSettings);
+            mSavedInstanceSettings = settings;
           }
 
           if (isSelected) {
@@ -693,8 +670,8 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
       ImGui::SliderFloat("##ClipSpeed", &settings.isAnimSpeedFactor, 0.0f, 2.0f, "%.3f", flags);
       if (ImGui::IsItemDeactivatedAfterEdit()) {
         modInstData.miSettingsContainer->apply(modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
-          settings, savedInstanceSettings);
-        savedInstanceSettings = settings;
+          settings, mSavedInstanceSettings);
+        mSavedInstanceSettings = settings;
       }
     } else {
       /* TODO: better solution if no instances or no clips are found */

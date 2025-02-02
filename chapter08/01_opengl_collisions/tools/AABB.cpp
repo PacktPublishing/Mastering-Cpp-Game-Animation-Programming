@@ -1,8 +1,16 @@
+#include <limits>
 #include "AABB.h"
 
 AABB::AABB() {
   mAabbMesh = std::make_shared<OGLLineMesh>();
   mAabbMesh->vertices.resize(24);
+
+  clear();
+}
+
+void AABB::clear() {
+  mMinPos = glm::vec3(std::numeric_limits<float>::max());
+  mMaxPos = glm::vec3(-std::numeric_limits<float>::max());
 }
 
 void AABB::create(glm::vec3 point) {

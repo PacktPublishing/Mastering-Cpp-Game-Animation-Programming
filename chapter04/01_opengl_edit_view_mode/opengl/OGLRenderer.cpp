@@ -110,8 +110,17 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glLineWidth(3.0);
+  Logger::log(1, "%s: rendering defaults set\n", __FUNCTION__);
 
-  // register callbacks
+  /* SSBO init */
+  mShaderBoneMatrixBuffer.init(256);
+  mShaderModelRootMatrixBuffer.init(256);
+  mShaderTRSMatrixBuffer.init(256);
+  mNodeTransformBuffer.init(256);
+  mSelectedInstanceBuffer.init(256);
+  Logger::log(1, "%s: SSBOs initialized\n", __FUNCTION__);
+
+  /* register callbacks */
   mModelInstData.miModelCheckCallbackFunction = [this](std::string fileName) { return hasModel(fileName); };
   mModelInstData.miModelAddCallbackFunction = [this](std::string fileName) { return addModel(fileName); };
   mModelInstData.miModelDeleteCallbackFunction = [this](std::string modelName) { deleteModel(modelName); };
@@ -126,12 +135,6 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
 
   mModelInstData.miUndoCallbackFunction = [this]() { undoLastOperation(); };
   mModelInstData.miRedoCallbackFunction = [this]() { redoLastOperation(); };
-
-  mNodeTransformBuffer.init(256);
-  mShaderTRSMatrixBuffer.init(256);
-  mShaderBoneMatrixBuffer.init(256);
-
-  mShaderModelRootMatrixBuffer.init(64);
 
   /* valid, but emtpy */
   mLineMesh = std::make_shared<OGLLineMesh>();
@@ -159,7 +162,7 @@ void OGLRenderer::undoLastOperation() {
    * and the settings files still contain the old index number */
   enumerateInstances();
 
-  const auto currentUndoInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
+  std::shared_ptr<AssimpInstance> currentUndoInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
   const auto instancePos = std::find_if(mModelInstData.miAssimpInstances.begin(), mModelInstData.miAssimpInstances.end(),
     [currentUndoInstance] (std::shared_ptr<AssimpInstance> instance) { return currentUndoInstance == instance; });
   if (instancePos != mModelInstData.miAssimpInstances.end()) {
@@ -173,7 +176,7 @@ void OGLRenderer::redoLastOperation() {
   mModelInstData.miSettingsContainer->redo();
   enumerateInstances();
 
-  const auto currentRedoInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
+  std::shared_ptr<AssimpInstance> currentRedoInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
   const auto instancePos = std::find_if(mModelInstData.miAssimpInstances.begin(), mModelInstData.miAssimpInstances.end(),
     [currentRedoInstance] (std::shared_ptr<AssimpInstance> instance) { return currentRedoInstance == instance; });
   if (instancePos != mModelInstData.miAssimpInstances.end()) {
@@ -717,7 +720,6 @@ bool OGLRenderer::draw(float deltaTime) {
     }
   }
 
-  mRenderData.rdMatricesSize = 0;
   for (const auto& model : mModelInstData.miModelList) {
     size_t numberOfInstances = mModelInstData.miAssimpInstancesPerModel[model->getModelFileName()].size();
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
@@ -883,17 +885,19 @@ bool OGLRenderer::draw(float deltaTime) {
       mLineMesh->vertices.insert(mLineMesh->vertices.end(),
                                  mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end());
     }
+  }
 
+  /* draw the coordinate arrow WITH depth buffer */
+  if (mCoordArrowsLineIndexCount > 0) {
     mUploadToVBOTimer.start();
     mLineVertexBuffer.uploadData(*mLineMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
 
-    /* draw the coordinate arrow WITH depth buffer */
-    if (mCoordArrowsLineIndexCount > 0) {
-      mLineShader.use();
-      mLineVertexBuffer.bindAndDraw(GL_LINES, 0, mCoordArrowsLineIndexCount);
-    }
+    mLineShader.use();
+    mLineVertexBuffer.bindAndDraw(GL_LINES, 0, mCoordArrowsLineIndexCount);
+  }
 
+  if (mRenderData.rdApplicationMode == appMode::edit) {
     if (mMousePick) {
       /* wait until selection buffer has been filled */
       glFlush();

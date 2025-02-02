@@ -47,20 +47,15 @@ void SkyboxBuffer::unbind() {
 }
 
 void SkyboxBuffer::draw() {
-  GLint prevCullFaceMode;
-  glGetIntegerv(GL_CULL_FACE_MODE, &prevCullFaceMode);
   GLint prevDepthFuncMode;
   glGetIntegerv(GL_DEPTH_FUNC, &prevDepthFuncMode);
 
-  /* no depth test and no cullingfor skybox  */
-  glCullFace(GL_FRONT);
+  /* change depth test for skybox  */
   glDepthFunc(GL_LEQUAL);
 
   glDrawArrays(GL_TRIANGLES, 0, mNumVertices);
 
-  glCullFace(prevCullFaceMode);
   glDepthFunc(prevDepthFuncMode);
-
 }
 
 void SkyboxBuffer::bindAndDraw() {

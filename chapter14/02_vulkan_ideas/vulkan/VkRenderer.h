@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <cstdint>
 #include <memory>
 #include <map>
 #include <chrono>
@@ -32,10 +33,12 @@
 #include "AssimpModel.h"
 #include "AssimpInstance.h"
 #include "Octree.h"
+#include "BoundingBox3D.h"
 #include "TriangleOctree.h"
 #include "GraphEditor.h"
 #include "SingleInstanceBehavior.h"
 #include "Behavior.h"
+#include "Callbacks.h"
 #include "AssimpLevel.h"
 #include "IKSolver.h"
 #include "PathFinder.h"
@@ -315,7 +318,7 @@ class VkRenderer {
     std::shared_ptr<VkLineMesh> mLevelGroundNeighborsMesh = nullptr;
     std::shared_ptr<VkLineMesh> mInstancePathMesh = nullptr;
 
-    unsigned int mGroundMeshVertexCount = 0;
+    uint32_t mGroundMeshVertexCount = 0;
 
     std::vector<int> getNavTargets();
     std::random_device mRandomDevice{};

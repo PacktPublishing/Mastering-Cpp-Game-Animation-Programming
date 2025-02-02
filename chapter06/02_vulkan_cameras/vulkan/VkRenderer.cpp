@@ -475,7 +475,13 @@ void VkRenderer::loadDefaultFreeCam() {
   mModelInstCamData.micCameras.clear();
 
   std::shared_ptr<Camera> freeCam = std::make_shared<Camera>();
-  freeCam->setName("FreeCam");
+  CameraSettings freeCamSettings{};
+  freeCamSettings.csCamName = "FreeCam";
+  freeCamSettings.csWorldPosition = glm::vec3(5.0f);
+  freeCamSettings.csViewAzimuth = 310.0f;
+  freeCamSettings.csViewElevation = -15.0f;
+
+  freeCam->setCameraSettings(freeCamSettings);
   mModelInstCamData.micCameras.emplace_back(freeCam);
 
   mModelInstCamData.micSelectedCamera = 0;
@@ -1697,7 +1703,7 @@ bool VkRenderer::createPipelines() {
   if (!SkinningPipeline::init(mRenderData, mRenderData.rdAssimpSelectionPipelineLayout,
       mRenderData.rdAssimpSelectionPipeline, mRenderData.rdSelectionRenderpass, 2,
       vertexShaderFile, fragmentShaderFile)) {
-    Logger::log(1, "%s error: could not init Assimp Skinning shader pipeline\n", __FUNCTION__);
+    Logger::log(1, "%s error: could not init Assimp Selection shader pipeline\n", __FUNCTION__);
     return false;
   }
 
@@ -1706,7 +1712,7 @@ bool VkRenderer::createPipelines() {
   if (!SkinningPipeline::init(mRenderData, mRenderData.rdAssimpSkinningSelectionPipelineLayout,
       mRenderData.rdAssimpSkinningSelectionPipeline, mRenderData.rdSelectionRenderpass, 2,
       vertexShaderFile, fragmentShaderFile)) {
-    Logger::log(1, "%s error: could not init Assimp Skinning shader pipeline\n", __FUNCTION__);
+    Logger::log(1, "%s error: could not init Assimp Skinning Selection shader pipeline\n", __FUNCTION__);
     return false;
   }
 
@@ -1720,7 +1726,7 @@ bool VkRenderer::createPipelines() {
   computeShaderFile = "shader/assimp_instance_matrix_mult.comp.spv";
   if (!ComputePipeline::init(mRenderData, mRenderData.rdAssimpComputeMatrixMultPipelineLayout,
       mRenderData.rdAssimpComputeMatrixMultPipeline, computeShaderFile)) {
-    Logger::log(1, "%s error: could not init Assimp Transform compute shader pipeline\n", __FUNCTION__);
+    Logger::log(1, "%s error: could not init Assimp Matrix Mult compute shader pipeline\n", __FUNCTION__);
     return false;
   }
 
@@ -2000,8 +2006,8 @@ void VkRenderer::addInstances(std::shared_ptr<AssimpModel> model, int numInstanc
   size_t animClipNum = model->getAnimClips().size();
   std::vector<std::shared_ptr<AssimpInstance>> newInstances;
   for (int i = 0; i < numInstances; ++i) {
-    int xPos = std::rand() % 50 - 25;
-    int zPos = std::rand() % 50 - 25;
+    int xPos = std::rand() % 150 - 75;
+    int zPos = std::rand() % 150 - 75;
     int rotation = std::rand() % 360 - 180;
     int clipNr = std::rand() % animClipNum;
     float animSpeed = (std::rand() % 50 + 75) / 100.0f;
@@ -2089,8 +2095,8 @@ void VkRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int nu
   size_t animClipNum = model->getAnimClips().size();
   std::vector<std::shared_ptr<AssimpInstance>> newInstances;
   for (int i = 0; i < numClones; ++i) {
-    int xPos = std::rand() % 50 - 25;
-    int zPos = std::rand() % 50 - 25;
+    int xPos = std::rand() % 150 - 75;
+    int zPos = std::rand() % 150 - 75;
     int rotation = std::rand() % 360 - 180;
 
     int clipNr = std::rand() % animClipNum;
@@ -2169,21 +2175,17 @@ void VkRenderer::deleteCamera() {
 
 std::string VkRenderer::generateUniqueCameraName(std::string camBaseName) {
   std::string camName = camBaseName;
+  std::string matches("01234567890");
+
   while (checkCameraNameUsed(camName)) {
-    char lastChar = camName.back();
-    if (!std::isdigit(lastChar)) {
+    const auto iter = std::find_first_of(camName.begin(), camName.end(), matches.begin(), matches.end());
+    if (iter == camName.end()) {
       camName.append("1");
     } else {
-      std::string::size_type sz;
-      std::string lastCharString(1, lastChar);
-      int lastDigit = std::stoi(lastCharString, &sz);
-      if (lastDigit != 9) {
-        camName.pop_back();
-        camName.append(std::to_string(lastDigit + 1));
-      } else {
-        camName.pop_back();
-        camName.append("10");
-      }
+      std::string cameraNameString = camName.substr(0, std::distance(camName.begin(), iter));
+      std::string cameraNumString = camName.substr(std::distance(camName.begin(), iter));
+      int cameraNumber = std::stoi(cameraNumString);
+      camName = cameraNameString + std::to_string(++cameraNumber);
     }
   }
   return camName;
@@ -2660,16 +2662,16 @@ void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numIn
   uint32_t numberOfBones = model->getBoneList().size();
 
   /* node transformation */
+  vkCmdBindPipeline(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+    mRenderData.rdAssimpComputeTransformPipeline);
+  vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+    mRenderData.rdAssimpComputeTransformaPipelineLayout, 0, 1, &mRenderData.rdAssimpComputeTransformDescriptorSet, 0, 0);
+
   mUploadToUBOTimer.start();
   mComputeModelData.pkModelOffset = modelOffset;
   vkCmdPushConstants(mRenderData.rdComputeCommandBuffer, mRenderData.rdAssimpComputeTransformaPipelineLayout,
     VK_SHADER_STAGE_COMPUTE_BIT, 0, static_cast<uint32_t>(sizeof(VkComputePushConstants)), &mComputeModelData);
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
-
-  vkCmdBindPipeline(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-    mRenderData.rdAssimpComputeTransformPipeline);
-  vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-    mRenderData.rdAssimpComputeTransformaPipelineLayout, 0, 1, &mRenderData.rdAssimpComputeTransformDescriptorSet, 0, 0);
 
   vkCmdDispatch(mRenderData.rdComputeCommandBuffer, numberOfBones, static_cast<uint32_t>(std::ceil(numInstances / 32.0f)), 1);
 
@@ -2690,12 +2692,6 @@ void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numIn
     &trsBufferBarrier, 0, nullptr);
 
   /* matrix multiplication */
-  mUploadToUBOTimer.start();
-  mComputeModelData.pkModelOffset = modelOffset;
-  vkCmdPushConstants(mRenderData.rdComputeCommandBuffer, mRenderData.rdAssimpComputeMatrixMultPipelineLayout,
-    VK_SHADER_STAGE_COMPUTE_BIT, 0, static_cast<uint32_t>(sizeof(VkComputePushConstants)), &mComputeModelData);
-  mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
-
   vkCmdBindPipeline(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
     mRenderData.rdAssimpComputeMatrixMultPipeline);
 
@@ -2703,6 +2699,12 @@ void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numIn
   std::vector<VkDescriptorSet> computeSets = { mRenderData.rdAssimpComputeMatrixMultDescriptorSet, modelDescriptorSet };
   vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
     mRenderData.rdAssimpComputeMatrixMultPipelineLayout, 0, static_cast<uint32_t>(computeSets.size()), computeSets.data(), 0, 0);
+
+  mUploadToUBOTimer.start();
+  mComputeModelData.pkModelOffset = modelOffset;
+  vkCmdPushConstants(mRenderData.rdComputeCommandBuffer, mRenderData.rdAssimpComputeMatrixMultPipelineLayout,
+    VK_SHADER_STAGE_COMPUTE_BIT, 0, static_cast<uint32_t>(sizeof(VkComputePushConstants)), &mComputeModelData);
+  mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   vkCmdDispatch(mRenderData.rdComputeCommandBuffer, numberOfBones, static_cast<uint32_t>(std::ceil(numInstances / 32.0f)), 1);
 
@@ -2774,7 +2776,7 @@ bool VkRenderer::draw(float deltaTime) {
   size_t boneMatrixBufferSize = 0;
   for (const auto& model : mModelInstCamData.micModelList) {
     size_t numberOfInstances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].size();
-    if (numberOfInstances > 0) {
+    if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
       if (model->hasAnimations() && model->getBoneList().size() > 0) {
@@ -2800,7 +2802,7 @@ bool VkRenderer::draw(float deltaTime) {
       currentSelectedInstance = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance);
       mRenderData.rdSelectedInstanceHighlightValue += deltaTime * 4.0f;
       if (mRenderData.rdSelectedInstanceHighlightValue > 2.0f) {
-      mRenderData.rdSelectedInstanceHighlightValue = 0.1f;
+        mRenderData.rdSelectedInstanceHighlightValue = 0.1f;
       }
     }
   }
@@ -2819,7 +2821,7 @@ bool VkRenderer::draw(float deltaTime) {
   size_t animatedInstancesToStore = 0;
   for (const auto& model : mModelInstCamData.micModelList) {
     size_t numberOfInstances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].size();
-    if (numberOfInstances > 0) {
+    if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
       if (model->hasAnimations() && model->getBoneList().size() > 0) {
@@ -2939,7 +2941,7 @@ bool VkRenderer::draw(float deltaTime) {
 
     for (const auto& model : mModelInstCamData.micModelList) {
       size_t numberOfInstances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].size();
-      if (numberOfInstances > 0) {
+      if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
         /* compute shader for animated models only */
         if (model->hasAnimations() && model->getBoneList().size() > 0) {
@@ -3160,6 +3162,18 @@ bool VkRenderer::draw(float deltaTime) {
       if (model->hasAnimations() && model->getBoneList().size() > 0) {
         size_t numberOfBones = model->getBoneList().size();
 
+        if (mMousePick && mRenderData.rdApplicationMode == appMode::edit) {
+          vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpSkinningSelectionPipeline);
+
+          vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+            mRenderData.rdAssimpSkinningSelectionPipelineLayout, 1, 1, &mRenderData.rdAssimpSkinningSelectionDescriptorSet, 0, nullptr);
+        } else {
+          vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpSkinningPipeline);
+
+          vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+            mRenderData.rdAssimpSkinningPipelineLayout, 1, 1, &mRenderData.rdAssimpSkinningDescriptorSet, 0, nullptr);
+        }
+
         mUploadToUBOTimer.start();
         mModelData.pkModelStride = numberOfBones;
         mModelData.pkWorldPosOffset = worldPosOffset;
@@ -3173,33 +3187,12 @@ bool VkRenderer::draw(float deltaTime) {
         }
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
-        if (mMousePick && mRenderData.rdApplicationMode == appMode::edit) {
-          vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpSkinningSelectionPipeline);
-
-          vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-            mRenderData.rdAssimpSkinningSelectionPipelineLayout, 1, 1, &mRenderData.rdAssimpSkinningSelectionDescriptorSet, 0, nullptr);
-        } else {
-          vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpSkinningPipeline);
-
-          vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-            mRenderData.rdAssimpSkinningPipelineLayout, 1, 1, &mRenderData.rdAssimpSkinningDescriptorSet, 0, nullptr);
-        }
         model->drawInstanced(mRenderData, numberOfInstances, mMousePick);
 
         skinMatOffset += numberOfInstances * numberOfBones;
+        worldPosOffset += numberOfInstances;
       } else {
         /* non-animated models */
-        mUploadToUBOTimer.start();
-        mModelData.pkWorldPosOffset = worldPosOffset;
-        if (mMousePick) {
-          vkCmdPushConstants(mRenderData.rdCommandBuffer, mRenderData.rdAssimpSelectionPipelineLayout,
-            VK_SHADER_STAGE_VERTEX_BIT, 0, static_cast<uint32_t>(sizeof(VkPushConstants)), &mModelData);
-        } else {
-          vkCmdPushConstants(mRenderData.rdCommandBuffer, mRenderData.rdAssimpPipelineLayout,
-            VK_SHADER_STAGE_VERTEX_BIT, 0, static_cast<uint32_t>(sizeof(VkPushConstants)), &mModelData);
-        }
-        mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
-
         if (mMousePick) {
           vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpSelectionPipeline);
 
@@ -3211,10 +3204,23 @@ bool VkRenderer::draw(float deltaTime) {
           vkCmdBindDescriptorSets(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
             mRenderData.rdAssimpPipelineLayout, 1, 1, &mRenderData.rdAssimpDescriptorSet, 0, nullptr);
         }
+
+        mUploadToUBOTimer.start();
+        mModelData.pkWorldPosOffset = worldPosOffset;
+        if (mMousePick) {
+          vkCmdPushConstants(mRenderData.rdCommandBuffer, mRenderData.rdAssimpSelectionPipelineLayout,
+            VK_SHADER_STAGE_VERTEX_BIT, 0, static_cast<uint32_t>(sizeof(VkPushConstants)), &mModelData);
+        } else {
+          vkCmdPushConstants(mRenderData.rdCommandBuffer, mRenderData.rdAssimpPipelineLayout,
+            VK_SHADER_STAGE_VERTEX_BIT, 0, static_cast<uint32_t>(sizeof(VkPushConstants)), &mModelData);
+        }
+        mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
+
         model->drawInstanced(mRenderData, numberOfInstances, mMousePick);
+
+        worldPosOffset += numberOfInstances;
       }
     }
-    worldPosOffset += numberOfInstances;
   }
 
   vkCmdEndRenderPass(mRenderData.rdCommandBuffer);
@@ -3225,24 +3231,6 @@ bool VkRenderer::draw(float deltaTime) {
   }
 
   /* draw coordinate lines */
-  if (!CommandBuffer::reset(mRenderData.rdLineCommandBuffer, 0)) {
-    Logger::log(1, "%s error: failed to reset line drawing command buffer\n", __FUNCTION__);
-    return false;
-  }
-
-  if (!CommandBuffer::beginSingleShot(mRenderData.rdLineCommandBuffer)) {
-    Logger::log(1, "%s error: failed to begin line drawing command buffer\n", __FUNCTION__);
-    return false;
-  }
-
-  rpInfo.renderPass = mRenderData.rdLineRenderpass;
-  rpInfo.framebuffer = mRenderData.rdFramebuffers.at(imageIndex);
-
-  vkCmdBeginRenderPass(mRenderData.rdLineCommandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-  vkCmdSetViewport(mRenderData.rdLineCommandBuffer, 0, 1, &viewport);
-  vkCmdSetScissor(mRenderData.rdLineCommandBuffer, 0, 1, &scissor);
-
   mCoordArrowsLineIndexCount = 0;
   mLineMesh->vertices.clear();
   if (mRenderData.rdApplicationMode == appMode::edit) {
@@ -3272,22 +3260,40 @@ bool VkRenderer::draw(float deltaTime) {
       mLineMesh->vertices.insert(mLineMesh->vertices.end(),
                                  mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end());
     }
+  }
 
+  if (!CommandBuffer::reset(mRenderData.rdLineCommandBuffer, 0)) {
+    Logger::log(1, "%s error: failed to reset line drawing command buffer\n", __FUNCTION__);
+    return false;
+  }
+
+  if (!CommandBuffer::beginSingleShot(mRenderData.rdLineCommandBuffer)) {
+    Logger::log(1, "%s error: failed to begin line drawing command buffer\n", __FUNCTION__);
+    return false;
+  }
+
+  rpInfo.renderPass = mRenderData.rdLineRenderpass;
+  rpInfo.framebuffer = mRenderData.rdFramebuffers.at(imageIndex);
+
+  vkCmdBeginRenderPass(mRenderData.rdLineCommandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+  vkCmdSetViewport(mRenderData.rdLineCommandBuffer, 0, 1, &viewport);
+  vkCmdSetScissor(mRenderData.rdLineCommandBuffer, 0, 1, &scissor);
+
+  if (mCoordArrowsLineIndexCount > 0) {
     mUploadToVBOTimer.start();
     VertexBuffer::uploadData(mRenderData, mLineVertexBuffer, *mLineMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
 
-    if (mCoordArrowsLineIndexCount > 0) {
-      vkCmdBindPipeline(mRenderData.rdLineCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdLinePipeline);
+    vkCmdBindPipeline(mRenderData.rdLineCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdLinePipeline);
 
-      vkCmdBindDescriptorSets(mRenderData.rdLineCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-        mRenderData.rdLinePipelineLayout, 0, 1, &mRenderData.rdLineDescriptorSet, 0, nullptr);
+    vkCmdBindDescriptorSets(mRenderData.rdLineCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+      mRenderData.rdLinePipelineLayout, 0, 1, &mRenderData.rdLineDescriptorSet, 0, nullptr);
 
-      VkDeviceSize offset = 0;
-      vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mLineVertexBuffer.buffer, &offset);
-      vkCmdSetLineWidth(mRenderData.rdLineCommandBuffer, 3.0f);
-      vkCmdDraw(mRenderData.rdLineCommandBuffer, static_cast<uint32_t>(mLineMesh->vertices.size()), 1, 0, 0);
-    }
+    VkDeviceSize offset = 0;
+    vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mLineVertexBuffer.buffer, &offset);
+    vkCmdSetLineWidth(mRenderData.rdLineCommandBuffer, 3.0f);
+    vkCmdDraw(mRenderData.rdLineCommandBuffer, static_cast<uint32_t>(mLineMesh->vertices.size()), 1, 0, 0);
   }
 
   vkCmdEndRenderPass(mRenderData.rdLineCommandBuffer);

@@ -24,7 +24,7 @@ bool Texture::loadTexture(VkRenderData &renderData, VkTextureData &texData, std:
   }
 
   if (generateMipmaps) {
-    mipmapLevels += static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight))));
+    mipmapLevels += std::floor(std::log2(std::max(texWidth, texHeight)));
   }
 
   VkDeviceSize imageSize = texWidth * texHeight * 4;
@@ -53,7 +53,7 @@ bool Texture::loadTexture(VkRenderData &renderData, VkTextureData &texData, std:
     Logger::log(1, "%s error: could not map texture memory (error: %i)\n", __FUNCTION__, result);
     return false;
   }
-  std::memcpy(uploadData, textureData, static_cast<uint32_t>(imageSize));
+  std::memcpy(uploadData, textureData, imageSize);
   vmaUnmapMemory(renderData.rdAllocator, stagingBufferAlloc);
   vmaFlushAllocation(renderData.rdAllocator, stagingBufferAlloc, 0, imageSize);
 
@@ -61,7 +61,8 @@ bool Texture::loadTexture(VkRenderData &renderData, VkTextureData &texData, std:
 
   VkTextureStagingBuffer stagingData = { stagingBuffer, stagingBufferAlloc };
 
-  if (!uploadToGPU(renderData, texData, stagingData, texWidth, texHeight, generateMipmaps, mipmapLevels)) {
+  if (!uploadToGPU(renderData, texData, stagingData, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight),
+      generateMipmaps, static_cast<uint32_t>(mipmapLevels))) {
     Logger::log(1, "%s error: could not load texture '%s'\n", __FUNCTION__, textureFilename.c_str());
     return false;
   }
@@ -100,7 +101,7 @@ bool Texture::loadTexture(VkRenderData& renderData, VkTextureData& texData, std:
   }
 
   if (generateMipmaps) {
-    mipmapLevels += static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight))));
+    mipmapLevels += std::floor(std::log2(std::max(texWidth, texHeight)));
   }
 
   VkDeviceSize imageSize = texWidth * texHeight * 4;
@@ -111,7 +112,7 @@ bool Texture::loadTexture(VkRenderData& renderData, VkTextureData& texData, std:
   imageInfo.extent.width = static_cast<uint32_t>(texWidth);
   imageInfo.extent.height = static_cast<uint32_t>(texHeight);
   imageInfo.extent.depth = 1;
-  imageInfo.mipLevels = mipmapLevels;
+  imageInfo.mipLevels = static_cast<uint32_t>(mipmapLevels);
   imageInfo.arrayLayers = 1;
   imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
   imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
@@ -153,14 +154,15 @@ bool Texture::loadTexture(VkRenderData& renderData, VkTextureData& texData, std:
     Logger::log(1, "%s error: could not map texture memory (error: %i)\n", __FUNCTION__, result);
     return false;
   }
-  std::memcpy(uploadData, data, static_cast<uint32_t>(imageSize));
+  std::memcpy(uploadData, data, imageSize);
   vmaUnmapMemory(renderData.rdAllocator, stagingBufferAlloc);
   vmaFlushAllocation(renderData.rdAllocator, stagingBufferAlloc, 0, imageSize);
 
   stbi_image_free(data);
 
   VkTextureStagingBuffer stagingData = { stagingBuffer, stagingBufferAlloc };
-  if (!uploadToGPU(renderData, texData, stagingData, texWidth, texHeight, generateMipmaps, mipmapLevels)) {
+  if (!uploadToGPU(renderData, texData, stagingData, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight),
+      generateMipmaps, static_cast<uint32_t>(mipmapLevels))) {
     Logger::log(1, "%s error: could not load texture '%s'\n", __FUNCTION__, textureName.c_str());
     return false;
   }
@@ -170,13 +172,13 @@ bool Texture::loadTexture(VkRenderData& renderData, VkTextureData& texData, std:
 }
 
 bool Texture::uploadToGPU(VkRenderData& renderData, VkTextureData& texData, VkTextureStagingBuffer &stagingData,
-      int width, int height, bool generateMipmaps, int mipmapLevels) {
+      uint32_t width, uint32_t height, bool generateMipmaps, uint32_t mipmapLevels) {
 
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageInfo.imageType = VK_IMAGE_TYPE_2D;
-  imageInfo.extent.width = static_cast<uint32_t>(width);
-  imageInfo.extent.height = static_cast<uint32_t>(height);
+  imageInfo.extent.width = width;
+  imageInfo.extent.height = height;
   imageInfo.extent.depth = 1;
   imageInfo.mipLevels = mipmapLevels;
   imageInfo.arrayLayers = 1;
@@ -217,8 +219,8 @@ bool Texture::uploadToGPU(VkRenderData& renderData, VkTextureData& texData, VkTe
   stagingBufferTransferBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
   VkExtent3D textureExtent{};
-  textureExtent.width = static_cast<uint32_t>(width);
-  textureExtent.height = static_cast<uint32_t>(height);
+  textureExtent.width = width;
+  textureExtent.height = height;
   textureExtent.depth = 1;
 
   VkBufferImageCopy stagingBufferCopy{};
@@ -467,7 +469,7 @@ bool Texture::loadCubemapTexture(VkRenderData& renderData, VkTextureData& texDat
     Logger::log(1, "%s error: could not map texture memory (error: %i)\n", __FUNCTION__, result);
     return false;
   }
-  std::memcpy(uploadData, textureData, static_cast<uint32_t>(imageSize));
+  std::memcpy(uploadData, textureData, imageSize);
   vmaUnmapMemory(renderData.rdAllocator, stagingBufferAlloc);
   vmaFlushAllocation(renderData.rdAllocator, stagingBufferAlloc, 0, imageSize);
 
@@ -476,7 +478,7 @@ bool Texture::loadCubemapTexture(VkRenderData& renderData, VkTextureData& texDat
   VkTextureStagingBuffer stagingData = { stagingBuffer, stagingBufferAlloc };
 
   /* Cube Map is a cross, so single image width is 1/4, height is 1/3 */
-  if (!uploadCubemapToGPU(renderData, texData, stagingData, texWidth / 4, texHeight / 3)) {
+  if (!uploadCubemapToGPU(renderData, texData, stagingData, static_cast<uint32_t>(texWidth / 4), static_cast<uint32_t>(texHeight / 3))) {
     Logger::log(1, "%s error: could not load texture '%s'\n", __FUNCTION__, textureFilename.c_str());
     return false;
   }
@@ -485,12 +487,12 @@ bool Texture::loadCubemapTexture(VkRenderData& renderData, VkTextureData& texDat
   return true;
 }
 
-bool Texture::uploadCubemapToGPU(VkRenderData& renderData, VkTextureData& texData, VkTextureStagingBuffer& stagingData, int width, int height) {
+bool Texture::uploadCubemapToGPU(VkRenderData& renderData, VkTextureData& texData, VkTextureStagingBuffer& stagingData, uint32_t width, uint32_t height) {
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageInfo.imageType = VK_IMAGE_TYPE_2D;
-  imageInfo.extent.width = static_cast<uint32_t>(width);
-  imageInfo.extent.height = static_cast<uint32_t>(height);
+  imageInfo.extent.width = width;
+  imageInfo.extent.height = height;
   imageInfo.extent.depth = 1;
   imageInfo.mipLevels = 1;
   imageInfo.arrayLayers = 1;

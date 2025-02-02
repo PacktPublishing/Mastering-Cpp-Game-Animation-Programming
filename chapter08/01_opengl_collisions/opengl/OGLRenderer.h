@@ -27,6 +27,7 @@
 #include "AssimpModel.h"
 #include "AssimpInstance.h"
 #include "Quadtree.h"
+#include "BoundingBox2D.h"
 
 #include "OGLRenderData.h"
 #include "ModelInstanceCamData.h"

@@ -3,7 +3,9 @@
 
 #include <vector>
 #include <string>
+#include <cstdint>
 #include <unordered_map>
+#include <cstdint>
 
 #include <glm/glm.hpp>
 
@@ -50,7 +52,7 @@ struct VkUploadMatrices {
   glm::mat4 projectionMatrix{};
 };
 
-enum class instanceEditMode {
+enum class instanceEditMode : uint8_t {
   move = 0,
   rotate,
   scale

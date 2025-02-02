@@ -17,15 +17,13 @@ AssimpInstance::AssimpInstance(std::shared_ptr<AssimpModel> model, glm::vec3 pos
   /* avoid resizes during fill */
   mNodeTransformData.resize(mAssimpModel->getBoneList().size());
 
+  /* save model root matrix */
+  mModelRootMatrix = mAssimpModel->getRootTranformationMatrix();
+
   updateModelRootMatrix();
 }
 
 void AssimpInstance::updateModelRootMatrix() {
-  if (!mAssimpModel) {
-    Logger::log(1, "%s error: invalid model\n", __FUNCTION__);
-    return;
-  }
-
   mLocalScaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(mInstanceSettings.isScale));
 
   if (mInstanceSettings.isSwapYZAxis) {
@@ -40,7 +38,7 @@ void AssimpInstance::updateModelRootMatrix() {
   mLocalTranslationMatrix = glm::translate(glm::mat4(1.0f), mInstanceSettings.isWorldPosition);
 
   mLocalTransformMatrix = mLocalTranslationMatrix * mLocalRotationMatrix * mLocalSwapAxisMatrix * mLocalScaleMatrix;
-  mModelRootMatrix = mLocalTransformMatrix;
+  mInstanceRootMatrix = mLocalTransformMatrix * mModelRootMatrix;
 }
 
 void AssimpInstance::updateAnimation(float deltaTime) {
@@ -66,7 +64,7 @@ void AssimpInstance::updateAnimation(float deltaTime) {
   }
 
   /* set root node transform matrix, enabling instance movement */
-  mModelRootMatrix = mLocalTransformMatrix * mAssimpModel->getRootTranformationMatrix();
+  updateModelRootMatrix();
 }
 
 std::shared_ptr<AssimpModel> AssimpInstance::getModel() {
@@ -78,7 +76,7 @@ glm::vec3 AssimpInstance::getWorldPosition() {
 }
 
 glm::mat4 AssimpInstance::getWorldTransformMatrix() {
-  return mModelRootMatrix;
+  return mInstanceRootMatrix;
 }
 
 void AssimpInstance::setTranslation(glm::vec3 position) {

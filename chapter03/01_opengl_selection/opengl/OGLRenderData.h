@@ -1,9 +1,11 @@
 /* OpenGL */
 #pragma once
+#include <cstdint>
 #include <vector>
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <cstdint>
 
 #include <glm/glm.hpp>
 
@@ -42,7 +44,7 @@ struct NodeTransformData {
   glm::vec4 rotation = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // this is a quaternion
 };
 
-enum class instanceEditMode {
+enum class instanceEditMode : uint8_t {
   move = 0,
   rotate,
   scale

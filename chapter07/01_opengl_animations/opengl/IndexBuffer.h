@@ -1,5 +1,6 @@
 /* Mininmal index buffer class */
 #pragma once
+#include <cstdint>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glad/glad.h>

@@ -914,7 +914,7 @@ bool VkRenderer::createPipelines() {
   computeShaderFile = "shader/assimp_instance_matrix_mult.comp.spv";
   if (!ComputePipeline::init(mRenderData, mRenderData.rdAssimpComputeMatrixMultPipelineLayout,
       mRenderData.rdAssimpComputeMatrixMultPipeline, computeShaderFile)) {
-    Logger::log(1, "%s error: could not init Assimp Transform compute shader pipeline\n", __FUNCTION__);
+    Logger::log(1, "%s error: could not init Assimp Matrix Mult compute shader pipeline\n", __FUNCTION__);
     return false;
   }
 
@@ -1387,9 +1387,6 @@ bool VkRenderer::draw(float deltaTime) {
     }
   }
 
-  /* fill the matrices */
-  mRenderData.rdMatricesSize = 0;
-
   /* clear and resize world pos matrices */
   mWorldPosMatrices.clear();
   mWorldPosMatrices.resize(mModelInstData.miAssimpInstances.size());
@@ -1403,8 +1400,8 @@ bool VkRenderer::draw(float deltaTime) {
   size_t animatedInstancesToStore = 0;
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
     size_t numberOfInstances = modelType.second.size();
-    std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
-    if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
+    if (numberOfInstances > 0) {
+      std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
 
       /* animated models */
       if (model->hasAnimations() && model->getBoneList().size() > 0) {

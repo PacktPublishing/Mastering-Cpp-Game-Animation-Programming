@@ -249,12 +249,12 @@ add_custom_target(
   Shaders
   DEPENDS ${SPIRV_BINARY_FILES}
 )
-add_dependencies(Main Shaders)
+add_dependencies(${PROJECT_NAME} Shaders)
 
 add_custom_command(TARGET Shaders POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-  "$<TARGET_PROPERTY:Main,SOURCE_DIR>/shader"
-  "$<TARGET_PROPERTY:Main,BINARY_DIR>/$<CONFIGURATION>/shader"
+  "$<TARGET_PROPERTY:${PROJECT_NAME},SOURCE_DIR>/shader"
+  "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/shader"
 )
 
 # copy textures

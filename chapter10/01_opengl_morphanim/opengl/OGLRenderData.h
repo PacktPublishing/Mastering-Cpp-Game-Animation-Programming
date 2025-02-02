@@ -1,5 +1,6 @@
 /* OpenGL */
 #pragma once
+#include <cstdint>
 #include <vector>
 #include <string>
 #include <unordered_map>

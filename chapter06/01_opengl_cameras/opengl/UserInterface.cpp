@@ -17,10 +17,7 @@
 #include "UserInterface.h"
 #include "AssimpModel.h"
 #include "AssimpAnimClip.h"
-#include "AssimpInstance.h"
 #include "AssimpSettingsContainer.h"
-#include "InstanceSettings.h"
-#include "Camera.h"
 #include "Logger.h"
 
 void UserInterface::init(OGLRenderData &renderData) {
@@ -50,13 +47,12 @@ void UserInterface::createFrame(OGLRenderData& renderData) {
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
-  static float newFps = 0.0f;
   /* avoid inf values (division by zero) */
   if (renderData.rdFrameTime > 0.0) {
-    newFps = 1.0f / renderData.rdFrameTime * 1000.f;
+    mNewFps = 1.0f / renderData.rdFrameTime * 1000.f;
   }
   /* make an averge value to avoid jumps */
-  mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * newFps;
+  mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * mNewFps;
 }
 
 void UserInterface::hideMouse(bool hide) {
@@ -264,8 +260,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     if (ImGui::Button("OK")) {
       std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
       loadSuccessful = modInstCamData.micLoadConfigCallbackFunction(filePathName);
-      if (loadSuccessful) {
-      }
       ImGui::CloseCurrentPopup();
     }
 
@@ -381,44 +375,34 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
   /* clamp manual input on all sliders to min/max */
   ImGuiSliderFlags flags = ImGuiSliderFlags_AlwaysClamp;
 
-  static double updateTime = 0.0;
-
   /* avoid literal double compares */
-  if (updateTime < 0.000001) {
-    updateTime = ImGui::GetTime();
+  if (mUpdateTime < 0.000001) {
+    mUpdateTime = ImGui::GetTime();
   }
 
-  static int fpsOffset = 0;
-  static int frameTimeOffset = 0;
-  static int modelUploadOffset = 0;
-  static int matrixGenOffset = 0;
-  static int matrixUploadOffset = 0;
-  static int uiGenOffset = 0;
-  static int uiDrawOffset = 0;
+  while (mUpdateTime < ImGui::GetTime()) {
+    mFPSValues.at(mFpsOffset) = mFramesPerSecond;
+    mFpsOffset = ++mFpsOffset % mNumFPSValues;
 
-  while (updateTime < ImGui::GetTime()) {
-    mFPSValues.at(fpsOffset) = mFramesPerSecond;
-    fpsOffset = ++fpsOffset % mNumFPSValues;
+    mFrameTimeValues.at(mFrameTimeOffset) = renderData.rdFrameTime;
+    mFrameTimeOffset = ++mFrameTimeOffset % mNumFrameTimeValues;
 
-    mFrameTimeValues.at(frameTimeOffset) = renderData.rdFrameTime;
-    frameTimeOffset = ++frameTimeOffset % mNumFrameTimeValues;
+    mModelUploadValues.at(mModelUploadOffset) = renderData.rdUploadToVBOTime;
+    mModelUploadOffset = ++mModelUploadOffset % mNumModelUploadValues;
 
-    mModelUploadValues.at(modelUploadOffset) = renderData.rdUploadToVBOTime;
-    modelUploadOffset = ++modelUploadOffset % mNumModelUploadValues;
+    mMatrixGenerationValues.at(mMatrixGenOffset) = renderData.rdMatrixGenerateTime;
+    mMatrixGenOffset = ++mMatrixGenOffset % mNumMatrixGenerationValues;
 
-    mMatrixGenerationValues.at(matrixGenOffset) = renderData.rdMatrixGenerateTime;
-    matrixGenOffset = ++matrixGenOffset % mNumMatrixGenerationValues;
+    mMatrixUploadValues.at(mMatrixUploadOffset) = renderData.rdUploadToUBOTime;
+    mMatrixUploadOffset = ++mMatrixUploadOffset % mNumMatrixUploadValues;
 
-    mMatrixUploadValues.at(matrixUploadOffset) = renderData.rdUploadToUBOTime;
-    matrixUploadOffset = ++matrixUploadOffset % mNumMatrixUploadValues;
+    mUiGenValues.at(mUiGenOffset) = renderData.rdUIGenerateTime;
+    mUiGenOffset = ++mUiGenOffset % mNumUiGenValues;
 
-    mUiGenValues.at(uiGenOffset) = renderData.rdUIGenerateTime;
-    uiGenOffset = ++uiGenOffset % mNumUiGenValues;
+    mUiDrawValues.at(mUiDrawOffset) = renderData.rdUIDrawTime;
+    mUiDrawOffset = ++mUiDrawOffset % mNumUiDrawValues;
 
-    mUiDrawValues.at(uiDrawOffset) = renderData.rdUIDrawTime;
-    uiDrawOffset = ++uiDrawOffset % mNumUiDrawValues;
-
-    updateTime += 1.0 / 30.0;
+    mUpdateTime += 1.0 / 30.0;
   }
 
   ImGui::Text("FPS: %10.4f", mFramesPerSecond);
@@ -433,7 +417,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     std::string fpsOverlay = "now:     " + std::to_string(mFramesPerSecond) + "\n30s avg: " + std::to_string(averageFPS);
     ImGui::Text("FPS");
     ImGui::SameLine();
-    ImGui::PlotLines("##FrameTimes", mFPSValues.data(), mFPSValues.size(), fpsOffset, fpsOverlay.c_str(), 0.0f,
+    ImGui::PlotLines("##FrameTimes", mFPSValues.data(), mFPSValues.size(), mFpsOffset, fpsOverlay.c_str(), 0.0f,
       std::numeric_limits<float>::max(), ImVec2(0, 80));
     ImGui::EndTooltip();
   }
@@ -454,7 +438,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
     ImGui::Text("Instance Matrix Size:  %8.2f %2s", memoryUsage, unit.c_str());
 
-
     std::string windowDims = std::to_string(renderData.rdWidth) + "x" + std::to_string(renderData.rdHeight);
     ImGui::Text("Window Dimensions:      %10s", windowDims.c_str());
 
@@ -473,11 +456,11 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         averageFrameTime += value;
       }
       averageFrameTime /= static_cast<float>(mNumMatrixGenerationValues);
-      std::string frameTimeOverlay = "now:     " + std::to_string(renderData.rdFrameTime)
-        + " ms\n30s avg: " + std::to_string(averageFrameTime) + " ms";
+      std::string frameTimeOverlay = "now:     " + std::to_string(renderData.rdFrameTime) +
+        " ms\n30s avg: " + std::to_string(averageFrameTime) + " ms";
       ImGui::Text("Frame Time       ");
       ImGui::SameLine();
-      ImGui::PlotLines("##FrameTime", mFrameTimeValues.data(), mFrameTimeValues.size(), frameTimeOffset,
+      ImGui::PlotLines("##FrameTime", mFrameTimeValues.data(), mFrameTimeValues.size(), mFrameTimeOffset,
         frameTimeOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -491,11 +474,11 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         averageModelUpload += value;
       }
       averageModelUpload /= static_cast<float>(mNumModelUploadValues);
-      std::string modelUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToVBOTime)
-        + " ms\n30s avg: " + std::to_string(averageModelUpload) + " ms";
+      std::string modelUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToVBOTime) +
+        " ms\n30s avg: " + std::to_string(averageModelUpload) + " ms";
       ImGui::Text("VBO Upload");
       ImGui::SameLine();
-      ImGui::PlotLines("##ModelUploadTimes", mModelUploadValues.data(), mModelUploadValues.size(), modelUploadOffset,
+      ImGui::PlotLines("##ModelUploadTimes", mModelUploadValues.data(), mModelUploadValues.size(), mModelUploadOffset,
         modelUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -509,11 +492,11 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         averageMatGen += value;
       }
       averageMatGen /= static_cast<float>(mNumMatrixGenerationValues);
-      std::string matrixGenOverlay = "now:     " + std::to_string(renderData.rdMatrixGenerateTime)
-        + " ms\n30s avg: " + std::to_string(averageMatGen) + " ms";
+      std::string matrixGenOverlay = "now:     " + std::to_string(renderData.rdMatrixGenerateTime) +
+        " ms\n30s avg: " + std::to_string(averageMatGen) + " ms";
       ImGui::Text("Matrix Generation");
       ImGui::SameLine();
-      ImGui::PlotLines("##MatrixGenTimes", mMatrixGenerationValues.data(), mMatrixGenerationValues.size(), matrixGenOffset,
+      ImGui::PlotLines("##MatrixGenTimes", mMatrixGenerationValues.data(), mMatrixGenerationValues.size(), mMatrixGenOffset,
         matrixGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -527,11 +510,11 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         averageMatrixUpload += value;
       }
       averageMatrixUpload /= static_cast<float>(mNumMatrixUploadValues);
-      std::string matrixUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToUBOTime)
-        + " ms\n30s avg: " + std::to_string(averageMatrixUpload) + " ms";
+      std::string matrixUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToUBOTime) +
+        " ms\n30s avg: " + std::to_string(averageMatrixUpload) + " ms";
       ImGui::Text("UBO Upload");
       ImGui::SameLine();
-      ImGui::PlotLines("##MatrixUploadTimes", mMatrixUploadValues.data(), mMatrixUploadValues.size(), matrixUploadOffset,
+      ImGui::PlotLines("##MatrixUploadTimes", mMatrixUploadValues.data(), mMatrixUploadValues.size(), mMatrixUploadOffset,
         matrixUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -545,11 +528,11 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         averageUiGen += value;
       }
       averageUiGen /= static_cast<float>(mNumUiGenValues);
-      std::string uiGenOverlay = "now:     " + std::to_string(renderData.rdUIGenerateTime)
-        + " ms\n30s avg: " + std::to_string(averageUiGen) + " ms";
+      std::string uiGenOverlay = "now:     " + std::to_string(renderData.rdUIGenerateTime) +
+        " ms\n30s avg: " + std::to_string(averageUiGen) + " ms";
       ImGui::Text("UI Generation");
       ImGui::SameLine();
-      ImGui::PlotLines("##UIGenTimes", mUiGenValues.data(), mUiGenValues.size(), uiGenOffset,
+      ImGui::PlotLines("##UIGenTimes", mUiGenValues.data(), mUiGenValues.size(), mUiGenOffset,
         uiGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -563,30 +546,25 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         averageUiDraw += value;
       }
       averageUiDraw /= static_cast<float>(mNumUiDrawValues);
-      std::string uiDrawOverlay = "now:     " + std::to_string(renderData.rdUIDrawTime)
-        + " ms\n30s avg: " + std::to_string(averageUiDraw) + " ms";
+      std::string uiDrawOverlay = "now:     " + std::to_string(renderData.rdUIDrawTime) +
+        " ms\n30s avg: " + std::to_string(averageUiDraw) + " ms";
       ImGui::Text("UI Draw");
       ImGui::SameLine();
-      ImGui::PlotLines("##UIDrawTimes", mUiDrawValues.data(), mUiDrawValues.size(), uiDrawOffset,
+      ImGui::PlotLines("##UIDrawTimes", mUiDrawValues.data(), mUiDrawValues.size(), mUiDrawOffset,
         uiDrawOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
   }
 
   if (ImGui::CollapsingHeader("Camera")) {
-
-    static CameraSettings savedCameraSettings{};
-    static std::shared_ptr<Camera> currentCamera = nullptr;
-    static std::vector<std::string> boneNames{};
-
     std::shared_ptr<Camera> cam = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera);
     CameraSettings settings = cam->getCameraSettings();
 
     /* overwrite saved settings on camera change */
-    if (currentCamera != modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)) {
-      currentCamera = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera);
-      savedCameraSettings = settings;
-      boneNames = cam->getBoneNames();
+    if (mCurrentCamera != modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)) {
+      mCurrentCamera = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera);
+      mSavedCameraSettings = settings;
+      mBoneNames = cam->getBoneNames();
     }
 
     /* same hack as for instances */
@@ -597,7 +575,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
     ImGui::Text("Cameras:         ");
     ImGui::SameLine();
-    ImGui::PushItemWidth(180.0f);
 
     std::string selectedCamName = "None";
 
@@ -607,6 +584,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     }
 
     ImGui::SameLine();
+    ImGui::PushItemWidth(180.0f);
     if (ImGui::BeginCombo("##CamCombo",
       settings.csCamName.c_str())) {
       for (int i = 0; i < modInstCamData.micCameras.size(); ++i) {
@@ -659,26 +637,26 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     }
 
     ImGuiInputTextFlags textinputFlags = ImGuiInputTextFlags_CharsNoBlank | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCharFilter;
-    static bool showDuplicateCamNameDialog = false;
     std::string camName = settings.csCamName;
     ImGui::Text("Camera Name:     ");
     ImGui::SameLine();
     if (ImGui::InputText("##CamName", &camName, textinputFlags, cameraNameInputFilter)) {
       if (modInstCamData.micCameraNameCheckCallbackFunction(camName)) {
-        showDuplicateCamNameDialog = true;
+        mShowDuplicateCamNameDialog = true;
       } else {
         settings.csCamName = camName;
-        modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                     settings, savedCameraSettings);
-        savedCameraSettings = settings;
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
     }
 
-    if (showDuplicateCamNameDialog) {
+    if (mShowDuplicateCamNameDialog) {
       ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
       ImGui::OpenPopup("Duplicate Camera Name");
-      showDuplicateCamNameDialog = false;
+      mShowDuplicateCamNameDialog = false;
     }
 
     if (ImGui::BeginPopupModal("Duplicate Camera Name", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
@@ -736,7 +714,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         std::shared_ptr<AssimpInstance> selectedInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
         /* this call also fills in the bone list */
         cam->setInstanceToFollow(selectedInstance);
-        boneNames = cam->getBoneNames();
+        mBoneNames = cam->getBoneNames();
 
         settings = cam->getCameraSettings();
       }
@@ -750,7 +728,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       }
       if (ImGui::Button("Clear Selection")) {
         cam->clearInstanceToFollow();
-        boneNames = cam->getBoneNames();
+        mBoneNames = cam->getBoneNames();
 
         settings = cam->getCameraSettings();
       }
@@ -762,7 +740,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         std::shared_ptr<AssimpInstance> selectedInstance = modInstCamData.micAssimpInstances.at(followInstanceIndex);
         /* this call also fills in the bone list */
         cam->setInstanceToFollow(selectedInstance);
-        boneNames = cam->getBoneNames();
+        mBoneNames = cam->getBoneNames();
 
         settings = cam->getCameraSettings();
       }
@@ -788,10 +766,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
           ImGui::PushItemWidth(250.0f);
 
           if (ImGui::BeginCombo("##1stPersonBoneNameCombo",
-            boneNames.at(settings.csFirstPersonBoneToFollow).c_str())) {
-            for (int i = 0; i < boneNames.size(); ++i) {
+            mBoneNames.at(settings.csFirstPersonBoneToFollow).c_str())) {
+            for (int i = 0; i < mBoneNames.size(); ++i) {
               const bool isSelected = (settings.csFirstPersonBoneToFollow == i);
-              if (ImGui::Selectable(boneNames.at(i).c_str(), isSelected)) {
+              if (ImGui::Selectable(mBoneNames.at(i).c_str(), isSelected)) {
                 settings.csFirstPersonBoneToFollow = i;
               }
 
@@ -825,9 +803,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::SameLine();
       ImGui::SliderFloat3("##CameraPos", glm::value_ptr(settings.csWorldPosition), -75.0f, 75.0f, "%.3f", flags);
       if (ImGui::IsItemDeactivatedAfterEdit()) {
-        modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                       settings, savedCameraSettings);
-        savedCameraSettings = settings;
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
 
@@ -835,9 +814,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::SameLine();
       ImGui::SliderFloat("##CamAzimuth", &settings.csViewAzimuth, 0.0f, 360.0f, "%.3f", flags);
       if (ImGui::IsItemDeactivatedAfterEdit()) {
-        modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                       settings, savedCameraSettings);
-        savedCameraSettings = settings;
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
 
@@ -845,9 +825,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::SameLine();
       ImGui::SliderFloat("##CamElevation", &settings.csViewElevation, -89.0f, 89.0f, "%.3f", flags);
       if (ImGui::IsItemDeactivatedAfterEdit()) {
-        modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                       settings, savedCameraSettings);
-        savedCameraSettings = settings;
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
     } // end of locked cam type third person
@@ -865,9 +846,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         settings.csCamProjection == cameraProjection::perspective)) {
         settings.csCamProjection = cameraProjection::perspective;
 
-        modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                       settings, savedCameraSettings);
-        savedCameraSettings = settings;
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
       ImGui::SameLine();
@@ -875,9 +857,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         settings.csCamProjection == cameraProjection::orthogonal)) {
         settings.csCamProjection = cameraProjection::orthogonal;
 
-        modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                       settings, savedCameraSettings);
-        savedCameraSettings = settings;
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
     }
@@ -890,11 +873,12 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SameLine();
     ImGui::SliderInt("##CamFOV", &settings.csFieldOfView, 40, 100, "%d", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      Logger::log(1, "%s: old FOV is %i\n", __FUNCTION__, savedCameraSettings.csFieldOfView);
+      Logger::log(1, "%s: old FOV is %i\n", __FUNCTION__, mSavedCameraSettings.csFieldOfView);
       Logger::log(1, "%s: new FOV is %i\n", __FUNCTION__, settings.csFieldOfView);
-      modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                     settings, savedCameraSettings);
-      savedCameraSettings = settings;
+      modInstCamData.micSettingsContainer->applyEditCameraSettings(
+        modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+        settings, mSavedCameraSettings);
+      mSavedCameraSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
@@ -912,9 +896,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::SameLine();
       ImGui::SliderFloat("##CamOrthoScale", &settings.csOrthoScale, 1.0f, 50.0f, "%.3f", flags);
       if (ImGui::IsItemDeactivatedAfterEdit()) {
-        modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                       settings, savedCameraSettings);
-        savedCameraSettings = settings;
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
 
@@ -994,16 +979,15 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::EndPopup();
     }
 
-    static int manyInstanceCreateNum = 1;
     ImGui::Text("Create Instances:");
     ImGui::SameLine();
     ImGui::PushItemWidth(300.0f);
-    ImGui::SliderInt("##MassInstanceCreation", &manyInstanceCreateNum, 1, 100, "%d", flags);
+    ImGui::SliderInt("##MassInstanceCreation", &mManyInstanceCreateNum, 1, 100, "%d", flags);
     ImGui::PopItemWidth();
     ImGui::SameLine();
     if (ImGui::Button("Go!##Create")) {
       std::shared_ptr<AssimpModel> currentModel = modInstCamData.micModelList[modInstCamData.micSelectedModel];
-      modInstCamData.micInstanceAddManyCallbackFunction(currentModel, manyInstanceCreateNum);
+      modInstCamData.micInstanceAddManyCallbackFunction(currentModel, mManyInstanceCreateNum);
     }
 
 
@@ -1038,7 +1022,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SameLine();
     ImGui::PushItemWidth(30);
     ImGui::DragInt("##SelInst", &modInstCamData.micSelectedInstance, 1, 1,
-                   modInstCamData.micAssimpInstances.size() - 1, "%3d", flags);
+      modInstCamData.micAssimpInstances.size() - 1, "%3d", flags);
     ImGui::PopItemWidth();
 
     if (modelListEmtpy || nullInstanceSelected) {
@@ -1066,25 +1050,22 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
     /* DragInt does not like clamp flag */
     modInstCamData.micSelectedInstance = std::clamp(modInstCamData.micSelectedInstance, 0,
-                                                static_cast<int>(modInstCamData.micAssimpInstances.size() - 1));
-
-    static InstanceSettings savedInstanceSettings{};
-    static std::shared_ptr<AssimpInstance> currentInstance = nullptr;
+      static_cast<int>(modInstCamData.micAssimpInstances.size() - 1));
 
     InstanceSettings settings;
     if (numberOfInstances > 0) {
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
       /* overwrite saved settings on instance change */
-      if (currentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
-        currentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
-        savedInstanceSettings = settings;
+      if (mSurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
+        mSurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mSavedInstanceSettings = settings;
       }
     }
 
     ImGui::Text("                 ");
     ImGui::SameLine();
     if (ImGui::Button("Center This Instance")) {
-      modInstCamData.micInstanceCenterCallbackFunction(currentInstance);
+      modInstCamData.micInstanceCenterCallbackFunction(mSurrentInstance);
     }
 
     ImGui::SameLine();
@@ -1092,7 +1073,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     /* we MUST retain the last model */
     unsigned int numberOfInstancesPerModel = 0;
     if (modInstCamData.micAssimpInstances.size() > 1) {
-      std::string currentModelName = currentInstance->getModel()->getModelFileName();
+      std::string currentModelName = mSurrentInstance->getModel()->getModelFileName();
       numberOfInstancesPerModel = modInstCamData.micAssimpInstancesPerModel[currentModelName].size();
     }
 
@@ -1102,7 +1083,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
     ImGui::SameLine();
     if (ImGui::Button("Delete Instance")) {
-      modInstCamData.micInstanceDeleteCallbackFunction(currentInstance, true);
+      modInstCamData.micInstanceDeleteCallbackFunction(mSurrentInstance, true);
 
       /* read back settings for UI */
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
@@ -1115,21 +1096,20 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::Text("                 ");
     ImGui::SameLine();
     if (ImGui::Button("Clone Instance")) {
-      modInstCamData.micInstanceCloneCallbackFunction(currentInstance);
+      modInstCamData.micInstanceCloneCallbackFunction(mSurrentInstance);
 
       /* read back settings for UI */
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
     }
 
-    static int manyInstanceCloneNum = 1;
     ImGui::Text("Create Clones:   ");
     ImGui::SameLine();
     ImGui::PushItemWidth(300.0f);
-    ImGui::SliderInt("##MassInstanceCloning", &manyInstanceCloneNum, 1, 100, "%d", flags);
+    ImGui::SliderInt("##MassInstanceCloning", &mManyInstanceCloneNum, 1, 100, "%d", flags);
     ImGui::PopItemWidth();
     ImGui::SameLine();
     if (ImGui::Button("Go!##Clone")) {
-      modInstCamData.micInstanceCloneManyCallbackFunction(currentInstance, manyInstanceCloneNum);
+      modInstCamData.micInstanceCloneManyCallbackFunction(mSurrentInstance, mManyInstanceCloneNum);
 
       /* read back settings for UI */
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
@@ -1156,9 +1136,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SameLine();
     ImGui::Checkbox("##ModelAxisSwap", &settings.isSwapYZAxis);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-        settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+      modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
@@ -1167,9 +1148,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SliderFloat3("##ModelPos", glm::value_ptr(settings.isWorldPosition),
       -75.0f, 75.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-        settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+      modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
@@ -1178,9 +1160,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SliderFloat3("##ModelRot", glm::value_ptr(settings.isWorldRotation),
       -180.0f, 180.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-        settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+      modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
@@ -1189,20 +1172,22 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::SliderFloat("##ModelScale", &settings.isScale,
       0.001f, 10.0f, "%.4f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-        settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+      modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
     ImGui::Text("                 ");
     ImGui::SameLine();
     if (ImGui::Button("Reset Values to Zero")) {
-      modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-        settings, savedInstanceSettings);
+      modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        settings, mSavedInstanceSettings);
       InstanceSettings defaultSettings{};
       settings = defaultSettings;
-      savedInstanceSettings = settings;
+      mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
@@ -1218,17 +1203,14 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
   if (ImGui::CollapsingHeader("Animations")) {
     size_t numberOfInstances = modInstCamData.micAssimpInstances.size() - 1;
 
-    static InstanceSettings savedInstanceSettings{};
-    static std::shared_ptr<AssimpInstance> currentInstance = nullptr;
-
     InstanceSettings settings;
     size_t numberOfClips = 0;
 
     if (numberOfInstances > 0) {
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
-      if (currentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
-        currentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
-        savedInstanceSettings = settings;
+      if (mSurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
+        mSurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mSavedInstanceSettings = settings;
       }
       numberOfClips = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel()->getAnimClips().size();
     }
@@ -1246,9 +1228,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
           if (ImGui::Selectable(animClips.at(i)->getClipName().c_str(), isSelected)) {
             settings.isAnimClipNr = i;
             /* save for undo */
-            modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-              settings, savedInstanceSettings);
-            savedInstanceSettings = settings;
+            modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+              modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+              settings, mSavedInstanceSettings);
+            mSavedInstanceSettings = settings;
             modInstCamData.micSetConfigDirtyCallbackFunction(true);
           }
 
@@ -1263,9 +1246,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::SameLine();
       ImGui::SliderFloat("##ClipSpeed", &settings.isAnimSpeedFactor, 0.0f, 2.0f, "%.3f", flags);
       if (ImGui::IsItemDeactivatedAfterEdit()) {
-        modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-          settings, savedInstanceSettings);
-        savedInstanceSettings = settings;
+        modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+          modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+          settings, mSavedInstanceSettings);
+        mSavedInstanceSettings = settings;
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
     } else {

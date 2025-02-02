@@ -157,13 +157,13 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
   /* animations */
   unsigned int numAnims = scene->mNumAnimations;
   for (unsigned int i = 0; i < numAnims; ++i) {
-    const auto& animation = scene->mAnimations[i];
+    aiAnimation* animation = scene->mAnimations[i];
     mMaxClipDuration = std::max(mMaxClipDuration, static_cast<float>(animation->mDuration));
   }
   Logger::log(1, "%s: longest clip duration is %f\n", __FUNCTION__, mMaxClipDuration);
 
   for (unsigned int i = 0; i < numAnims; ++i) {
-    const auto& animation = scene->mAnimations[i];
+    aiAnimation* animation = scene->mAnimations[i];
 
     Logger::log(1, "%s: -- animation clip %i has %i skeletal channels, %i mesh channels, and %i morph mesh channels\n",
       __FUNCTION__, i, animation->mNumChannels, animation->mNumMeshChannels, animation->mNumMorphMeshChannels);
@@ -233,17 +233,17 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
           int offset = clipId * mBoneList.size() * LOOKUP_SIZE * 3 + boneId * LOOKUP_SIZE * 3;
 
           animLookupData.at(offset) = glm::vec4(channel->getInvTranslationScaling(), 0.0f, 0.0f, 0.0f);
-          const auto& translations = channel->getTranslationData();
+          const std::vector<glm::vec4>& translations = channel->getTranslationData();
           std::copy(translations.begin(), translations.end(), animLookupData.begin() + offset + 1);
 
           offset += LOOKUP_SIZE;
           animLookupData.at(offset) = glm::vec4(channel->getInvRotationScaling(), 0.0f, 0.0f, 0.0f);
-          const auto& rotations = channel->getRotationData();
+          const std::vector<glm::vec4>& rotations = channel->getRotationData();
           std::copy(rotations.begin(), rotations.end(), animLookupData.begin() + offset + 1);
 
           offset += LOOKUP_SIZE;
           animLookupData.at(offset) = glm::vec4(channel->getInvScaleScaling(), 0.0f, 0.0f, 0.0f);
-          const auto& scalings = channel->getScalingData();
+          const std::vector<glm::vec4>& scalings = channel->getScalingData();
           std::copy(scalings.begin(), scalings.end(), animLookupData.begin() + offset + 1);
         }
       }
@@ -418,6 +418,9 @@ void AssimpModel::cleanup() {
     buffer.cleanup();
   }
 
+  for (auto tex : mTextures) {
+    tex.second->cleanup();
+  }
   mPlaceholderTexture->cleanup();
 }
 

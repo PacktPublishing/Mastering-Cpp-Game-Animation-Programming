@@ -17,13 +17,11 @@
 
 #include "UserInterface.h"
 #include "CommandBuffer.h"
-#include "AssimpModel.h"
 #include "AssimpAnimClip.h"
-#include "AssimpInstance.h"
 #include "AssimpSettingsContainer.h"
-#include "InstanceSettings.h"
-#include "SingleInstanceBehavior.h"
+#include "ModelSettings.h"
 #include "Logger.h"
+#include "BoundingBox2D.h"
 
 bool UserInterface::init(VkRenderData& renderData) {
   IMGUI_CHECKVERSION();
@@ -109,14 +107,13 @@ void UserInterface::createFrame(VkRenderData &renderData) {
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
-  static float newFps = 0.0f;
   /* avoid inf values (division by zero) */
   if (renderData.rdFrameTime > 0.0) {
-    newFps = 1.0f / renderData.rdFrameTime * 1000.f;
+    mNewFps = 1.0f / renderData.rdFrameTime * 1000.f;
   }
 
   /* make an averge value to avoid jumps */
-  mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * newFps;
+  mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * mNewFps;
 }
 
 void UserInterface::hideMouse(bool hide) {
@@ -293,7 +290,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     const std::string defaultFileName = "config/conf.acfg";
     config.filePathName = defaultFileName.c_str();
     ImGuiFileDialog::Instance()->OpenDialog("LoadConfigFile", "Load Configuration File",
-                                            ".acfg", config);
+      ".acfg", config);
   }
 
   bool loadSuccessful = true;
@@ -324,8 +321,6 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     if (ImGui::Button("OK")) {
       std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
       loadSuccessful = modInstCamData.micLoadConfigCallbackFunction(filePathName);
-      if (loadSuccessful) {
-      }
       ImGui::CloseCurrentPopup();
     }
 
@@ -365,7 +360,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     const std::string defaultFileName = "config/conf.acfg";
     config.filePathName = defaultFileName.c_str();
     ImGuiFileDialog::Instance()->OpenDialog("SaveConfigFile", "Save Configuration File",
-                                            ".acfg", config);
+      ".acfg", config);
   }
 
   bool saveSuccessful = true;
@@ -408,7 +403,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal;
     ImGuiFileDialog::Instance()->OpenDialog("ChooseModelFile", "Choose Model File",
-                                            "Supported Model Files{.gltf,.glb,.obj,.fbx,.dae,.mdl,.md3,.pk3}", config);
+      "Supported Model Files{.gltf,.glb,.obj,.fbx,.dae,.mdl,.md3,.pk3}", config);
   }
 
   if (ImGuiFileDialog::Instance()->Display("ChooseModelFile")) {
@@ -441,64 +436,49 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
   /* clamp manual input on all sliders to min/max */
   ImGuiSliderFlags flags = ImGuiSliderFlags_AlwaysClamp;
 
-  static double updateTime = 0.0;
-
   /* avoid literal double compares */
-  if (updateTime < 0.000001) {
-    updateTime = ImGui::GetTime();
+  if (mUpdateTime < 0.000001) {
+    mUpdateTime = ImGui::GetTime();
   }
 
-  static int fpsOffset = 0;
-  static int frameTimeOffset = 0;
-  static int modelUploadOffset = 0;
-  static int matrixGenOffset = 0;
-  static int matrixUploadOffset = 0;
-  static int uiGenOffset = 0;
-  static int uiDrawOffset = 0;
-  static int collisionDebugDrawOffset = 0;
-  static int collisionCheckOffset = 0;
-  static int numCollisionOffset = 0;
-  static int behaviorOffset = 0;
-  static int interactionOffset = 0;
+  while (mUpdateTime < ImGui::GetTime()) {
+    mFPSValues.at(mFpsOffset) = mFramesPerSecond;
+    mFpsOffset = ++mFpsOffset % mNumFPSValues;
 
-  while (updateTime < ImGui::GetTime()) {
-    mFPSValues.at(fpsOffset) = mFramesPerSecond;
-    fpsOffset = ++fpsOffset % mNumFPSValues;
+    mFrameTimeValues.at(mFrameTimeOffset) = renderData.rdFrameTime;
+    mFrameTimeOffset = ++mFrameTimeOffset % mNumFrameTimeValues;
 
-    mFrameTimeValues.at(frameTimeOffset) = renderData.rdFrameTime;
-    frameTimeOffset = ++frameTimeOffset % mNumFrameTimeValues;
+    mModelUploadValues.at(mModelUploadOffset) = renderData.rdUploadToVBOTime;
+    mModelUploadOffset = ++mModelUploadOffset % mNumModelUploadValues;
 
-    mModelUploadValues.at(modelUploadOffset) = renderData.rdUploadToVBOTime;
-    modelUploadOffset = ++modelUploadOffset % mNumModelUploadValues;
+    mMatrixGenerationValues.at(mMatrixGenOffset) = renderData.rdMatrixGenerateTime;
+    mMatrixGenOffset = ++mMatrixGenOffset % mNumMatrixGenerationValues;
 
-    mMatrixGenerationValues.at(matrixGenOffset) = renderData.rdMatrixGenerateTime;
-    matrixGenOffset = ++matrixGenOffset % mNumMatrixGenerationValues;
+    mMatrixUploadValues.at(mMatrixUploadOffset) = renderData.rdUploadToUBOTime;
+    mMatrixUploadOffset = ++mMatrixUploadOffset % mNumMatrixUploadValues;
 
-    mMatrixUploadValues.at(matrixUploadOffset) = renderData.rdUploadToUBOTime;
-    matrixUploadOffset = ++matrixUploadOffset % mNumMatrixUploadValues;
+    mUiGenValues.at(mUiGenOffset) = renderData.rdUIGenerateTime;
+    mUiGenOffset = ++mUiGenOffset % mNumUiGenValues;
 
-    mUiGenValues.at(uiGenOffset) = renderData.rdUIGenerateTime;
-    uiGenOffset = ++uiGenOffset % mNumUiGenValues;
+    mUiDrawValues.at(mUiDrawOffset) = renderData.rdUIDrawTime;
+    mUiDrawOffset = ++mUiDrawOffset % mNumUiDrawValues;
 
-    mUiDrawValues.at(uiDrawOffset) = renderData.rdUIDrawTime;
-    uiDrawOffset = ++uiDrawOffset % mNumUiDrawValues;
+    mCollisionDebugDrawValues.at(mCollisionDebugDrawOffset) = renderData.rdCollisionDebugDrawTime;
+    mCollisionDebugDrawOffset = ++mCollisionDebugDrawOffset % mNumCollisionDebugDrawValues;
 
-    mCollisionDebugDrawValues.at(collisionDebugDrawOffset) = renderData.rdCollisionDebugDrawTime;
-    collisionDebugDrawOffset = ++collisionDebugDrawOffset % mNumCollisionDebugDrawValues;
+    mCollisionCheckValues.at(mCollisionCheckOffset) = renderData.rdCollisionCheckTime;
+    mCollisionCheckOffset = ++mCollisionCheckOffset % mNumCollisionCheckValues;
 
-    mCollisionCheckValues.at(collisionCheckOffset) = renderData.rdCollisionCheckTime;
-    collisionCheckOffset = ++collisionCheckOffset % mNumCollisionCheckValues;
+    mNumCollisionsValues.at(mNumCollisionOffset) = renderData.rdNumberOfCollisions;
+    mNumCollisionOffset = ++mNumCollisionOffset % mNumNumCollisionValues;
 
-    mNumCollisionsValues.at(numCollisionOffset) = renderData.rdNumberOfCollisions;
-    numCollisionOffset = ++numCollisionOffset % mNumNumCollisionValues;
+    mBehaviorValues.at(mBehaviorOffset) = renderData.rdBehaviorTime;
+    mBehaviorOffset = ++mBehaviorOffset % mNumBehaviorValues;
 
-    mBehaviorValues.at(behaviorOffset) = renderData.rdBehaviorTime;
-    behaviorOffset = ++behaviorOffset % mNumBehaviorValues;
+    mInteractionValues.at(mInteractionOffset) = renderData.rdInteractionTime;
+    mInteractionOffset = ++mInteractionOffset % mNumInteractionValues;
 
-    mInteractionValues.at(interactionOffset) = renderData.rdInteractionTime;
-    interactionOffset = ++interactionOffset % mNumInteractionValues;
-
-    updateTime += 1.0 / 30.0;
+    mUpdateTime += 1.0 / 30.0;
   }
 
   ImGui::Text("FPS: %10.4f", mFramesPerSecond);
@@ -513,8 +493,8 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     std::string fpsOverlay = "now:     " + std::to_string(mFramesPerSecond) + "\n30s avg: " + std::to_string(averageFPS);
     ImGui::Text("FPS");
     ImGui::SameLine();
-    ImGui::PlotLines("##FrameTimes", mFPSValues.data(), mFPSValues.size(), fpsOffset, fpsOverlay.c_str(), 0.0f,
-                     std::numeric_limits<float>::max(), ImVec2(0, 80));
+    ImGui::PlotLines("##FrameTimes", mFPSValues.data(), mFPSValues.size(), mFpsOffset, fpsOverlay.c_str(), 0.0f,
+      std::numeric_limits<float>::max(), ImVec2(0, 80));
     ImGui::EndTooltip();
   }
 
@@ -534,14 +514,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     ImGui::Text("Instance Matrix Size:  %8.2f %2s", memoryUsage, unit.c_str());
 
-
     std::string windowDims = std::to_string(renderData.rdWidth) + "x" + std::to_string(renderData.rdHeight);
     ImGui::Text("Window Dimensions:      %10s", windowDims.c_str());
 
     std::string imgWindowPos = std::to_string(static_cast<int>(ImGui::GetWindowPos().x)) + "/" + std::to_string(static_cast<int>(ImGui::GetWindowPos().y));
     ImGui::Text("ImGui Window Position:  %10s", imgWindowPos.c_str());
   }
-
 
   if (ImGui::CollapsingHeader("Timers")) {
     ImGui::Text("Frame Time:              %10.4f ms", renderData.rdFrameTime);
@@ -553,12 +531,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageFrameTime += value;
       }
       averageFrameTime /= static_cast<float>(mNumMatrixGenerationValues);
-      std::string frameTimeOverlay = "now:     " + std::to_string(renderData.rdFrameTime)
-      + " ms\n30s avg: " + std::to_string(averageFrameTime) + " ms";
+      std::string frameTimeOverlay = "now:     " + std::to_string(renderData.rdFrameTime) +
+        " ms\n30s avg: " + std::to_string(averageFrameTime) + " ms";
       ImGui::Text("Frame Time       ");
       ImGui::SameLine();
-      ImGui::PlotLines("##FrameTime", mFrameTimeValues.data(), mFrameTimeValues.size(), frameTimeOffset,
-                       frameTimeOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##FrameTime", mFrameTimeValues.data(), mFrameTimeValues.size(), mFrameTimeOffset,
+        frameTimeOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -571,12 +549,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageModelUpload += value;
       }
       averageModelUpload /= static_cast<float>(mNumModelUploadValues);
-      std::string modelUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToVBOTime)
-      + " ms\n30s avg: " + std::to_string(averageModelUpload) + " ms";
+      std::string modelUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToVBOTime) +
+        " ms\n30s avg: " + std::to_string(averageModelUpload) + " ms";
       ImGui::Text("VBO Upload");
       ImGui::SameLine();
-      ImGui::PlotLines("##ModelUploadTimes", mModelUploadValues.data(), mModelUploadValues.size(), modelUploadOffset,
-                       modelUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##ModelUploadTimes", mModelUploadValues.data(), mModelUploadValues.size(), mModelUploadOffset,
+        modelUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -589,12 +567,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageMatGen += value;
       }
       averageMatGen /= static_cast<float>(mNumMatrixGenerationValues);
-      std::string matrixGenOverlay = "now:     " + std::to_string(renderData.rdMatrixGenerateTime)
-      + " ms\n30s avg: " + std::to_string(averageMatGen) + " ms";
+      std::string matrixGenOverlay = "now:     " + std::to_string(renderData.rdMatrixGenerateTime) +
+        " ms\n30s avg: " + std::to_string(averageMatGen) + " ms";
       ImGui::Text("Matrix Generation");
       ImGui::SameLine();
-      ImGui::PlotLines("##MatrixGenTimes", mMatrixGenerationValues.data(), mMatrixGenerationValues.size(), matrixGenOffset,
-                       matrixGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##MatrixGenTimes", mMatrixGenerationValues.data(), mMatrixGenerationValues.size(), mMatrixGenOffset,
+        matrixGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -607,12 +585,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageMatrixUpload += value;
       }
       averageMatrixUpload /= static_cast<float>(mNumMatrixUploadValues);
-      std::string matrixUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToUBOTime)
-      + " ms\n30s avg: " + std::to_string(averageMatrixUpload) + " ms";
+      std::string matrixUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToUBOTime) +
+        " ms\n30s avg: " + std::to_string(averageMatrixUpload) + " ms";
       ImGui::Text("UBO Upload");
       ImGui::SameLine();
-      ImGui::PlotLines("##MatrixUploadTimes", mMatrixUploadValues.data(), mMatrixUploadValues.size(), matrixUploadOffset,
-                       matrixUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##MatrixUploadTimes", mMatrixUploadValues.data(), mMatrixUploadValues.size(), mMatrixUploadOffset,
+        matrixUploadOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -625,12 +603,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageUiGen += value;
       }
       averageUiGen /= static_cast<float>(mNumUiGenValues);
-      std::string uiGenOverlay = "now:     " + std::to_string(renderData.rdUIGenerateTime)
-      + " ms\n30s avg: " + std::to_string(averageUiGen) + " ms";
+      std::string uiGenOverlay = "now:     " + std::to_string(renderData.rdUIGenerateTime) +
+        " ms\n30s avg: " + std::to_string(averageUiGen) + " ms";
       ImGui::Text("UI Generation");
       ImGui::SameLine();
-      ImGui::PlotLines("##UIGenTimes", mUiGenValues.data(), mUiGenValues.size(), uiGenOffset,
-                       uiGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##UIGenTimes", mUiGenValues.data(), mUiGenValues.size(), mUiGenOffset,
+        uiGenOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -643,12 +621,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageUiDraw += value;
       }
       averageUiDraw /= static_cast<float>(mNumUiDrawValues);
-      std::string uiDrawOverlay = "now:     " + std::to_string(renderData.rdUIDrawTime)
-      + " ms\n30s avg: " + std::to_string(averageUiDraw) + " ms";
+      std::string uiDrawOverlay = "now:     " + std::to_string(renderData.rdUIDrawTime) +
+        " ms\n30s avg: " + std::to_string(averageUiDraw) + " ms";
       ImGui::Text("UI Draw");
       ImGui::SameLine();
-      ImGui::PlotLines("##UIDrawTimes", mUiDrawValues.data(), mUiDrawValues.size(), uiDrawOffset,
-                       uiDrawOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##UIDrawTimes", mUiDrawValues.data(), mUiDrawValues.size(), mUiDrawOffset,
+        uiDrawOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -661,12 +639,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageCollisionDebugDraw += value;
       }
       averageCollisionDebugDraw /= static_cast<float>(mNumCollisionDebugDrawValues);
-      std::string collisionDebugOverlay = "now:     " + std::to_string(renderData.rdCollisionDebugDrawTime)
-      + " ms\n30s avg: " + std::to_string(averageCollisionDebugDraw) + " ms";
+      std::string collisionDebugOverlay = "now:     " + std::to_string(renderData.rdCollisionDebugDrawTime) +
+        " ms\n30s avg: " + std::to_string(averageCollisionDebugDraw) + " ms";
       ImGui::Text("Collision Debug Draw");
       ImGui::SameLine();
-      ImGui::PlotLines("##CollisionDebugDrawTimes", mCollisionDebugDrawValues.data(), mCollisionDebugDrawValues.size(), collisionDebugDrawOffset,
-                       collisionDebugOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##CollisionDebugDrawTimes", mCollisionDebugDrawValues.data(), mCollisionDebugDrawValues.size(), mCollisionDebugDrawOffset,
+        collisionDebugOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -679,12 +657,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageCollisionCheck += value;
       }
       averageCollisionCheck /= static_cast<float>(mNumCollisionCheckValues);
-      std::string collisionCheckOverlay = "now:     " + std::to_string(renderData.rdCollisionCheckTime)
-      + " ms\n30s avg: " + std::to_string(averageCollisionCheck) + " ms";
+      std::string collisionCheckOverlay = "now:     " + std::to_string(renderData.rdCollisionCheckTime) +
+        " ms\n30s avg: " + std::to_string(averageCollisionCheck) + " ms";
       ImGui::Text("Collision Check");
       ImGui::SameLine();
-      ImGui::PlotLines("##CollisionCheckTimes", mCollisionCheckValues.data(), mCollisionCheckValues.size(), collisionCheckOffset,
-                       collisionCheckOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##CollisionCheckTimes", mCollisionCheckValues.data(), mCollisionCheckValues.size(), mCollisionCheckOffset,
+        collisionCheckOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -697,12 +675,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageBehavior += value;
       }
       averageBehavior /= static_cast<float>(mNumBehaviorValues);
-      std::string behaviorOverlay = "now:     " + std::to_string(renderData.rdBehaviorTime)
-      + " ms\n30s avg: " + std::to_string(averageBehavior) + " ms";
+      std::string behaviorOverlay = "now:     " + std::to_string(renderData.rdBehaviorTime) +
+        " ms\n30s avg: " + std::to_string(averageBehavior) + " ms";
       ImGui::Text("Behavior Update");
       ImGui::SameLine();
-      ImGui::PlotLines("##BehaviorUpdateTimes", mBehaviorValues.data(), mBehaviorValues.size(), behaviorOffset,
-                       behaviorOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##BehaviorUpdateTimes", mBehaviorValues.data(), mBehaviorValues.size(), mBehaviorOffset,
+        behaviorOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 
@@ -715,30 +693,25 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageInteraction += value;
       }
       averageInteraction /= static_cast<float>(mNumInteractionValues);
-      std::string interactionOverlay = "now:     " + std::to_string(renderData.rdInteractionTime)
-      + " ms\n30s avg: " + std::to_string(averageInteraction) + " ms";
+      std::string interactionOverlay = "now:     " + std::to_string(renderData.rdInteractionTime) +
+        " ms\n30s avg: " + std::to_string(averageInteraction) + " ms";
       ImGui::Text("Interaction Update");
       ImGui::SameLine();
-      ImGui::PlotLines("##InteractionUpdateTimes", mInteractionValues.data(), mInteractionValues.size(), interactionOffset,
-                       interactionOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+      ImGui::PlotLines("##InteractionUpdateTimes", mInteractionValues.data(), mInteractionValues.size(), mInteractionOffset,
+        interactionOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
   }
 
   if (ImGui::CollapsingHeader("Camera")) {
-
-    static CameraSettings savedCameraSettings{};
-    static std::shared_ptr<Camera> currentCamera = nullptr;
-    static std::vector<std::string> boneNames{};
-
     std::shared_ptr<Camera> cam = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera);
     CameraSettings settings = cam->getCameraSettings();
 
     /* overwrite saved settings on camera change */
-    if (currentCamera != modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)) {
-      currentCamera = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera);
-      savedCameraSettings = settings;
-      boneNames = cam->getBoneNames();
+    if (mCurrentCamera != modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)) {
+      mCurrentCamera = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera);
+      mSavedCameraSettings = settings;
+      mBoneNames = cam->getBoneNames();
     }
 
     /* same hack as for instances */
@@ -749,16 +722,16 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     ImGui::Text("Cameras:         ");
     ImGui::SameLine();
-    ImGui::PushItemWidth(180.0f);
 
     std::string selectedCamName = "None";
 
     if (ImGui::ArrowButton("##CamLeft", ImGuiDir_Left) &&
       modInstCamData.micSelectedCamera > 0) {
       modInstCamData.micSelectedCamera--;
-      }
+    }
 
-      ImGui::SameLine();
+    ImGui::SameLine();
+    ImGui::PushItemWidth(180.0f);
     if (ImGui::BeginCombo("##CamCombo",
       settings.csCamName.c_str())) {
       for (int i = 0; i < modInstCamData.micCameras.size(); ++i) {
@@ -773,309 +746,316 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         }
       }
       ImGui::EndCombo();
-      }
-      ImGui::PopItemWidth();
+    }
+    ImGui::PopItemWidth();
 
-      ImGui::SameLine();
-      if (ImGui::ArrowButton("##CamRight", ImGuiDir_Right) &&
-        modInstCamData.micSelectedCamera < modInstCamData.micCameras.size() - 1) {
-        modInstCamData.micSelectedCamera++;
+    ImGui::SameLine();
+    if (ImGui::ArrowButton("##CamRight", ImGuiDir_Right) &&
+      modInstCamData.micSelectedCamera < modInstCamData.micCameras.size() - 1) {
+      modInstCamData.micSelectedCamera++;
+    }
+
+    if (numCameras == 0) {
+      ImGui::EndDisabled();
+    }
+
+    ImGui::Text("                 ");
+    ImGui::SameLine();
+    if (ImGui::Button("Clone Current Camera")) {
+      modInstCamData.micCameraCloneCallbackFunction();
+      numCameras = modInstCamData.micCameras.size() - 1;
+    }
+
+    if (numCameras == 0 || modInstCamData.micSelectedCamera == 0) {
+      ImGui::BeginDisabled();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Delete Camera")) {
+      modInstCamData.micCameraDeleteCallbackFunction();
+      numCameras = modInstCamData.micCameras.size() - 1;
+    }
+    if (numCameras == 0 || modInstCamData.micSelectedCamera == 0) {
+      ImGui::EndDisabled();
+    }
+
+    /* Disallow changing default 'FreeCam' name or type */
+    if (modInstCamData.micSelectedCamera == 0) {
+      ImGui::BeginDisabled();
+    }
+
+    ImGuiInputTextFlags textinputFlags = ImGuiInputTextFlags_CharsNoBlank | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCharFilter;
+    std::string camName = settings.csCamName;
+    ImGui::Text("Camera Name:     ");
+    ImGui::SameLine();
+    if (ImGui::InputText("##CamName", &camName, textinputFlags, nameInputFilter)) {
+      if (modInstCamData.micCameraNameCheckCallbackFunction(camName)) {
+        mShowDuplicateCamNameDialog = true;
+      } else {
+        settings.csCamName = camName;
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
+        modInstCamData.micSetConfigDirtyCallbackFunction(true);
+      }
+    }
+
+    if (mShowDuplicateCamNameDialog) {
+      ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
+      ImGui::OpenPopup("Duplicate Camera Name");
+      mShowDuplicateCamNameDialog = false;
+    }
+
+    if (ImGui::BeginPopupModal("Duplicate Camera Name", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
+      ImGui::Text("Camera Name '%s' alread exists!", camName.c_str());
+
+      /* cheating a bit to get buttons more to the center */
+      ImGui::Indent();
+      ImGui::Indent();
+      ImGui::Indent();
+      ImGui::Indent();
+      ImGui::Indent();
+      if (ImGui::Button("OK")) {
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::EndPopup();
+    }
+
+    ImGui::Text("Camera Type:     ");
+    ImGui::SameLine();
+    ImGui::PushItemWidth(250.0f);
+
+    if (ImGui::BeginCombo("##CamTypeCombo",
+      modInstCamData.micCameraTypeMap.at(settings.csCamType).c_str())) {
+      for (int i = 0; i < modInstCamData.micCameraTypeMap.size(); ++i) {
+        const bool isSelected = (static_cast<int>(settings.csCamType) == i);
+        if (ImGui::Selectable(modInstCamData.micCameraTypeMap[static_cast<cameraType>(i)].c_str(), isSelected)) {
+          settings.csCamType = static_cast<cameraType>(i);
         }
 
-        if (numCameras == 0) {
-          ImGui::EndDisabled();
+        if (isSelected) {
+          ImGui::SetItemDefaultFocus();
         }
-
-        ImGui::Text("                 ");
-      ImGui::SameLine();
-      if (ImGui::Button("Clone Current Camera")) {
-        modInstCamData.micCameraCloneCallbackFunction();
-        numCameras = modInstCamData.micCameras.size() - 1;
       }
+      ImGui::EndCombo();
+    }
+    ImGui::PopItemWidth();
 
-      if (numCameras == 0 || modInstCamData.micSelectedCamera == 0) {
+    int followInstanceIndex = 0;
+    std::string followInstanceId = "-";
+    std::shared_ptr<AssimpInstance> followInstance = cam->getInstanceToFollow();
+    if (followInstance) {
+      followInstanceIndex = followInstance->getInstanceSettings().isInstanceIndexPosition;
+      followInstanceId = std::to_string(followInstanceIndex);
+    }
+
+    if (settings.csCamType == cameraType::firstPerson || settings.csCamType == cameraType::thirdPerson || settings.csCamType == cameraType::stationaryFollowing) {
+      ImGui::Text("Following:  %4s ", followInstanceId.c_str());
+      ImGui::SameLine();
+
+      if (modInstCamData.micSelectedInstance == 0) {
         ImGui::BeginDisabled();
       }
-      ImGui::SameLine();
-      if (ImGui::Button("Delete Camera")) {
-        modInstCamData.micCameraDeleteCallbackFunction();
-        numCameras = modInstCamData.micCameras.size() - 1;
+
+      if (ImGui::Button("Use Selected Instance")) {
+        std::shared_ptr<AssimpInstance> selectedInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        /* this call also fills in the bone list */
+        cam->setInstanceToFollow(selectedInstance);
+        mBoneNames = cam->getBoneNames();
+
+        settings = cam->getCameraSettings();
       }
-      if (numCameras == 0 || modInstCamData.micSelectedCamera == 0) {
+      if (modInstCamData.micSelectedInstance == 0) {
         ImGui::EndDisabled();
       }
 
-      /* Disallow changing default 'FreeCam' name or type */
-      if (modInstCamData.micSelectedCamera == 0) {
+      ImGui::SameLine();
+      if (!followInstance) {
+        ImGui::BeginDisabled();
+      }
+      if (ImGui::Button("Clear Selection")) {
+        cam->clearInstanceToFollow();
+        mBoneNames = cam->getBoneNames();
+
+        settings = cam->getCameraSettings();
+      }
+
+      ImGui::Text("                 ");
+      ImGui::SameLine();
+      if (ImGui::Button("Selected Following Instance")) {
+        modInstCamData.micSelectedInstance = followInstanceIndex;
+        std::shared_ptr<AssimpInstance> selectedInstance = modInstCamData.micAssimpInstances.at(followInstanceIndex);
+        /* this call also fills in the bone list */
+        cam->setInstanceToFollow(selectedInstance);
+        mBoneNames = cam->getBoneNames();
+
+        settings = cam->getCameraSettings();
+      }
+
+      if (settings.csCamType == cameraType::thirdPerson && followInstance) {
+        ImGui::Text("Distance:        ");
+        ImGui::SameLine();
+        ImGui::SliderFloat("##3rdPersonDistance", &settings.csThirdPersonDistance, 3.0f, 10.0f, "%.3f", flags);
+
+        ImGui::Text("Camera Height:   ");
+        ImGui::SameLine();
+        ImGui::SliderFloat("##3rdPersonOffset", &settings.csThirdPersonHeightOffset, 0.0f, 3.0f, "%.3f", flags);
+      }
+
+      if (settings.csCamType == cameraType::firstPerson && followInstance) {
+        ImGui::Text("Lock View:       ");
+        ImGui::SameLine();
+        ImGui::Checkbox("##1stPersonLockView", &settings.csFirstPersonLockView);
+
+        if (cam->getBoneNames().size() > 0) {
+          ImGui::Text("Bone to Follow:  ");
+          ImGui::SameLine();
+          ImGui::PushItemWidth(250.0f);
+
+          if (ImGui::BeginCombo("##1stPersonBoneNameCombo",
+            mBoneNames.at(settings.csFirstPersonBoneToFollow).c_str())) {
+            for (int i = 0; i < mBoneNames.size(); ++i) {
+              const bool isSelected = (settings.csFirstPersonBoneToFollow == i);
+              if (ImGui::Selectable(mBoneNames.at(i).c_str(), isSelected)) {
+                settings.csFirstPersonBoneToFollow = i;
+              }
+
+              if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+              }
+            }
+            ImGui::EndCombo();
+          }
+          ImGui::PopItemWidth();
+        }
+
+        ImGui::Text("View Offsets:    ");
+        ImGui::SameLine();
+        ImGui::SliderFloat3("##1stPersonOffset", glm::value_ptr(settings.csFirstPersonOffsets), -1.0f, 1.0f, "%.3f", flags);
+      }
+
+      if (!followInstance) {
+        ImGui::EndDisabled();
+      }
+
+    }
+
+    if (modInstCamData.micSelectedCamera == 0) {
+      ImGui::EndDisabled();
+    }
+
+    /* disable settings in locked 3rd person mode */
+    if (!(followInstance || settings.csCamType == cameraType::stationary)) {
+      ImGui::Text("Camera Position: ");
+      ImGui::SameLine();
+      ImGui::SliderFloat3("##CameraPos", glm::value_ptr(settings.csWorldPosition), -125.0f, 125.0f, "%.3f", flags);
+      if (ImGui::IsItemDeactivatedAfterEdit()) {
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
+        modInstCamData.micSetConfigDirtyCallbackFunction(true);
+      }
+
+      ImGui::Text("View Azimuth:    ");
+      ImGui::SameLine();
+      ImGui::SliderFloat("##CamAzimuth", &settings.csViewAzimuth, 0.0f, 360.0f, "%.3f", flags);
+      if (ImGui::IsItemDeactivatedAfterEdit()) {
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
+        modInstCamData.micSetConfigDirtyCallbackFunction(true);
+      }
+
+      ImGui::Text("View Elevation:  ");
+      ImGui::SameLine();
+      ImGui::SliderFloat("##CamElevation", &settings.csViewElevation, -89.0f, 89.0f, "%.3f", flags);
+      if (ImGui::IsItemDeactivatedAfterEdit()) {
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
+        modInstCamData.micSetConfigDirtyCallbackFunction(true);
+      }
+    } // end of locked cam type third person
+
+    /* force projection for first and  third person cam */
+    if (settings.csCamType == cameraType::firstPerson || settings.csCamType == cameraType::thirdPerson) {
+      settings.csCamProjection = cameraProjection::perspective;
+    }
+
+    /* remove perspective settings in third person mode */
+    if (settings.csCamType != cameraType::firstPerson && settings.csCamType != cameraType::thirdPerson) {
+      ImGui::Text("Projection:      ");
+      ImGui::SameLine();
+      if (ImGui::RadioButton("Perspective",
+        settings.csCamProjection == cameraProjection::perspective)) {
+        settings.csCamProjection = cameraProjection::perspective;
+
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
+        modInstCamData.micSetConfigDirtyCallbackFunction(true);
+      }
+      ImGui::SameLine();
+      if (ImGui::RadioButton("Orthogonal",
+        settings.csCamProjection == cameraProjection::orthogonal)) {
+        settings.csCamProjection = cameraProjection::orthogonal;
+
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
+        modInstCamData.micSetConfigDirtyCallbackFunction(true);
+      }
+    }
+
+    if (settings.csCamProjection == cameraProjection::orthogonal) {
+      ImGui::BeginDisabled();
+    }
+
+    ImGui::Text("Field of View:   ");
+    ImGui::SameLine();
+    ImGui::SliderInt("##CamFOV", &settings.csFieldOfView, 40, 100, "%d", flags);
+    if (ImGui::IsItemDeactivatedAfterEdit()) {
+      Logger::log(1, "%s: old FOV is %i\n", __FUNCTION__, mSavedCameraSettings.csFieldOfView);
+      Logger::log(1, "%s: new FOV is %i\n", __FUNCTION__, settings.csFieldOfView);
+      modInstCamData.micSettingsContainer->applyEditCameraSettings(
+        modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+        settings, mSavedCameraSettings);
+      mSavedCameraSettings = settings;
+      modInstCamData.micSetConfigDirtyCallbackFunction(true);
+    }
+
+    if (settings.csCamProjection == cameraProjection::orthogonal) {
+      ImGui::EndDisabled();
+    }
+
+    /* disable orthoginal scaling in 1st and 3rd person mode, only perspective is allowed  */
+    if (settings.csCamType != cameraType::firstPerson && settings.csCamType != cameraType::thirdPerson) {
+      if (settings.csCamProjection == cameraProjection::perspective) {
         ImGui::BeginDisabled();
       }
 
-      ImGuiInputTextFlags textinputFlags = ImGuiInputTextFlags_CharsNoBlank | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCharFilter;
-      static bool showDuplicateCamNameDialog = false;
-      std::string camName = settings.csCamName;
-      ImGui::Text("Camera Name:     ");
+      ImGui::Text("Ortho Scaling:   ");
       ImGui::SameLine();
-      if (ImGui::InputText("##CamName", &camName, textinputFlags, nameInputFilter)) {
-        if (modInstCamData.micCameraNameCheckCallbackFunction(camName)) {
-          showDuplicateCamNameDialog = true;
-        } else {
-          settings.csCamName = camName;
-          modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                       settings, savedCameraSettings);
-          savedCameraSettings = settings;
-          modInstCamData.micSetConfigDirtyCallbackFunction(true);
-        }
+      ImGui::SliderFloat("##CamOrthoScale", &settings.csOrthoScale, 1.0f, 50.0f, "%.3f", flags);
+      if (ImGui::IsItemDeactivatedAfterEdit()) {
+        modInstCamData.micSettingsContainer->applyEditCameraSettings(
+          modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
+          settings, mSavedCameraSettings);
+        mSavedCameraSettings = settings;
+        modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
 
-      if (showDuplicateCamNameDialog) {
-        ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
-        ImGui::OpenPopup("Duplicate Camera Name");
-        showDuplicateCamNameDialog = false;
+      if (settings.csCamProjection == cameraProjection::perspective) {
+        ImGui::EndDisabled();
       }
+    }
 
-      if (ImGui::BeginPopupModal("Duplicate Camera Name", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
-        ImGui::Text("Camera Name '%s' alread exists!", camName.c_str());
-
-        /* cheating a bit to get buttons more to the center */
-        ImGui::Indent();
-        ImGui::Indent();
-        ImGui::Indent();
-        ImGui::Indent();
-        ImGui::Indent();
-        if (ImGui::Button("OK")) {
-          ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
-      }
-
-      ImGui::Text("Camera Type:     ");
-      ImGui::SameLine();
-      ImGui::PushItemWidth(250.0f);
-
-      if (ImGui::BeginCombo("##CamTypeCombo",
-        modInstCamData.micCameraTypeMap.at(settings.csCamType).c_str())) {
-        for (int i = 0; i < modInstCamData.micCameraTypeMap.size(); ++i) {
-          const bool isSelected = (static_cast<int>(settings.csCamType) == i);
-          if (ImGui::Selectable(modInstCamData.micCameraTypeMap[static_cast<cameraType>(i)].c_str(), isSelected)) {
-            settings.csCamType = static_cast<cameraType>(i);
-          }
-
-          if (isSelected) {
-            ImGui::SetItemDefaultFocus();
-          }
-        }
-        ImGui::EndCombo();
-        }
-        ImGui::PopItemWidth();
-
-        int followInstanceIndex = 0;
-        std::string followInstanceId = "-";
-        std::shared_ptr<AssimpInstance> followInstance = cam->getInstanceToFollow();
-        if (followInstance) {
-          followInstanceIndex = followInstance->getInstanceSettings().isInstanceIndexPosition;
-          followInstanceId = std::to_string(followInstanceIndex);
-        }
-
-        if (settings.csCamType == cameraType::firstPerson || settings.csCamType == cameraType::thirdPerson || settings.csCamType == cameraType::stationaryFollowing) {
-          ImGui::Text("Following:  %4s ", followInstanceId.c_str());
-          ImGui::SameLine();
-
-          if (modInstCamData.micSelectedInstance == 0) {
-            ImGui::BeginDisabled();
-          }
-
-          if (ImGui::Button("Use Selected Instance")) {
-            std::shared_ptr<AssimpInstance> selectedInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
-            /* this call also fills in the bone list */
-            cam->setInstanceToFollow(selectedInstance);
-            boneNames = cam->getBoneNames();
-
-            settings = cam->getCameraSettings();
-          }
-          if (modInstCamData.micSelectedInstance == 0) {
-            ImGui::EndDisabled();
-          }
-
-          ImGui::SameLine();
-          if (!followInstance) {
-            ImGui::BeginDisabled();
-          }
-          if (ImGui::Button("Clear Selection")) {
-            cam->clearInstanceToFollow();
-            boneNames = cam->getBoneNames();
-
-            settings = cam->getCameraSettings();
-          }
-
-          ImGui::Text("                 ");
-          ImGui::SameLine();
-          if (ImGui::Button("Selected Following Instance")) {
-            modInstCamData.micSelectedInstance = followInstanceIndex;
-            std::shared_ptr<AssimpInstance> selectedInstance = modInstCamData.micAssimpInstances.at(followInstanceIndex);
-            /* this call also fills in the bone list */
-            cam->setInstanceToFollow(selectedInstance);
-            boneNames = cam->getBoneNames();
-
-            settings = cam->getCameraSettings();
-          }
-
-          if (settings.csCamType == cameraType::thirdPerson && followInstance) {
-            ImGui::Text("Distance:        ");
-            ImGui::SameLine();
-            ImGui::SliderFloat("##3rdPersonDistance", &settings.csThirdPersonDistance, 3.0f, 10.0f, "%.3f", flags);
-
-            ImGui::Text("Camera Height:   ");
-            ImGui::SameLine();
-            ImGui::SliderFloat("##3rdPersonOffset", &settings.csThirdPersonHeightOffset, 0.0f, 3.0f, "%.3f", flags);
-          }
-
-          if (settings.csCamType == cameraType::firstPerson && followInstance) {
-            ImGui::Text("Lock View:       ");
-            ImGui::SameLine();
-            ImGui::Checkbox("##1stPersonLockView", &settings.csFirstPersonLockView);
-
-            if (cam->getBoneNames().size() > 0) {
-              ImGui::Text("Bone to Follow:  ");
-              ImGui::SameLine();
-              ImGui::PushItemWidth(250.0f);
-
-              if (ImGui::BeginCombo("##1stPersonBoneNameCombo",
-                boneNames.at(settings.csFirstPersonBoneToFollow).c_str())) {
-                for (int i = 0; i < boneNames.size(); ++i) {
-                  const bool isSelected = (settings.csFirstPersonBoneToFollow == i);
-                  if (ImGui::Selectable(boneNames.at(i).c_str(), isSelected)) {
-                    settings.csFirstPersonBoneToFollow = i;
-                  }
-
-                  if (isSelected) {
-                    ImGui::SetItemDefaultFocus();
-                  }
-                }
-                ImGui::EndCombo();
-                }
-                ImGui::PopItemWidth();
-            }
-
-            ImGui::Text("View Offsets:    ");
-            ImGui::SameLine();
-            ImGui::SliderFloat3("##1stPersonOffset", glm::value_ptr(settings.csFirstPersonOffsets), -1.0f, 1.0f, "%.3f", flags);
-          }
-
-          if (!followInstance) {
-            ImGui::EndDisabled();
-          }
-
-        }
-
-        if (modInstCamData.micSelectedCamera == 0) {
-          ImGui::EndDisabled();
-        }
-
-        /* disable settings in locked 3rd person mode */
-        if (!(followInstance || settings.csCamType == cameraType::stationary)) {
-          ImGui::Text("Camera Position: ");
-          ImGui::SameLine();
-          ImGui::SliderFloat3("##CameraPos", glm::value_ptr(settings.csWorldPosition), -75.0f, 75.0f, "%.3f", flags);
-          if (ImGui::IsItemDeactivatedAfterEdit()) {
-            modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                         settings, savedCameraSettings);
-            savedCameraSettings = settings;
-            modInstCamData.micSetConfigDirtyCallbackFunction(true);
-          }
-
-          ImGui::Text("View Azimuth:    ");
-          ImGui::SameLine();
-          ImGui::SliderFloat("##CamAzimuth", &settings.csViewAzimuth, 0.0f, 360.0f, "%.3f", flags);
-          if (ImGui::IsItemDeactivatedAfterEdit()) {
-            modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                         settings, savedCameraSettings);
-            savedCameraSettings = settings;
-            modInstCamData.micSetConfigDirtyCallbackFunction(true);
-          }
-
-          ImGui::Text("View Elevation:  ");
-          ImGui::SameLine();
-          ImGui::SliderFloat("##CamElevation", &settings.csViewElevation, -89.0f, 89.0f, "%.3f", flags);
-          if (ImGui::IsItemDeactivatedAfterEdit()) {
-            modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                         settings, savedCameraSettings);
-            savedCameraSettings = settings;
-            modInstCamData.micSetConfigDirtyCallbackFunction(true);
-          }
-        } // end of locked cam type third person
-
-        /* force projection for first and  third person cam */
-        if (settings.csCamType == cameraType::firstPerson || settings.csCamType == cameraType::thirdPerson) {
-          settings.csCamProjection = cameraProjection::perspective;
-        }
-
-        /* remove perspective settings in third person mode */
-        if (settings.csCamType != cameraType::firstPerson && settings.csCamType != cameraType::thirdPerson) {
-          ImGui::Text("Projection:      ");
-          ImGui::SameLine();
-          if (ImGui::RadioButton("Perspective",
-            settings.csCamProjection == cameraProjection::perspective)) {
-            settings.csCamProjection = cameraProjection::perspective;
-
-          modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                       settings, savedCameraSettings);
-          savedCameraSettings = settings;
-          modInstCamData.micSetConfigDirtyCallbackFunction(true);
-            }
-            ImGui::SameLine();
-            if (ImGui::RadioButton("Orthogonal",
-              settings.csCamProjection == cameraProjection::orthogonal)) {
-              settings.csCamProjection = cameraProjection::orthogonal;
-
-            modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                         settings, savedCameraSettings);
-            savedCameraSettings = settings;
-            modInstCamData.micSetConfigDirtyCallbackFunction(true);
-              }
-        }
-
-        if (settings.csCamProjection == cameraProjection::orthogonal) {
-          ImGui::BeginDisabled();
-        }
-
-        ImGui::Text("Field of View:   ");
-        ImGui::SameLine();
-        ImGui::SliderInt("##CamFOV", &settings.csFieldOfView, 40, 100, "%d", flags);
-        if (ImGui::IsItemDeactivatedAfterEdit()) {
-          Logger::log(1, "%s: old FOV is %i\n", __FUNCTION__, savedCameraSettings.csFieldOfView);
-          Logger::log(1, "%s: new FOV is %i\n", __FUNCTION__, settings.csFieldOfView);
-          modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                       settings, savedCameraSettings);
-          savedCameraSettings = settings;
-          modInstCamData.micSetConfigDirtyCallbackFunction(true);
-        }
-
-        if (settings.csCamProjection == cameraProjection::orthogonal) {
-          ImGui::EndDisabled();
-        }
-
-        /* disable orthoginal scaling in 1st and 3rd person mode, only perspective is allowed  */
-        if (settings.csCamType != cameraType::firstPerson && settings.csCamType != cameraType::thirdPerson) {
-          if (settings.csCamProjection == cameraProjection::perspective) {
-            ImGui::BeginDisabled();
-          }
-
-          ImGui::Text("Ortho Scaling:   ");
-          ImGui::SameLine();
-          ImGui::SliderFloat("##CamOrthoScale", &settings.csOrthoScale, 1.0f, 50.0f, "%.3f", flags);
-          if (ImGui::IsItemDeactivatedAfterEdit()) {
-            modInstCamData.micSettingsContainer->applyEditCameraSettings(modInstCamData.micCameras.at(modInstCamData.micSelectedCamera),
-                                                                         settings, savedCameraSettings);
-            savedCameraSettings = settings;
-            modInstCamData.micSetConfigDirtyCallbackFunction(true);
-          }
-
-          if (settings.csCamProjection == cameraProjection::perspective) {
-            ImGui::EndDisabled();
-          }
-        }
-
-        cam->setCameraSettings(settings);
+    cam->setCameraSettings(settings);
   }
 
   if (ImGui::CollapsingHeader("Models")) {
@@ -1084,7 +1064,6 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     std::string selectedModelName = "None";
     std::shared_ptr<AssimpModel> selectedModel = nullptr;
     bool modelIsStatic = true;
-
 
     if (!modelListEmtpy) {
       selectedModel = modInstCamData.micModelList.at(modInstCamData.micSelectedModel);
@@ -1114,114 +1093,111 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         }
       }
       ImGui::EndCombo();
-      }
-      ImGui::PopItemWidth();
+    }
+    ImGui::PopItemWidth();
 
-      ImGui::Text("                 ");
+    ImGui::Text("                 ");
+    ImGui::SameLine();
+    if (ImGui::Button("Create New Instance")) {
+      std::shared_ptr<AssimpModel> currentModel = modInstCamData.micModelList[modInstCamData.micSelectedModel];
+      modInstCamData.micInstanceAddCallbackFunction(currentModel);
+      /* select new instance */
+      modInstCamData.micSelectedInstance = modInstCamData.micAssimpInstances.size() - 1;
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Delete Model")) {
+      ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
+      ImGui::OpenPopup("Delete Model?");
+    }
+
+    if (ImGui::BeginPopupModal("Delete Model?", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
+      ImGui::Text("Delete Model '%s'?", modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str());
+
+      /* cheating a bit to get buttons more to the center */
+      ImGui::Indent();
+      ImGui::Indent();
+      if (ImGui::Button("OK")) {
+        modInstCamData.micModelDeleteCallbackFunction(modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str(), true);
+
+        ImGui::CloseCurrentPopup();
+      }
       ImGui::SameLine();
-      if (ImGui::Button("Create New Instance")) {
-        std::shared_ptr<AssimpModel> currentModel = modInstCamData.micModelList[modInstCamData.micSelectedModel];
-        modInstCamData.micInstanceAddCallbackFunction(currentModel);
-        /* select new instance */
-        modInstCamData.micSelectedInstance = modInstCamData.micAssimpInstances.size() - 1;
+      if (ImGui::Button("Cancel")) {
+        ImGui::CloseCurrentPopup();
       }
+      ImGui::EndPopup();
+    }
 
-      ImGui::SameLine();
-      if (ImGui::Button("Delete Model")) {
-        ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
-        ImGui::OpenPopup("Delete Model?");
+    ImGui::Text("Create Instances:");
+    ImGui::SameLine();
+    ImGui::PushItemWidth(300.0f);
+    ImGui::SliderInt("##MassInstanceCreation", &mManyInstanceCreateNum, 1, 100, "%d", flags);
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+    if (ImGui::Button("Go!##Create")) {
+      std::shared_ptr<AssimpModel> currentModel = modInstCamData.micModelList[modInstCamData.micSelectedModel];
+      modInstCamData.micInstanceAddManyCallbackFunction(currentModel, mManyInstanceCreateNum);
+    }
+
+    if (modelListEmtpy) {
+      ImGui::EndDisabled();
+    }
+
+    if (modelIsStatic) {
+      ImGui::BeginDisabled();
+    }
+
+    size_t numTrees = modInstCamData.micBehaviorData.size();
+
+    if (numTrees == 0)  {
+      mSelectedTreeName = "None";
+      mBehavior.reset();
+      ImGui::BeginDisabled();
+    } else {
+      if (mSelectedTreeName.empty() || mSelectedTreeName == "None") {
+        mSelectedTreeName = modInstCamData.micBehaviorData.begin()->first;
       }
+      if (!mBehavior) {
+        mBehavior = modInstCamData.micBehaviorData.begin()->second;
+      }
+    }
 
-      if (ImGui::BeginPopupModal("Delete Model?", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
-        ImGui::Text("Delete Model '%s'?", modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str());
-
-        /* cheating a bit to get buttons more to the center */
-        ImGui::Indent();
-        ImGui::Indent();
-        if (ImGui::Button("OK")) {
-          modInstCamData.micModelDeleteCallbackFunction(modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str(), true);
-
-          ImGui::CloseCurrentPopup();
+    ImGui::Text("Change Tree:     ");
+    ImGui::SameLine();
+    ImGui::PushItemWidth(200.0f);
+    if (ImGui::BeginCombo("##ModelTreeCombo", mSelectedTreeName.c_str())) {
+      for (const auto& tree : modInstCamData.micBehaviorData) {
+        const bool isSelected = (tree.first == mSelectedTreeName);
+        if (ImGui::Selectable(tree.first.c_str(), isSelected)) {
+          mSelectedTreeName = tree.first;
+          mBehavior = tree.second;
         }
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel")) {
-          ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
-      }
 
-      static int manyInstanceCreateNum = 1;
-      ImGui::Text("Create Instances:");
-      ImGui::SameLine();
-      ImGui::PushItemWidth(300.0f);
-      ImGui::SliderInt("##MassInstanceCreation", &manyInstanceCreateNum, 1, 100, "%d", flags);
-      ImGui::PopItemWidth();
-      ImGui::SameLine();
-      if (ImGui::Button("Go!##Create")) {
-        std::shared_ptr<AssimpModel> currentModel = modInstCamData.micModelList[modInstCamData.micSelectedModel];
-        modInstCamData.micInstanceAddManyCallbackFunction(currentModel, manyInstanceCreateNum);
-      }
-
-      if (modelListEmtpy) {
-        ImGui::EndDisabled();
-      }
-
-      if (modelIsStatic) {
-        ImGui::BeginDisabled();
-      }
-
-      size_t numTrees = modInstCamData.micBehaviorData.size();
-      static std::string selectedTreeName;
-      static std::shared_ptr<SingleInstanceBehavior> behavior = nullptr;
-
-      if (numTrees == 0)  {
-        selectedTreeName = "None";
-        behavior.reset();
-        ImGui::BeginDisabled();
-      } else {
-        if (selectedTreeName.empty() || selectedTreeName == "None") {
-          selectedTreeName = modInstCamData.micBehaviorData.begin()->first;
-        }
-        if (!behavior) {
-          behavior = modInstCamData.micBehaviorData.begin()->second;
+        if (isSelected) {
+          ImGui::SetItemDefaultFocus();
         }
       }
+      ImGui::EndCombo();
+    }
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+    if (ImGui::Button("Set##Model")) {
+      modInstCamData.micModelAddBehaviorCallbackFunction(selectedModelName, mBehavior);
+    }
+    ImGui::SameLine();
 
-      ImGui::Text("Change Tree:     ");
-      ImGui::SameLine();
-      ImGui::PushItemWidth(200.0f);
-      if (ImGui::BeginCombo("##ModelTreeCombo", selectedTreeName.c_str())) {
-        for (const auto& tree : modInstCamData.micBehaviorData) {
-          const bool isSelected = (tree.first == selectedTreeName);
-          if (ImGui::Selectable(tree.first.c_str(), isSelected)) {
-            selectedTreeName = tree.first;
-            behavior = tree.second;
-          }
+    if (numTrees == 0) {
+      ImGui::EndDisabled();
+    }
 
-          if (isSelected) {
-            ImGui::SetItemDefaultFocus();
-          }
-        }
-        ImGui::EndCombo();
-      }
-      ImGui::PopItemWidth();
-      ImGui::SameLine();
-      if (ImGui::Button("Set##Model")) {
-        modInstCamData.micModelAddBehaviorCallbackFunction(selectedModelName, behavior);
-      }
-      ImGui::SameLine();
+    if (ImGui::Button("Clear##Model")) {
+      modInstCamData.micModelDelBehaviorCallbackFunction(selectedModelName);
+    }
 
-      if (numTrees == 0) {
-        ImGui::EndDisabled();
-      }
-
-      if (ImGui::Button("Clear##Model")) {
-        modInstCamData.micModelDelBehaviorCallbackFunction(selectedModelName);
-      }
-
-      if (modelIsStatic) {
-        ImGui::EndDisabled();
-      }
+    if (modelIsStatic) {
+      ImGui::EndDisabled();
+    }
   }
 
   if (ImGui::CollapsingHeader("Model Idle/Walk/Run Blendings")) {
@@ -1230,9 +1206,6 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     ImGui::GetStateStorage()->SetInt(ImGui::GetID("Model Allowed Clip Orders"), 0);
 
     size_t numberOfInstances = modInstCamData.micAssimpInstances.size() - 1;
-
-    static std::shared_ptr<AssimpInstance> currentInstance = nullptr;
-    static std::shared_ptr<AssimpModel> currentModel = nullptr;
 
     InstanceSettings settings;
     ModelSettings modSettings;
@@ -1250,19 +1223,16 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     static float blendFactor = 0.0f;
 
-    if (numberOfInstances > 0) {
+    if (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
+      mCurrentModel = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel();
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
-      currentModel = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel();
 
-      numberOfClips = currentModel->getAnimClips().size();
-      modSettings = currentModel->getModelSettings();
+      numberOfClips = mCurrentModel->getAnimClips().size();
+      modSettings = mCurrentModel->getModelSettings();
 
-      if (currentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
-        currentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
-
-        currentModel = currentInstance->getModel();
-        numberOfClips = currentModel->getAnimClips().size();
-        modSettings = currentModel->getModelSettings();
+      if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
+        mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        settings = mCurrentInstance->getInstanceSettings();
 
         if (modSettings.msIWRBlendings.size() > 0) {
           direction = modSettings.msIWRBlendings.begin()->first;
@@ -1286,7 +1256,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         }
 
         blendFactor = 0.0f;
-        currentModel->setModelSettings(modSettings);
+        mCurrentModel->setModelSettings(modSettings);
       }
     }
 
@@ -1313,153 +1283,165 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
           }
         }
         ImGui::EndCombo();
+      }
+      ImGui::PopItemWidth();
+
+      ImGui::Text("Idle:");
+      ImGui::SameLine();
+      ImGui::PushItemWidth(100.0f);
+      if (ImGui::BeginCombo("##FirstClipCombo",
+        animClips.at(clipOne)->getClipName().c_str())) {
+        for (int i = 0; i < animClips.size(); ++i) {
+          const bool isSelected = (clipOne == i);
+          if (ImGui::Selectable(animClips.at(i)->getClipName().c_str(), isSelected)) {
+            clipOne = i;
+          }
+
+          if (isSelected) {
+            ImGui::SetItemDefaultFocus();
+          }
         }
-        ImGui::PopItemWidth();
+        ImGui::EndCombo();
+      }
+      ImGui::PopItemWidth();
 
-        ImGui::Text("Idle:");
+      ImGui::SameLine();
+      ImGui::PushItemWidth(200.0f);
+      ImGui::SliderFloat("##ClipOneSpeed", &clipOneSpeed,
+                         0.0f, 15.0f, "%.4f", flags);
+      ImGui::PopItemWidth();
+
+      ImGui::Text("Walk:");
+      ImGui::SameLine();
+      ImGui::PushItemWidth(100.0f);
+      if (ImGui::BeginCombo("##SecondClipCombo",
+        animClips.at(clipTwo)->getClipName().c_str())) {
+        for (int i = 0; i < animClips.size(); ++i) {
+          const bool isSelected = (clipTwo == i);
+          if (ImGui::Selectable(animClips.at(i)->getClipName().c_str(), isSelected)) {
+            clipTwo = i;
+          }
+
+          if (isSelected) {
+            ImGui::SetItemDefaultFocus();
+          }
+        }
+        ImGui::EndCombo();
+      }
+      ImGui::PopItemWidth();
+
+      ImGui::SameLine();
+      ImGui::PushItemWidth(200.0f);
+      ImGui::SliderFloat("##ClipTwoSpeed", &clipTwoSpeed,
+                         0.0f, 15.0f, "%.4f", flags);
+      ImGui::PopItemWidth();
+
+      ImGui::Text("Run: ");
+      ImGui::SameLine();
+      ImGui::PushItemWidth(100.0f);
+      if (ImGui::BeginCombo("##ThirdClipCombo",
+        animClips.at(clipThree)->getClipName().c_str())) {
+        for (int i = 0; i < animClips.size(); ++i) {
+          const bool isSelected = (clipThree == i);
+          if (ImGui::Selectable(animClips.at(i)->getClipName().c_str(), isSelected)) {
+            clipThree = i;
+          }
+
+          if (isSelected) {
+            ImGui::SetItemDefaultFocus();
+          }
+        }
+        ImGui::EndCombo();
+      }
+      ImGui::PopItemWidth();
+
+      ImGui::SameLine();
+      ImGui::PushItemWidth(200.0f);
+      ImGui::SliderFloat("##ClipThreeSpeed", &clipThreeSpeed,
+                         0.0f, 15.0f, "%.4f", flags);
+      ImGui::PopItemWidth();
+
+      ImGui::SameLine();
+      if (ImGui::Button("Save##Blending")) {
+        IdleWalkRunBlending blend;
+        blend.iwrbIdleClipNr = clipOne;
+        blend.iwrbIdleClipSpeed = clipOneSpeed;
+        blend.iwrbWalkClipNr = clipTwo;
+        blend.iwrbWalkClipSpeed = clipTwoSpeed;
+        blend.iwrbRunClipNr = clipThree;
+        blend.iwrbRunClipSpeed = clipThreeSpeed;
+
+        modSettings.msIWRBlendings[direction] = blend;
+      }
+
+      unsigned int buttonId = 0;
+      for (auto iter = modSettings.msIWRBlendings.begin(); iter != modSettings.msIWRBlendings.end(); /* done while erasing */) {
+        moveDirection dir = (*iter).first;
+        IdleWalkRunBlending blend = (*iter).second;
+        ImGui::Text("%8s: %s(%2.2f)/%s(%2.2f)/%s(%2.2f)", modInstCamData.micMoveDirectionMap[dir].c_str(),
+          animClips.at(blend.iwrbIdleClipNr)->getClipName().c_str(),
+          blend.iwrbIdleClipSpeed,
+          animClips.at(blend.iwrbWalkClipNr)->getClipName().c_str(),
+          blend.iwrbWalkClipSpeed,
+          animClips.at(blend.iwrbRunClipNr)->getClipName().c_str(),
+          blend.iwrbRunClipSpeed
+        );
+
         ImGui::SameLine();
-        ImGui::PushItemWidth(100.0f);
-        if (ImGui::BeginCombo("##FirstClipCombo",
-          animClips.at(clipOne)->getClipName().c_str())) {
-          for (int i = 0; i < animClips.size(); ++i) {
-            const bool isSelected = (clipOne == i);
-            if (ImGui::Selectable(animClips.at(i)->getClipName().c_str(), isSelected)) {
-              clipOne = i;
-            }
+        ImGui::PushID(buttonId++);
+        if (ImGui::Button("Edit##Blending")) {
+          direction = dir;
+          clipOne = blend.iwrbIdleClipNr;
+          clipOneSpeed = blend.iwrbIdleClipSpeed;
+          clipTwo = blend.iwrbWalkClipNr;
+          clipTwoSpeed = blend.iwrbWalkClipSpeed;
+          clipThree = blend.iwrbRunClipNr;
+          clipThreeSpeed = blend.iwrbRunClipSpeed;
+        }
+        ImGui::PopID();
+        ImGui::SameLine();
+        ImGui::PushID(buttonId++);
+        if (ImGui::Button("Remove##Blending")) {
+          iter = modSettings.msIWRBlendings.erase(iter);
+        } else {
+          ++iter;
+        }
+        ImGui::PopID();
+      }
 
-            if (isSelected) {
-              ImGui::SetItemDefaultFocus();
-            }
-          }
-          ImGui::EndCombo();
-          }
-          ImGui::PopItemWidth();
+      ImGui::Text("Enable Preview:");
+      ImGui::SameLine();
+      ImGui::Checkbox("##BlendPreviewTestMode", &modSettings.msPreviewMode);
 
-          ImGui::SameLine();
-          ImGui::PushItemWidth(200.0f);
-          ImGui::SliderFloat("##ClipOneSpeed", &clipOneSpeed,
-                             0.0f, 15.0f, "%.4f", flags);
-          ImGui::PopItemWidth();
+      if (!modSettings.msPreviewMode) {
+        ImGui::BeginDisabled();
+      }
 
-          ImGui::Text("Walk:");
-          ImGui::SameLine();
-          ImGui::PushItemWidth(100.0f);
-          if (ImGui::BeginCombo("##SecondClipCombo",
-            animClips.at(clipTwo)->getClipName().c_str())) {
-            for (int i = 0; i < animClips.size(); ++i) {
-              const bool isSelected = (clipTwo == i);
-              if (ImGui::Selectable(animClips.at(i)->getClipName().c_str(), isSelected)) {
-                clipTwo = i;
-              }
+      ImGui::Text("      %-12s %14s %22s", animClips.at(clipOne)->getClipName().c_str(), animClips.at(clipTwo)->getClipName().c_str(), animClips.at(clipThree)->getClipName().c_str());
+      ImGui::Text("Test:");
+      ImGui::SameLine();
+      ImGui::PushItemWidth(350.0f);
+      ImGui::SliderFloat("##ClipBlending", &blendFactor, 0.0f, 2.0f, "", flags);
+      ImGui::PopItemWidth();
 
-              if (isSelected) {
-                ImGui::SetItemDefaultFocus();
-              }
-            }
-            ImGui::EndCombo();
-            }
-            ImGui::PopItemWidth();
+      if (blendFactor <= 1.0f) {
+        settings.isFirstAnimClipNr = clipOne;
+        settings.isSecondAnimClipNr = clipTwo;
+        settings.isAnimBlendFactor = blendFactor;
+        settings.isAnimSpeedFactor = glm::mix(clipOneSpeed, clipTwoSpeed, settings.isAnimBlendFactor);
+      } else {
+        settings.isFirstAnimClipNr = clipTwo;
+        settings.isSecondAnimClipNr = clipThree;
+        settings.isAnimBlendFactor = blendFactor - 1.0f;
+        settings.isAnimSpeedFactor = glm::mix(clipTwoSpeed, clipThreeSpeed, settings.isAnimBlendFactor);
+      }
 
-            ImGui::SameLine();
-            ImGui::PushItemWidth(200.0f);
-            ImGui::SliderFloat("##ClipTwoSpeed", &clipTwoSpeed,
-                               0.0f, 15.0f, "%.4f", flags);
-            ImGui::PopItemWidth();
+      if (!modSettings.msPreviewMode) {
+        ImGui::EndDisabled();
+      }
 
-            ImGui::Text("Run: ");
-            ImGui::SameLine();
-            ImGui::PushItemWidth(100.0f);
-            if (ImGui::BeginCombo("##ThirdClipCombo",
-              animClips.at(clipThree)->getClipName().c_str())) {
-              for (int i = 0; i < animClips.size(); ++i) {
-                const bool isSelected = (clipThree == i);
-                if (ImGui::Selectable(animClips.at(i)->getClipName().c_str(), isSelected)) {
-                  clipThree = i;
-                }
-
-                if (isSelected) {
-                  ImGui::SetItemDefaultFocus();
-                }
-              }
-              ImGui::EndCombo();
-              }
-              ImGui::PopItemWidth();
-
-              ImGui::SameLine();
-              ImGui::PushItemWidth(200.0f);
-              ImGui::SliderFloat("##ClipThreeSpeed", &clipThreeSpeed,
-                                 0.0f, 15.0f, "%.4f", flags);
-              ImGui::PopItemWidth();
-
-              ImGui::SameLine();
-              if (ImGui::Button("Save##Blending")) {
-                IdleWalkRunBlending blend;
-                blend.iwrbIdleClipNr = clipOne;
-                blend.iwrbIdleClipSpeed = clipOneSpeed;
-                blend.iwrbWalkClipNr = clipTwo;
-                blend.iwrbWalkClipSpeed = clipTwoSpeed;
-                blend.iwrbRunClipNr = clipThree;
-                blend.iwrbRunClipSpeed = clipThreeSpeed;
-
-                modSettings.msIWRBlendings[direction] = blend;
-              }
-
-              ImGui::Text("      %-12s %14s %22s", animClips.at(clipOne)->getClipName().c_str(), animClips.at(clipTwo)->getClipName().c_str(), animClips.at(clipThree)->getClipName().c_str());
-              ImGui::Text("Test:");
-              ImGui::SameLine();
-              ImGui::PushItemWidth(350.0f);
-              ImGui::SliderFloat("##ClipBlending", &blendFactor, 0.0f, 2.0f, "", flags);
-              ImGui::PopItemWidth();
-
-              if (blendFactor <= 1.0f) {
-                settings.isFirstAnimClipNr = clipOne;
-                settings.isSecondAnimClipNr = clipTwo;
-                settings.isAnimBlendFactor = blendFactor;
-                settings.isAnimSpeedFactor = glm::mix(clipOneSpeed, clipTwoSpeed, settings.isAnimBlendFactor);
-              } else {
-                settings.isFirstAnimClipNr = clipTwo;
-                settings.isSecondAnimClipNr = clipThree;
-                settings.isAnimBlendFactor = blendFactor - 1.0f;
-                settings.isAnimSpeedFactor = glm::mix(clipTwoSpeed, clipThreeSpeed, settings.isAnimBlendFactor);
-              }
-
-              unsigned int buttonId = 0;
-              for (auto iter = modSettings.msIWRBlendings.begin(); iter != modSettings.msIWRBlendings.end(); /* done while erasing */) {
-                moveDirection dir = (*iter).first;
-                IdleWalkRunBlending blend = (*iter).second;
-                ImGui::Text("%8s: %s(%2.2f)/%s(%2.2f)/%s(%2.2f)", modInstCamData.micMoveDirectionMap[dir].c_str(),
-                            animClips.at(blend.iwrbIdleClipNr)->getClipName().c_str(),
-                            blend.iwrbIdleClipSpeed,
-                            animClips.at(blend.iwrbWalkClipNr)->getClipName().c_str(),
-                            blend.iwrbWalkClipSpeed,
-                            animClips.at(blend.iwrbRunClipNr)->getClipName().c_str(),
-                            blend.iwrbRunClipSpeed
-                );
-
-                ImGui::SameLine();
-                ImGui::PushID(buttonId++);
-                if (ImGui::Button("Edit##Blending")) {
-                  direction = dir;
-                  clipOne = blend.iwrbIdleClipNr;
-                  clipOneSpeed = blend.iwrbIdleClipSpeed;
-                  clipTwo = blend.iwrbWalkClipNr;
-                  clipTwoSpeed = blend.iwrbWalkClipSpeed;
-                  clipThree = blend.iwrbRunClipNr;
-                  clipThreeSpeed = blend.iwrbRunClipSpeed;
-                }
-                ImGui::PopID();
-                ImGui::SameLine();
-                ImGui::PushID(buttonId++);
-                if (ImGui::Button("Remove##Blending")) {
-                  iter = modSettings.msIWRBlendings.erase(iter);
-                } else {
-                  ++iter;
-                }
-                ImGui::PopID();
-              }
-
-              currentInstance->setInstanceSettings(settings);
-              currentModel->setModelSettings(modSettings);
+      mCurrentInstance->setInstanceSettings(settings);
+      mCurrentModel->setModelSettings(modSettings);
     }
   }
 
@@ -1468,11 +1450,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     ImGui::GetStateStorage()->SetInt(ImGui::GetID("Model Idle/Walk/Run Blendings"), 0);
     ImGui::GetStateStorage()->SetInt(ImGui::GetID("Model Allowed Clip Orders"), 0);
 
-
     size_t numberOfInstances = modInstCamData.micAssimpInstances.size() - 1;
-
-    static std::shared_ptr<AssimpInstance> currentInstance = nullptr;
-    static std::shared_ptr<AssimpModel> currentModel = nullptr;
 
     InstanceSettings settings;
     ModelSettings modSettings;
@@ -1482,19 +1460,20 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     static int clipNr = 0;
     static float clipSpeed = 1.0f;
 
-    if (numberOfInstances > 0) {
+    if (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
+      mCurrentModel = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel();
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
-      currentModel = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel();
 
-      numberOfClips = currentModel->getAnimClips().size();
-      modSettings = currentModel->getModelSettings();
+      numberOfClips = mCurrentModel->getAnimClips().size();
+      modSettings = mCurrentModel->getModelSettings();
 
-      if (currentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
-        currentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+      ImGui::Text("Enable Prewiev:");
+      ImGui::SameLine();
+      ImGui::Checkbox("##MapPreviewTestMode", &modSettings.msPreviewMode);
 
-        currentModel = currentInstance->getModel();
-        numberOfClips = currentModel->getAnimClips().size();
-        modSettings = currentModel->getModelSettings();
+      if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
+        mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        settings = mCurrentInstance->getInstanceSettings();
 
         if (modSettings.msActionClipMappings.size() > 0) {
           state = modSettings.msActionClipMappings.begin()->first;
@@ -1507,7 +1486,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
           clipSpeed = 1.0f;
         }
 
-        currentModel->setModelSettings(modSettings);
+        mCurrentModel->setModelSettings(modSettings);
       }
     }
 
@@ -1517,7 +1496,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
       ImGui::Text("State           Clip           Speed");
       ImGui::PushItemWidth(100.0f);
-      if (ImGui::BeginCombo("##StateCombo",
+      if (ImGui::BeginCombo("##MapCombo",
         modInstCamData.micMoveStateMap.at(state).c_str())) {
         /* skip idle/walk/run */
         for (int i = 3; i < static_cast<int>(moveState::NUM); ++i) {
@@ -1531,76 +1510,76 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
           }
         }
         ImGui::EndCombo();
+      }
+      ImGui::PopItemWidth();
+
+      ImGui::SameLine();
+      ImGui::PushItemWidth(100.0f);
+      if (ImGui::BeginCombo("##ActionClipCombo",
+        animClips.at(clipNr)->getClipName().c_str())) {
+        for (int i = 0; i < animClips.size(); ++i) {
+          const bool isSelected = (clipNr == i);
+          if (ImGui::Selectable(animClips.at(i)->getClipName().c_str(), isSelected)) {
+            clipNr = i;
+          }
+
+          if (isSelected) {
+            ImGui::SetItemDefaultFocus();
+          }
         }
-        ImGui::PopItemWidth();
+        ImGui::EndCombo();
+      }
+      ImGui::PopItemWidth();
+
+      ImGui::SameLine();
+      ImGui::PushItemWidth(200.0f);
+      ImGui::SliderFloat("##ActionClipSpeed", &clipSpeed,
+                         0.0f, 15.0f, "%.4f", flags);
+      ImGui::PopItemWidth();
+
+      ImGui::SameLine();
+      if (ImGui::Button("Save##Action")) {
+        ActionAnimation anim;
+        anim.aaClipNr = clipNr;
+        anim.aaClipSpeed = clipSpeed;
+
+        modSettings.msActionClipMappings[state] = anim;
+      }
+
+      unsigned int buttonId = 0;
+      for (auto iter = modSettings.msActionClipMappings.begin(); iter != modSettings.msActionClipMappings.end(); /* done while erasing */) {
+        moveState savedState = (*iter).first;
+        ActionAnimation anim = (*iter).second;
+        ImGui::Text("%8s: %s(%2.2f)", modInstCamData.micMoveStateMap[savedState].c_str(),
+          animClips.at(anim.aaClipNr)->getClipName().c_str(),
+          anim.aaClipSpeed
+        );
 
         ImGui::SameLine();
-        ImGui::PushItemWidth(100.0f);
-        if (ImGui::BeginCombo("##ActionClipCombo",
-          animClips.at(clipNr)->getClipName().c_str())) {
-          for (int i = 0; i < animClips.size(); ++i) {
-            const bool isSelected = (clipNr == i);
-            if (ImGui::Selectable(animClips.at(i)->getClipName().c_str(), isSelected)) {
-              clipNr = i;
-            }
+        ImGui::PushID(buttonId++);
+        if (ImGui::Button("Edit##Action")) {
+          state = savedState;
+          clipNr = anim.aaClipNr;
+          clipSpeed = anim.aaClipSpeed;
+        }
+        ImGui::PopID();
+        ImGui::SameLine();
+        ImGui::PushID(buttonId++);
+        if (ImGui::Button("Remove##Action")) {
+          iter = modSettings.msActionClipMappings.erase(iter);
+        } else {
+          ++iter;
+        }
+        ImGui::PopID();
+      }
 
-            if (isSelected) {
-              ImGui::SetItemDefaultFocus();
-            }
-          }
-          ImGui::EndCombo();
-          }
-          ImGui::PopItemWidth();
+      settings.isFirstAnimClipNr = clipNr;
+      settings.isSecondAnimClipNr = clipNr;
+      settings.isAnimSpeedFactor = clipSpeed;
+      settings.isAnimBlendFactor = 0.0f;
 
-          ImGui::SameLine();
-          ImGui::PushItemWidth(200.0f);
-          ImGui::SliderFloat("##ActionClipSpeed", &clipSpeed,
-                             0.0f, 15.0f, "%.4f", flags);
-          ImGui::PopItemWidth();
-
-          ImGui::SameLine();
-          if (ImGui::Button("Save##Action")) {
-            ActionAnimation anim;
-            anim.aaClipNr = clipNr;
-            anim.aaClipSpeed = clipSpeed;
-
-            modSettings.msActionClipMappings[state] = anim;
-          }
-
-          unsigned int buttonId = 0;
-          for (auto iter = modSettings.msActionClipMappings.begin(); iter != modSettings.msActionClipMappings.end(); /* done while erasing */) {
-            moveState savedState = (*iter).first;
-            ActionAnimation anim = (*iter).second;
-            ImGui::Text("%8s: %s(%2.2f)", modInstCamData.micMoveStateMap[savedState].c_str(),
-                        animClips.at(anim.aaClipNr)->getClipName().c_str(),
-                        anim.aaClipSpeed
-            );
-
-            ImGui::SameLine();
-            ImGui::PushID(buttonId++);
-            if (ImGui::Button("Edit##Action")) {
-              state = savedState;
-              clipNr = anim.aaClipNr;
-              clipSpeed = anim.aaClipSpeed;
-            }
-            ImGui::PopID();
-            ImGui::SameLine();
-            ImGui::PushID(buttonId++);
-            if (ImGui::Button("Remove##Action")) {
-              iter = modSettings.msActionClipMappings.erase(iter);
-            } else {
-              ++iter;
-            }
-            ImGui::PopID();
-          }
-
-          settings.isFirstAnimClipNr = clipNr;
-          settings.isSecondAnimClipNr = clipNr;
-          settings.isAnimSpeedFactor = clipSpeed;
-          settings.isAnimBlendFactor = 0.0f;
-
-          currentInstance->setInstanceSettings(settings);
-          currentModel->setModelSettings(modSettings);
+      mCurrentInstance->setInstanceSettings(settings);
+      mCurrentModel->setModelSettings(modSettings);
     }
   }
 
@@ -1611,23 +1590,20 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     size_t numberOfInstances = modInstCamData.micAssimpInstances.size() - 1;
 
-    static std::shared_ptr<AssimpInstance> currentInstance = nullptr;
-    static std::shared_ptr<AssimpModel> currentModel = nullptr;
-
     ModelSettings modSettings;
     size_t numberOfClips = 0;
 
     static moveState stateOne = moveState::idle;
     static moveState stateTwo = moveState::idle;
 
-    if (numberOfInstances > 0) {
-      currentModel = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel();
+    if (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
+      mCurrentModel = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel();
 
-      numberOfClips = currentModel->getAnimClips().size();
-      modSettings = currentModel->getModelSettings();
+      numberOfClips = mCurrentModel->getAnimClips().size();
+      modSettings = mCurrentModel->getModelSettings();
 
-      if (currentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
-        currentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+      if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
+        mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
       }
     }
 
@@ -1651,65 +1627,62 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
           }
         }
         ImGui::EndCombo();
+      }
+      ImGui::PopItemWidth();
+
+      ImGui::SameLine();
+      ImGui::PushItemWidth(100.0f);
+      if (ImGui::BeginCombo("##DestStateCombo",
+        modInstCamData.micMoveStateMap.at(stateTwo).c_str())) {
+        for (int i = 0; i < static_cast<int>(moveState::NUM); ++i) {
+          const bool isSelected = (static_cast<int>(stateTwo) == i);
+          if (ImGui::Selectable(modInstCamData.micMoveStateMap[static_cast<moveState>(i)].c_str(), isSelected)) {
+            stateTwo = static_cast<moveState>(i);
+          }
+
+          if (isSelected) {
+            ImGui::SetItemDefaultFocus();
+          }
         }
-        ImGui::PopItemWidth();
+        ImGui::EndCombo();
+      }
+      ImGui::PopItemWidth();
+
+      ImGui::SameLine();
+      if (ImGui::Button("Save##Order")) {
+        std::pair<moveState, moveState> order = std::make_pair(stateOne, stateTwo);
+        modSettings.msAllowedStateOrder.insert(order);
+      }
+
+      unsigned int buttonId = 0;
+      for (auto iter = modSettings.msAllowedStateOrder.begin(); iter != modSettings.msAllowedStateOrder.end(); /* done while erasing */) {
+        std::pair<moveState, moveState> order = *iter;
+
+        ImGui::Text("From: %s to %s (and back)", modInstCamData.micMoveStateMap.at(order.first).c_str(), modInstCamData.micMoveStateMap.at(order.second).c_str());
 
         ImGui::SameLine();
-        ImGui::PushItemWidth(100.0f);
-        if (ImGui::BeginCombo("##DestStateCombo",
-          modInstCamData.micMoveStateMap.at(stateTwo).c_str())) {
-          for (int i = 0; i < static_cast<int>(moveState::NUM); ++i) {
-            const bool isSelected = (static_cast<int>(stateTwo) == i);
-            if (ImGui::Selectable(modInstCamData.micMoveStateMap[static_cast<moveState>(i)].c_str(), isSelected)) {
-              stateTwo = static_cast<moveState>(i);
-            }
+        ImGui::PushID(buttonId++);
+        if (ImGui::Button("Edit##Order")) {
+          stateOne = order.first;
+          stateTwo = order.second;
+        }
+        ImGui::PopID();
+        ImGui::SameLine();
+        ImGui::PushID(buttonId++);
+        if (ImGui::Button("Remove##order")) {
+          iter = modSettings.msAllowedStateOrder.erase(iter);
+        } else {
+          ++iter;
+        }
+        ImGui::PopID();
+      }
 
-            if (isSelected) {
-              ImGui::SetItemDefaultFocus();
-            }
-          }
-          ImGui::EndCombo();
-          }
-          ImGui::PopItemWidth();
-
-          ImGui::SameLine();
-          if (ImGui::Button("Save##Order")) {
-            std::pair<moveState, moveState> order = std::make_pair(stateOne, stateTwo);
-            modSettings.msAllowedStateOrder.insert(order);
-          }
-
-          unsigned int buttonId = 0;
-          for (auto iter = modSettings.msAllowedStateOrder.begin(); iter != modSettings.msAllowedStateOrder.end(); /* done while erasing */) {
-            std::pair<moveState, moveState> order = *iter;
-
-            ImGui::Text("From: %s to %s (and back)", modInstCamData.micMoveStateMap.at(order.first).c_str(), modInstCamData.micMoveStateMap.at(order.second).c_str());
-
-            ImGui::SameLine();
-            ImGui::PushID(buttonId++);
-            if (ImGui::Button("Edit##Order")) {
-              stateOne = order.first;
-              stateTwo = order.second;
-            }
-            ImGui::PopID();
-            ImGui::SameLine();
-            ImGui::PushID(buttonId++);
-            if (ImGui::Button("Remove##order")) {
-              iter = modSettings.msAllowedStateOrder.erase(iter);
-            } else {
-              ++iter;
-            }
-            ImGui::PopID();
-          }
-
-          currentModel->setModelSettings(modSettings);
+      mCurrentModel->setModelSettings(modSettings);
     }
   }
 
   if (ImGui::CollapsingHeader("Model Bounding Sphere Adjustment")) {
     size_t numberOfInstances = modInstCamData.micAssimpInstances.size() - 1;
-
-    static std::shared_ptr<AssimpInstance> currentInstance = nullptr;
-    static std::shared_ptr<AssimpModel> currentModel = nullptr;
 
     InstanceSettings settings;
     ModelSettings modSettings;
@@ -1720,17 +1693,18 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     static glm::vec3 positionOffset = glm::vec3(0.0f);
 
     if (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
-      if (currentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
-        currentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
-        settings = currentInstance->getInstanceSettings();
-        currentModel = currentInstance->getModel();
+      mCurrentModel = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel();
+      settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
+      modSettings = mCurrentModel->getModelSettings();
 
-        nodeNames = currentModel->getBoneNameList();
+      nodeNames = mCurrentModel->getBoneNameList();
+      selectedNode = 0;
 
-        selectedNode = 0;
+      if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
+        mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        settings = mCurrentInstance->getInstanceSettings();
       }
 
-      modSettings = currentModel->getModelSettings();
       glm::vec4 value = modSettings.msBoundingSphereAdjustments.at(selectedNode);
       adjustmentValue = value.w;
       positionOffset = glm::vec3(value.x, value.y, value.z);
@@ -1756,22 +1730,22 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
             }
           }
           ImGui::EndCombo();
-          }
-          ImGui::PopItemWidth();
+        }
+        ImGui::PopItemWidth();
 
-          ImGui::Text("Scaling: ");
-          ImGui::SameLine();
-          ImGui::SliderFloat("##bSphereScale", &adjustmentValue,
-                             0.01f, 10.0f, "%.4f", flags);
+        ImGui::Text("Scaling: ");
+        ImGui::SameLine();
+        ImGui::SliderFloat("##bSphereScale", &adjustmentValue,
+                           0.01f, 10.0f, "%.4f", flags);
 
-          ImGui::Text("Position:");
-          ImGui::SameLine();
-          ImGui::SliderFloat3("##SphereOffset", glm::value_ptr(positionOffset), -1.0f, 1.0f, "%.3f", flags);
+        ImGui::Text("Position:");
+        ImGui::SameLine();
+        ImGui::SliderFloat3("##SphereOffset", glm::value_ptr(positionOffset), -1.0f, 1.0f, "%.3f", flags);
 
-          modSettings.msBoundingSphereAdjustments.at(selectedNode) = glm::vec4(positionOffset, adjustmentValue);
+        modSettings.msBoundingSphereAdjustments.at(selectedNode) = glm::vec4(positionOffset, adjustmentValue);
       }
 
-      currentModel->setModelSettings(modSettings);
+      mCurrentModel->setModelSettings(modSettings);
     }
   }
 
@@ -1792,21 +1766,21 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     if (ImGui::ArrowButton("##Left", ImGuiDir_Left) &&
       modInstCamData.micSelectedInstance > 1) {
       modInstCamData.micSelectedInstance--;
-      }
+    }
 
-      if (modelListEmtpy || nullInstanceSelected) {
-        ImGui::BeginDisabled();
-      }
+    if (modelListEmtpy || nullInstanceSelected) {
+      ImGui::BeginDisabled();
+    }
 
-      ImGui::SameLine();
+    ImGui::SameLine();
     ImGui::PushItemWidth(30);
     ImGui::DragInt("##SelInst", &modInstCamData.micSelectedInstance, 1, 1,
-                   modInstCamData.micAssimpInstances.size() - 1, "%3d", flags);
+      modInstCamData.micAssimpInstances.size() - 1, "%3d", flags);
     ImGui::PopItemWidth();
 
     /* DragInt does not like clamp flag */
     modInstCamData.micSelectedInstance = std::clamp(modInstCamData.micSelectedInstance, 0,
-                                                    static_cast<int>(modInstCamData.micAssimpInstances.size() - 1));
+      static_cast<int>(modInstCamData.micAssimpInstances.size() - 1));
 
     if (modelListEmtpy || nullInstanceSelected) {
       ImGui::EndDisabled();
@@ -1816,8 +1790,8 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     if (ImGui::ArrowButton("##Right", ImGuiDir_Right) &&
       modInstCamData.micSelectedInstance < (modInstCamData.micAssimpInstances.size() - 1)) {
       modInstCamData.micSelectedInstance++;
-      }
-      ImGui::PopButtonRepeat();
+    }
+    ImGui::PopButtonRepeat();
 
     if (modelListEmtpy || nullInstanceSelected) {
       ImGui::BeginDisabled();
@@ -1827,16 +1801,13 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     ImGui::SameLine();
     ImGui::Checkbox("##HighlightInstance", &renderData.rdHighlightSelectedInstance);
 
-    static InstanceSettings savedInstanceSettings{};
-    static std::shared_ptr<AssimpInstance> currentInstance = nullptr;
-
     InstanceSettings settings;
     if (numberOfInstances > 0) {
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
       /* overwrite saved settings on instance change */
-      if (currentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
-        currentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
-        savedInstanceSettings = settings;
+      if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
+        mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mSavedInstanceSettings = settings;
       }
     }
 
@@ -1859,7 +1830,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     ImGui::Text("                 ");
     ImGui::SameLine();
     if (ImGui::Button("Center This Instance")) {
-      modInstCamData.micInstanceCenterCallbackFunction(currentInstance);
+      modInstCamData.micInstanceCenterCallbackFunction(mCurrentInstance);
     }
 
     ImGui::SameLine();
@@ -1867,7 +1838,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     /* we MUST retain the last model */
     unsigned int numberOfInstancesPerModel = 0;
     if (modInstCamData.micAssimpInstances.size() > 1) {
-      std::string currentModelName = currentInstance->getModel()->getModelFileName();
+      std::string currentModelName = mCurrentInstance->getModel()->getModelFileName();
       numberOfInstancesPerModel = modInstCamData.micAssimpInstancesPerModel[currentModelName].size();
     }
 
@@ -1877,7 +1848,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     ImGui::SameLine();
     if (ImGui::Button("Delete Instance")) {
-      modInstCamData.micInstanceDeleteCallbackFunction(currentInstance, true);
+      modInstCamData.micInstanceDeleteCallbackFunction(mCurrentInstance, true);
 
       /* read back settings for UI */
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
@@ -1890,21 +1861,20 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     ImGui::Text("                 ");
     ImGui::SameLine();
     if (ImGui::Button("Clone Instance")) {
-      modInstCamData.micInstanceCloneCallbackFunction(currentInstance);
+      modInstCamData.micInstanceCloneCallbackFunction(mCurrentInstance);
 
       /* read back settings for UI */
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
     }
 
-    static int manyInstanceCloneNum = 1;
     ImGui::Text("Create Clones:   ");
     ImGui::SameLine();
     ImGui::PushItemWidth(300.0f);
-    ImGui::SliderInt("##MassInstanceCloning", &manyInstanceCloneNum, 1, 100, "%d", flags);
+    ImGui::SliderInt("##MassInstanceCloning", &mManyInstanceCloneNum, 1, 100, "%d", flags);
     ImGui::PopItemWidth();
     ImGui::SameLine();
     if (ImGui::Button("Go!##Clone")) {
-      modInstCamData.micInstanceCloneManyCallbackFunction(currentInstance, manyInstanceCloneNum);
+      modInstCamData.micInstanceCloneManyCallbackFunction(mCurrentInstance, mManyInstanceCloneNum);
 
       /* read back settings for UI */
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
@@ -1919,55 +1889,59 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
     ImGui::Text("Base Model:        %s", baseModelName.c_str());
 
-
     ImGui::Text("Swap Y/Z axes:   ");
     ImGui::SameLine();
     ImGui::Checkbox("##ModelAxisSwap", &settings.isSwapYZAxis);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-                                                                     settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+      modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
     ImGui::Text("Pos (X/Y/Z):     ");
     ImGui::SameLine();
     ImGui::SliderFloat3("##ModelPos", glm::value_ptr(settings.isWorldPosition),
-                        -75.0f, 75.0f, "%.3f", flags);
+      -125.0f, 125.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-                                                                     settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+      modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
     ImGui::Text("Rotation (X/Y/Z):");
     ImGui::SameLine();
     ImGui::SliderFloat3("##ModelRot", glm::value_ptr(settings.isWorldRotation),
-                        -180.0f, 180.0f, "%.3f", flags);
+      -180.0f, 180.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-                                                                     settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+      modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
     ImGui::Text("Scale:           ");
     ImGui::SameLine();
     ImGui::SliderFloat("##ModelScale", &settings.isScale,
-                       0.001f, 10.0f, "%.4f", flags);
+      0.001f, 10.0f, "%.4f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
-      modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-                                                                     settings, savedInstanceSettings);
-      savedInstanceSettings = settings;
+      modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        settings, mSavedInstanceSettings);
+      mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
     ImGui::Text("                 ");
     ImGui::SameLine();
     if (ImGui::Button("Reset Values to Zero")) {
-      modInstCamData.micSettingsContainer->applyEditInstanceSettings(modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
-                                                                     settings, savedInstanceSettings);
+      modInstCamData.micSettingsContainer->applyEditInstanceSettings(
+        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        settings, mSavedInstanceSettings);
       InstanceSettings defaultSettings{};
 
       /* save and restore index positions */
@@ -1977,7 +1951,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       settings.isInstanceIndexPosition = instanceIndex;
       settings.isInstancePerModelIndexPosition = modelInstanceIndex;
 
-      savedInstanceSettings = settings;
+      mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
@@ -1985,19 +1959,17 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     bool modelIsStatic = !currentModel->hasAnimations();
 
     size_t numTrees = modInstCamData.micBehaviorData.size();
-    static std::string selectedTreeName;
-    static std::shared_ptr<SingleInstanceBehavior> behavior;
 
     if (numTrees == 0)  {
-      selectedTreeName = "None";
-      behavior.reset();
+      mSelectedTreeName = "None";
+      mBehavior.reset();
       ImGui::BeginDisabled();
     } else {
-      if (selectedTreeName.empty() || selectedTreeName == "None") {
-        selectedTreeName = modInstCamData.micBehaviorData.begin()->first;
+      if (mSelectedTreeName.empty() || mSelectedTreeName == "None") {
+        mSelectedTreeName = modInstCamData.micBehaviorData.begin()->first;
       }
-      if (!behavior) {
-        behavior = modInstCamData.micBehaviorData.begin()->second;
+      if (!mBehavior) {
+        mBehavior = modInstCamData.micBehaviorData.begin()->second;
       }
     }
 
@@ -2009,12 +1981,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     ImGui::Text("Change Tree:     ");
     ImGui::SameLine();
     ImGui::PushItemWidth(200.0f);
-    if (ImGui::BeginCombo("##NodeTreeCombo", selectedTreeName.c_str())) {
+    if (ImGui::BeginCombo("##NodeTreeCombo", mSelectedTreeName.c_str())) {
       for (const auto& tree : modInstCamData.micBehaviorData) {
-        const bool isSelected = (tree.first == selectedTreeName);
+        const bool isSelected = (tree.first == mSelectedTreeName);
         if (ImGui::Selectable(tree.first.c_str(), isSelected)) {
-          selectedTreeName = tree.first;
-          behavior = tree.second;
+          mSelectedTreeName = tree.first;
+          mBehavior = tree.second;
         }
 
         if (isSelected) {
@@ -2026,8 +1998,8 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     ImGui::PopItemWidth();
     ImGui::SameLine();
     if (ImGui::Button("Set##Instance")) {
-      settings.isNodeTreeName = selectedTreeName;
-      modInstCamData.micInstanceAddBehaviorCallbackFunction(settings.isInstanceIndexPosition, behavior);
+      settings.isNodeTreeName = mSelectedTreeName;
+      modInstCamData.micInstanceAddBehaviorCallbackFunction(settings.isInstanceIndexPosition, mBehavior);
     }
     ImGui::SameLine();
 
@@ -2045,7 +2017,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
       /* HACK to change data in instance while settngs are used */
       modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->setInstanceSettings(settings);
-      currentInstance->updateInstanceState(moveState::idle, moveDirection::none);
+      mCurrentInstance->updateInstanceState(moveState::idle, moveDirection::none);
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
     }
     if (nodeTreeEmpty) {
@@ -2069,24 +2041,23 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     ImGuiInputTextFlags textinputFlags = ImGuiInputTextFlags_CharsNoBlank | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCharFilter;
 
     bool showDuplicateNameDialog = false;
-    static std::string newName = "Tree1";
 
     ImGui::Text("Tree Name: ");
     ImGui::SameLine();
     ImGui::PushItemWidth(150.0f);
-    if (ImGui::InputText("##TreeName", &newName, textinputFlags, nameInputFilter)) {
-      if (modInstCamData.micBehaviorData.count(newName) > 0) {
+    if (ImGui::InputText("##TreeName", &mNewTreeName, textinputFlags, nameInputFilter)) {
+      if (modInstCamData.micBehaviorData.count(mNewTreeName) > 0) {
         showDuplicateNameDialog = true;
       }
     }
     ImGui::PopItemWidth();
     ImGui::SameLine();
     if (ImGui::Button("Create Node Tree")) {
-      if (modInstCamData.micBehaviorData.count(newName) > 0) {
+      if (modInstCamData.micBehaviorData.count(mNewTreeName) > 0) {
         showDuplicateNameDialog = true;
       } else {
-        modInstCamData.micBehaviorData[newName] = modInstCamData.micCreateEmptyNodeGraphCallbackFunction();
-        modInstCamData.micBehaviorData[newName]->getBehaviorData()->bdName = newName;
+        modInstCamData.micBehaviorData[mNewTreeName] = modInstCamData.micCreateEmptyNodeGraphCallbackFunction();
+        modInstCamData.micBehaviorData[mNewTreeName]->getBehaviorData()->bdName = mNewTreeName;
       }
     }
 
@@ -2097,7 +2068,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
 
     if (ImGui::BeginPopupModal("Duplicate Tree Name", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
-      ImGui::Text("Tree Name '%s' alread exists!", newName.c_str());
+      ImGui::Text("Tree Name '%s' alread exists!", mNewTreeName.c_str());
 
       /* cheating a bit to get buttons more to the center */
       ImGui::Indent();
@@ -2113,7 +2084,6 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     unsigned int buttonId = 0;
     bool showDeleteRequest = false;
-    static std::string treeToDelete;
 
     for (auto iter = modInstCamData.micBehaviorData.begin(); iter != modInstCamData.micBehaviorData.end(); /* done while erasing */) {
       std::string treeName = (*iter).first;
@@ -2135,7 +2105,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       if (ImGui::Button("Remove##Tree")) {
         /* delete empty trees without rquest */
         if (nodeSize > 1) {
-          treeToDelete = treeName;
+          mTreeToDelete = treeName;
           showDeleteRequest = true;
           ++iter;
         } else {
@@ -2155,13 +2125,13 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
 
     if (ImGui::BeginPopupModal("Delete Tree?", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
-      ImGui::Text(" Delete Tree '%s'?  ", treeToDelete.c_str());
+      ImGui::Text(" Delete Tree '%s'?  ", mTreeToDelete.c_str());
 
       /* cheating a bit to get buttons more to the center */
       ImGui::Indent();
       if (ImGui::Button("OK")) {
-        modInstCamData.micBehaviorData.erase(treeToDelete);
-        modInstCamData.micPostNodeTreeDelBehaviorCallbackFunction(treeToDelete);
+        modInstCamData.micBehaviorData.erase(mTreeToDelete);
+        modInstCamData.micPostNodeTreeDelBehaviorCallbackFunction(mTreeToDelete);
         ImGui::CloseCurrentPopup();
       }
 
@@ -2183,11 +2153,11 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageNumCollisions += value;
       }
       averageNumCollisions /= static_cast<float>(mNumNumCollisionValues);
-      std::string numCoillisionsOverlay = "now:     " + std::to_string(renderData.rdNumberOfCollisions)
-      + "\n30s avg: " + std::to_string(averageNumCollisions);
+      std::string numCoillisionsOverlay = "now:     " + std::to_string(renderData.rdNumberOfCollisions) +
+        "\n30s avg: " + std::to_string(averageNumCollisions);
       ImGui::Text("Collisions");
       ImGui::SameLine();
-      ImGui::PlotLines("##NumCollisions", mNumCollisionsValues.data(), mNumCollisionsValues.size(), numCollisionOffset,
+      ImGui::PlotLines("##NumCollisions", mNumCollisionsValues.data(), mNumCollisionsValues.size(), mNumCollisionOffset,
                        numCoillisionsOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
@@ -2197,55 +2167,55 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     if (ImGui::RadioButton("None##CollCheck",
       renderData.rdCheckCollisions == collisionChecks::none)) {
       renderData.rdCheckCollisions = collisionChecks::none;
-      }
-      ImGui::SameLine();
+    }
+    ImGui::SameLine();
     if (ImGui::RadioButton("2D Bounding Box##CollCheck",
       renderData.rdCheckCollisions == collisionChecks::boundingBox)) {
       renderData.rdCheckCollisions = collisionChecks::boundingBox;
-      }
-      ImGui::SameLine();
+    }
+    ImGui::SameLine();
     if (ImGui::RadioButton("Bounding Spheres##CollCheck",
       renderData.rdCheckCollisions == collisionChecks::boundingSpheres)) {
       renderData.rdCheckCollisions = collisionChecks::boundingSpheres;
-      }
+    }
 
-      ImGui::Text("Draw AABB Lines:        ");
+    ImGui::Text("Draw AABB Lines:        ");
     ImGui::SameLine();
     if (ImGui::RadioButton("None##AABB",
       renderData.rdDrawCollisionAABBs == collisionDebugDraw::none)) {
       renderData.rdDrawCollisionAABBs = collisionDebugDraw::none;
-      }
-      ImGui::SameLine();
+    }
+    ImGui::SameLine();
     if (ImGui::RadioButton("Colliding##AABB",
       renderData.rdDrawCollisionAABBs == collisionDebugDraw::colliding)) {
       renderData.rdDrawCollisionAABBs = collisionDebugDraw::colliding;
-      }
-      ImGui::SameLine();
+    }
+    ImGui::SameLine();
     if (ImGui::RadioButton("All##AABB",
       renderData.rdDrawCollisionAABBs == collisionDebugDraw::all)) {
       renderData.rdDrawCollisionAABBs = collisionDebugDraw::all;
-      }
-      ImGui::Text("Draw Bounding Spheres:  ");
+    }
+    ImGui::Text("Draw Bounding Spheres:  ");
     ImGui::SameLine();
     if (ImGui::RadioButton("None##Sphere",
       renderData.rdDrawBoundingSpheres == collisionDebugDraw::none)) {
       renderData.rdDrawBoundingSpheres = collisionDebugDraw::none;
-      }
-      ImGui::SameLine();
+    }
+    ImGui::SameLine();
     if (ImGui::RadioButton("Colliding##Sphere",
       renderData.rdDrawBoundingSpheres == collisionDebugDraw::colliding)) {
       renderData.rdDrawBoundingSpheres = collisionDebugDraw::colliding;
-      }
-      ImGui::SameLine();
+    }
+    ImGui::SameLine();
     if (ImGui::RadioButton("Selected##Sphere",
       renderData.rdDrawBoundingSpheres == collisionDebugDraw::selected)) {
       renderData.rdDrawBoundingSpheres = collisionDebugDraw::selected;
-      }
-      ImGui::SameLine();
+    }
+    ImGui::SameLine();
     if (ImGui::RadioButton("All##Sphere",
       renderData.rdDrawBoundingSpheres == collisionDebugDraw::all)) {
       renderData.rdDrawBoundingSpheres = collisionDebugDraw::all;
-      }
+    }
   }
 
   if (ImGui::CollapsingHeader("Interaction")) {
@@ -2301,27 +2271,27 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     if (ImGui::RadioButton("None##Interaction",
       renderData.rdDrawInteractionAABBs == interactionDebugDraw::none)) {
       renderData.rdDrawInteractionAABBs = interactionDebugDraw::none;
-      }
-      ImGui::SameLine();
+    }
+    ImGui::SameLine();
     if (ImGui::RadioButton("All in Range##Interaction",
       renderData.rdDrawInteractionAABBs == interactionDebugDraw::distance)) {
       renderData.rdDrawInteractionAABBs = interactionDebugDraw::distance;
-      }
-      ImGui::Text("                       ");
+    }
+    ImGui::Text("                       ");
     ImGui::SameLine();
     if (ImGui::RadioButton("Correct Facing##Interaction",
       renderData.rdDrawInteractionAABBs == interactionDebugDraw::facingTowardsUs)) {
       renderData.rdDrawInteractionAABBs = interactionDebugDraw::facingTowardsUs;
-      }
-      ImGui::SameLine();
+    }
+    ImGui::SameLine();
     if (ImGui::RadioButton("Nearest Candidata##Interaction",
       renderData.rdDrawInteractionAABBs == interactionDebugDraw::nearestCandidate)) {
       renderData.rdDrawInteractionAABBs = interactionDebugDraw::nearestCandidate;
-      }
+    }
 
-      if (!renderData.rdInteraction) {
-        ImGui::EndDisabled();
-      }
+    if (!renderData.rdInteraction) {
+      ImGui::EndDisabled();
+    }
   }
 
   ImGui::End();
@@ -2348,10 +2318,10 @@ void UserInterface::createPositionsWindow(VkRenderData& renderData, ModelInstanc
   drawList->AddRectFilled(cursorPos, drawArea, IM_COL32(64, 64, 64, 128));
   drawList->PushClipRect(cursorPos, drawArea, true);
 
-  static ImColor red = IM_COL32(255, 0, 0, 255);
-  static ImColor yellow = IM_COL32(255, 255, 0, 255);
-  static ImColor green = IM_COL32(0, 255, 0, 255);
-  static ImColor white = IM_COL32(255, 255, 255, 255);
+  ImColor red = IM_COL32(255, 0, 0, 255);
+  ImColor yellow = IM_COL32(255, 255, 0, 255);
+  ImColor green = IM_COL32(0, 255, 0, 255);
+  ImColor white = IM_COL32(255, 255, 255, 255);
 
   for (const auto& instance : modInstCamData.micAssimpInstances) {
     int instanceId = instance->getInstanceSettings().isInstanceIndexPosition;
@@ -2362,14 +2332,14 @@ void UserInterface::createPositionsWindow(VkRenderData& renderData, ModelInstanc
 
     BoundingBox2D instanceBox = instance->getBoundingBox();
     ImVec2 instancePos = ImVec2(drawAreaCenter.x + instanceBox.getTopLeft().x,
-                                drawAreaCenter.y + instanceBox.getTopLeft().y);
+      drawAreaCenter.y + instanceBox.getTopLeft().y);
     ImVec2 instanceRect = ImVec2(drawAreaCenter.x + instanceBox.getRight(),
-                                 drawAreaCenter.y + instanceBox.getBottom());
+      drawAreaCenter.y + instanceBox.getBottom());
 
     const auto iter = std::find_if(modInstCamData.micInstanceCollisions.begin(), modInstCamData.micInstanceCollisions.end(),
-                                   [instanceId](std::pair<int, int> values) {
-                                     return instanceId == values.first || instanceId == values.second;
-                                   });
+      [instanceId](std::pair<int, int> values) {
+        return instanceId == values.first || instanceId == values.second;
+      });
 
     /* normal instance = yellow, colliding = red, selected instance = green border */
     if (iter != modInstCamData.micInstanceCollisions.end()) {
@@ -2398,7 +2368,7 @@ void UserInterface::createPositionsWindow(VkRenderData& renderData, ModelInstanc
   }
 
   /* draw quadtree boxes */
-  const auto treeBoxes = modInstCamData.micQuadTreeGetBoxesCallbackFunction();
+  const std::vector<BoundingBox2D> treeBoxes = modInstCamData.micQuadTreeGetBoxesCallbackFunction();
   for (const auto& box : treeBoxes) {
     ImVec2 boxPos = ImVec2(drawAreaCenter.x + box.getTopLeft().x, drawAreaCenter.y + box.getTopLeft().y);
     ImVec2 boxRect = ImVec2(drawAreaCenter.x + box.getRight(), drawAreaCenter.y + box.getBottom());
@@ -2422,10 +2392,10 @@ void UserInterface::createStatusBar(VkRenderData& renderData, ModelInstanceCamDa
 
   ImGui::Begin("Status", nullptr, statusBarFlags);
   ImGui::Text("Mode: %8s | Active Camera:  %16s | FPS:  %7.2f | Speed: %2.4f | Accel: %2.4f | State: %6s",
-              renderData.mAppModeMap.at(renderData.rdApplicationMode).c_str(),
-              modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName().c_str(), mFramesPerSecond,
-              glm::length(settings.isSpeed), glm::length(settings.isAccel),
-              modInstCamData.micMoveStateMap.at(settings.isMoveState).c_str());
+    renderData.mAppModeMap.at(renderData.rdApplicationMode).c_str(),
+    modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName().c_str(), mFramesPerSecond,
+    glm::length(settings.isSpeed), glm::length(settings.isAccel),
+    modInstCamData.micMoveStateMap.at(settings.isMoveState).c_str());
 
   ImGui::End();
 }

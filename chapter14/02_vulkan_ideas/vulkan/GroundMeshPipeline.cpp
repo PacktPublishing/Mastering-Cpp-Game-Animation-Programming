@@ -34,19 +34,19 @@ bool GroundMeshPipeline::init(VkRenderData& renderData, VkPipelineLayout& pipeli
   std::vector<VkPipelineShaderStageCreateInfo> shaderStagesInfo = { vertexStageInfo, fragmentStageInfo };
 
   /* assemble the graphics pipeline itself */
-  std::vector<VkVertexInputBindingDescription> vertexBindings = { { 0, sizeof(VkLineVertex), VK_VERTEX_INPUT_RATE_VERTEX } };
+  std::vector<VkVertexInputBindingDescription> vertexBindings = { { 0, static_cast<uint32_t>(sizeof(VkLineVertex)), VK_VERTEX_INPUT_RATE_VERTEX } };
 
   VkVertexInputAttributeDescription positionAttribute{};
   positionAttribute.binding = 0;
   positionAttribute.location = 0;
   positionAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
-  positionAttribute.offset = offsetof(VkLineVertex, position);
+  positionAttribute.offset = static_cast<uint32_t>(offsetof(VkLineVertex, position));
 
   VkVertexInputAttributeDescription colorAttribute{};
   colorAttribute.binding = 0;
   colorAttribute.location = 1;
   colorAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
-  colorAttribute.offset = offsetof(VkLineVertex, color);
+  colorAttribute.offset = static_cast<uint32_t>(offsetof(VkLineVertex, color));
 
   std::vector<VkVertexInputAttributeDescription> attributes{};
   attributes.emplace_back(positionAttribute);

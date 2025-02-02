@@ -81,7 +81,7 @@ class OGLRenderer {
 
     /* for compute shader */
     ShaderStorageBuffer mShaderTRSMatrixBuffer{};
-    ShaderStorageBuffer mShaderNodeTransformBuffer{};
+    ShaderStorageBuffer mNodeTransformBuffer{};
     std::vector<NodeTransformData> mNodeTransFormData{};
 
     bool mMouseLock = false;

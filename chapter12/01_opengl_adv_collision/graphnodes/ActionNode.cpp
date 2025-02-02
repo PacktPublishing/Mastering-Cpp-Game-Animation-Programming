@@ -34,7 +34,7 @@ void ActionNode::draw(ModelInstanceCamData modInstCamData) {
     ImGui::BeginDisabled();
   }
   ImGui::PushItemWidth(100.0f);
-  if (ImGui::BeginCombo("##NodeStateCombo",
+  if (ImGui::BeginCombo("##ActionNodeStateCombo",
     modInstCamData.micMoveStateMap.at(mMoveState).c_str())) {
     for (int i = 0; i < static_cast<int>(moveState::NUM); ++i) {
       const bool isSelected = (static_cast<int>(mMoveState) == i);

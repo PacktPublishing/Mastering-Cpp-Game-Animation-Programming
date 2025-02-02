@@ -124,7 +124,7 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
   Logger::log(1, "%s: -- bone parents --\n", __FUNCTION__);
 
   /* create vertex buffers for the meshes */
-  for (auto mesh : mModelMeshes) {
+  for (const auto& mesh : mModelMeshes) {
     VkVertexBufferData vertexBuffer;
     VertexBuffer::init(renderData, vertexBuffer, mesh.vertices.size() * sizeof(VkVertex));
     VertexBuffer::uploadData(renderData, vertexBuffer, mesh);
@@ -136,16 +136,21 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
     mIndexBuffers.emplace_back(indexBuffer);
   }
 
+  /* init all SSBOs */
+  ShaderStorageBuffer::init(renderData, mAnimLookupBuffer);
+  ShaderStorageBuffer::init(renderData, mShaderBoneMatrixOffsetBuffer);
+  ShaderStorageBuffer::init(renderData, mShaderBoneParentBuffer);
+
   /* animations */
   unsigned int numAnims = scene->mNumAnimations;
   for (unsigned int i = 0; i < numAnims; ++i) {
-    const auto& animation = scene->mAnimations[i];
+    aiAnimation* animation = scene->mAnimations[i];
     mMaxClipDuration = std::max(mMaxClipDuration, static_cast<float>(animation->mDuration));
   }
   Logger::log(1, "%s: longest clip duration is %f\n", __FUNCTION__, mMaxClipDuration);
 
   for (unsigned int i = 0; i < numAnims; ++i) {
-    const auto& animation = scene->mAnimations[i];
+    aiAnimation* animation = scene->mAnimations[i];
 
     Logger::log(1, "%s: -- animation clip %i has %i skeletal channels, %i mesh channels, and %i morph mesh channels\n",
                 __FUNCTION__, i, animation->mNumChannels, animation->mNumMeshChannels, animation->mNumMorphMeshChannels);
@@ -188,31 +193,27 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
           int offset = clipId * mBoneList.size() * LOOKUP_SIZE * 3 + boneId * LOOKUP_SIZE * 3;
 
           animLookupData.at(offset) = glm::vec4(channel->getInvTranslationScaling(), 0.0f, 0.0f, 0.0f);
-          const auto& translations = channel->getTranslationData();
+          const std::vector<glm::vec4>& translations = channel->getTranslationData();
           std::copy(translations.begin(), translations.end(), animLookupData.begin() + offset + 1);
 
           offset += LOOKUP_SIZE;
           animLookupData.at(offset) = glm::vec4(channel->getInvRotationScaling(), 0.0f, 0.0f, 0.0f);
-          const auto& rotations = channel->getRotationData();
+          const std::vector<glm::vec4>& rotations = channel->getRotationData();
           std::copy(rotations.begin(), rotations.end(), animLookupData.begin() + offset + 1);
 
           offset += LOOKUP_SIZE;
           animLookupData.at(offset) = glm::vec4(channel->getInvScaleScaling(), 0.0f, 0.0f, 0.0f);
-          const auto& scalings = channel->getScalingData();
+          const std::vector<glm::vec4>& scalings = channel->getScalingData();
           std::copy(scalings.begin(), scalings.end(), animLookupData.begin() + offset + 1);
         }
       }
     }
 
     Logger::log(1, "%s: generated %i elements of lookup data (%i bytes)\n", __FUNCTION__, animLookupData.size(), animLookupData.size() * sizeof(glm::vec4));
-    ShaderStorageBuffer::init(renderData, mAnimLookupBuffer);
     ShaderStorageBuffer::uploadData(renderData, mAnimLookupBuffer, animLookupData);
   }
 
-  ShaderStorageBuffer::init(renderData, mShaderBoneMatrixOffsetBuffer);
   ShaderStorageBuffer::uploadData(renderData, mShaderBoneMatrixOffsetBuffer, boneOffsetMatricesList);
-
-  ShaderStorageBuffer::init(renderData, mShaderBoneParentBuffer);
   ShaderStorageBuffer::uploadData(renderData, mShaderBoneParentBuffer, boneParentIndexList);
 
   /* create descriptor set for per-model data */

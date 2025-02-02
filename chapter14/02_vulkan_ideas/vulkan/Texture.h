@@ -2,6 +2,7 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
 #include <vulkan/vulkan.h>
 
 #include <assimp/texture.h>
@@ -27,7 +28,7 @@ class Texture {
 
   private:
     static bool uploadToGPU(VkRenderData &renderData, VkTextureData &texData, VkTextureStagingBuffer &stagingData,
-      int width, int height, bool generateMipmaps, int mipmapLevels);
+      uint32_t width, uint32_t height, bool generateMipmaps, uint32_t mipmapLevels);
     static bool uploadCubemapToGPU(VkRenderData &renderData, VkTextureData &texData, VkTextureStagingBuffer &stagingData,
-      int width, int height);
+      uint32_t width, uint32_t height);
 };

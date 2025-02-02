@@ -31,6 +31,7 @@ struct InstanceSettings {
   glm::vec3 isSpeed = glm::vec3(0.0f);
   moveDirection isMoveDirection = moveDirection::none;
   moveState isMoveState = moveState::idle;
+  bool isIWRTestModeEnabled = false;
 };
 
 /* temporary struct to catch the camera names from the save file */

@@ -124,7 +124,7 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
   Logger::log(1, "%s: -- bone parents --\n", __FUNCTION__);
 
   /* create vertex buffers for the meshes */
-  for (auto mesh : mModelMeshes) {
+  for (const auto& mesh : mModelMeshes) {
     VkVertexBufferData vertexBuffer;
     VertexBuffer::init(renderData, vertexBuffer, mesh.vertices.size() * sizeof(VkVertex));
     VertexBuffer::uploadData(renderData, vertexBuffer, mesh);
@@ -136,6 +136,7 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
     mIndexBuffers.emplace_back(indexBuffer);
   }
 
+  /* init all SSBOs */
   ShaderStorageBuffer::init(renderData, mShaderBoneMatrixOffsetBuffer);
   ShaderStorageBuffer::init(renderData, mShaderBoneParentBuffer);
 
@@ -148,7 +149,7 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
   /* animations */
   unsigned int numAnims = scene->mNumAnimations;
   for (unsigned int i = 0; i < numAnims; ++i) {
-    const auto& animation = scene->mAnimations[i];
+    aiAnimation* animation = scene->mAnimations[i];
 
     Logger::log(1, "%s: -- animation clip %i has %i skeletal channels, %i mesh channels, and %i morph mesh channels\n",
       __FUNCTION__, i, animation->mNumChannels, animation->mNumMeshChannels, animation->mNumMorphMeshChannels);

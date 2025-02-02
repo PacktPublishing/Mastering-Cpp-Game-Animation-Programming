@@ -41,6 +41,8 @@ class AssimpLevel {
 
     std::vector<OGLMesh>& getLevelMeshes();
 
+    void cleanup();
+
   private:
     void processNode(std::shared_ptr<AssimpNode> node, aiNode* aNode, const aiScene* scene, std::string assetDirectory);
 

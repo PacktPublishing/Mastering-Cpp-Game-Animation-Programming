@@ -654,7 +654,13 @@ void VkRenderer::loadDefaultFreeCam() {
   mModelInstCamData.micCameras.clear();
 
   std::shared_ptr<Camera> freeCam = std::make_shared<Camera>();
-  freeCam->setName("FreeCam");
+  CameraSettings freeCamSettings{};
+  freeCamSettings.csCamName = "FreeCam";
+  freeCamSettings.csWorldPosition = glm::vec3(5.0f);
+  freeCamSettings.csViewAzimuth = 310.0f;
+  freeCamSettings.csViewElevation = -15.0f;
+
+  freeCam->setCameraSettings(freeCamSettings);
   mModelInstCamData.micCameras.emplace_back(freeCam);
 
   mModelInstCamData.micSelectedCamera = 0;
@@ -2661,7 +2667,7 @@ bool VkRenderer::createPipelines() {
   computeShaderFile = "shader/assimp_instance_matrix_mult.comp.spv";
   if (!ComputePipeline::init(mRenderData, mRenderData.rdAssimpComputeMatrixMultPipelineLayout,
       mRenderData.rdAssimpComputeMatrixMultPipeline, computeShaderFile)) {
-    Logger::log(1, "%s error: could not init Assimp Transform compute shader pipeline\n", __FUNCTION__);
+    Logger::log(1, "%s error: could not init Assimp Matrix Mult compute shader pipeline\n", __FUNCTION__);
     return false;
   }
 
@@ -2693,7 +2699,7 @@ bool VkRenderer::createPipelines() {
   if (!LinePipeline::init(mRenderData, mRenderData.rdSpherePipelineLayout,
       mRenderData.rdSpherePipeline, mRenderData.rdLineRenderpass,
       vertexShaderFile, fragmentShaderFile)) {
-    Logger::log(1, "%s error: could not init Assimp line drawing shader pipeline\n", __FUNCTION__);
+    Logger::log(1, "%s error: could not init Assimp sphere drawing shader pipeline\n", __FUNCTION__);
     return false;
   }
 
@@ -3353,21 +3359,17 @@ void VkRenderer::deleteCamera() {
 
 std::string VkRenderer::generateUniqueCameraName(std::string camBaseName) {
   std::string camName = camBaseName;
+  std::string matches("01234567890");
+
   while (checkCameraNameUsed(camName)) {
-    char lastChar = camName.back();
-    if (!std::isdigit(lastChar)) {
+    const auto iter = std::find_first_of(camName.begin(), camName.end(), matches.begin(), matches.end());
+    if (iter == camName.end()) {
       camName.append("1");
     } else {
-      std::string::size_type sz;
-      std::string lastCharString(1, lastChar);
-      int lastDigit = std::stoi(lastCharString, &sz);
-      if (lastDigit != 9) {
-        camName.pop_back();
-        camName.append(std::to_string(lastDigit + 1));
-      } else {
-        camName.pop_back();
-        camName.append("10");
-      }
+      std::string cameraNameString = camName.substr(0, std::distance(camName.begin(), iter));
+      std::string cameraNumString = camName.substr(std::distance(camName.begin(), iter));
+      int cameraNumber = std::stoi(cameraNumString);
+      camName = cameraNameString + std::to_string(++cameraNumber);
     }
   }
   return camName;
@@ -4367,7 +4369,6 @@ void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numIn
 
   VkDescriptorSet &modelTransformDescriptorSet = model->getTransformDescriptorSet();
   std::vector<VkDescriptorSet> transformComputeSets = { mRenderData.rdAssimpComputeTransformDescriptorSet, modelTransformDescriptorSet };
-
   vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
     mRenderData.rdAssimpComputeTransformaPipelineLayout, 0, static_cast<uint32_t>(transformComputeSets.size()), transformComputeSets.data(), 0, 0);
 
@@ -4398,13 +4399,11 @@ void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numIn
   if (useEmptyBoneOffsets) {
     VkDescriptorSet &modelMatrixMultDescriptorSet = model->getMatrixMultEmptyOffsetDescriptorSet();
     std::vector<VkDescriptorSet> matrixMultComputeSets = { mRenderData.rdAssimpComputeMatrixMultDescriptorSet, modelMatrixMultDescriptorSet };
-
     vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
       mRenderData.rdAssimpComputeMatrixMultPipelineLayout, 0, static_cast<uint32_t>(matrixMultComputeSets.size()), matrixMultComputeSets.data(), 0, 0);
   } else {
     VkDescriptorSet &modelMatrixMultDescriptorSet = model->getMatrixMultDescriptorSet();
     std::vector<VkDescriptorSet> matrixMultComputeSets = { mRenderData.rdAssimpComputeMatrixMultDescriptorSet, modelMatrixMultDescriptorSet };
-
     vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
       mRenderData.rdAssimpComputeMatrixMultPipelineLayout, 0, static_cast<uint32_t>(matrixMultComputeSets.size()), matrixMultComputeSets.data(), 0, 0);
   }
@@ -4439,7 +4438,6 @@ void VkRenderer::runBoundingSphereComputeShaders(std::shared_ptr<AssimpModel> mo
 
   VkDescriptorSet &modelTransformDescriptorSet = model->getTransformDescriptorSet();
   std::vector<VkDescriptorSet> transformComputeSets = { mRenderData.rdAssimpComputeSphereTransformDescriptorSet, modelTransformDescriptorSet };
-
   vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
     mRenderData.rdAssimpComputeTransformaPipelineLayout, 0, static_cast<uint32_t>(transformComputeSets.size()), transformComputeSets.data(), 0, 0);
 
@@ -4469,7 +4467,6 @@ void VkRenderer::runBoundingSphereComputeShaders(std::shared_ptr<AssimpModel> mo
 
   VkDescriptorSet &modelMatrixMultDescriptorSet = model->getMatrixMultEmptyOffsetDescriptorSet();
   std::vector<VkDescriptorSet> matrixMultComputeSets = { mRenderData.rdAssimpComputeSphereMatrixMultDescriptorSet, modelMatrixMultDescriptorSet };
-
   vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
     mRenderData.rdAssimpComputeMatrixMultPipelineLayout, 0, static_cast<uint32_t>(matrixMultComputeSets.size()), matrixMultComputeSets.data(), 0, 0);
 
@@ -4498,7 +4495,6 @@ void VkRenderer::runBoundingSphereComputeShaders(std::shared_ptr<AssimpModel> mo
 
   VkDescriptorSet &boundingSpheresDescriptorSet = model->getBoundingSphereDescriptorSet();
   std::vector<VkDescriptorSet> boundingSphereComputeSets = { mRenderData.rdAssimpComputeBoundingSpheresDescriptorSet, boundingSpheresDescriptorSet };
-
   vkCmdBindDescriptorSets(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
     mRenderData.rdAssimpComputeBoundingSpheresPipelineLayout, 0, static_cast<uint32_t>(boundingSphereComputeSets.size()), boundingSphereComputeSets.data(), 0, 0);
 
@@ -5300,7 +5296,7 @@ bool VkRenderer::draw(float deltaTime) {
       currentSelectedInstance = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance);
       mRenderData.rdSelectedInstanceHighlightValue += deltaTime * 4.0f;
       if (mRenderData.rdSelectedInstanceHighlightValue > 2.0f) {
-      mRenderData.rdSelectedInstanceHighlightValue = 0.1f;
+        mRenderData.rdSelectedInstanceHighlightValue = 0.1f;
       }
     }
   }
@@ -5426,8 +5422,6 @@ bool VkRenderer::draw(float deltaTime) {
 
         std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
         for (unsigned int i = 0; i < numberOfInstances; ++i) {
-          mWorldPosMatrices.at(instanceToStore + i) = instances.at(i)->getWorldTransformMatrix();
-
           InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
 
           if (mRenderData.rdApplicationMode == appMode::edit) {
@@ -5456,6 +5450,8 @@ bool VkRenderer::draw(float deltaTime) {
 
           /* add instance to quadtree */
           mQuadtree->add(instSettings.isInstanceIndexPosition);
+
+          mWorldPosMatrices.at(instanceToStore + i) = instances.at(i)->getWorldTransformMatrix();
         }
 
         mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
@@ -5849,24 +5845,6 @@ bool VkRenderer::draw(float deltaTime) {
   }
 
   /* draw coordinate lines */
-  if (!CommandBuffer::reset(mRenderData.rdLineCommandBuffer, 0)) {
-    Logger::log(1, "%s error: failed to reset line drawing command buffer\n", __FUNCTION__);
-    return false;
-  }
-
-  if (!CommandBuffer::beginSingleShot(mRenderData.rdLineCommandBuffer)) {
-    Logger::log(1, "%s error: failed to begin line drawing command buffer\n", __FUNCTION__);
-    return false;
-  }
-
-  rpInfo.renderPass = mRenderData.rdLineRenderpass;
-  rpInfo.framebuffer = mRenderData.rdFramebuffers.at(imageIndex);
-
-  vkCmdBeginRenderPass(mRenderData.rdLineCommandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-  vkCmdSetViewport(mRenderData.rdLineCommandBuffer, 0, 1, &viewport);
-  vkCmdSetScissor(mRenderData.rdLineCommandBuffer, 0, 1, &scissor);
-
   mLineIndexCount = 0;
   mLineMesh->vertices.clear();
   if (mRenderData.rdApplicationMode == appMode::edit) {
@@ -5906,6 +5884,24 @@ bool VkRenderer::draw(float deltaTime) {
   /* draw AABB lines and bounding sphere of selected instance */
   mCollisionDebugDrawTimer.start();
   drawCollisionDebug();
+
+  if (!CommandBuffer::reset(mRenderData.rdLineCommandBuffer, 0)) {
+    Logger::log(1, "%s error: failed to reset line drawing command buffer\n", __FUNCTION__);
+    return false;
+  }
+
+  if (!CommandBuffer::beginSingleShot(mRenderData.rdLineCommandBuffer)) {
+    Logger::log(1, "%s error: failed to begin line drawing command buffer\n", __FUNCTION__);
+    return false;
+  }
+
+  rpInfo.renderPass = mRenderData.rdLineRenderpass;
+  rpInfo.framebuffer = mRenderData.rdFramebuffers.at(imageIndex);
+
+  vkCmdBeginRenderPass(mRenderData.rdLineCommandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+  vkCmdSetViewport(mRenderData.rdLineCommandBuffer, 0, 1, &viewport);
+  vkCmdSetScissor(mRenderData.rdLineCommandBuffer, 0, 1, &scissor);
 
   if (mLineIndexCount > 0) {
     mUploadToVBOTimer.start();

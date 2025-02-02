@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <cstdint>
 #include <memory>
 #include <map>
 #include <chrono>
@@ -31,9 +32,11 @@
 #include "AssimpModel.h"
 #include "AssimpInstance.h"
 #include "Quadtree.h"
+#include "BoundingBox2D.h"
 #include "GraphEditor.h"
 #include "SingleInstanceBehavior.h"
 #include "Behavior.h"
+#include "Callbacks.h"
 
 #include "VkRenderData.h"
 #include "ModelInstanceCamData.h"

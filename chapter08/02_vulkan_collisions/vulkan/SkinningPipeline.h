@@ -2,6 +2,7 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
 #include <vulkan/vulkan.h>
 
 #include "VkRenderData.h"

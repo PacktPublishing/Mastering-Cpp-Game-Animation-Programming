@@ -34,4 +34,6 @@ struct ModelSettings {
   std::vector<glm::vec4> msBoundingSphereAdjustments{};
 
   std::map<headMoveDirection, int> msHeadMoveClipMappings{};
+
+  bool msPreviewMode = false;
 };

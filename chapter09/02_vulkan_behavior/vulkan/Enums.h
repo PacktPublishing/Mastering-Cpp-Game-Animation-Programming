@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 enum class appMode : uint8_t {
   edit = 0,
@@ -103,7 +104,7 @@ enum class collisionDebugDraw : uint8_t {
   all
 };
 
-enum class graphNodeType : int8_t {
+enum class graphNodeType : uint8_t {
   none = 0,
   root,
   test,

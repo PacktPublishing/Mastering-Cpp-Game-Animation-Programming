@@ -237,8 +237,7 @@ void AssimpSettingsContainer::applyEditCameraSettings(std::shared_ptr<Camera> ca
   mUndoStack.emplace(undoSettings);
 
   /* clear redo history on apply, makes no sense to keep */
-  std::stack<UndoRedoSettings> emptyStack = std::stack<UndoRedoSettings>();
-  mRedoStack.swap(emptyStack);
+  removeRedoStack();
 }
 
 int AssimpSettingsContainer::getUndoSize() {

@@ -37,16 +37,19 @@ void Camera::updateCamera(OGLRenderData& renderData, float deltaTime) {
 
         if (mCamSettings.csFirstPersonLockView) {
           /* get elevation */
-          glm::vec3 elevationVector = mFirstPersonBoneMatrix * glm::vec4(mWorldUpVector, 0.0f);
-          mCamSettings.csViewElevation = -glm::degrees(std::acos(glm::dot(glm::normalize(elevationVector), mWorldUpVector)));
+          glm::vec3 elevationVector = glm::mat3(mFirstPersonBoneMatrix) * mSideVector;
+          mCamSettings.csViewElevation = glm::degrees(std::atan2(glm::length(glm::cross(elevationVector, mWorldUpVector)),
+            glm::dot(elevationVector, -mWorldUpVector))) - 90.0f;
 
-          glm::vec3 azimuthVector = mFirstPersonBoneMatrix * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
-          float rotateAngle = glm::degrees(std::acos(glm::dot(glm::normalize(glm::vec3(azimuthVector.x, 0.0f, azimuthVector.z)), glm::vec3(0.0f, 0.0f, -1.0f))));
+          /* get azimuth */
+          glm::vec3 azimuthVector = glm::mat3(mFirstPersonBoneMatrix) * mSideVector;
+          /* we are only interested in the rotation angle around the vertical axis */
+          azimuthVector.y = 0.0f;
+          mCamSettings.csViewAzimuth = glm::degrees(std::acos(glm::dot(glm::normalize(azimuthVector), -mSideVector)));
           /* support full 360 degree for Azimuth */
           if (azimuthVector.x < 0.0f) {
-            rotateAngle = 360.0f - rotateAngle;
+            mCamSettings.csViewAzimuth = 360.0f - mCamSettings.csViewAzimuth;
           }
-          mCamSettings.csViewAzimuth = rotateAngle;
         }
 
         updateCameraView();

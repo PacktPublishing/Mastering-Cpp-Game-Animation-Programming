@@ -40,4 +40,6 @@ struct ModelSettings {
   /* first in pair is effeltor node, second is chain root node */
   std::array<std::pair<int, int>, 2> msFootIKChainPair{};
   std::array<std::vector<int>, 2> msFootIKChainNodes{};
+
+  bool msPreviewMode = false;
 };

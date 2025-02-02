@@ -1,6 +1,7 @@
 /* Vulkan shader storage buffer object */
 #pragma once
 
+#include <cstdint>
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>

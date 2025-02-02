@@ -6,7 +6,13 @@
 #include <imgui.h>
 
 #include "OGLRenderData.h"
+#include "AssimpModel.h"
+#include "AssimpInstance.h"
 #include "ModelInstanceCamData.h"
+#include "InstanceSettings.h"
+#include "CameraSettings.h"
+#include "Camera.h"
+#include "SingleInstanceBehavior.h"
 
 class UserInterface {
   public:
@@ -61,6 +67,40 @@ class UserInterface {
 
     std::vector<float> mInteractionValues{};
     int mNumInteractionValues = 90;
+
+    float mNewFps = 0.0f;
+    double mUpdateTime = 0.0;
+
+    int mFpsOffset = 0;
+    int mFrameTimeOffset = 0;
+    int mModelUploadOffset = 0;
+    int mMatrixGenOffset = 0;
+    int mMatrixUploadOffset = 0;
+    int mUiGenOffset = 0;
+    int mUiDrawOffset = 0;
+    int mCollisionDebugDrawOffset = 0;
+    int mCollisionCheckOffset = 0;
+    int mNumCollisionOffset = 0;
+    int mBehaviorOffset = 0;
+    int mInteractionOffset = 0;
+
+    int mManyInstanceCreateNum = 1;
+    int mManyInstanceCloneNum = 1;
+
+    InstanceSettings mSavedInstanceSettings{};
+    std::shared_ptr<AssimpInstance> mCurrentInstance = nullptr;
+    std::shared_ptr<AssimpModel> mCurrentModel = nullptr;
+
+    CameraSettings mSavedCameraSettings{};
+    std::shared_ptr<Camera> mCurrentCamera = nullptr;
+    bool mShowDuplicateCamNameDialog = false;
+
+    std::vector<std::string> mBoneNames{};
+
+    std::string mNewTreeName = "Tree1";
+    std::string mSelectedTreeName;
+    std::string mTreeToDelete;
+    std::shared_ptr<SingleInstanceBehavior> mBehavior = nullptr;
 
     static int nameInputFilter(ImGuiInputTextCallbackData* data);
 };

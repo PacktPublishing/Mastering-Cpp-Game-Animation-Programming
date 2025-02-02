@@ -42,4 +42,6 @@ struct ModelSettings {
   std::array<std::vector<int>, 2> msFootIKChainNodes{};
 
   bool msUseAsNavigationTarget = false;
+
+  bool msPreviewMode = false;
 };

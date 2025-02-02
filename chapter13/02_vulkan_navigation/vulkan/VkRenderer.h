@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <cstdint>
 #include <memory>
 #include <map>
 #include <chrono>
@@ -32,10 +33,12 @@
 #include "AssimpModel.h"
 #include "AssimpInstance.h"
 #include "Octree.h"
+#include "BoundingBox3D.h"
 #include "TriangleOctree.h"
 #include "GraphEditor.h"
 #include "SingleInstanceBehavior.h"
 #include "Behavior.h"
+#include "Callbacks.h"
 #include "AssimpLevel.h"
 #include "IKSolver.h"
 #include "PathFinder.h"

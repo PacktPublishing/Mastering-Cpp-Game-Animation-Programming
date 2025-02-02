@@ -1,9 +1,11 @@
 /* OpenGL */
 #pragma once
+#include <cstdint>
 #include <vector>
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <cstdint>
 
 #include <glm/glm.hpp>
 

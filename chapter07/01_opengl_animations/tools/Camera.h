@@ -63,6 +63,8 @@ class Camera {
 
     /* world up is positive Y */
     const glm::vec3 mWorldUpVector = glm::vec3(0.0f, 1.0f, 0.0f);
+    /* vector pointing to the z axis to have an Azimuth reference */
+    const glm::vec3 mSideVector = glm::vec3(0.0f, 0.0f, 1.0f);
 
     glm::mat4 mFirstPersonBoneMatrix = glm::mat4(1.0f);
     std::vector<std::string> mFirstPersonBoneNames{};

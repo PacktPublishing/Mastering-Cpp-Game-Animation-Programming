@@ -110,7 +110,7 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
   /* animations */
   unsigned int numAnims = scene->mNumAnimations;
   for (unsigned int i = 0; i < numAnims; ++i) {
-    const auto& animation = scene->mAnimations[i];
+    aiAnimation* animation = scene->mAnimations[i];
 
     Logger::log(1, "%s: -- animation clip %i has %i skeletal channels, %i mesh channels, and %i morph mesh channels\n",
       __FUNCTION__, i, animation->mNumChannels, animation->mNumMeshChannels, animation->mNumMorphMeshChannels);
@@ -252,6 +252,10 @@ unsigned int AssimpModel::getTriangleCount() {
 void AssimpModel::cleanup() {
   for (auto buffer : mVertexBuffers) {
     buffer.cleanup();
+  }
+
+  for (auto tex : mTextures) {
+    tex.second->cleanup();
   }
   mPlaceholderTexture->cleanup();
 }

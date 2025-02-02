@@ -51,8 +51,6 @@ void AssimpNode::setScaling(glm::vec3 scaling) {
 void AssimpNode::updateTRSMatrix() {
   if (std::shared_ptr<AssimpNode> parentNode = mParentNode.lock()) {
     mParentNodeMatrix = parentNode->getTRSMatrix();
-  } else {
-    mParentNodeMatrix = glm::mat4(1.0f);
   }
 
   mLocalTRSMatrix = mRootTransformMatrix * mParentNodeMatrix * mTranslationMatrix * mRotationMatrix * mScalingMatrix;

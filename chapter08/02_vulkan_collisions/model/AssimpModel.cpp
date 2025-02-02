@@ -125,7 +125,7 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
   Logger::log(1, "%s: -- bone parents --\n", __FUNCTION__);
 
   /* create vertex buffers for the meshes */
-  for (auto mesh : mModelMeshes) {
+  for (const auto& mesh : mModelMeshes) {
     VkVertexBufferData vertexBuffer;
     VertexBuffer::init(renderData, vertexBuffer, mesh.vertices.size() * sizeof(VkVertex));
     VertexBuffer::uploadData(renderData, vertexBuffer, mesh);
@@ -137,16 +137,23 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
     mIndexBuffers.emplace_back(indexBuffer);
   }
 
+  /* init all SSBOs */
+  ShaderStorageBuffer::init(renderData, mAnimLookupBuffer);
+  ShaderStorageBuffer::init(renderData, mShaderBoneMatrixOffsetBuffer);
+  ShaderStorageBuffer::init(renderData, mEmptyBoneOffsetBuffer);
+  ShaderStorageBuffer::init(renderData, mShaderBoneParentBuffer);
+  ShaderStorageBuffer::init(renderData, mBoundingSphereAdjustmentBuffer);
+
   /* animations */
   unsigned int numAnims = scene->mNumAnimations;
   for (unsigned int i = 0; i < numAnims; ++i) {
-    const auto& animation = scene->mAnimations[i];
+    aiAnimation* animation = scene->mAnimations[i];
     mMaxClipDuration = std::max(mMaxClipDuration, static_cast<float>(animation->mDuration));
   }
   Logger::log(1, "%s: longest clip duration is %f\n", __FUNCTION__, mMaxClipDuration);
 
   for (unsigned int i = 0; i < numAnims; ++i) {
-    const auto& animation = scene->mAnimations[i];
+    aiAnimation* animation = scene->mAnimations[i];
 
     Logger::log(1, "%s: -- animation clip %i has %i skeletal channels, %i mesh channels, and %i morph mesh channels\n",
                 __FUNCTION__, i, animation->mNumChannels, animation->mNumMeshChannels, animation->mNumMorphMeshChannels);
@@ -189,36 +196,31 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
           int offset = clipId * mBoneList.size() * LOOKUP_SIZE * 3 + boneId * LOOKUP_SIZE * 3;
 
           animLookupData.at(offset) = glm::vec4(channel->getInvTranslationScaling(), 0.0f, 0.0f, 0.0f);
-          const auto& translations = channel->getTranslationData();
+          const std::vector<glm::vec4>& translations = channel->getTranslationData();
           std::copy(translations.begin(), translations.end(), animLookupData.begin() + offset + 1);
 
           offset += LOOKUP_SIZE;
           animLookupData.at(offset) = glm::vec4(channel->getInvRotationScaling(), 0.0f, 0.0f, 0.0f);
-          const auto& rotations = channel->getRotationData();
+          const std::vector<glm::vec4>& rotations = channel->getRotationData();
           std::copy(rotations.begin(), rotations.end(), animLookupData.begin() + offset + 1);
 
           offset += LOOKUP_SIZE;
           animLookupData.at(offset) = glm::vec4(channel->getInvScaleScaling(), 0.0f, 0.0f, 0.0f);
-          const auto& scalings = channel->getScalingData();
+          const std::vector<glm::vec4>& scalings = channel->getScalingData();
           std::copy(scalings.begin(), scalings.end(), animLookupData.begin() + offset + 1);
         }
       }
     }
 
     Logger::log(1, "%s: generated %i elements of lookup data (%i bytes)\n", __FUNCTION__, animLookupData.size(), animLookupData.size() * sizeof(glm::vec4));
-    ShaderStorageBuffer::init(renderData, mAnimLookupBuffer);
     ShaderStorageBuffer::uploadData(renderData, mAnimLookupBuffer, animLookupData);
   }
 
-  ShaderStorageBuffer::init(renderData, mShaderBoneMatrixOffsetBuffer);
   ShaderStorageBuffer::uploadData(renderData, mShaderBoneMatrixOffsetBuffer, boneOffsetMatricesList);
-
-  ShaderStorageBuffer::init(renderData, mShaderBoneParentBuffer);
   ShaderStorageBuffer::uploadData(renderData, mShaderBoneParentBuffer, mBoneParentIndexList);
 
   /* we MUST set bone offsets to identity matrices to get the skeleton data for the AABBs */
   std::vector<glm::mat4> emptyBoneOfssets(mBoneList.size(), glm::mat4(1.0f));
-  ShaderStorageBuffer::init(renderData, mEmptyBoneOffsetBuffer);
   ShaderStorageBuffer::uploadData(renderData, mEmptyBoneOffsetBuffer, emptyBoneOfssets);
 
   mModelSettings.msModelFilenamePath = modelFilename;
@@ -234,7 +236,6 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
     mModelSettings.msBoundingSphereAdjustments = std::vector(mBoneList.size(), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
   }
 
-  ShaderStorageBuffer::init(renderData, mBoundingSphereAdjustmentBuffer);
   ShaderStorageBuffer::uploadData(renderData, mBoundingSphereAdjustmentBuffer, mModelSettings.msBoundingSphereAdjustments);
 
   /* create descriptor set for per-model data */
@@ -682,6 +683,14 @@ void AssimpModel::setAABBLookup(std::vector<std::vector<AABB>> lookupData) {
 }
 
 AABB AssimpModel::getAABB(InstanceSettings instSettings) {
+  if (hasAnimations()) {
+    return getAnimatedAABB(instSettings);
+  } else {
+    return getNonAnimatedAABB(instSettings);
+  }
+}
+
+AABB AssimpModel::getAnimatedAABB(InstanceSettings instSettings) {
   const int LOOKUP_SIZE = 1023;
 
   float timeScaleFactor = mMaxClipDuration / static_cast<float>(LOOKUP_SIZE);
@@ -755,4 +764,33 @@ AABB AssimpModel::getAABB(InstanceSettings instSettings) {
   translatedAabb.setMaxPos(rotatedAabb.getMaxPos() += instSettings.isWorldPosition);
 
   return translatedAabb;
+}
+
+AABB AssimpModel::getNonAnimatedAABB(InstanceSettings instSettings) {
+  glm::mat4 localScaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(instSettings.isScale));
+
+  glm::mat4 localSwapAxisMatrix;
+  if (instSettings.isSwapYZAxis) {
+    glm::mat4 flipMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    localSwapAxisMatrix = glm::rotate(flipMatrix, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+  } else {
+    localSwapAxisMatrix = glm::mat4(1.0f);
+  }
+
+  glm::mat4 localRotationMatrix = glm::mat4_cast(glm::quat(glm::radians(instSettings.isWorldRotation)));
+
+  glm::mat4 localTranslationMatrix = glm::translate(glm::mat4(1.0f), instSettings.isWorldPosition);
+
+  glm::mat4 localTransformMatrix = localTranslationMatrix * localRotationMatrix *
+    localSwapAxisMatrix * localScaleMatrix * mRootTransformMatrix;
+
+  AABB modelAABB{};
+  for (const auto& mesh : mModelMeshes) {
+    for (const auto& vertex : mesh.vertices) {
+      /* we use position.w for UV coordinates, set to 1.0f */
+      modelAABB.addPoint(localTransformMatrix * glm::vec4(glm::vec3(vertex.position), 1.0f));
+    }
+  }
+
+  return modelAABB;
 }

@@ -16,15 +16,13 @@ AssimpInstance::AssimpInstance(std::shared_ptr<AssimpModel> model, glm::vec3 pos
   mInstanceSettings.isWorldRotation = rotation;
   mInstanceSettings.isScale = modelScale;
 
+  /* save model root matrix */
+  mModelRootMatrix = mAssimpModel->getRootTranformationMatrix();
+
   updateModelRootMatrix();
 }
 
 void AssimpInstance::updateModelRootMatrix() {
-  if (!mAssimpModel) {
-    Logger::log(1, "%s error: invalid model\n", __FUNCTION__);
-    return;
-  }
-
   mLocalScaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(mInstanceSettings.isScale));
 
   if (mInstanceSettings.isSwapYZAxis) {
@@ -39,7 +37,7 @@ void AssimpInstance::updateModelRootMatrix() {
   mLocalTranslationMatrix = glm::translate(glm::mat4(1.0f), mInstanceSettings.isWorldPosition);
 
   mLocalTransformMatrix = mLocalTranslationMatrix * mLocalRotationMatrix * mLocalSwapAxisMatrix * mLocalScaleMatrix;
-  mModelRootMatrix = mLocalTransformMatrix;
+  mInstanceRootMatrix = mLocalTransformMatrix * mModelRootMatrix;
 }
 
 void AssimpInstance::updateAnimation(float deltaTime) {
@@ -70,6 +68,8 @@ void AssimpInstance::updateAnimStateMachine(float deltaTime) {
 
   switch (mAnimState) {
     case animationState::playIdleWalkRun:
+      /* play idle/walk/run animation according to instance speed */
+      /* move to next state if an action clip was requested */
       playIdleWalkRunAnimation();
       mInstanceSettings.isSecondClipAnimPlayTimePos = mInstanceSettings.isFirstClipAnimPlayTimePos;
 
@@ -122,19 +122,30 @@ void AssimpInstance::updateAnimStateMachine(float deltaTime) {
       }
       break;
     case animationState::transitionFromIdleWalkRun:
+      /* finish current idle/walk/run clip to be back in initial pose
+       * this step was added to have a smooth transition
+       * and not blend in the middle of an animation */
+      /* skips at clip end to 'transitionToAction' */
       blendIdleWalkRunAnimation(deltaTime);
       break;
     case animationState::transitionToAction:
+      /* blend between idle/walk/run and desired action */
+      /* skips at clip end to 'playActionAnim' */
       blendActionAnimation(deltaTime);
       break;
     case animationState::playActionAnim:
+      /* play and possibly repeat the desired action animation */
       playActionAnimation();
+      /* skip only to next state when action animation clip was finished */
       if (mNextMoveState != mActionMoveState && mAnimRestarted) {
         mInstanceSettings.isAnimBlendFactor = 1.0f;
         mAnimState = animationState::transitionToIdleWalkRun;
       }
       break;
     case animationState::transitionToIdleWalkRun:
+      /* blend between action and idle/walk/run by doing a backwards blend
+       *from action to idle/walk/run clip */
+      /* skips at clip end to 'playIdleWalkRun' */
       blendActionAnimation(deltaTime, true);
       break;
   }
@@ -257,7 +268,6 @@ void AssimpInstance::updateInstancePosition(float deltaTime) {
 
   /* set root node transform matrix, enabling instance movement */
   updateModelRootMatrix();
-  mModelRootMatrix = mLocalTransformMatrix * mAssimpModel->getRootTranformationMatrix();
 }
 
 void AssimpInstance::rotateInstance(float angle) {
@@ -272,6 +282,7 @@ void AssimpInstance::rotateInstance(float angle) {
   if (mInstanceSettings.isWorldRotation.y >= 360.0f) {
     mInstanceSettings.isWorldRotation.y -= 360.0f;
   }
+  updateModelRootMatrix();
 }
 
 void AssimpInstance::rotateInstance(glm::vec3 angles) {
@@ -302,6 +313,7 @@ void AssimpInstance::rotateInstance(glm::vec3 angles) {
   }
 
   mInstanceSettings.isWorldRotation = angles;
+  updateModelRootMatrix();
 }
 
 void AssimpInstance::blendActionAnimation(float deltaTime, bool backwards) {
@@ -386,6 +398,11 @@ void AssimpInstance::playIdleWalkRunAnimation() {
   ModelSettings modSettings = mAssimpModel->getModelSettings();
   IdleWalkRunBlending blend;
 
+  /* do not play any animation in preview mode, use values from UI */
+  if (modSettings.msPreviewMode) {
+    return;
+  }
+
   if (modSettings.msIWRBlendings.count(mInstanceSettings.isMoveDirection) > 0 ) {
     blend = modSettings.msIWRBlendings[mInstanceSettings.isMoveDirection];
   } else if (modSettings.msIWRBlendings.count(mPrevMoveDirection) > 0 ) {
@@ -426,7 +443,7 @@ glm::vec3 AssimpInstance::getWorldPosition() {
 }
 
 glm::mat4 AssimpInstance::getWorldTransformMatrix() {
-  return mModelRootMatrix;
+  return mInstanceRootMatrix;
 }
 
 void AssimpInstance::setWorldPosition(glm::vec3 position) {

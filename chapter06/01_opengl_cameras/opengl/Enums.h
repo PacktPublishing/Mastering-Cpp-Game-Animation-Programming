@@ -1,17 +1,18 @@
 #pragma once
+#include <cstdint>
 
-enum class appMode {
+enum class appMode : uint8_t {
   edit = 0,
   view
 };
 
-enum class instanceEditMode {
+enum class instanceEditMode : uint8_t {
   move = 0,
   rotate,
   scale
 };
 
-enum class undoRedoObjectType {
+enum class undoRedoObjectType : uint8_t {
   changeInstance = 0,
   addInstance,
   deleteInstance,
@@ -25,7 +26,7 @@ enum class undoRedoObjectType {
   deleteCamera
 };
 
-enum class cameraType {
+enum class cameraType : uint8_t {
   free = 0,
   firstPerson,
   thirdPerson,
@@ -33,7 +34,7 @@ enum class cameraType {
   stationaryFollowing
 };
 
-enum class cameraProjection {
+enum class cameraProjection : uint8_t {
   perspective = 0,
   orthogonal
 };

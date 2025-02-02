@@ -192,13 +192,13 @@ std::vector<CameraSettings> YamlParser::getCameraConfigs() {
     }
 
     YAML::Node camNode = mYamlNode["cameras"];
-    try {
-      for (size_t i = 0; i < camNode.size(); ++i) {
+    for (size_t i = 0; i < camNode.size(); ++i) {
+      try {
         camSettings.emplace_back(camNode[i].as<CameraSettings>());
+      } catch (...) {
+        Logger::log(1, "%s error: could not parse file '%s', skipping camera entry %i\n", __FUNCTION__, mYamlFileName.c_str(), i);
+        continue;
       }
-    } catch (...) {
-      Logger::log(1, "%s error: could not parse file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
-      return std::vector<CameraSettings>{};
     }
   }
   return camSettings;

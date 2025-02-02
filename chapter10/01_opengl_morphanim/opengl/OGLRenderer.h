@@ -27,9 +27,11 @@
 #include "AssimpModel.h"
 #include "AssimpInstance.h"
 #include "Quadtree.h"
+#include "BoundingBox2D.h"
 #include "GraphEditor.h"
 #include "SingleInstanceBehavior.h"
 #include "Behavior.h"
+#include "Callbacks.h"
 
 #include "OGLRenderData.h"
 #include "ModelInstanceCamData.h"

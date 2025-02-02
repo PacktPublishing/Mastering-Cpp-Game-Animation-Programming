@@ -3,7 +3,9 @@
 #include <vector>
 
 #include "OGLRenderData.h"
+#include "AssimpInstance.h"
 #include "ModelAndInstanceData.h"
+#include "InstanceSettings.h"
 
 class UserInterface {
   public:
@@ -40,4 +42,22 @@ class UserInterface {
 
     std::vector<float> mUiDrawValues{};
     int mNumUiDrawValues = 90;
+
+    float mNewFps = 0.0f;
+    double mUpdateTime = 0.0;
+
+    int mFpsOffset = 0;
+    int mFrameTimeOffset = 0;
+    int mModelUploadOffset = 0;
+    int mMatrixGenOffset = 0;
+    int mMatrixUploadOffset = 0;
+    int mUiGenOffset = 0;
+    int mUiDrawOffset = 0;
+
+    int mManyInstanceCreateNum = 1;
+    int mManyInstanceCloneNum = 1;
+
+    InstanceSettings mSavedInstanceSettings{};
+    std::shared_ptr<AssimpInstance> mSurrentInstance = nullptr;
+
 };

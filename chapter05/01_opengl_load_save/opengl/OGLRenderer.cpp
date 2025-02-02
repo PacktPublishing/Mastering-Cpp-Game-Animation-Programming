@@ -111,12 +111,15 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glLineWidth(3.0);
+  Logger::log(1, "%s: rendering defaults set\n", __FUNCTION__);
 
-  /* SSBO init  */
-  mNodeTransformBuffer.init(256);
-  mShaderTRSMatrixBuffer.init(256);
+  /* SSBO init */
   mShaderBoneMatrixBuffer.init(256);
-  mShaderModelRootMatrixBuffer.init(64);
+  mShaderModelRootMatrixBuffer.init(256);
+  mShaderTRSMatrixBuffer.init(256);
+  mNodeTransformBuffer.init(256);
+  mSelectedInstanceBuffer.init(256);
+  Logger::log(1, "%s: SSBOs initialized\n", __FUNCTION__);
 
   /* register callbacks */
   mModelInstData.miModelCheckCallbackFunction = [this](std::string fileName) { return hasModel(fileName); };
@@ -404,8 +407,8 @@ bool OGLRenderer::addModel(std::string modelFileName, bool addInitialInstance, b
 
   if (withUndo) {
     mModelInstData.miSettingsContainer->applyLoadModel(model, mModelInstData.miSelectedModel, firstInstance,
-                                                       mModelInstData.miSelectedModel, prevSelectedModelId,
-                                                       mModelInstData.miSelectedInstance, prevSelectedInstanceId);
+      mModelInstData.miSelectedModel, prevSelectedModelId,
+      mModelInstData.miSelectedInstance, prevSelectedInstanceId);
   }
 
   return true;
@@ -472,8 +475,8 @@ void OGLRenderer::deleteModel(std::string modelFileName, bool withUndo) {
 
   if (withUndo) {
     mModelInstData.miSettingsContainer->applyDeleteModel(model, indexPos, deletedInstances,
-                                                         mModelInstData.miSelectedModel, prevSelectedModelId,
-                                                         mModelInstData.miSelectedInstance, prevSelectedInstanceId);
+      mModelInstData.miSelectedModel, prevSelectedModelId,
+      mModelInstData.miSelectedInstance, prevSelectedInstanceId);
   }
 
   enumerateInstances();
@@ -521,8 +524,8 @@ void OGLRenderer::addInstances(std::shared_ptr<AssimpModel> model, int numInstan
   size_t animClipNum = model->getAnimClips().size();
   std::vector<std::shared_ptr<AssimpInstance>> newInstances;
   for (int i = 0; i < numInstances; ++i) {
-    int xPos = std::rand() % 50 - 25;
-    int zPos = std::rand() % 50 - 25;
+    int xPos = std::rand() % 150 - 75;
+    int zPos = std::rand() % 150 - 75;
     int rotation = std::rand() % 360 - 180;
     int clipNr = std::rand() % animClipNum;
     float animSpeed = (std::rand() % 50 + 75) / 100.0f;
@@ -610,8 +613,8 @@ void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int n
   size_t animClipNum = model->getAnimClips().size();
   std::vector<std::shared_ptr<AssimpInstance>> newInstances;
   for (int i = 0; i < numClones; ++i) {
-    int xPos = std::rand() % 50 - 25;
-    int zPos = std::rand() % 50 - 25;
+    int xPos = std::rand() % 150 - 75;
+    int zPos = std::rand() % 150 - 75;
     int rotation = std::rand() % 360 - 180;
 
     int clipNr = std::rand() % animClipNum;
@@ -1057,7 +1060,6 @@ bool OGLRenderer::draw(float deltaTime) {
     }
   }
 
-  mRenderData.rdMatricesSize = 0;
   for (const auto& model : mModelInstData.miModelList) {
     size_t numberOfInstances = mModelInstData.miAssimpInstancesPerModel[model->getModelFileName()].size();
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
@@ -1224,17 +1226,19 @@ bool OGLRenderer::draw(float deltaTime) {
       mLineMesh->vertices.insert(mLineMesh->vertices.end(),
                                  mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end());
     }
+  }
 
+  /* draw the coordinate arrow WITH depth buffer */
+  if (mCoordArrowsLineIndexCount > 0) {
     mUploadToVBOTimer.start();
     mLineVertexBuffer.uploadData(*mLineMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
 
-    /* draw the coordinate arrow WITH depth buffer */
-    if (mCoordArrowsLineIndexCount > 0) {
-      mLineShader.use();
-      mLineVertexBuffer.bindAndDraw(GL_LINES, 0, mCoordArrowsLineIndexCount);
-    }
+    mLineShader.use();
+    mLineVertexBuffer.bindAndDraw(GL_LINES, 0, mCoordArrowsLineIndexCount);
+  }
 
+  if (mRenderData.rdApplicationMode == appMode::edit) {
     if (mMousePick) {
       /* wait until selection buffer has been filled */
       glFlush();

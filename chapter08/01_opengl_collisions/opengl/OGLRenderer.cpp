@@ -125,6 +125,18 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glLineWidth(3.0);
+  Logger::log(1, "%s: rendering defaults set\n", __FUNCTION__);
+
+  /* SSBO init  */
+  mShaderBoneMatrixBuffer.init(256);
+  mShaderModelRootMatrixBuffer.init(256);
+  mShaderTRSMatrixBuffer.init(256);
+  mPerInstanceAnimDataBuffer.init(256);
+  mSelectedInstanceBuffer.init(256);
+  mEmptyBoneOffsetBuffer.init(256);
+  mBoundingSphereBuffer.init(256);
+  mBoundingSphereAdjustmentBuffer.init(256);
+  Logger::log(1, "%s: SSBOs initialized\n", __FUNCTION__);
 
   /* init quadtree with some default values */
   mWorldBoundaries = std::make_shared<BoundingBox2D>(mRenderData.rdWorldStartPos, mRenderData.rdWorldSize);
@@ -515,7 +527,13 @@ void OGLRenderer::loadDefaultFreeCam() {
   mModelInstCamData.micCameras.clear();
 
   std::shared_ptr<Camera> freeCam = std::make_shared<Camera>();
-  freeCam->setName("FreeCam");
+  CameraSettings freeCamSettings{};
+  freeCamSettings.csCamName = "FreeCam";
+  freeCamSettings.csWorldPosition = glm::vec3(5.0f);
+  freeCamSettings.csViewAzimuth = 310.0f;
+  freeCamSettings.csViewElevation = -15.0f;
+
+  freeCam->setCameraSettings(freeCamSettings);
   mModelInstCamData.micCameras.emplace_back(freeCam);
 
   mModelInstCamData.micSelectedCamera = 0;
@@ -905,21 +923,17 @@ void OGLRenderer::deleteCamera() {
 
 std::string OGLRenderer::generateUniqueCameraName(std::string camBaseName) {
   std::string camName = camBaseName;
+  std::string matches("01234567890");
+
   while (checkCameraNameUsed(camName)) {
-    char lastChar = camName.back();
-    if (!std::isdigit(lastChar)) {
+    const auto iter = std::find_first_of(camName.begin(), camName.end(), matches.begin(), matches.end());
+    if (iter == camName.end()) {
       camName.append("1");
     } else {
-      std::string::size_type sz;
-      std::string lastCharString(1, lastChar);
-      int lastDigit = std::stoi(lastCharString, &sz);
-      if (lastDigit != 9) {
-        camName.pop_back();
-        camName.append(std::to_string(lastDigit + 1));
-      } else {
-        camName.pop_back();
-        camName.append("10");
-      }
+      std::string cameraNameString = camName.substr(0, std::distance(camName.begin(), iter));
+      std::string cameraNumString = camName.substr(std::distance(camName.begin(), iter));
+      int cameraNumber = std::stoi(cameraNumString);
+      camName = cameraNameString + std::to_string(++cameraNumber);
     }
   }
   return camName;
@@ -1789,11 +1803,11 @@ void OGLRenderer::drawAABBs() {
     }
   }
 
-  mUploadToVBOTimer.start();
-  mLineVertexBuffer.uploadData(*mAABBMesh);
-  mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
-
   if (mAABBMesh->vertices.size() > 0) {
+    mUploadToVBOTimer.start();
+    mLineVertexBuffer.uploadData(*mAABBMesh);
+    mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
+
     mLineShader.use();
     mLineVertexBuffer.bindAndDraw(GL_LINES, 0, mAABBMesh->vertices.size());
   }
@@ -1841,11 +1855,11 @@ void OGLRenderer::drawSelectedBoundingSpheres() {
 
     runBoundingSphereComputeShaders(model, numberOfBones, 1);
 
-    mUploadToVBOTimer.start();
-    mLineVertexBuffer.uploadData(mSphereMesh);
-    mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
-
     if (numberOfSpheres > 0) {
+      mUploadToVBOTimer.start();
+      mLineVertexBuffer.uploadData(mSphereMesh);
+      mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
+
       mSphereShader.use();
       mBoundingSphereBuffer.bind(1);
       mLineVertexBuffer.bindAndDrawInstanced(GL_LINES, 0, mSphereMesh.vertices.size(), numberOfSpheres);
@@ -1906,11 +1920,11 @@ void OGLRenderer::drawCollidingBoundingSpheres() {
 
     runBoundingSphereComputeShaders(model, numberOfBones, numInstances);
 
-    mUploadToVBOTimer.start();
-    mLineVertexBuffer.uploadData(mCollidingSphereMesh);
-    mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
-
     if (numberOfSpheres > 0) {
+      mUploadToVBOTimer.start();
+      mLineVertexBuffer.uploadData(mCollidingSphereMesh);
+      mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
+
       mSphereShader.use();
       mBoundingSphereBuffer.bind(1);
       mLineVertexBuffer.bindAndDrawInstanced(GL_LINES, 0, mCollidingSphereMesh.vertices.size(), numberOfSpheres);
@@ -1963,11 +1977,11 @@ void OGLRenderer::drawAllBoundingSpheres() {
 
     runBoundingSphereComputeShaders(model, numberOfBones, numInstances);
 
-    mUploadToVBOTimer.start();
-    mLineVertexBuffer.uploadData(mSphereMesh);
-    mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
-
     if (numberOfSpheres > 0) {
+      mUploadToVBOTimer.start();
+      mLineVertexBuffer.uploadData(mSphereMesh);
+      mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
+
       mSphereShader.use();
       mBoundingSphereBuffer.bind(1);
       mLineVertexBuffer.bindAndDrawInstanced(GL_LINES, 0, mSphereMesh.vertices.size(), numberOfSpheres);
@@ -2049,6 +2063,18 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdCollisionDebugDrawTime = 0.0f;
   mRenderData.rdCollisionCheckTime = 0.0f;
 
+  /* save the selected instance for color highlight */
+  std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
+  if (mRenderData.rdApplicationMode == appMode::edit) {
+    if (mRenderData.rdHighlightSelectedInstance) {
+      currentSelectedInstance = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance);
+      mRenderData.rdSelectedInstanceHighlightValue += deltaTime * 4.0f;
+      if (mRenderData.rdSelectedInstanceHighlightValue > 2.0f) {
+        mRenderData.rdSelectedInstanceHighlightValue = 0.1f;
+      }
+    }
+  }
+
   handleMovementKeys();
 
   std::shared_ptr<Camera> cam = mModelInstCamData.micCameras.at(mModelInstCamData.micSelectedCamera);
@@ -2099,19 +2125,9 @@ bool OGLRenderer::draw(float deltaTime) {
   mUniformBuffer.uploadUboData(matrixData, 0);
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
-  /* save the selected instance for color highlight */
-  std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
-  if (mRenderData.rdApplicationMode == appMode::edit) {
-    if (mRenderData.rdHighlightSelectedInstance) {
-      currentSelectedInstance = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance);
-      mRenderData.rdSelectedInstanceHighlightValue += deltaTime * 4.0f;
-      if (mRenderData.rdSelectedInstanceHighlightValue > 2.0f) {
-        mRenderData.rdSelectedInstanceHighlightValue = 0.1f;
-      }
-    }
-  }
-
   mQuadtree->clear();
+
+  int firstPersonCamWorldPos = -1;
 
   for (const auto& model : mModelInstCamData.micModelList) {
     size_t numberOfInstances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].size();
@@ -2160,6 +2176,11 @@ bool OGLRenderer::draw(float deltaTime) {
             }
           } else {
             mSelectedInstance.at(i).x = 1.0f;
+          }
+
+          if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
+              instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition) {
+            firstPersonCamWorldPos = instSettings.isInstanceIndexPosition;
           }
 
           /* get AABB and calculate 2D boundaries */
@@ -2219,7 +2240,8 @@ bool OGLRenderer::draw(float deltaTime) {
         CameraSettings camSettings = cam->getCameraSettings();
 
         if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
-          model == cam->getInstanceToFollow()->getModel()) {
+            model == cam->getInstanceToFollow()->getModel() &&
+            cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition == firstPersonCamWorldPos) {
           int selectedInstance = cam->getInstanceToFollow()->getInstanceSettings().isInstancePerModelIndexPosition;
           int selectedBone = camSettings.csFirstPersonBoneToFollow;
           glm::mat4 offsetMatrix = glm::translate(glm::mat4(1.0f), camSettings.csFirstPersonOffsets);
@@ -2228,7 +2250,19 @@ bool OGLRenderer::draw(float deltaTime) {
           cam->setBoneMatrix(mWorldPosMatrices.at(selectedInstance) * boneMatrix * offsetMatrix *
             glm::inverse(model->getBoneList().at(selectedBone)->getOffsetMatrix()));
 
-          cam->setCameraSettings(camSettings);
+          /* we need to update the camera and the view matrix plus upload the new view matrix  */
+          cam->updateCamera(mRenderData, deltaTime);
+
+          mMatrixGenerateTimer.start();
+          mViewMatrix = cam->getViewMatrix();
+          mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
+
+          mUploadToUBOTimer.start();
+          std::vector<glm::mat4> matrixData;
+          matrixData.emplace_back(mViewMatrix);
+          matrixData.emplace_back(mProjectionMatrix);
+          mUniformBuffer.uploadUboData(matrixData, 0);
+          mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
         }
 
         /* now bind the final bone transforms to the vertex skinning shader */
@@ -2254,8 +2288,6 @@ bool OGLRenderer::draw(float deltaTime) {
         std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
 
         for (size_t i = 0; i < numberOfInstances; ++i) {
-          mWorldPosMatrices.at(i) = instances.at(i)->getWorldTransformMatrix();
-
           InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
 
           if (mRenderData.rdApplicationMode == appMode::edit) {
@@ -2271,6 +2303,21 @@ bool OGLRenderer::draw(float deltaTime) {
           } else {
             mSelectedInstance.at(i).x = 1.0f;
           }
+
+          /* get AABB and calculate 2D boundaries */
+          AABB instanceAABB = model->getAABB(instSettings);
+
+          glm::vec2 position = glm::vec2(instanceAABB.getMinPos().x, instanceAABB.getMinPos().z);
+          glm::vec2 size = glm::vec2(std::fabs(instanceAABB.getMaxPos().x - instanceAABB.getMinPos().x),
+                                     std::fabs(instanceAABB.getMaxPos().z - instanceAABB.getMinPos().z));
+
+          BoundingBox2D box{position, size};
+          instances.at(i)->setBoundingBox(box);
+
+          /* add instance to quadtree */
+          mQuadtree->add(instSettings.isInstanceIndexPosition);
+
+          mWorldPosMatrices.at(i) = instances.at(i)->getWorldTransformMatrix();
         }
 
         mRenderData.rdMatrixGenerateTime += mMatrixGenerateTimer.stop();
@@ -2322,16 +2369,16 @@ bool OGLRenderer::draw(float deltaTime) {
       mLineMesh->vertices.insert(mLineMesh->vertices.end(),
                                  mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end());
     }
+  }
 
+  /* draw the coordinate arrow WITH depth buffer */
+  if (mCoordArrowsLineIndexCount > 0) {
     mUploadToVBOTimer.start();
     mLineVertexBuffer.uploadData(*mLineMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
 
-    /* draw the coordinate arrow WITH depth buffer */
-    if (mCoordArrowsLineIndexCount > 0) {
-      mLineShader.use();
-      mLineVertexBuffer.bindAndDraw(GL_LINES, 0, mCoordArrowsLineIndexCount);
-    }
+    mLineShader.use();
+    mLineVertexBuffer.bindAndDraw(GL_LINES, 0, mCoordArrowsLineIndexCount);
   }
 
   if (mRenderData.rdApplicationMode == appMode::edit) {

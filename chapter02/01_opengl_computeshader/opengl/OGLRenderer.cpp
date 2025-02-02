@@ -82,8 +82,16 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glLineWidth(3.0);
+  Logger::log(1, "%s: rendering defaults set\n", __FUNCTION__);
 
-  // register callbacks
+  /* SSBO init */
+  mShaderBoneMatrixBuffer.init(256);
+  mShaderModelRootMatrixBuffer.init(256);
+  mShaderTRSMatrixBuffer.init(256);
+  mNodeTransformBuffer.init(256);
+  Logger::log(1, "%s: SSBOs initialized\n", __FUNCTION__);
+
+  /* register callbacks */
   mModelInstData.miModelCheckCallbackFunction = [this](std::string fileName) { return hasModel(fileName); };
   mModelInstData.miModelAddCallbackFunction = [this](std::string fileName) { return addModel(fileName); };
   mModelInstData.miModelDeleteCallbackFunction = [this](std::string modelName) { deleteModel(modelName); };
@@ -92,12 +100,6 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mModelInstData.miInstanceAddManyCallbackFunction = [this](std::shared_ptr<AssimpModel> model, int numInstances) { addInstances(model, numInstances); };
   mModelInstData.miInstanceDeleteCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { deleteInstance(instance) ;};
   mModelInstData.miInstanceCloneCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { cloneInstance(instance); };
-
-  mShaderNodeTransformBuffer.init(256);
-  mShaderTRSMatrixBuffer.init(256);
-  mShaderBoneMatrixBuffer.init(256);
-
-  mShaderModelRootMatrixBuffer.init(256);
 
   mFrameTimer.start();
 
@@ -400,7 +402,6 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   /* draw the models */
-  mRenderData.rdMatricesSize = 0;
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
     size_t numberOfInstances = modelType.second.size();
     if (numberOfInstances > 0) {
@@ -434,7 +435,7 @@ bool OGLRenderer::draw(float deltaTime) {
         mAssimpTransformComputeShader.use();
 
         mUploadToUBOTimer.start();
-        mShaderNodeTransformBuffer.uploadSsboData(mNodeTransFormData, 0);
+        mNodeTransformBuffer.uploadSsboData(mNodeTransFormData, 0);
         mShaderTRSMatrixBuffer.bind(1);
         mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
@@ -512,7 +513,7 @@ void OGLRenderer::cleanup() {
   mShaderBoneMatrixBuffer.cleanup();
   mShaderTRSMatrixBuffer.cleanup();
 
-  mShaderNodeTransformBuffer.cleanup();
+  mNodeTransformBuffer.cleanup();
 
   mAssimpTransformComputeShader.cleanup();
   mAssimpMatrixComputeShader.cleanup();

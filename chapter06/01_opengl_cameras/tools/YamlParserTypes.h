@@ -6,6 +6,7 @@
 #include "InstanceSettings.h"
 #include "CameraSettings.h"
 #include "Enums.h"
+#include "Logger.h"
 
 namespace YAML {
   /* support GLM types */
@@ -92,12 +93,33 @@ namespace YAML {
     }
 
     static bool decode(const Node& node, CameraSettings& rhs) {
+      CameraSettings defaultSettings = CameraSettings{};
       rhs.csCamName = node["camera-name"].as<std::string>();
-      rhs.csWorldPosition = node["position"].as<glm::vec3>();
-      rhs.csViewAzimuth = node["view-azimuth"].as<float>();
-      rhs.csViewElevation = node["view-elevation"].as<float>();
+      try {
+        rhs.csWorldPosition = node["position"].as<glm::vec3>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse position of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+        rhs.csWorldPosition = defaultSettings.csWorldPosition;
+      }
+      try {
+        rhs.csViewAzimuth = node["view-azimuth"].as<float>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse azimuth of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+        rhs.csViewAzimuth = defaultSettings.csViewAzimuth;
+      }
+      try {
+        rhs.csViewElevation = node["view-elevation"].as<float>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse elevation of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+        rhs.csViewElevation = defaultSettings.csViewElevation;
+      }
       if (node["field-of-view"]) {
-        rhs.csFieldOfView = node["field-of-view"].as<int>();
+        try {
+          rhs.csFieldOfView = node["field-of-view"].as<int>();
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse field of view of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+          rhs.csFieldOfView = defaultSettings.csFieldOfView;
+        }
       }
       if (node["ortho-scale"]) {
         rhs.csOrthoScale = node["ortho-scale"].as<float>();
