@@ -317,7 +317,7 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
 
   if (ImGui::CollapsingHeader("Models")) {
     /* state is changed during model deletion, so save it first */
-    bool modelListEmtpy = modInstData.miModelList.size() == 0;
+    bool modelListEmtpy = modInstData.miModelList.empty();
     std::string selectedModelName;
 
     if (!modelListEmtpy) {

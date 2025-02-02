@@ -61,7 +61,7 @@ glm::mat4 AssimpAnimChannel::getTRSMatrix(float time) {
 }
 
 glm::vec3 AssimpAnimChannel::getTranslation(float time) {
-  if (mTranslations.size() == 0) {
+  if (mTranslations.empty()) {
     return glm::vec3(0.0f);
   }
 
@@ -110,7 +110,7 @@ glm::vec3 AssimpAnimChannel::getTranslation(float time) {
 }
 
 glm::vec3 AssimpAnimChannel::getScaling(float time) {
-  if (mScalings.size() == 0) {
+  if (mScalings.empty()) {
     return glm::vec3(1.0f);
   }
 
@@ -158,7 +158,7 @@ glm::vec3 AssimpAnimChannel::getScaling(float time) {
 }
 
 glm::quat AssimpAnimChannel::getRotation(float time) {
-  if (mRotations.size() == 0) {
+  if (mRotations.empty()) {
     return glm::identity<glm::quat>();
   }
 

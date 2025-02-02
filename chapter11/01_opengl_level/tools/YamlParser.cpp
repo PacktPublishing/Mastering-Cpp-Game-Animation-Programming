@@ -343,7 +343,7 @@ std::string YamlParser::getFileVersion() {
   }
 
   Logger::log(1, "%s: found config version %s\n", __FUNCTION__, mYamlFileVersion.c_str());
-  return versionString;
+  return mYamlFileVersion;
 }
 
 std::vector<ModelSettings> YamlParser::getModelConfigs() {

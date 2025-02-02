@@ -26,7 +26,7 @@ void SkyboxBuffer::cleanup() {
 }
 
 void SkyboxBuffer::uploadData(std::vector<OGLSkyboxVertex> vertexData) {
-  if (vertexData.size() == 0) {
+  if (vertexData.empty()) {
     Logger::log(1, "%s error: invalid data to upload\n", __FUNCTION__, vertexData.size());
     return;
   }

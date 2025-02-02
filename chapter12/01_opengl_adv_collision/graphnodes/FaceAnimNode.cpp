@@ -131,7 +131,7 @@ void FaceAnimNode::update(float deltaTime) {
   fireNodeActionCallback(getNodeType(), updateType, result, extra);
 
   if (mCurrentTime <= 0.0f) {
-    /* notifiy child(s) */
+    /* notify child(s) */
     fireNodeOutputTriggerCallback(mOutId);
     /* notify parent(s) */
     fireNodeOutputTriggerCallback(mInId);

@@ -2,7 +2,7 @@
 #include "Logger.h"
 
 OGLLineMesh ScaleArrowsModel::getVertexData() {
-  if (mVertexData.vertices.size() == 0) {
+  if (mVertexData.vertices.empty()) {
     init();
   }
   return mVertexData;

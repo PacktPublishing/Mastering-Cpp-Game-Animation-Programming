@@ -31,7 +31,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mRenderData.rdWidth = width;
   mRenderData.rdHeight = height;
 
-  /* initalize GLAD */
+  /* initialize GLAD */
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     Logger::log(1, "%s error: failed to initialize GLAD\n", __FUNCTION__);
     return false;
@@ -45,13 +45,13 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   GLint majorVersion, minorVersion;
   glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
   glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
-  Logger::log(1, "%s: OpenGL %d.%d initializeed\n", __FUNCTION__, majorVersion, minorVersion);
+  Logger::log(1, "%s: OpenGL %d.%d initialized\n", __FUNCTION__, majorVersion, minorVersion);
 
   if (!mFramebuffer.init(width, height)) {
     Logger::log(1, "%s error: could not init Framebuffer\n", __FUNCTION__);
     return false;
   }
-  Logger::log(1, "%s: framebuffer succesfully initialized\n", __FUNCTION__);
+  Logger::log(1, "%s: framebuffer successfully initialized\n", __FUNCTION__);
 
   mLineVertexBuffer.init();
   Logger::log(1, "%s: line vertex buffer successfully created\n", __FUNCTION__);
@@ -75,12 +75,12 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
   if (!mAssimpSkinningShader.getUniformLocation("aModelStride")) {
-    Logger::log(1, "%s: could not find symobl 'aModelStride' in GPU skinning shader\n", __FUNCTION__);
+    Logger::log(1, "%s: could not find symbol 'aModelStride' in GPU skinning shader\n", __FUNCTION__);
     return false;
   }
 
   if (!mAssimpSelectionShader.loadShaders("shader/assimp_selection.vert", "shader/assimp_selection.frag")) {
-    Logger::log(1, "%s: Assimp slection shader loading failed\n", __FUNCTION__);
+    Logger::log(1, "%s: Assimp selection shader loading failed\n", __FUNCTION__);
     return false;
   }
 
@@ -89,7 +89,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
   if (!mAssimpSkinningSelectionShader.getUniformLocation("aModelStride")) {
-    Logger::log(1, "%s: could not find symobl 'aModelStride' in GPU skinning selection shader\n", __FUNCTION__);
+    Logger::log(1, "%s: could not find symbol 'aModelStride' in GPU skinning selection shader\n", __FUNCTION__);
     return false;
   }
 
@@ -102,7 +102,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  Logger::log(1, "%s: shaders succesfully loaded\n", __FUNCTION__);
+  Logger::log(1, "%s: shaders successfully loaded\n", __FUNCTION__);
 
   mUserInterface.init(mRenderData);
   Logger::log(1, "%s: user interface initialized\n", __FUNCTION__);
@@ -180,7 +180,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   removeAllModelsAndInstances();
 
   std::vector<std::string> modelFileNames = parser.getModelFileNames();
-  if (modelFileNames.size() == 0) {
+  if (modelFileNames.empty()) {
     Logger::log(1, "%s error: no model files in file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
     return false;
   }
@@ -192,7 +192,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   }
 
   std::vector<InstanceSettings> instances = parser.getInstanceConfigs();
-  if (instances.size() == 0) {
+  if (instances.empty()) {
     Logger::log(1, "%s error: no instance in file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
     return false;
   }

@@ -271,7 +271,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
 
   if (ImGui::CollapsingHeader("Models")) {
     /* state is changed during model deletion, so save it first */
-    bool mModelListEmtpy = modInstData.miModelList.size() == 0;
+    bool mModelListEmtpy = modInstData.miModelList.empty();
     std::string selectedModelName;
 
     if (!mModelListEmtpy) {

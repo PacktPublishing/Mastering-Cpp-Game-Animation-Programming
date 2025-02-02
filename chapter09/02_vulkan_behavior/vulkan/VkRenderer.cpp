@@ -306,7 +306,7 @@ bool VkRenderer::loadConfigFile(std::string configFileName) {
 
   /* get models */
   std::vector<ModelSettings> savedModelSettings = parser.getModelConfigs();
-  if (savedModelSettings.size() == 0) {
+  if (savedModelSettings.empty()) {
     Logger::log(1, "%s error: no model files in file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
     return false;
   }
@@ -340,7 +340,7 @@ bool VkRenderer::loadConfigFile(std::string configFileName) {
 
   /* get node trees for behavior, needed to be set (copied) in instances */
   std::vector<EnhancedBehaviorData> behaviorData = parser.getBehaviorData();
-  if (behaviorData.size() == 0) {
+  if (behaviorData.empty()) {
     Logger::log(1, "%s error: no behaviors in file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
   }
 
@@ -381,7 +381,7 @@ bool VkRenderer::loadConfigFile(std::string configFileName) {
 
   /* load instances */
   std::vector<ExtendedInstanceSettings> savedInstanceSettings = parser.getInstanceConfigs();
-  if (savedInstanceSettings.size() == 0) {
+  if (savedInstanceSettings.empty()) {
     Logger::log(1, "%s error: no instance in file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
     return false;
   }
@@ -414,7 +414,7 @@ bool VkRenderer::loadConfigFile(std::string configFileName) {
 
   /* load cameras */
   std::vector<CameraSettings> savedCamSettings = parser.getCameraConfigs();
-  if (savedCamSettings.size() == 0) {
+  if (savedCamSettings.empty()) {
     Logger::log(1, "%s warning: no cameras in file '%s', fallback to default\n", __FUNCTION__, parser.getFileName().c_str());
   } else {
     for (const auto& setting : savedCamSettings) {
@@ -4129,7 +4129,7 @@ void VkRenderer::findInteractionInstances() {
   /* skip ourselve */
   queriedNearInstances.erase(curInstSettings.isInstanceIndexPosition);
 
-  if (queriedNearInstances.size() == 0) {
+  if (queriedNearInstances.empty()) {
     return;
   }
 
@@ -4144,7 +4144,7 @@ void VkRenderer::findInteractionInstances() {
     }
   }
 
-  if (nearInstances.size() == 0) {
+  if (nearInstances.empty()) {
     return;
   }
 
@@ -4168,7 +4168,7 @@ void VkRenderer::findInteractionInstances() {
     }
   }
 
-  if (instancesFacingToUs.size() == 0) {
+  if (instancesFacingToUs.empty()) {
     return;
   }
 

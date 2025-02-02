@@ -139,7 +139,7 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
 
   /* create a SSBOs containing all vertices for all morph animation of this mesh */
   for (const auto& mesh : mModelMeshes) {
-    if (mesh.morphMeshes.size() == 0) {
+    if (mesh.morphMeshes.empty()) {
       continue;
     }
     OGLMorphMesh animMesh;
@@ -380,7 +380,7 @@ void AssimpModel::drawInstancedNoMorphAnims(int instanceCount) {
 void AssimpModel::drawInstancedMorphAnims(int instanceCount) {
   for (unsigned int i = 0; i < mModelMeshes.size(); ++i) {
     /* draw only meshes with morph animations */
-    if (mModelMeshes.at(i).morphMeshes.size() == 0) {
+    if (mModelMeshes.at(i).morphMeshes.empty()) {
       continue;
     }
     OGLMesh& mesh = mModelMeshes.at(i);

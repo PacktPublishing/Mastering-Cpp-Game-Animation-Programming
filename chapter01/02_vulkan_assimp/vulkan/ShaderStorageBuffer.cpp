@@ -25,7 +25,7 @@ bool ShaderStorageBuffer::init(VkRenderData& renderData, VkShaderStorageBufferDa
 }
 
 void ShaderStorageBuffer::uploadData(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData, std::vector<glm::mat4> bufferData) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 

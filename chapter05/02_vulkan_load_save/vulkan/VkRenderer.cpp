@@ -208,7 +208,7 @@ bool VkRenderer::loadConfigFile(std::string configFileName) {
   removeAllModelsAndInstances();
 
   std::vector<std::string> modelFileNames = parser.getModelFileNames();
-  if (modelFileNames.size() == 0) {
+  if (modelFileNames.empty()) {
     Logger::log(1, "%s error: no model files in file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
     return false;
   }
@@ -220,7 +220,7 @@ bool VkRenderer::loadConfigFile(std::string configFileName) {
   }
 
   std::vector<InstanceSettings> instances = parser.getInstanceConfigs();
-  if (instances.size() == 0) {
+  if (instances.empty()) {
     Logger::log(1, "%s error: no instance in file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
     return false;
   }

@@ -35,7 +35,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mRenderData.rdWidth = width;
   mRenderData.rdHeight = height;
 
-  /* initalize GLAD */
+  /* initialize GLAD */
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     Logger::log(1, "%s error: failed to initialize GLAD\n", __FUNCTION__);
     return false;
@@ -49,13 +49,13 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   GLint majorVersion, minorVersion;
   glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
   glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
-  Logger::log(1, "%s: OpenGL %d.%d initializeed\n", __FUNCTION__, majorVersion, minorVersion);
+  Logger::log(1, "%s: OpenGL %d.%d initialized\n", __FUNCTION__, majorVersion, minorVersion);
 
   if (!mFramebuffer.init(width, height)) {
     Logger::log(1, "%s error: could not init Framebuffer\n", __FUNCTION__);
     return false;
   }
-  Logger::log(1, "%s: framebuffer succesfully initialized\n", __FUNCTION__);
+  Logger::log(1, "%s: framebuffer successfully initialized\n", __FUNCTION__);
 
   mLineVertexBuffer.init();
   Logger::log(1, "%s: line vertex buffer successfully created\n", __FUNCTION__);
@@ -84,7 +84,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
   if (!mAssimpSkinningShader.getUniformLocation("aModelStride")) {
-    Logger::log(1, "%s: could not find symobl 'aModelStride' in GPU skinning shader\n", __FUNCTION__);
+    Logger::log(1, "%s: could not find symbol 'aModelStride' in GPU skinning shader\n", __FUNCTION__);
     return false;
   }
 
@@ -93,12 +93,12 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
   if (!mAssimpSkinningMorphShader.getUniformLocation("aModelStride")) {
-    Logger::log(1, "%s: could not find symobl 'aModelStride' in GPU skinning with morph anims shader\n", __FUNCTION__);
+    Logger::log(1, "%s: could not find symbol 'aModelStride' in GPU skinning with morph anims shader\n", __FUNCTION__);
     return false;
   }
 
   if (!mAssimpSelectionShader.loadShaders("shader/assimp_selection.vert", "shader/assimp_selection.frag")) {
-    Logger::log(1, "%s: Assimp slection shader loading failed\n", __FUNCTION__);
+    Logger::log(1, "%s: Assimp selection shader loading failed\n", __FUNCTION__);
     return false;
   }
 
@@ -107,7 +107,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
   if (!mAssimpSkinningSelectionShader.getUniformLocation("aModelStride")) {
-    Logger::log(1, "%s: could not find symobl 'aModelStride' in GPU skinning selection shader\n", __FUNCTION__);
+    Logger::log(1, "%s: could not find symbol 'aModelStride' in GPU skinning selection shader\n", __FUNCTION__);
     return false;
   }
 
@@ -116,7 +116,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
   if (!mAssimpSkinningMorphSelectionShader.getUniformLocation("aModelStride")) {
-    Logger::log(1, "%s: could not find symobl 'aModelStride' in GPU skinning with morph anims and selection shader\n", __FUNCTION__);
+    Logger::log(1, "%s: could not find symbol 'aModelStride' in GPU skinning with morph anims and selection shader\n", __FUNCTION__);
     return false;
   }
 
@@ -137,7 +137,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
     return false;
   }
 
-  Logger::log(1, "%s: shaders succesfully loaded\n", __FUNCTION__);
+  Logger::log(1, "%s: shaders successfully loaded\n", __FUNCTION__);
 
   /* add backface culling and depth test already here */
   glEnable(GL_CULL_FACE);
@@ -326,7 +326,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
 
   /* get models */
   std::vector<ModelSettings> savedModelSettings = parser.getModelConfigs();
-  if (savedModelSettings.size() == 0) {
+  if (savedModelSettings.empty()) {
     Logger::log(1, "%s error: no model files in file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
     return false;
   }
@@ -360,7 +360,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
 
   /* get node trees for behavior, needed to be set (copied) in instances */
   std::vector<EnhancedBehaviorData> behaviorData = parser.getBehaviorData();
-  if (behaviorData.size() == 0) {
+  if (behaviorData.empty()) {
     Logger::log(1, "%s error: no behaviors in file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
   }
 
@@ -401,7 +401,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
 
   /* load instances */
   std::vector<ExtendedInstanceSettings> savedInstanceSettings = parser.getInstanceConfigs();
-  if (savedInstanceSettings.size() == 0) {
+  if (savedInstanceSettings.empty()) {
     Logger::log(1, "%s error: no instance in file '%s'\n", __FUNCTION__, parser.getFileName().c_str());
     return false;
   }
@@ -434,7 +434,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
 
   /* load cameras */
   std::vector<CameraSettings> savedCamSettings = parser.getCameraConfigs();
-  if (savedCamSettings.size() == 0) {
+  if (savedCamSettings.empty()) {
     Logger::log(1, "%s warning: no cameras in file '%s', fallback to default\n", __FUNCTION__, parser.getFileName().c_str());
   } else {
     for (const auto& setting : savedCamSettings) {
@@ -1797,15 +1797,15 @@ void OGLRenderer::createAABBLookup(std::shared_ptr<AssimpModel> model) {
   auto boneList =  model->getBoneList();
   size_t numberOfBones = boneList.size();
 
-  /* we need valid model with triangels and animations */
+  /* we need valid model with triangles and animations */
   if (numberOfClips > 0 && numberOfBones > 0 &&
       model->getTriangleCount() > 0) {
 
     Logger::log(1, "%s: playing animations for model %s\n", __FUNCTION__, model->getModelFileName().c_str());
 
     /* we MUST set the bone offsets to identity matrices to get the skeleton data */
-    std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
-    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
+    std::vector<glm::mat4> emptyBoneOffsets(numberOfBones, glm::mat4(1.0f));
+    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOffsets);
 
     std::vector<std::vector<AABB>> aabbLookups;
     aabbLookups.resize(numberOfClips);
@@ -1920,8 +1920,8 @@ void OGLRenderer::checkForInstanceCollisions() {
       mPerInstanceAnimData.resize(numInstances);
 
       /* we MUST set the bone offsets to identity matrices to get the skeleton data */
-      std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
-      mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
+      std::vector<glm::mat4> emptyBoneOffsets(numberOfBones, glm::mat4(1.0f));
+      mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOffsets);
 
       /* reusing the array and SSBO for now */
       mWorldPosMatrices.resize(numInstances);
@@ -2093,7 +2093,7 @@ void OGLRenderer::findInteractionInstances() {
   /* skip ourselve */
   queriedNearInstances.erase(curInstSettings.isInstanceIndexPosition);
 
-  if (queriedNearInstances.size() == 0) {
+  if (queriedNearInstances.empty()) {
     return;
   }
 
@@ -2108,7 +2108,7 @@ void OGLRenderer::findInteractionInstances() {
     }
   }
 
-  if (nearInstances.size() == 0) {
+  if (nearInstances.empty()) {
     return;
   }
 
@@ -2132,7 +2132,7 @@ void OGLRenderer::findInteractionInstances() {
     }
   }
 
-  if (instancesFacingToUs.size() == 0) {
+  if (instancesFacingToUs.empty()) {
     return;
   }
 
@@ -2392,8 +2392,8 @@ void OGLRenderer::drawSelectedBoundingSpheres() {
     mPerInstanceAnimData.resize(1);
 
     /* we MUST set the bone offsets to identity matrices to get the skeleton data */
-    std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
-    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
+    std::vector<glm::mat4> emptyBoneOffsets(numberOfBones, glm::mat4(1.0f));
+    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOffsets);
 
     /* reusing the array and SSBO for now */
     mWorldPosMatrices.resize(1);
@@ -2454,8 +2454,8 @@ void OGLRenderer::drawCollidingBoundingSpheres() {
     mPerInstanceAnimData.resize(numInstances);
 
     /* we MUST set the bone offsets to identity matrices to get the skeleton data */
-    std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
-    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
+    std::vector<glm::mat4> emptyBoneOffsets(numberOfBones, glm::mat4(1.0f));
+    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOffsets);
 
     /* reusing the array and SSBO for now */
     mWorldPosMatrices.resize(numInstances);
@@ -2511,8 +2511,8 @@ void OGLRenderer::drawAllBoundingSpheres() {
     mPerInstanceAnimData.resize(numInstances);
 
     /* we MUST set the bone offsets to identity matrices to get the skeleton data */
-    std::vector<glm::mat4> emptyBoneOfssets(numberOfBones, glm::mat4(1.0f));
-    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOfssets);
+    std::vector<glm::mat4> emptyBoneOffsets(numberOfBones, glm::mat4(1.0f));
+    mEmptyBoneOffsetBuffer.uploadSsboData(emptyBoneOffsets);
 
     /* reusing the array and SSBO for now */
     mWorldPosMatrices.resize(numInstances);

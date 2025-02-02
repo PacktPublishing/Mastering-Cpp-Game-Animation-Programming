@@ -12,7 +12,7 @@ void UniformBuffer::init(size_t bufferSize) {
 }
 
 void UniformBuffer::uploadUboData(std::vector<glm::mat4> bufferData, int bindingPoint) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
   size_t bufferSize = bufferData.size() * sizeof(glm::mat4);

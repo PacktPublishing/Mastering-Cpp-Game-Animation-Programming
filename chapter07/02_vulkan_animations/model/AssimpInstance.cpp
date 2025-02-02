@@ -199,7 +199,7 @@ void AssimpInstance::updateInstanceSpeed(float deltaTime) {
   static float maxSpeed = MAX_ABS_SPEED;
 
   if (!mInstanceSettings.isMoveKeyPressed && !mKeepInstanceSpeed) {
-    /* deaccelerate */
+    /* decelerate */
     if (currentSpeed > 0.0f) {
       if (mInstanceSettings.isSpeed.x > 0.0f) {
         mInstanceSettings.isAccel.x = -2.5f;

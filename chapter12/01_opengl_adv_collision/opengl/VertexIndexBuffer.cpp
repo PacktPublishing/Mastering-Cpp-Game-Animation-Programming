@@ -38,7 +38,7 @@ void VertexIndexBuffer::cleanup() {
 }
 
 void VertexIndexBuffer::uploadData(std::vector<OGLVertex> vertexData, std::vector<uint32_t> indices) {
-  if (vertexData.size() == 0 || indices.size() == 0) {
+  if (vertexData.empty() || indices.empty()) {
     Logger::log(1, "%s error: invalid data to upload (vertices: %i, indices: %i)\n", __FUNCTION__, vertexData.size(), indices.size());
     return;
   }

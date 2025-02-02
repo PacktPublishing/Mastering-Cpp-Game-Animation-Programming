@@ -56,7 +56,7 @@ float AssimpAnimChannel::getMaxTime() {
 }
 
 glm::vec4 AssimpAnimChannel::getTranslation(float time) {
-  if (mTranslations.size() == 0) {
+  if (mTranslations.empty()) {
     return glm::vec4(0.0f);
   }
 
@@ -105,7 +105,7 @@ glm::vec4 AssimpAnimChannel::getTranslation(float time) {
 }
 
 glm::vec4 AssimpAnimChannel::getScaling(float time) {
-  if (mScalings.size() == 0) {
+  if (mScalings.empty()) {
     return glm::vec4(1.0f);
   }
 
@@ -153,7 +153,7 @@ glm::vec4 AssimpAnimChannel::getScaling(float time) {
 }
 
 glm::vec4 AssimpAnimChannel::getRotation(float time) {
-  if (mRotations.size() == 0) {
+  if (mRotations.empty()) {
     return glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
   }
 

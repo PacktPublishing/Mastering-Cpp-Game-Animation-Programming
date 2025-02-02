@@ -220,8 +220,8 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
   ShaderStorageBuffer::uploadData(renderData, mShaderBoneParentBuffer, mBoneParentIndexList);
 
   /* we MUST set bone offsets to identity matrices to get the skeleton data for the AABBs */
-  std::vector<glm::mat4> emptyBoneOfssets(mBoneList.size(), glm::mat4(1.0f));
-  ShaderStorageBuffer::uploadData(renderData, mEmptyBoneOffsetBuffer, emptyBoneOfssets);
+  std::vector<glm::mat4> emptyBoneOffsets(mBoneList.size(), glm::mat4(1.0f));
+  ShaderStorageBuffer::uploadData(renderData, mEmptyBoneOffsetBuffer, emptyBoneOffsets);
 
   mModelSettings.msModelFilenamePath = modelFilename;
   mModelSettings.msModelFilename = std::filesystem::path(modelFilename).filename().generic_string();

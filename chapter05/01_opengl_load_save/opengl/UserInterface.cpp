@@ -150,7 +150,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal;
     const std::string defaultFileName = "config/conf.acfg";
-    config.filePathName = defaultFileName.c_str();
+    config.filePathName = defaultFileName;
     ImGuiFileDialog::Instance()->OpenDialog("LoadConfigFile", "Load Configuration File",
       ".acfg", config);
   }
@@ -191,7 +191,7 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal | ImGuiFileDialogFlags_ConfirmOverwrite;
     const std::string defaultFileName = "config/conf.acfg";
-    config.filePathName = defaultFileName.c_str();
+    config.filePathName = defaultFileName;
     ImGuiFileDialog::Instance()->OpenDialog("SaveConfigFile", "Save Configuration File",
       ".acfg", config);
   }

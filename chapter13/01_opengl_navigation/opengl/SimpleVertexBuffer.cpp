@@ -27,7 +27,7 @@ void SimpleVertexBuffer::cleanup() {
 }
 
 void SimpleVertexBuffer::uploadData(OGLLineMesh vertexData) {
-  if (vertexData.vertices.size() == 0) {
+  if (vertexData.vertices.empty()) {
     return;
   }
 

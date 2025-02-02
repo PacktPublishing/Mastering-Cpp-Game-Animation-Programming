@@ -46,7 +46,7 @@ void IKSolver::solveFABRIKBackwards(glm::vec3 rootPos) {
 }
 
 std::vector<glm::vec3> IKSolver::solveFARBIK(std::vector<glm::mat4>& nodeMatrices, glm::vec3 targetPos) {
-  if (nodeMatrices.size() == 0) {
+  if (nodeMatrices.empty()) {
     return std::vector<glm::vec3>{};
   }
 

@@ -12,7 +12,7 @@ void ShaderStorageBuffer::init(size_t bufferSize) {
 }
 
 void ShaderStorageBuffer::uploadSsboData(std::vector<glm::mat4> bufferData, int bindingPoint) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 
@@ -31,7 +31,7 @@ void ShaderStorageBuffer::uploadSsboData(std::vector<glm::mat4> bufferData, int 
 }
 
 void ShaderStorageBuffer::uploadSsboData(std::vector<glm::mat4> bufferData) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 
@@ -48,7 +48,7 @@ void ShaderStorageBuffer::uploadSsboData(std::vector<glm::mat4> bufferData) {
 }
 
 void ShaderStorageBuffer::uploadSsboData(std::vector<glm::mat2x4> bufferData, int bindingPoint) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 
@@ -67,7 +67,7 @@ void ShaderStorageBuffer::uploadSsboData(std::vector<glm::mat2x4> bufferData, in
 }
 
 void ShaderStorageBuffer::uploadSsboData(std::vector<NodeTransformData> bufferData, int bindingPoint) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 
@@ -86,7 +86,7 @@ void ShaderStorageBuffer::uploadSsboData(std::vector<NodeTransformData> bufferDa
 }
 
 void ShaderStorageBuffer::uploadSsboData(std::vector<int32_t> bufferData, int bindingPoint) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 
@@ -105,7 +105,7 @@ void ShaderStorageBuffer::uploadSsboData(std::vector<int32_t> bufferData, int bi
 }
 
 void ShaderStorageBuffer::uploadSsboData(std::vector<glm::vec2> bufferData, int bindingPoint) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 
@@ -124,7 +124,7 @@ void ShaderStorageBuffer::uploadSsboData(std::vector<glm::vec2> bufferData, int 
 }
 
 void ShaderStorageBuffer::uploadSsboData(std::vector<int32_t> bufferData) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 

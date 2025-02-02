@@ -26,7 +26,7 @@ void LineVertexBuffer::cleanup() {
 }
 
 void LineVertexBuffer::uploadData(OGLLineMesh vertexData) {
-  if (vertexData.vertices.size() == 0) {
+  if (vertexData.vertices.empty()) {
     return;
   }
 

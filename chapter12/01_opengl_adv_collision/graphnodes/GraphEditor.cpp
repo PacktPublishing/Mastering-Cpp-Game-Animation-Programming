@@ -91,7 +91,7 @@ int GraphEditor::findNextFreeNodeId() {
 int GraphEditor::findNextFreeLinkId() {
   std::shared_ptr<BehaviorData> behavior = mBehavior->getBehaviorData();
 
-  if (behavior->bdGraphLinks.size() == 0) {
+  if (behavior->bdGraphLinks.empty()) {
     return LINK_ID_RANGE_START;
   }
 

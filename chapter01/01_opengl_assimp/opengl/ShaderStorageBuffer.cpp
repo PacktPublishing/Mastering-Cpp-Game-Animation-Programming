@@ -12,7 +12,7 @@ void ShaderStorageBuffer::init(size_t bufferSize) {
 }
 
 void ShaderStorageBuffer::uploadSsboData(std::vector<glm::mat4> bufferData, int bindingPoint) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 
@@ -31,7 +31,7 @@ void ShaderStorageBuffer::uploadSsboData(std::vector<glm::mat4> bufferData, int 
 }
 
 void ShaderStorageBuffer::uploadSsboData(std::vector<glm::mat2x4> bufferData, int bindingPoint) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 

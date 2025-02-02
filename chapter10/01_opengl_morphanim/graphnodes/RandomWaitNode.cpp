@@ -150,7 +150,7 @@ void RandomWaitNode::update(float deltaTime) {
   mCurrentTime -= deltaTime;
 
   if (mCurrentTime <= 0.0f) {
-    /* notifiy child(s) */
+    /* notify child(s) */
     fireNodeOutputTriggerCallback(mOutId);
     /* notify parent(s) */
     fireNodeOutputTriggerCallback(mInId);

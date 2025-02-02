@@ -17,7 +17,7 @@ void IndexBuffer::unbind() {
 }
 
 void IndexBuffer::uploadData(std::vector<uint32_t> indices) {
-  if (indices.size() == 0) {
+  if (indices.empty()) {
     return;
   }
 

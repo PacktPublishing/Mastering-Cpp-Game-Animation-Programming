@@ -250,7 +250,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal;
     const std::string defaultFileName = "config/conf.acfg";
-    config.filePathName = defaultFileName.c_str();
+    config.filePathName = defaultFileName;
     ImGuiFileDialog::Instance()->OpenDialog("LoadConfigFile", "Load Configuration File",
       ".acfg", config);
   }
@@ -320,7 +320,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal | ImGuiFileDialogFlags_ConfirmOverwrite;
     const std::string defaultFileName = "config/conf.acfg";
-    config.filePathName = defaultFileName.c_str();
+    config.filePathName = defaultFileName;
     ImGuiFileDialog::Instance()->OpenDialog("SaveConfigFile", "Save Configuration File",
       ".acfg", config);
   }
@@ -756,7 +756,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         const bool isSelected = (modInstCamData.micSelectedCamera == i);
         if (ImGui::Selectable(modInstCamData.micCameras.at(i)->getName().c_str(), isSelected)) {
           modInstCamData.micSelectedCamera = i;
-          selectedCamName = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName().c_str();
+          selectedCamName = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName();
         }
 
         if (isSelected) {
@@ -1109,7 +1109,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         const bool isSelected = (modInstCamData.micSelectedModel == i);
         if (ImGui::Selectable(modInstCamData.micModelList.at(i)->getModelFileName().c_str(), isSelected)) {
           modInstCamData.micSelectedModel = i;
-          selectedModelName = modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str();
+          selectedModelName = modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName();
         }
 
         if (isSelected) {
@@ -1142,7 +1142,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Indent();
       ImGui::Indent();
       if (ImGui::Button("OK")) {
-        modInstCamData.micModelDeleteCallbackFunction(modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str(), true);
+        modInstCamData.micModelDeleteCallbackFunction(modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName(), true);
 
         ImGui::CloseCurrentPopup();
       }
@@ -1254,7 +1254,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         if (ImGui::Selectable(modInstCamData.micLevels.at(i)->getLevelFileName().c_str(), isSelected)) {
           modInstCamData.micSelectedLevel = i;
           settings = modInstCamData.micLevels.at(modInstCamData.micSelectedLevel)->getLevelSettings();
-          selectedLevelName = modInstCamData.micLevels.at(modInstCamData.micSelectedLevel)->getLevelFileName().c_str();
+          selectedLevelName = modInstCamData.micLevels.at(modInstCamData.micSelectedLevel)->getLevelFileName();
         }
 
         if (isSelected) {
@@ -1619,7 +1619,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       numberOfClips = mCurrentModel->getAnimClips().size();
       modSettings = mCurrentModel->getModelSettings();
 
-      ImGui::Text("Enable Prewiev:");
+      ImGui::Text("Enable Preview:");
       ImGui::SameLine();
       ImGui::Checkbox("##MapPreviewTestMode", &modSettings.msPreviewMode);
 
@@ -1857,7 +1857,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
           modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel()->getAnimClips();
 
         /* init mapping with default values if empty */
-        if (modSettings.msHeadMoveClipMappings.size() == 0) {
+        if (modSettings.msHeadMoveClipMappings.empty()) {
           for (int i = 0; i < static_cast<int>(headMoveDirection::NUM); ++i) {
             modSettings.msHeadMoveClipMappings[static_cast<headMoveDirection>(i)] = -1;
           }
@@ -2438,12 +2438,12 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         averageNumCollisions += value;
       }
       averageNumCollisions /= static_cast<float>(mNumNumCollisionValues);
-      std::string numCoillisionsOverlay = "now:     " + std::to_string(renderData.rdNumberOfCollisions) +
+      std::string numCollisionsOverlay = "now:     " + std::to_string(renderData.rdNumberOfCollisions) +
         "\n30s avg: " + std::to_string(averageNumCollisions);
       ImGui::Text("Collisions");
       ImGui::SameLine();
       ImGui::PlotLines("##NumCollisions", mNumCollisionsValues.data(), mNumCollisionsValues.size(), mNumCollisionOffset,
-        numCoillisionsOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+        numCollisionsOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 

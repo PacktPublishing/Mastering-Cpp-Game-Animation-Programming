@@ -6,7 +6,7 @@
 #include "Logger.h"
 
 OGLLineMesh SphereModel::getVertexData() {
-  if (mVertexData.vertices.size() == 0) {
+  if (mVertexData.vertices.empty()) {
     init();
   }
   return mVertexData;

@@ -16,7 +16,7 @@ class ShaderStorageBuffer {
     /* upload and bind */
     template <typename T>
     void uploadSsboData(std::vector<T> bufferData, int bindingPoint) {
-      if (bufferData.size() == 0) {
+      if (bufferData.empty()) {
         return;
       }
 
@@ -53,7 +53,7 @@ class ShaderStorageBuffer {
     /* just upload, use bind() call to use */
     template <typename T>
     void uploadSsboData(std::vector<T> bufferData) {
-      if (bufferData.size() == 0) {
+      if (bufferData.empty()) {
         return;
       }
 

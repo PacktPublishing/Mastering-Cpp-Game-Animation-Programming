@@ -288,7 +288,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal;
     const std::string defaultFileName = "config/conf.acfg";
-    config.filePathName = defaultFileName.c_str();
+    config.filePathName = defaultFileName;
     ImGuiFileDialog::Instance()->OpenDialog("LoadConfigFile", "Load Configuration File",
       ".acfg", config);
   }
@@ -358,7 +358,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal | ImGuiFileDialogFlags_ConfirmOverwrite;
     const std::string defaultFileName = "config/conf.acfg";
-    config.filePathName = defaultFileName.c_str();
+    config.filePathName = defaultFileName;
     ImGuiFileDialog::Instance()->OpenDialog("SaveConfigFile", "Save Configuration File",
       ".acfg", config);
   }
@@ -738,7 +738,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         const bool isSelected = (modInstCamData.micSelectedCamera == i);
         if (ImGui::Selectable(modInstCamData.micCameras.at(i)->getName().c_str(), isSelected)) {
           modInstCamData.micSelectedCamera = i;
-          selectedCamName = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName().c_str();
+          selectedCamName = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName();
         }
 
         if (isSelected) {
@@ -1085,7 +1085,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         const bool isSelected = (modInstCamData.micSelectedModel == i);
         if (ImGui::Selectable(modInstCamData.micModelList.at(i)->getModelFileName().c_str(), isSelected)) {
           modInstCamData.micSelectedModel = i;
-          selectedModelName = modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str();
+          selectedModelName = modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName();
         }
 
         if (isSelected) {
@@ -1118,7 +1118,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       ImGui::Indent();
       ImGui::Indent();
       if (ImGui::Button("OK")) {
-        modInstCamData.micModelDeleteCallbackFunction(modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str(), true);
+        modInstCamData.micModelDeleteCallbackFunction(modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName(), true);
 
         ImGui::CloseCurrentPopup();
       }
@@ -1467,7 +1467,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       numberOfClips = mCurrentModel->getAnimClips().size();
       modSettings = mCurrentModel->getModelSettings();
 
-      ImGui::Text("Enable Prewiev:");
+      ImGui::Text("Enable Preview:");
       ImGui::SameLine();
       ImGui::Checkbox("##MapPreviewTestMode", &modSettings.msPreviewMode);
 
@@ -2153,12 +2153,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         averageNumCollisions += value;
       }
       averageNumCollisions /= static_cast<float>(mNumNumCollisionValues);
-      std::string numCoillisionsOverlay = "now:     " + std::to_string(renderData.rdNumberOfCollisions) +
+      std::string numCollisionsOverlay = "now:     " + std::to_string(renderData.rdNumberOfCollisions) +
         "\n30s avg: " + std::to_string(averageNumCollisions);
       ImGui::Text("Collisions");
       ImGui::SameLine();
       ImGui::PlotLines("##NumCollisions", mNumCollisionsValues.data(), mNumCollisionsValues.size(), mNumCollisionOffset,
-                       numCoillisionsOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
+                       numCollisionsOverlay.c_str(), 0.0f, std::numeric_limits<float>::max(), ImVec2(0, 80));
       ImGui::EndTooltip();
     }
 

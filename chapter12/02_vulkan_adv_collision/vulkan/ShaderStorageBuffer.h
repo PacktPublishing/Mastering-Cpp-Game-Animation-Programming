@@ -16,7 +16,7 @@ class ShaderStorageBuffer {
 
     template <typename T>
     static void uploadData(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData, std::vector<T> bufferData) {
-      if (bufferData.size() == 0) {
+      if (bufferData.empty()) {
         return;
       }
 

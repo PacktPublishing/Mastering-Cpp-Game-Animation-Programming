@@ -227,7 +227,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal;
     const std::string defaultFileName = "config/conf.acfg";
-    config.filePathName = defaultFileName.c_str();
+    config.filePathName = defaultFileName;
     ImGuiFileDialog::Instance()->OpenDialog("LoadConfigFile", "Load Configuration File",
       ".acfg", config);
   }
@@ -297,7 +297,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal | ImGuiFileDialogFlags_ConfirmOverwrite;
     const std::string defaultFileName = "config/conf.acfg";
-    config.filePathName = defaultFileName.c_str();
+    config.filePathName = defaultFileName;
     ImGuiFileDialog::Instance()->OpenDialog("SaveConfigFile", "Save Configuration File",
       ".acfg", config);
   }
@@ -591,7 +591,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         const bool isSelected = (modInstCamData.micSelectedCamera == i);
         if (ImGui::Selectable(modInstCamData.micCameras.at(i)->getName().c_str(), isSelected)) {
           modInstCamData.micSelectedCamera = i;
-          selectedCamName = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName().c_str();
+          selectedCamName = modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName();
         }
 
         if (isSelected) {
@@ -918,7 +918,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
 
     if (!modelListEmtpy) {
-      selectedModelName = modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str();
+      selectedModelName = modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName();
     }
 
     if (modelListEmtpy) {
@@ -935,7 +935,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         const bool isSelected = (modInstCamData.micSelectedModel == i);
         if (ImGui::Selectable(modInstCamData.micModelList.at(i)->getModelFileName().c_str(), isSelected)) {
           modInstCamData.micSelectedModel = i;
-          selectedModelName = modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str();
+          selectedModelName = modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName();
         }
 
         if (isSelected) {
@@ -968,7 +968,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::Indent();
       ImGui::Indent();
       if (ImGui::Button("OK")) {
-        modInstCamData.micModelDeleteCallbackFunction(modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName().c_str(), true);
+        modInstCamData.micModelDeleteCallbackFunction(modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName(), true);
 
         ImGui::CloseCurrentPopup();
       }

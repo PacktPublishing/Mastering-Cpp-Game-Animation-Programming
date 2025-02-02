@@ -31,14 +31,14 @@ std::optional<glm::vec3> Tools::rayTriangleIntersection(glm::vec3 rayOrigin, glm
 
   glm::vec3 rayCrossEdge2 = glm::cross(rayDirection, edge2);
 
-  float inPlandeDeterminant = glm::dot(edge1, rayCrossEdge2);
+  float inPlaneDeterminant = glm::dot(edge1, rayCrossEdge2);
 
   /* ray is (almost) parallel to triangle */
-  if (std::fabs(inPlandeDeterminant) < epsilon) {
+  if (std::fabs(inPlaneDeterminant) < epsilon) {
     return {};
   }
 
-  float inverseInPlaneDeterminant = 1.0f / inPlandeDeterminant;
+  float inverseInPlaneDeterminant = 1.0f / inPlaneDeterminant;
 
   glm::vec3 rayOriginDistFromPoint0 = rayOrigin - triangle.points.at(0);
 

@@ -57,7 +57,7 @@ bool ShaderStorageBuffer::initCoherent(VkRenderData& renderData, VkShaderStorage
 }
 
 void ShaderStorageBuffer::uploadData(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData, std::vector<glm::mat4> bufferData) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 
@@ -80,7 +80,7 @@ void ShaderStorageBuffer::uploadData(VkRenderData &renderData, VkShaderStorageBu
 }
 
 void ShaderStorageBuffer::uploadData(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData, std::vector<int32_t> bufferData) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 
@@ -103,7 +103,7 @@ void ShaderStorageBuffer::uploadData(VkRenderData &renderData, VkShaderStorageBu
 }
 
 void ShaderStorageBuffer::uploadData(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData, std::vector<NodeTransformData> bufferData) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 
@@ -126,7 +126,7 @@ void ShaderStorageBuffer::uploadData(VkRenderData &renderData, VkShaderStorageBu
 }
 
 void ShaderStorageBuffer::uploadData(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData, std::vector<glm::vec2> bufferData) {
-  if (bufferData.size() == 0) {
+  if (bufferData.empty()) {
     return;
   }
 

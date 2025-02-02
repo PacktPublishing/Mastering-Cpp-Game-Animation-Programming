@@ -202,7 +202,7 @@ void HeadAnimNode::update(float deltaTime) {
   fireNodeActionCallback(getNodeType(), updateType, result, extra);
 
   if (mCurrentLeftRightBlendTime <= 0.0f && mCurrentUpDownBlendTime <= 0.0f) {
-    /* notifiy child(s) */
+    /* notify child(s) */
     fireNodeOutputTriggerCallback(mOutId);
     /* notify parent(s) */
     fireNodeOutputTriggerCallback(mInId);

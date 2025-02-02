@@ -39,7 +39,7 @@ bool AudioManager::init() {
   setMusicVolume(mMusicVolume);
   setSoundVolume(mSoundVolume);
 
-  Logger::log(1, "%s: SDL audio succesfully initialized\n", __FUNCTION__);
+  Logger::log(1, "%s: SDL audio successfully initialized\n", __FUNCTION__);
   return true;
 }
 
@@ -149,7 +149,7 @@ void AudioManager::playRandomMusic() {
     return;
   }
 
-  if (mPlayList.size() == 0) {
+  if (mPlayList.empty()) {
     return;
   }
 
@@ -206,7 +206,7 @@ std::string AudioManager::getCurrentTitle() {
     return std::string{};
   }
 
-  if (mPlayList.size() == 0 || mPlayListPosition > mPlayList.size()) {
+  if (mPlayList.empty() || mPlayListPosition > mPlayList.size()) {
     return std::string{};
   }
 

@@ -148,7 +148,7 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
 
   /* create a SSBOs containing all vertices for all morph animation of this mesh */
   for (const auto& mesh : mModelMeshes) {
-    if (mesh.morphMeshes.size() == 0) {
+    if (mesh.morphMeshes.empty()) {
       continue;
     }
     VkMorphMesh animMesh;
@@ -269,8 +269,8 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
   ShaderStorageBuffer::uploadData(renderData, mShaderBoneParentBuffer, mBoneParentIndexList);
 
   /* we MUST set bone offsets to identity matrices to get the skeleton data for the AABBs */
-  std::vector<glm::mat4> emptyBoneOfssets(mBoneList.size(), glm::mat4(1.0f));
-  ShaderStorageBuffer::uploadData(renderData, mEmptyBoneOffsetBuffer, emptyBoneOfssets);
+  std::vector<glm::mat4> emptyBoneOffsets(mBoneList.size(), glm::mat4(1.0f));
+  ShaderStorageBuffer::uploadData(renderData, mEmptyBoneOffsetBuffer, emptyBoneOffsets);
 
   mModelSettings.msModelFilenamePath = modelFilename;
   mModelSettings.msModelFilename = std::filesystem::path(modelFilename).filename().generic_string();
@@ -629,7 +629,7 @@ void AssimpModel::drawInstancedNoMorphAnims(VkRenderData &renderData, uint32_t i
 void AssimpModel::drawInstancedMorphAnims(VkRenderData &renderData, uint32_t instanceCount, bool selectionModeActive) {
   for (unsigned int i = 0; i < mModelMeshes.size(); ++i) {
     /* draw only meshes with morph animations */
-    if (mModelMeshes.at(i).morphMeshes.size() == 0) {
+    if (mModelMeshes.at(i).morphMeshes.empty()) {
       continue;
     }
     drawInstanced(renderData, i, instanceCount, selectionModeActive, true);
