@@ -19,7 +19,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(Mastering-Cpp-Game-Animations)
 
-
 include(ExternalProject)
 macro(BuildOpenGLProject ChapterNum ExampleName)
   ExternalProject_Add(
@@ -57,6 +56,28 @@ macro(BuildOpenGLProjectWithConfig ChapterNum ExampleName)
   )
 endmacro()
 
+if (WIN32)
+  macro(BuildOpenGLProjectWithConfigAndSDL2 ChapterNum ExampleName)
+    ExternalProject_Add(
+      Chapter${ChapterNum}-OpenGL-Config-SDL2
+      PREFIX ${CMAKE_BINARY_DIR}/build-files
+      SOURCE_DIR ${PROJECT_SOURCE_DIR}/chapter${ChapterNum}/01_opengl_${ExampleName}
+      BINARY_DIR ${CMAKE_BINARY_DIR}/chapter${ChapterNum}/01_opengl_${ExampleName}-build
+
+      INSTALL_COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/01_opengl_${ExampleName}"
+      COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/01_opengl_${ExampleName}-build/$<CONFIG>/Main${CMAKE_EXECUTABLE_SUFFIX}" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/01_opengl_${ExampleName}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/01_opengl_${ExampleName}-build/$<CONFIG>/imgui.ini" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/01_opengl_${ExampleName}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/01_opengl_${ExampleName}-build/$<CONFIG>/SDL2.dll" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/01_opengl_${ExampleName}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/01_opengl_${ExampleName}-build/$<CONFIG>/SDL2_mixer.dll" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/01_opengl_${ExampleName}/"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/01_opengl_${ExampleName}-build/$<CONFIG>/assets/" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/01_opengl_${ExampleName}/assets/"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/01_opengl_${ExampleName}-build/$<CONFIG>/shader/" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/01_opengl_${ExampleName}/shader/"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/01_opengl_${ExampleName}-build/$<CONFIG>/textures/" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/01_opengl_${ExampleName}/textures/"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/01_opengl_${ExampleName}-build/$<CONFIG>/config/" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/01_opengl_${ExampleName}/config/"
+      USES_TERMINAL_BUILD true
+    )
+  endmacro()
+endif()
+
 macro(BuildVulkanProject ChapterNum ExampleName)
   ExternalProject_Add(
     Chapter${ChapterNum}-Vulkan
@@ -92,6 +113,29 @@ macro(BuildVulkanProjectWithConfig ChapterNum ExampleName)
   )
 endmacro()
 
+if (WIN32)
+  macro(BuildVulkanProjectWithConfigAndSDL2 ChapterNum ExampleName)
+    ExternalProject_Add(
+      Chapter${ChapterNum}-Vulkan-Config-SDL2
+      PREFIX ${CMAKE_BINARY_DIR}/build-files
+      SOURCE_DIR ${PROJECT_SOURCE_DIR}/chapter${ChapterNum}/02_vulkan_${ExampleName}
+      BINARY_DIR ${CMAKE_BINARY_DIR}/chapter${ChapterNum}/02_vulkan_${ExampleName}-build
+
+      INSTALL_COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/02_vulkan_${ExampleName}"
+      COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/02_vulkan_${ExampleName}-build/$<CONFIG>/Main${CMAKE_EXECUTABLE_SUFFIX}" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/02_vulkan_${ExampleName}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/02_vulkan_${ExampleName}-build/$<CONFIG>/imgui.ini" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/02_vulkan_${ExampleName}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/02_vulkan_${ExampleName}-build/$<CONFIG>/SDL2.dll" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/02_vulkan_${ExampleName}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/02_vulkan_${ExampleName}-build/$<CONFIG>/SDL2_mixer.dll" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/02_vulkan_${ExampleName}/"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/02_vulkan_${ExampleName}-build/$<CONFIG>/assets/" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/02_vulkan_${ExampleName}/assets/"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/02_vulkan_${ExampleName}-build/$<CONFIG>/shader/" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/02_vulkan_${ExampleName}/shader/"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/02_vulkan_${ExampleName}-build/$<CONFIG>/textures/" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/02_vulkan_${ExampleName}/textures/"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/chapter${ChapterNum}/02_vulkan_${ExampleName}-build/$<CONFIG>/config/" "${PROJECT_SOURCE_DIR}/bin/chapter${ChapterNum}/02_vulkan_${ExampleName}/config/"
+      USES_TERMINAL_BUILD true
+    )
+  endmacro()
+endif()
+
+
 # OpenGL examples
 BuildOpenGLProject(01 assimp)
 BuildOpenGLProject(02 computeshader)
@@ -106,7 +150,11 @@ BuildOpenGLProjectWithConfig(10 morphanim)
 BuildOpenGLProjectWithConfig(11 level)
 BuildOpenGLProjectWithConfig(12 adv_collision)
 BuildOpenGLProjectWithConfig(13 navigation)
-BuildOpenGLProjectWithConfig(14 ideas)
+if (WIN32)
+  BuildOpenGLProjectWithConfigAndSDL2(14 ideas)
+else()
+  BuildOpenGLProjectWithConfig(14 ideas)
+endif()
 
 # Check if Vulkan SDK is installed
 find_file(results NAMES vulkaninfo${CMAKE_EXECUTABLE_SUFFIX})
@@ -126,5 +174,9 @@ if (results)
   BuildVulkanProjectWithConfig(11 level)
   BuildVulkanProjectWithConfig(12 adv_collision)
   BuildVulkanProjectWithConfig(13 navigation)
-  BuildVulkanProjectWithConfig(14 ideas)
+  if (WIN32)
+    BuildVulkanProjectWithConfigAndSDL2(14 ideas)
+  else()
+    BuildVulkanProjectWithConfig(14 ideas)
+  endif()
 endif()
