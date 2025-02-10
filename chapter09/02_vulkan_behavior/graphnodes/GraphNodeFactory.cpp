@@ -6,7 +6,7 @@
 #include "RandomWaitNode.h"
 #include "SequenceNode.h"
 #include "SelectorNode.h"
-#include "InstanceNode.h"
+#include "InstanceMovementNode.h"
 #include "EventNode.h"
 #include "ActionNode.h"
 #include "DebugLogNode.h"
@@ -21,7 +21,7 @@ GraphNodeFactory::GraphNodeFactory(fireNodeOutputCallback callback) :
   mGraphNodeTypeMap[graphNodeType::randomWait] = "RandomWait";
   mGraphNodeTypeMap[graphNodeType::selector] = "Selector";
   mGraphNodeTypeMap[graphNodeType::sequence] = "Sequence";
-  mGraphNodeTypeMap[graphNodeType::instance] = "Instance";
+  mGraphNodeTypeMap[graphNodeType::instanceMovement] = "InstanceMovement";
   mGraphNodeTypeMap[graphNodeType::event] = "Event";
   mGraphNodeTypeMap[graphNodeType::action] = "Action";
   mGraphNodeTypeMap[graphNodeType::debugLog] = "DebugLog";
@@ -57,8 +57,8 @@ std::shared_ptr<GraphNodeBase> GraphNodeFactory::makeNode(graphNodeType type, in
     case graphNodeType::sequence:
       newNode = std::make_shared<SequenceNode>(nodeId);
       break;
-    case graphNodeType::instance:
-      newNode = std::make_shared<InstanceNode>(nodeId);
+    case graphNodeType::instanceMovement:
+      newNode = std::make_shared<InstanceMovementNode>(nodeId);
       break;
     case graphNodeType::event:
       newNode = std::make_shared<EventNode>(nodeId);

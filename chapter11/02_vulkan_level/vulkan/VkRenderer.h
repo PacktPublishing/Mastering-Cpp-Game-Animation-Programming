@@ -35,7 +35,7 @@
 #include "BoundingBox3D.h"
 #include "GraphEditor.h"
 #include "SingleInstanceBehavior.h"
-#include "Behavior.h"
+#include "BehaviorManager.h"
 #include "Callbacks.h"
 #include "AssimpLevel.h"
 
@@ -75,11 +75,11 @@ class VkRenderer {
 
     void centerInstance(std::shared_ptr<AssimpInstance> instance);
 
-    void addBehavior(int instanceId, std::shared_ptr<SingleInstanceBehavior> behavior);
-    void delBehavior(int instanceId);
+    void addBehavior(std::shared_ptr<AssimpInstance> instance, std::shared_ptr<SingleInstanceBehavior> behavior);
+    void delBehavior(std::shared_ptr<AssimpInstance> instance);
     void postDelNodeTree(std::string nodeTreeName);
-    void updateInstanceSettings(int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting);
-    void addBehaviorEvent(int instanceId, nodeEvent event);
+    void updateInstanceSettings(std::shared_ptr<AssimpInstance> instance, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting);
+    void addBehaviorEvent(std::shared_ptr<AssimpInstance> instance, nodeEvent event);
 
     void addModelBehavior(std::string modelName, std::shared_ptr<SingleInstanceBehavior> behavior);
     void delModelBehavior(std::string modelName);
@@ -197,6 +197,7 @@ class VkRenderer {
 
     std::string mOrigWindowTitle;
     void setModeInWindowTitle();
+    void setAppMode(appMode newMode);
 
     void toggleFullscreen();
     void checkMouseEnable();
@@ -256,7 +257,7 @@ class VkRenderer {
     void editGraph(std::string graphName);
     std::shared_ptr<SingleInstanceBehavior> createEmptyGraph();
 
-    std::shared_ptr<Behavior> mBehavior = nullptr;
+    std::shared_ptr<BehaviorManager> mBehaviorManager = nullptr;
     instanceNodeActionCallback mInstanceNodeActionCallbackFunction;
 
     std::vector<glm::vec4> mFaceAnimPerInstanceData{};

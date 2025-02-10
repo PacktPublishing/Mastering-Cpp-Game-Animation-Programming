@@ -151,7 +151,6 @@ void AssimpInstance::updateAnimStateMachine(float deltaTime) {
       blendActionAnimation(deltaTime, true);
       break;
   }
-
 }
 
 void AssimpInstance::updateInstanceState(moveState state, moveDirection dir) {
@@ -200,7 +199,7 @@ void AssimpInstance::updateInstanceSpeed(float deltaTime) {
   float currentSpeed = glm::length(mInstanceSettings.isSpeed);
 
   /* limit to max speed */
-  static float maxSpeed = mMaxInstanceSpeed;
+  float maxSpeed = mMaxInstanceSpeed;
 
   if (!mInstanceSettings.isMoveKeyPressed) {
     /* decelerate */
@@ -244,7 +243,7 @@ void AssimpInstance::updateInstanceSpeed(float deltaTime) {
 
   /* run -> double max speed  */
   if (mInstanceSettings.isMoveState == moveState::run) {
-    maxSpeed = MAX_ABS_SPEED * 2.0f;
+    maxSpeed = mMaxInstanceSpeed * 2.0f;
   }
 
   if (currentSpeed > maxSpeed) {
@@ -495,6 +494,14 @@ void AssimpInstance::setInstanceSettings(InstanceSettings settings) {
 
 InstanceSettings AssimpInstance::getInstanceSettings() {
   return mInstanceSettings;
+}
+
+int AssimpInstance::getInstanceIndexPosition() {
+  return mInstanceSettings.isInstanceIndexPosition;
+}
+
+int AssimpInstance::getInstancePerModelIndexPosition() {
+  return mInstanceSettings.isInstancePerModelIndexPosition;
 }
 
 BoundingBox2D AssimpInstance::getBoundingBox() {

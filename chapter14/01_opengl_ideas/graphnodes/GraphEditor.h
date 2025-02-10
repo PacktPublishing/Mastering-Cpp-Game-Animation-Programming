@@ -36,7 +36,7 @@ class GraphEditor {
     fireNodeOutputCallback mFireNodeOutputCallbackFunctionFunction;
 
     std::shared_ptr<GraphNodeFactory> mNodeFactory = nullptr;;
-    std::shared_ptr<SingleInstanceBehavior> mBehavior = nullptr;
+    std::shared_ptr<SingleInstanceBehavior> mBehaviorManager = nullptr;
 
     bool mShowEditor = false;
     int mHoveredNodeId;

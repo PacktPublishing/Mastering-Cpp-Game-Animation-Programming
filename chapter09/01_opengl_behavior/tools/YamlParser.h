@@ -24,7 +24,7 @@ class YamlParser {
     std::vector<ModelSettings> getModelConfigs();
     std::vector<ExtendedInstanceSettings> getInstanceConfigs();
     std::vector<CameraSettings> getCameraConfigs();
-    std::vector<EnhancedBehaviorData> getBehaviorData();
+    std::vector<ExtendedBehaviorData> getBehaviorData();
 
     int getSelectedModelNum();
     int getSelectedInstanceNum();

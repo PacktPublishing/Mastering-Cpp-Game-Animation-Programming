@@ -72,13 +72,14 @@ using createEmptyNodeGraphCallback = std::function<std::shared_ptr<SingleInstanc
 
 using nodeCallbackVariant = std::variant<float, glm::vec2, glm::vec3, moveState, moveDirection, faceAnimation>;
 using nodeActionCallback = std::function<void(graphNodeType, instanceUpdateType, nodeCallbackVariant, bool)>;
-using instanceNodeActionCallback = std::function<void(int, graphNodeType, instanceUpdateType, nodeCallbackVariant, bool)>;
-using nodeEventCallback = std::function<void(int, nodeEvent)>;
+using instanceNodeActionCallback = std::function<void(std::shared_ptr<AssimpInstance>, graphNodeType, instanceUpdateType, nodeCallbackVariant, bool)>;
+using nodeEventCallback = std::function<void(std::shared_ptr<AssimpInstance>, nodeEvent)>;
 using postNodeTreeDelBehaviorCallback = std::function<void(std::string)>;
 
-using instanceAddBehaviorCallback = std::function<void(int, std::shared_ptr<SingleInstanceBehavior>)>;
-using instanceDelBehaviorCallback = std::function<void(int)>;
+using instanceAddBehaviorCallback = std::function<void(std::shared_ptr<AssimpInstance>, std::shared_ptr<SingleInstanceBehavior>)>;
+using instanceDelBehaviorCallback = std::function<void(std::shared_ptr<AssimpInstance>)>;
 using modelAddBehaviorCallback = std::function<void(std::string, std::shared_ptr<SingleInstanceBehavior>)>;
 using modelDelBehaviorCallback = std::function<void(std::string)>;
 
+using setAppModeCallback = std::function<void(appMode)>;
 using appExitCallback = std::function<void(void)>;

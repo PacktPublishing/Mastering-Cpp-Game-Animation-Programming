@@ -586,7 +586,6 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToVBOTime = 0.0f;
   mRenderData.rdMatrixGenerateTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
 
   handleMovementKeys();
 
@@ -629,7 +628,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
       /* animated models */
       if (model->hasAnimations() &&
-        model->getBoneList().size() > 0) {
+        !model->getBoneList().empty()) {
 
         size_t numberOfBones = model->getBoneList().size();
 
@@ -820,7 +819,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mUIDrawTimer.start();
   mUserInterface.render();
-  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
 
   return true;
 }

@@ -12,64 +12,64 @@ bool GraphEditor::getShowEditor() {
 
 void GraphEditor::closeEditor() {
   mShowEditor = false;
-  mBehavior.reset();
+  mBehaviorManager.reset();
 }
 
 std::string GraphEditor::getCurrentEditedTreeName() {
-  if (!mBehavior) {
+  if (!mBehaviorManager) {
     return std::string();
   }
 
-  return mBehavior->getBehaviorData()->bdName;
+  return mBehaviorManager->getBehaviorData()->bdName;
 }
 
 void GraphEditor::createEmptyGraph() {
-  mBehavior = std::make_shared<SingleInstanceBehavior>();
+  mBehaviorManager = std::make_shared<SingleInstanceBehavior>();
 
-  mFireNodeOutputCallbackFunctionFunction = [this](int nodeId) { mBehavior->updateNodeStatus(nodeId); };
+  mFireNodeOutputCallbackFunctionFunction = [this](int nodeId) { mBehaviorManager->updateNodeStatus(nodeId); };
   mNodeFactory = std::make_shared<GraphNodeFactory>(mFireNodeOutputCallbackFunctionFunction);
 
-  std::shared_ptr<BehaviorData> behaviorData = mBehavior->getBehaviorData();
+  std::shared_ptr<BehaviorData> behaviorData = mBehaviorManager->getBehaviorData();
 
   /* add a root node on a new graph */
   behaviorData->bdGraphNodes.emplace_back(mNodeFactory->makeNode(graphNodeType::root, 0));
 }
 
 void GraphEditor::loadData(std::shared_ptr<BehaviorData> data) {
-  mBehavior = std::make_shared<SingleInstanceBehavior>();
+  mBehaviorManager = std::make_shared<SingleInstanceBehavior>();
 
-  mFireNodeOutputCallbackFunctionFunction = [this](int nodeId) { mBehavior->updateNodeStatus(nodeId); };
+  mFireNodeOutputCallbackFunctionFunction = [this](int nodeId) { mBehaviorManager->updateNodeStatus(nodeId); };
   mNodeFactory = std::make_shared<GraphNodeFactory>(mFireNodeOutputCallbackFunctionFunction);
 
   /* update node fire callback, may be invalidated by a std::move() */
   for (auto& node : data->bdGraphNodes) {
     node->setNodeOutputTriggerCallback(mFireNodeOutputCallbackFunctionFunction);
   }
-  mBehavior->setBehaviorData(data);
+  mBehaviorManager->setBehaviorData(data);
 
   ImNodes::LoadCurrentEditorStateFromIniString(data->bdEditorSettings.c_str(), data->bdEditorSettings.size());
   mShowEditor = true;
 }
 
 std::shared_ptr<SingleInstanceBehavior> GraphEditor::getData() {
-  if (!mBehavior) {
+  if (!mBehaviorManager) {
     return nullptr;
   }
-  return mBehavior;
+  return mBehaviorManager;
 }
 
 void GraphEditor::updateGraphNodes(float deltaTime) {
-  if (!mBehavior) {
+  if (!mBehaviorManager) {
     Logger::log(1, "%s error: no data loaded\n", __FUNCTION__);
     return;
   }
 
   /* do not re-trigger root if no active node is left */
-  mBehavior->update(deltaTime, false);
+  mBehaviorManager->update(deltaTime, false);
 }
 
 int GraphEditor::findNextFreeNodeId() {
-  std::shared_ptr<BehaviorData> behavior = mBehavior->getBehaviorData();
+  std::shared_ptr<BehaviorData> behavior = mBehaviorManager->getBehaviorData();
   std::vector<int> nodeIds;
   for (const auto& node: behavior->bdGraphNodes) {
     nodeIds.emplace_back(node->getNodeId());
@@ -88,7 +88,7 @@ int GraphEditor::findNextFreeNodeId() {
 }
 
 int GraphEditor::findNextFreeLinkId() {
-  std::shared_ptr<BehaviorData> behavior = mBehavior->getBehaviorData();
+  std::shared_ptr<BehaviorData> behavior = mBehaviorManager->getBehaviorData();
 
   if (behavior->bdGraphLinks.empty()) {
     return LINK_ID_RANGE_START;
@@ -120,16 +120,18 @@ void GraphEditor::createNodeEditorWindow(OGLRenderData& renderData, ModelInstanc
   if (!mShowEditor) {
     return;
   }
-  if (!mBehavior) {
+  if (!mBehaviorManager) {
     return;
   }
 
-  std::shared_ptr<BehaviorData> behavior = mBehavior->getBehaviorData();
+  std::shared_ptr<BehaviorData> behavior = mBehaviorManager->getBehaviorData();
 
   ImGui::SetNextWindowBgAlpha(0.5f);
   ImGui::SetNextWindowSizeConstraints(ImVec2(640, 480),
     ImVec2(std::numeric_limits<float>::max(), std::numeric_limits<float>::max()));
 
+  std::string editorTitle = "Node Tree Template Editor - " + behavior->bdName;
+  ImGui::Begin(editorTitle.c_str(), &mShowEditor);
   ImNodes::BeginNodeEditor();
 
   ImNodes::PushColorStyle(
@@ -189,7 +191,7 @@ void GraphEditor::createNodeEditorWindow(OGLRenderData& renderData, ModelInstanc
         std::shared_ptr<GraphNodeBase> newNode = behavior->bdGraphNodes.emplace_back(mNodeFactory->makeNode(nodeType, nodeId));
 
         /* add callback function for instance chaning nodes */
-        if (nodeType == graphNodeType::instance || nodeType == graphNodeType::action ||
+        if (nodeType == graphNodeType::instanceMovement || nodeType == graphNodeType::action ||
             nodeType == graphNodeType::faceAnim || nodeType == graphNodeType::headAmin) {
           newNode->setNodeActionCallback(behavior->bdNodeActionCallbackFunction);
         }

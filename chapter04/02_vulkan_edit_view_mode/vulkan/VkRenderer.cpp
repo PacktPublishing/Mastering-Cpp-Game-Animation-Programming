@@ -2138,7 +2138,6 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToVBOTime = 0.0f;
   mRenderData.rdMatrixGenerateTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
 
   /* wait for both fences before getting the new framebuffer image */
   std::vector<VkFence> waitFences = { mRenderData.rdComputeFence, mRenderData.rdRenderFence };
@@ -2174,10 +2173,11 @@ bool VkRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         size_t numberOfBones = model->getBoneList().size();
 
-        boneMatrixBufferSize += numberOfBones * numberOfInstances;
+        /* buffer size must always be a multiple of "local_size_y" instances to avoid undefined behavior */
+        boneMatrixBufferSize += numberOfBones * ((numberOfInstances - 1) / 32 + 1) * 32;
       }
     }
   }
@@ -2212,7 +2212,7 @@ bool VkRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         size_t numberOfBones = model->getBoneList().size();
         animatedModelLoaded = true;
 
@@ -2325,7 +2325,7 @@ bool VkRenderer::draw(float deltaTime) {
       if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
         /* compute shader for animated models only */
-        if (model->hasAnimations() && model->getBoneList().size() > 0) {
+        if (model->hasAnimations() && !model->getBoneList().empty()) {
           size_t numberOfBones = model->getBoneList().size();
 
           runComputeShaders(model, numberOfInstances, computeShaderModelOffset);
@@ -2488,7 +2488,7 @@ bool VkRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         size_t numberOfBones = model->getBoneList().size();
 
         if (mMousePick && mRenderData.rdApplicationMode == appMode::edit) {
@@ -2662,7 +2662,7 @@ bool VkRenderer::draw(float deltaTime) {
   if (mRenderData.rdApplicationMode == appMode::edit) {
     mUIDrawTimer.start();
     mUserInterface.render(mRenderData);
-    mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
+    mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
   }
 
   vkCmdEndRenderPass(mRenderData.rdImGuiCommandBuffer);

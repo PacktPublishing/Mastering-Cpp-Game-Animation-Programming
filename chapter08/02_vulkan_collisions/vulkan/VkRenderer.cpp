@@ -178,6 +178,7 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
   mModelInstCamData.micQuadTreeQueryBBoxCallbackFunction = [this](BoundingBox2D box) { return mQuadtree->query(box); };
 
   mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
+  mModelInstCamData.micSsetAppModeCallbackFunction = [this](appMode newMode) { setAppMode(newMode); };
 
   /* init camera strings */
   mModelInstCamData.micCameraProjectionMap[cameraProjection::perspective] = "Perspective";
@@ -2690,7 +2691,7 @@ void VkRenderer::enumerateInstances() {
   mQuadtree->clear();
   /* skip null instance */
   for (size_t i = 1; i < mModelInstCamData.micAssimpInstances.size(); ++i) {
-    mQuadtree->add(mModelInstCamData.micAssimpInstances.at(i)->getInstanceSettings().isInstanceIndexPosition);
+    mQuadtree->add(mModelInstCamData.micAssimpInstances.at(i)->getInstanceIndexPosition());
   }
 
 }
@@ -2773,6 +2774,12 @@ void VkRenderer::setModeInWindowTitle() {
   mWindowTitleDirtySign);
 }
 
+void VkRenderer::setAppMode(appMode newMode) {
+  mRenderData.rdApplicationMode = newMode;
+  setModeInWindowTitle();
+  checkMouseEnable();
+}
+
 void VkRenderer::toggleFullscreen() {
   mRenderData.rdFullscreen = mRenderData.rdFullscreen ? false : true;
 
@@ -2818,14 +2825,17 @@ void VkRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
 
   /* toggle between edit and view mode by pressing F10 */
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_F10) == GLFW_PRESS) {
-    int currentMode = static_cast<int>(mRenderData.rdApplicationMode);
     if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-      glfwGetKey(mRenderData.rdWindow, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-      mRenderData.rdApplicationMode = static_cast<appMode>((--currentMode + 2) % 2);
+        glfwGetKey(mRenderData.rdWindow, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+      setAppMode(--mRenderData.rdApplicationMode);
     } else {
-      mRenderData.rdApplicationMode = static_cast<appMode>(++currentMode % 2);
+      setAppMode(++mRenderData.rdApplicationMode);
     }
-    setModeInWindowTitle();
+  }
+
+  /* use ESC to return to edit mode */
+  if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    setAppMode(appMode::edit);
   }
 
   /* toggle between full-screen and window mode by pressing F11 */
@@ -4348,7 +4358,6 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToVBOTime = 0.0f;
   mRenderData.rdMatrixGenerateTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
   mRenderData.rdNumberOfCollisions = 0;
   mRenderData.rdCollisionDebugDrawTime = 0.0f;
   mRenderData.rdCollisionCheckTime = 0.0f;
@@ -4387,10 +4396,11 @@ bool VkRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         size_t numberOfBones = model->getBoneList().size();
 
-        boneMatrixBufferSize += numberOfBones * numberOfInstances;
+        /* buffer size must always be a multiple of "local_size_y" instances to avoid undefined behavior */
+        boneMatrixBufferSize += numberOfBones * ((numberOfInstances - 1) / 32 + 1) * 32;
         lookupBufferSize += numberOfInstances;
       }
     }
@@ -4437,7 +4447,7 @@ bool VkRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         size_t numberOfBones = model->getBoneList().size();
         animatedModelLoaded = true;
 
@@ -4477,7 +4487,7 @@ bool VkRenderer::draw(float deltaTime) {
           }
 
           if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
-            instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition) {
+            instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceIndexPosition()) {
             firstPersonCamWorldPos = instanceToStore + i;
             firstPersonCamBoneMatrixPos = animatedInstancesToStore + i * numberOfBones;
           }
@@ -4598,7 +4608,7 @@ bool VkRenderer::draw(float deltaTime) {
       if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
         /* compute shader for animated models only */
-        if (model->hasAnimations() && model->getBoneList().size() > 0) {
+        if (model->hasAnimations() && !model->getBoneList().empty()) {
           size_t numberOfBones = model->getBoneList().size();
 
           runComputeShaders(model, numberOfInstances, computeShaderModelOffset, computeShaderInstanceOffset);
@@ -4816,7 +4826,7 @@ bool VkRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         size_t numberOfBones = model->getBoneList().size();
 
         if (mMousePick && mRenderData.rdApplicationMode == appMode::edit) {
@@ -4967,7 +4977,7 @@ bool VkRenderer::draw(float deltaTime) {
     case collisionDebugDraw::none:
       break;
     case collisionDebugDraw::colliding:
-      if (mModelInstCamData.micInstanceCollisions.size() > 0) {
+      if (!mModelInstCamData.micInstanceCollisions.empty()) {
         createCollidingBoundingSpheres();
         sphereVertexCount = mCollidingSphereMesh.vertices.size();
       }
@@ -5039,7 +5049,7 @@ bool VkRenderer::draw(float deltaTime) {
 
   mUIDrawTimer.start();
   mUserInterface.render(mRenderData);
-  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
 
   vkCmdEndRenderPass(mRenderData.rdImGuiCommandBuffer);
 

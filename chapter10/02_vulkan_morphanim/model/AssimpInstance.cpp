@@ -199,7 +199,7 @@ void AssimpInstance::updateInstanceSpeed(float deltaTime) {
   float currentSpeed = glm::length(mInstanceSettings.isSpeed);
 
   /* limit to max speed */
-  static float maxSpeed = mMaxInstanceSpeed;
+  float maxSpeed = mMaxInstanceSpeed;
 
   if (!mInstanceSettings.isMoveKeyPressed) {
     /* decelerate */
@@ -494,6 +494,14 @@ void AssimpInstance::setInstanceSettings(InstanceSettings settings) {
 
 InstanceSettings AssimpInstance::getInstanceSettings() {
   return mInstanceSettings;
+}
+
+int AssimpInstance::getInstanceIndexPosition() {
+  return mInstanceSettings.isInstanceIndexPosition;
+}
+
+int AssimpInstance::getInstancePerModelIndexPosition() {
+  return mInstanceSettings.isInstancePerModelIndexPosition;
 }
 
 BoundingBox2D AssimpInstance::getBoundingBox() {

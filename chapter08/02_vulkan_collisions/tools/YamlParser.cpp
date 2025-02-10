@@ -131,7 +131,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const ModelSettings& settings) {
   out << YAML::Value << settings.msModelFilename;
   out << YAML::Key << "model-file";
   out << YAML::Value << settings.msModelFilenamePath;
-  if (settings.msIWRBlendings.size() > 0) {
+  if (!settings.msIWRBlendings.empty()) {
     out << YAML::Key << "idle-walk-run-clips";
     out << YAML::Value;
     out << YAML::BeginSeq;;
@@ -143,7 +143,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const ModelSettings& settings) {
     }
     out << YAML::EndSeq;
   }
-  if (settings.msActionClipMappings.size() > 0) {
+  if (!settings.msActionClipMappings.empty()) {
     out << YAML::Key << "action-clips";
     out << YAML::Value;
     out << YAML::BeginSeq;;
@@ -155,7 +155,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const ModelSettings& settings) {
     }
     out << YAML::EndSeq;
   }
-  if (settings.msAllowedStateOrder.size() > 0) {
+  if (!settings.msAllowedStateOrder.empty()) {
     out << YAML::Key << "action-sequences";
     out << YAML::Value;
     out << YAML::BeginSeq;;
@@ -167,7 +167,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const ModelSettings& settings) {
     }
     out << YAML::EndSeq;
   }
-  if (settings.msBoundingSphereAdjustments.size() > 0) {
+  if (!settings.msBoundingSphereAdjustments.empty()) {
     out << YAML::Key << "bounding-sphere-adjustments";
     out << YAML::Value;
     out << YAML::BeginSeq;;
@@ -222,14 +222,16 @@ std::vector<ModelSettings> YamlParser::getModelConfigs() {
   }
 
   YAML::Node modelsNode = mYamlNode["models"];
-  try {
-    for (size_t i = 0; i < modelsNode.size(); ++i) {
-      Logger::log(1, "%s: found model name: %s\n", __FUNCTION__, modelsNode[i]["model-name"].as<std::string>().c_str());
-      modSettings.emplace_back(modelsNode[i].as<ModelSettings>());
+  ModelSettings settings{};
+  for (size_t i = 0; i < modelsNode.size(); ++i) {
+    try {
+      settings = modelsNode[i].as<ModelSettings>();
+    } catch (const YAML::Exception& e) {
+      Logger::log(1, "%s error: could not parse file '%s' (%s)\n", __FUNCTION__, mYamlFileName.c_str(), e.what());
+      return std::vector<ModelSettings>{};
     }
-  } catch (const YAML::Exception& e) {
-    Logger::log(1, "%s error: could not parse file '%s' (%s)\n", __FUNCTION__, mYamlFileName.c_str(), e.what());
-    return std::vector<ModelSettings>{};
+    Logger::log(1, "%s: found model name: %s\n", __FUNCTION__, settings.msModelFilename.c_str());
+    modSettings.emplace_back(settings);
   }
 
   return modSettings;
@@ -265,13 +267,15 @@ std::vector<ExtendedInstanceSettings> YamlParser::getInstanceConfigs() {
   }
 
   YAML::Node instanceNode = mYamlNode["instances"];
-  try {
-    for (size_t i = 0; i < instanceNode.size(); ++i) {
-      instSettings.emplace_back(instanceNode[i].as<ExtendedInstanceSettings>());
+  ExtendedInstanceSettings settings{};
+  for (size_t i = 0; i < instanceNode.size(); ++i) {
+    try {
+      settings = instanceNode[i].as<ExtendedInstanceSettings>();
+    } catch (...) {
+      Logger::log(1, "%s error: could not parse file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
+      continue;
     }
-  } catch (...) {
-    Logger::log(1, "%s error: could not parse file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
-    return std::vector<ExtendedInstanceSettings>{};
+    instSettings.emplace_back(settings);
   }
 
   return instSettings;
@@ -301,13 +305,15 @@ std::vector<CameraSettings> YamlParser::getCameraConfigs() {
     }
 
     YAML::Node camNode = mYamlNode["cameras"];
-    try {
-      for (size_t i = 0; i < camNode.size(); ++i) {
-        camSettings.emplace_back(camNode[i].as<CameraSettings>());
+    CameraSettings settings{};
+    for (size_t i = 0; i < camNode.size(); ++i) {
+      try {
+        settings = camNode[i].as<CameraSettings>();
+      } catch (...) {
+        Logger::log(1, "%s error: could not parse file '%s', skipping camera entry %i\n", __FUNCTION__, mYamlFileName.c_str(), i);
+        continue;
       }
-    } catch (...) {
-      Logger::log(1, "%s error: could not parse file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
-      return std::vector<CameraSettings>{};
+      camSettings.emplace_back(settings);
     }
   }
   return camSettings;
@@ -472,7 +478,7 @@ void YamlParser::createInstanceToCamMap(ModelInstanceCamData modInstCamData) {
   for (const auto& camera : modInstCamData.micCameras) {
     CameraSettings camSettings = camera->getCameraSettings();
     if (std::shared_ptr<AssimpInstance> instance = camera->getInstanceToFollow()) {
-      mInstanceToCamMap[instance->getInstanceSettings().isInstanceIndexPosition].emplace_back(camSettings.csCamName);
+      mInstanceToCamMap[instance->getInstanceIndexPosition()].emplace_back(camSettings.csCamName);
     }
   }
 }

@@ -10,7 +10,7 @@ EventNode::EventNode(int nodeId, float cooldown) : GraphNodeBase(nodeId) {
 }
 
 std::shared_ptr<GraphNodeBase> EventNode::clone() {
-  return std::make_shared<EventNode>(*this);
+  return std::shared_ptr<GraphNodeBase>(new EventNode(*this));
 }
 
 void EventNode::draw(ModelInstanceCamData modInstCamData) {

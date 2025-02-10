@@ -168,7 +168,7 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
   /* get root transformation matrix from model's root node */
   mRootTransformMatrix = Tools::convertAiToGLM(rootNode->mTransformation);
 
-  if (mBoneList.size() > 0) {
+  if (!mBoneList.empty()) {
     for (const auto& bone: mBoneList) {
       mBoneNameList.emplace_back(bone->getBoneName());
     }
@@ -420,7 +420,7 @@ const std::vector<std::shared_ptr<AssimpAnimClip>>& AssimpModel::getAnimClips() 
 }
 
 bool AssimpModel::hasAnimations() {
-  return mAnimClips.size() > 0;
+  return !mAnimClips.empty();
 }
 
 VkShaderStorageBufferData& AssimpModel::getBoneMatrixOffsetBuffer() {

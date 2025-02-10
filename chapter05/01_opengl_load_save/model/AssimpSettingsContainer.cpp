@@ -308,7 +308,7 @@ void AssimpSettingsContainer::undo() {
       setSelectedModelCallbackFunction(undoSettings.ursModelSettings.amsSavedSelectedModel);
 
       /* restore initial instance */
-      if (undoSettings.ursModelSettings.amsDeletedInstances.size() > 0 ) {
+      if (!undoSettings.ursModelSettings.amsDeletedInstances.empty()) {
         for (auto iter = undoSettings.ursModelSettings.amsDeletedInstances.begin(); iter != undoSettings.ursModelSettings.amsDeletedInstances.end(); ++iter) {
           instanceAddExistingCallbackFunction((*iter), (*iter)->getInstanceSettings().isInstanceIndexPosition);
           undoSettings.ursModelSettings.amsInstances.emplace_back(*iter);

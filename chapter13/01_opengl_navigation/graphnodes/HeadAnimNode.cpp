@@ -17,7 +17,7 @@ HeadAnimNode::HeadAnimNode(int nodeId) : GraphNodeBase(nodeId) {
 }
 
 std::shared_ptr<GraphNodeBase> HeadAnimNode::clone() {
-  return std::make_shared<HeadAnimNode>(*this);
+  return std::shared_ptr<GraphNodeBase>(new HeadAnimNode(*this));
 }
 
 void HeadAnimNode::draw(ModelInstanceCamData modInstCamData) {

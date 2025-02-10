@@ -44,6 +44,7 @@ struct ModelInstanceCamData {
   /* callbacks */
   setWindowTitleCallback micSetWindowTitleFunction;
   getWindowTitleCallback micGetWindowTitleFunction;
+  setAppModeCallback micSsetAppModeCallbackFunction;
 
   modelCheckCallback micModelCheckCallbackFunction;
   modelAddCallback micModelAddCallbackFunction;

@@ -177,6 +177,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mModelInstCamData.micQuadTreeQueryBBoxCallbackFunction = [this](BoundingBox2D box) { return mQuadtree->query(box); };
 
   mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
+  mModelInstCamData.micSsetAppModeCallbackFunction = [this](appMode newMode) { setAppMode(newMode); };
 
   /* init camera strings */
   mModelInstCamData.micCameraProjectionMap[cameraProjection::perspective] = "Perspective";
@@ -900,7 +901,7 @@ void OGLRenderer::enumerateInstances() {
   mQuadtree->clear();
   /* skip null instance */
   for (size_t i = 1; i < mModelInstCamData.micAssimpInstances.size(); ++i) {
-    mQuadtree->add(mModelInstCamData.micAssimpInstances.at(i)->getInstanceSettings().isInstanceIndexPosition);
+    mQuadtree->add(mModelInstCamData.micAssimpInstances.at(i)->getInstanceIndexPosition());
   }
 }
 
@@ -984,6 +985,12 @@ void OGLRenderer::setModeInWindowTitle() {
     mWindowTitleDirtySign);
 }
 
+void OGLRenderer::setAppMode(appMode newMode) {
+  mRenderData.rdApplicationMode = newMode;
+  setModeInWindowTitle();
+  checkMouseEnable();
+}
+
 void OGLRenderer::toggleFullscreen() {
   mRenderData.rdFullscreen = mRenderData.rdFullscreen ? false : true;
 
@@ -1030,14 +1037,17 @@ void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
 
   /* toggle between edit and view mode by pressing F10 */
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_F10) == GLFW_PRESS) {
-    int currentMode = static_cast<int>(mRenderData.rdApplicationMode);
     if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
         glfwGetKey(mRenderData.rdWindow, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-      mRenderData.rdApplicationMode = static_cast<appMode>((--currentMode + 2) % 2);
+      setAppMode(--mRenderData.rdApplicationMode);
     } else {
-      mRenderData.rdApplicationMode = static_cast<appMode>(++currentMode % 2);
+      setAppMode(++mRenderData.rdApplicationMode);
     }
-    setModeInWindowTitle();
+  }
+
+  /* use ESC to return to edit mode */
+  if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    setAppMode(appMode::edit);
   }
 
   /* toggle between full-screen and window mode by pressing F11 */
@@ -1803,7 +1813,7 @@ void OGLRenderer::drawAABBs() {
     }
   }
 
-  if (mAABBMesh->vertices.size() > 0) {
+  if (!mAABBMesh->vertices.empty()) {
     mUploadToVBOTimer.start();
     mLineVertexBuffer.uploadData(*mAABBMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
@@ -2058,7 +2068,6 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToUBOTime = 0.0f;
   mRenderData.rdUploadToVBOTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
   mRenderData.rdNumberOfCollisions = 0;
   mRenderData.rdCollisionDebugDrawTime = 0.0f;
   mRenderData.rdCollisionCheckTime = 0.0f;
@@ -2134,7 +2143,7 @@ bool OGLRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
 
         size_t numberOfBones = model->getBoneList().size();
 
@@ -2179,7 +2188,7 @@ bool OGLRenderer::draw(float deltaTime) {
           }
 
           if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
-              instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition) {
+              instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceIndexPosition()) {
             firstPersonCamWorldPos = instSettings.isInstanceIndexPosition;
           }
 
@@ -2241,8 +2250,8 @@ bool OGLRenderer::draw(float deltaTime) {
 
         if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
             model == cam->getInstanceToFollow()->getModel() &&
-            cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition == firstPersonCamWorldPos) {
-          int selectedInstance = cam->getInstanceToFollow()->getInstanceSettings().isInstancePerModelIndexPosition;
+            cam->getInstanceToFollow()->getInstanceIndexPosition() == firstPersonCamWorldPos) {
+          int selectedInstance = cam->getInstanceToFollow()->getInstancePerModelIndexPosition();
           int selectedBone = camSettings.csFirstPersonBoneToFollow;
           glm::mat4 offsetMatrix = glm::translate(glm::mat4(1.0f), camSettings.csFirstPersonOffsets);
           glm::mat4 boneMatrix = mShaderBoneMatrixBuffer.getSsboDataMat4(selectedInstance * numberOfBones + selectedBone, 1).at(0);
@@ -2410,7 +2419,7 @@ bool OGLRenderer::draw(float deltaTime) {
     case collisionDebugDraw::none:
       break;
     case collisionDebugDraw::colliding:
-      if (mModelInstCamData.micInstanceCollisions.size() > 0) {
+      if (!mModelInstCamData.micInstanceCollisions.empty()) {
         drawCollidingBoundingSpheres();
       }
       break;
@@ -2454,7 +2463,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mUIDrawTimer.start();
   mUserInterface.render();
-  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
 
   return true;
 }

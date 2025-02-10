@@ -25,6 +25,7 @@ In this chapter you will learn how to load a game map
   * scale selected instance in scale mode
 * F10: toggle between edit and view mode
 * F11: toggle between fullscreen and windowed display
+* ESC: switch from view mode to edit mode
 * [ and ]: switch between configured cameras
 * Mouse wheel: change FOV of current camera
 * CTRL + Z: undo last action
@@ -33,6 +34,7 @@ In this chapter you will learn how to load a game map
 * CTRL + L: load existing configurattion
 * CTRL + S: save current configuration to a file
 * CTRL + Q: exit application
+* Enter/ESC: 'OK'/'Cancel' in dialogs
 * W/A/S/D: walk with selected instance in view mode
 * SHIFT + W/A/S/D: run with selected instance in view mode
 * Mouse: rotate instance around Y axis in view mode

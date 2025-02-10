@@ -50,4 +50,5 @@ using cameraCloneCallback = std::function<void()>;
 using cameraDeleteCallback = std::function<void()>;
 using cameraNameCheckCallback = std::function<bool(std::string)>;
 
+using setAppModeCallback = std::function<void(appMode)>;
 using appExitCallback = std::function<void(void)>;

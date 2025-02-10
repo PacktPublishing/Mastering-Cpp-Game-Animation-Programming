@@ -3,8 +3,17 @@
 
 enum class appMode : uint8_t {
   edit = 0,
-  view
+  view,
+  NUM
 };
+
+inline appMode operator++ (appMode const& m) {
+  return static_cast<appMode>((static_cast<int>(m) + 1) % 2);
+}
+
+inline appMode operator-- (appMode const& m) {
+  return static_cast<appMode>(((static_cast<int>(m) - 1) % 2 + 2) % 2);
+}
 
 enum class instanceEditMode : uint8_t {
   move = 0,

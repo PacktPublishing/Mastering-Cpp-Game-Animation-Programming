@@ -18,7 +18,7 @@ SelectorNode::SelectorNode::SelectorNode(int nodeId, float waitTime, int numOut)
 }
 
 std::shared_ptr<GraphNodeBase> SelectorNode::clone() {
-  return std::make_shared<SelectorNode>(*this);
+  return std::shared_ptr<GraphNodeBase>(new SelectorNode(*this));
 }
 
 void SelectorNode::draw(ModelInstanceCamData modInstCamData) {

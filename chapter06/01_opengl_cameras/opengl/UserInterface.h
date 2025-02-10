@@ -65,7 +65,7 @@ class UserInterface {
     int mManyInstanceCloneNum = 1;
 
     InstanceSettings mSavedInstanceSettings{};
-    std::shared_ptr<AssimpInstance> mSurrentInstance = nullptr;
+    std::shared_ptr<AssimpInstance> mCurrentInstance = nullptr;
 
     CameraSettings mSavedCameraSettings{};
     std::shared_ptr<Camera> mCurrentCamera = nullptr;

@@ -64,5 +64,6 @@ using quadTreeFindAllIntersectionsCallback = std::function<std::set<std::pair<in
 using quadTreeGetBoxesCallback = std::function<std::vector<BoundingBox2D>()>;
 using worldGetBoundariesCallback = std::function<std::shared_ptr<BoundingBox2D>()>;
 
+using setAppModeCallback = std::function<void(appMode)>;
 using appExitCallback = std::function<void(void)>;
 

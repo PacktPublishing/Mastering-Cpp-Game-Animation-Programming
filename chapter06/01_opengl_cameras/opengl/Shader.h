@@ -22,7 +22,6 @@ class Shader {
     bool createComputeShaderProgram(std::string computeShaderName);
 
     GLuint loadShader(std::string shaderFileName, GLuint shaderType);
-    std::string loadFileToString(std::string filename);
 
     bool checkCompileStats(std::string shaderFileName, GLuint shader);
     bool checkLinkStats(std::string vertexShaderFileName, std::string fragmentShaderFileName, GLuint shaderProgram);

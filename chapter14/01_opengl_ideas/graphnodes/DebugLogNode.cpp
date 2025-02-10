@@ -11,7 +11,7 @@ DebugLogNode::DebugLogNode(int nodeId) : GraphNodeBase(nodeId) {
 }
 
 std::shared_ptr<GraphNodeBase> DebugLogNode::clone() {
-  return std::make_shared<DebugLogNode>(*this);
+  return std::shared_ptr<GraphNodeBase>(new DebugLogNode(*this));
 }
 
 void DebugLogNode::draw(ModelInstanceCamData modInstCamData) {

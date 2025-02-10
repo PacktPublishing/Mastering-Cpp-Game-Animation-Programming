@@ -24,6 +24,7 @@ namespace YAML {
 
     static bool decode(const Node& node, glm::vec3& rhs) {
       if(!node.IsSequence() || node.size() != 3) {
+        Logger::log(1, "%s error: glm::vec3 must be a sequence and have 3 elements\n", __FUNCTION__);
         return false;
       }
 
@@ -47,6 +48,7 @@ namespace YAML {
 
     static bool decode(const Node& node, glm::vec4& rhs) {
       if(!node.IsSequence() || node.size() != 4) {
+        Logger::log(1, "%s error: glm::vec4 must be a sequence and have 4 elements\n", __FUNCTION__);
         return false;
       }
 
@@ -54,6 +56,87 @@ namespace YAML {
       rhs.y = node[1].as<float>();
       rhs.z = node[2].as<float>();
       rhs.w = node[3].as<float>();
+      return true;
+    }
+  };
+
+  /* read and write ActionAnimation */
+  template<>
+  struct convert<ActionAnimation> {
+    static Node encode(const ActionAnimation& rhs) {
+      Node node;
+      node["clip"] = rhs.aaClipNr;;
+      node["clip-speed"] = rhs.aaClipSpeed;
+      return node;
+    }
+
+    static bool decode(const Node& node, ActionAnimation& rhs) {
+    try {
+      rhs.aaClipNr = node["clip"].as<int>();
+      rhs.aaClipSpeed = node["clip-speed"].as<float>();
+    } catch (...) {
+      Logger::log(1, "%s warning: could not parse action animation mapping, using defaults\n", __FUNCTION__);
+      rhs = ActionAnimation{};
+    }
+    return true;
+    }
+  };
+
+  /* read and write moveState */
+  template<>
+  struct convert<moveState> {
+    static Node encode(const moveState& rhs) {
+      Node node;
+      node = static_cast<int>(rhs);
+      return node;
+    }
+
+    static bool decode(const Node& node, moveState& rhs) {
+      try {
+        rhs = static_cast<moveState>(node.as<int>());
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse move state, using default 'idle'\n", __FUNCTION__);
+        rhs = moveState::idle;
+      }
+      return true;
+    }
+  };
+  /* read and write moveDirection */
+  template<>
+  struct convert<moveDirection> {
+    static Node encode(const moveDirection& rhs) {
+      Node node;
+      node = static_cast<int>(rhs);
+      return node;
+    }
+
+    static bool decode(const Node& node, moveDirection& rhs) {
+      try {
+        rhs = static_cast<moveDirection>(node.as<int>());
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse move direction, using default 'none'\n", __FUNCTION__);
+        rhs = moveDirection::none;
+      }
+      return true;
+    }
+  };
+
+  /* read and write collisionChecks */
+  template<>
+  struct convert<collisionChecks> {
+    static Node encode(const collisionChecks& rhs) {
+      Node node;
+      node = static_cast<int>(rhs);
+      return node;
+    }
+
+    static bool decode(const Node& node, collisionChecks& rhs) {
+      try {
+        rhs = static_cast<collisionChecks>(node.as<int>());
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse collision checks, using default 'none'\n", __FUNCTION__);
+        rhs = collisionChecks::none;
+      }
       return true;
     }
   };
@@ -77,29 +160,71 @@ namespace YAML {
     }
 
     static bool decode(const Node& node, ExtendedInstanceSettings& rhs) {
+      InstanceSettings defaultSettings{};
       rhs.isModelFile = node["model-file"].as<std::string>();
-      rhs.isWorldPosition = node["position"].as<glm::vec3>();
-      rhs.isWorldRotation = node["rotation"].as<glm::vec3>();
-      rhs.isScale = node["scale"].as<float>();
-      rhs.isSwapYZAxis = node["swap-axes"].as<bool>();
-      /* support reading back old instance data */
+      try {
+        rhs.isWorldPosition = node["position"].as<glm::vec3>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse position of an instance of model '%s', init with a default value\n", __FUNCTION__, rhs.isModelFile.c_str());
+        rhs.isWorldPosition = defaultSettings.isWorldPosition;
+      }
+      try {
+        rhs.isWorldRotation = node["rotation"].as<glm::vec3>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse rotation of an instance of model '%s', init with a default value\n", __FUNCTION__, rhs.isModelFile.c_str());
+        rhs.isWorldRotation = defaultSettings.isWorldRotation;
+      }
+      try {
+        rhs.isScale = node["scale"].as<float>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse scaling of an instance of model '%s', init with a default value\n", __FUNCTION__, rhs.isModelFile.c_str());
+        rhs.isScale = defaultSettings.isScale;
+      }
+      try {
+        rhs.isSwapYZAxis = node["swap-axes"].as<bool>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse Y-Z axis swapping of an instance of model '%s', init with a default value\n", __FUNCTION__, rhs.isModelFile.c_str());
+        rhs.isSwapYZAxis = defaultSettings.isSwapYZAxis;
+      }
+      /* migrate from old config */
       if (node["anim-clip-number"]) {
-        rhs.isFirstAnimClipNr = node["anim-clip-number"].as<int>();
-        rhs.isSecondAnimClipNr = node["anim-clip-number"].as<int>();
-        rhs.isAnimBlendFactor = 0.0f;
+        Logger::log(1, "%s: found old (single) anim clip number, using it as first and second clip\n", __FUNCTION__);
+        try {
+          rhs.isFirstAnimClipNr = node["anim-clip-number"].as<int>();
+          rhs.isSecondAnimClipNr = node["anim-clip-number"].as<int>();
+          rhs.isAnimBlendFactor = 0.0f;
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse old anim clip number of an instance of model '%s', init with a default value\n", __FUNCTION__, rhs.isModelFile.c_str());
+          rhs.isFirstAnimClipNr = defaultSettings.isFirstAnimClipNr;
+          rhs.isSecondAnimClipNr = defaultSettings.isSecondAnimClipNr;
+          rhs.isAnimBlendFactor = defaultSettings.isAnimBlendFactor;
+        }
+      } else {
+        try {
+          rhs.isFirstAnimClipNr = node["1st-anim-clip-number"].as<int>();
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse first anim clip number of an instance of model '%s', init with a default value\n", __FUNCTION__, rhs.isModelFile.c_str());
+          rhs.isFirstAnimClipNr = defaultSettings.isFirstAnimClipNr;
+        }
+        try {
+          rhs.isSecondAnimClipNr = node["2nd-anim-clip-number"].as<int>();
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse anim clip number of an instance of model '%s', init with a default value\n", __FUNCTION__, rhs.isModelFile.c_str());
+          rhs.isSecondAnimClipNr = defaultSettings.isSecondAnimClipNr;
+        }
       }
-      if (node["1st-anim-clip-number"]) {
-        rhs.isFirstAnimClipNr = node["1st-anim-clip-number"].as<int>();
-      }
-      if (node["2nd-anim-clip-number"]) {
-        rhs.isSecondAnimClipNr = node["2nd-anim-clip-number"].as<int>();
-      }
-      rhs.isAnimSpeedFactor = node["anim-clip-speed"].as<float>();
-      if (node["anim-blend-factor"]) {
-        rhs.isAnimBlendFactor = node["anim-blend-factor"].as<float>();
+      try {
+        rhs.isAnimSpeedFactor = node["anim-clip-speed"].as<float>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse anim clip speed of an instance of model '%s', init with a default value\n", __FUNCTION__, rhs.isModelFile.c_str());
+        rhs.isAnimSpeedFactor = defaultSettings.isAnimSpeedFactor;
       }
       if (node["target-of-cameras"]) {
-        rhs.eisCameraNames = node["target-of-cameras"].as<std::vector<std::string>>();
+        try {
+          rhs.eisCameraNames = node["target-of-cameras"].as<std::vector<std::string>>();
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse target camera of an instance of model '%s', ignoring\n", __FUNCTION__, rhs.isModelFile.c_str());
+        }
       }
       return true;
     }
@@ -135,32 +260,100 @@ namespace YAML {
     }
 
     static bool decode(const Node& node, CameraSettings& rhs) {
+      CameraSettings defaultSettings{};
       rhs.csCamName = node["camera-name"].as<std::string>();
-      rhs.csWorldPosition = node["position"].as<glm::vec3>();
-      rhs.csViewAzimuth = node["view-azimuth"].as<float>();
-      rhs.csViewElevation = node["view-elevation"].as<float>();
+      try {
+        rhs.csWorldPosition = node["position"].as<glm::vec3>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse position of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+        rhs.csWorldPosition = defaultSettings.csWorldPosition;
+      }
+      try {
+        rhs.csViewAzimuth = node["view-azimuth"].as<float>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse azimuth of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+        rhs.csViewAzimuth = defaultSettings.csViewAzimuth;
+      }
+      try {
+        rhs.csViewElevation = node["view-elevation"].as<float>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse elevation of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+        rhs.csViewElevation = defaultSettings.csViewElevation;
+      }
       if (node["field-of-view"]) {
-        rhs.csFieldOfView = node["field-of-view"].as<int>();
+        try {
+          rhs.csFieldOfView = node["field-of-view"].as<int>();
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse field of view of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+          rhs.csFieldOfView = defaultSettings.csFieldOfView;
+        }
       }
       if (node["ortho-scale"]) {
-        rhs.csOrthoScale = node["ortho-scale"].as<float>();
+        try {
+          rhs.csOrthoScale = node["ortho-scale"].as<float>();
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse orthogonal scale of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+          rhs.csOrthoScale = defaultSettings.csOrthoScale;
+        }
       }
-      rhs.csCamType = static_cast<cameraType>(node["camera-type"].as<int>());
-      rhs.csCamProjection = static_cast<cameraProjection>(node["camera-projection"].as<int>());
-      if (node["1st-person-view-lock"]) {
-        rhs.csFirstPersonLockView = node["1st-person-view-lock"].as<bool>();
+      try {
+        rhs.csCamType = static_cast<cameraType>(node["camera-type"].as<int>());
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse default type of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+        rhs.csCamType = defaultSettings.csCamType;
       }
-      if (node["1st-person-bone-to-follow"]) {
-        rhs.csFirstPersonBoneToFollow = node["1st-person-bone-to-follow"].as<int>();
+
+      if (rhs.csCamType == cameraType::free || rhs.csCamType == cameraType::stationary || rhs.csCamType == cameraType::stationaryFollowing) {
+        try {
+          rhs.csCamProjection = static_cast<cameraProjection>(node["camera-projection"].as<int>());
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse projection mode of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+          rhs.csCamProjection = defaultSettings.csCamProjection;
+        }
       }
-      if (node["1st-person-view-offsets"]) {
-        rhs.csFirstPersonOffsets = node["1st-person-view-offsets"].as<glm::vec3>();
+      if (rhs.csCamType == cameraType::firstPerson) {
+        if (node["1st-person-view-lock"]) {
+          try {
+            rhs.csFirstPersonLockView = node["1st-person-view-lock"].as<bool>();
+          } catch (...) {
+            Logger::log(1, "%s warning: could not parse first person view lock of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+            rhs.csFirstPersonLockView = defaultSettings.csFirstPersonLockView;
+          }
+        }
+        if (node["1st-person-bone-to-follow"]) {
+          try {
+            rhs.csFirstPersonBoneToFollow = node["1st-person-bone-to-follow"].as<int>();
+          } catch (...) {
+            Logger::log(1, "%s warning: could not parse first person bone to follow of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+            rhs.csFirstPersonBoneToFollow = defaultSettings.csFirstPersonBoneToFollow;
+          }
+        }
+        if (node["1st-person-view-offsets"]) {
+          try {
+            rhs.csFirstPersonOffsets = node["1st-person-view-offsets"].as<glm::vec3>();
+          } catch (...) {
+            Logger::log(1, "%s warning: could not parse first person view offset of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+            rhs.csFirstPersonOffsets = defaultSettings.csFirstPersonOffsets;
+          }
+        }
       }
-      if (node["3rd-person-view-distance"]) {
-        rhs.csThirdPersonDistance = node["3rd-person-view-distance"].as<float>();
-      }
-      if (node["3rd-person-view-height-offset"]) {
-        rhs.csThirdPersonHeightOffset = node["3rd-person-height-offset"].as<float>();
+      if (rhs.csCamType == cameraType::thirdPerson) {
+        if (node["3rd-person-view-distance"]) {
+          try {
+            rhs.csThirdPersonDistance = node["3rd-person-view-distance"].as<float>();
+          } catch (...) {
+            Logger::log(1, "%s warning: could not parse third person view distance of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+            rhs.csThirdPersonDistance = defaultSettings.csThirdPersonDistance;
+          }
+        }
+        if (node["3rd-person-view-height-offset"]) {
+          try {
+            rhs.csThirdPersonHeightOffset = node["3rd-person-height-offset"].as<float>();
+          } catch (...) {
+            Logger::log(1, "%s warning: could not parse third person view height offset of camera '%s', init with a default value\n", __FUNCTION__, rhs.csCamName.c_str());
+            rhs.csThirdPersonHeightOffset = defaultSettings.csThirdPersonHeightOffset;
+          }
+        }
       }
       return true;
     }
@@ -181,58 +374,17 @@ namespace YAML {
     }
 
     static bool decode(const Node& node, IdleWalkRunBlending& rhs) {
-      rhs.iwrbIdleClipNr = node["idle-clip"].as<int>();
-      rhs.iwrbIdleClipSpeed = node["idle-clip-speed"].as<float>();
-      rhs.iwrbWalkClipNr = node["walk-clip"].as<int>();
-      rhs.iwrbWalkClipSpeed = node["walk-clip-speed"].as<float>();
-      rhs.iwrbRunClipNr = node["run-clip"].as<int>();
-      rhs.iwrbRunClipSpeed = node["run-clip-speed"].as<float>();
-      return true;
-    }
-  };
-
-  /* read and write ActionAnimation */
-  template<>
-  struct convert<ActionAnimation> {
-    static Node encode(const ActionAnimation& rhs) {
-      Node node;
-      node["clip"] = rhs.aaClipNr;;
-      node["clip-speed"] = rhs.aaClipSpeed;
-      return node;
-    }
-
-    static bool decode(const Node& node, ActionAnimation& rhs) {
-      rhs.aaClipNr = node["clip"].as<int>();
-      rhs.aaClipSpeed = node["clip-speed"].as<float>();
-      return true;
-    }
-  };
-
-  /* read and write moveState */
-  template<>
-  struct convert<moveState> {
-    static Node encode(const moveState& rhs) {
-      Node node;
-      node = static_cast<int>(rhs);
-      return node;
-    }
-
-    static bool decode(const Node& node, moveState& rhs) {
-      rhs = static_cast<moveState>(node.as<int>());
-      return true;
-    }
-  };
-  /* read and write moveDirection */
-  template<>
-  struct convert<moveDirection> {
-    static Node encode(const moveDirection& rhs) {
-      Node node;
-      node = static_cast<int>(rhs);
-      return node;
-    }
-
-    static bool decode(const Node& node, moveDirection& rhs) {
-      rhs = static_cast<moveDirection>(node.as<int>());
+      try {
+        rhs.iwrbIdleClipNr = node["idle-clip"].as<int>();
+        rhs.iwrbIdleClipSpeed = node["idle-clip-speed"].as<float>();
+        rhs.iwrbWalkClipNr = node["walk-clip"].as<int>();
+        rhs.iwrbWalkClipSpeed = node["walk-clip-speed"].as<float>();
+        rhs.iwrbRunClipNr = node["run-clip"].as<int>();
+        rhs.iwrbRunClipSpeed = node["run-clip-speed"].as<float>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse idle/walk/run blendings, using defaults\n", __FUNCTION__);
+        rhs = IdleWalkRunBlending{};
+      }
       return true;
     }
   };
@@ -261,49 +413,60 @@ namespace YAML {
     }
 
     static bool decode(const Node& node, ModelSettings& rhs) {
-      rhs.msModelFilenamePath = node["model-file"].as<std::string>();
-      rhs.msModelFilename = node["model-name"].as<std::string>();
+      ModelSettings defaultSettings{};
+      try {
+        rhs.msModelFilenamePath = node["model-file"].as<std::string>();
+        rhs.msModelFilename = node["model-name"].as<std::string>();
+      } catch (...) {
+        Logger::log(1, "%s error: could not parse model file or model name\n", __FUNCTION__);
+        return false;
+      }
       if (Node clipNode = node["idle-walk-run-clips"]) {
-        for (size_t i = 0; i < clipNode.size(); ++i) {
-          std::map<moveDirection, IdleWalkRunBlending> entry = clipNode[i].as<std::map<moveDirection, IdleWalkRunBlending>>();
-          rhs.msIWRBlendings.insert(entry.begin(), entry.end());
+        try {
+          for (size_t i = 0; i < clipNode.size(); ++i) {
+            std::map<moveDirection, IdleWalkRunBlending> entry = clipNode[i].as<std::map<moveDirection, IdleWalkRunBlending>>();
+            rhs.msIWRBlendings.insert(entry.begin(), entry.end());
+          }
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse idle/walk/run blendings of model ''%s', using empty defaults'\n", __FUNCTION__, rhs.msModelFilename.c_str());
+          rhs.msIWRBlendings = defaultSettings.msIWRBlendings;
         }
       }
       if (Node clipNode = node["action-clips"]) {
-        for (size_t i = 0; i < clipNode.size(); ++i) {
-          std::map<moveState, ActionAnimation> entry = clipNode[i].as<std::map<moveState, ActionAnimation>>();
-          rhs.msActionClipMappings.insert(entry.begin(), entry.end());
+        try {
+          for (size_t i = 0; i < clipNode.size(); ++i) {
+            std::map<moveState, ActionAnimation> entry = clipNode[i].as<std::map<moveState, ActionAnimation>>();
+            rhs.msActionClipMappings.insert(entry.begin(), entry.end());
+          }
+        } catch(...) {
+          Logger::log(1, "%s warning: could not parse action clip mappings of model '%s', using empty defaults'\n", __FUNCTION__, rhs.msModelFilename.c_str());
+          rhs.msActionClipMappings = defaultSettings.msActionClipMappings;
         }
       }
       if (Node clipNode = node["action-sequences"]) {
-        for (size_t i = 0; i < clipNode.size(); ++i) {
-          /* std::set does not work, but std::map does... */
-          std::map<moveState, moveState> entry = clipNode[i].as<std::map<moveState, moveState>>();
-          std::pair<moveState, moveState> state = std::make_pair(entry.begin()->first, entry.begin()->second);
-          rhs.msAllowedStateOrder.insert(state);
+        try {
+          for (size_t i = 0; i < clipNode.size(); ++i) {
+            /* std::set does not work, but std::map does... */
+            std::map<moveState, moveState> entry = clipNode[i].as<std::map<moveState, moveState>>();
+            std::pair<moveState, moveState> state = std::make_pair(entry.begin()->first, entry.begin()->second);
+            rhs.msAllowedStateOrder.insert(state);
+          }
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse allowed clip order of model '%s', using empty defaults'\n", __FUNCTION__, rhs.msModelFilename.c_str());
+          rhs.msAllowedStateOrder = defaultSettings.msAllowedStateOrder;
         }
       }
       if (Node clipNode = node["bounding-sphere-adjustments"]) {
-        for (size_t i = 0; i < clipNode.size(); ++i) {
-          glm::vec4 entry = clipNode[i].as<glm::vec4>();
-          rhs.msBoundingSphereAdjustments.emplace_back(entry);
+        try {
+          for (size_t i = 0; i < clipNode.size(); ++i) {
+            glm::vec4 entry = clipNode[i].as<glm::vec4>();
+            rhs.msBoundingSphereAdjustments.emplace_back(entry);
+          }
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse bounding sphere adjustment of model '%s', using empty defaults'\n", __FUNCTION__, rhs.msModelFilename.c_str());
+          rhs.msBoundingSphereAdjustments = defaultSettings.msBoundingSphereAdjustments;
         }
       }
-      return true;
-    }
-  };
-
-  /* read and write collisionChecks */
-  template<>
-  struct convert<collisionChecks> {
-    static Node encode(const collisionChecks& rhs) {
-      Node node;
-      node = static_cast<int>(rhs);
-      return node;
-    }
-
-    static bool decode(const Node& node, collisionChecks& rhs) {
-      rhs = static_cast<collisionChecks>(node.as<int>());
       return true;
     }
   };

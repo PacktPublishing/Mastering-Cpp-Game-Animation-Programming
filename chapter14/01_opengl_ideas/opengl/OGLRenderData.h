@@ -147,6 +147,7 @@ struct OGLRenderData {
   bool rdNewConfigRequest = false;
   bool rdLoadConfigRequest = false;
   bool rdSaveConfigRequest = false;
+  bool rdShowControlsHelpRequest = false;
 
   glm::vec3 rdDefaultWorldStartPos = glm::vec3(-160.0f);
   glm::vec3 rdDefaultWorldSize = glm::vec3(320.0f);

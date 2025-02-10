@@ -6,6 +6,7 @@
 #include "BehaviorData.h"
 #include "Callbacks.h"
 #include "Enums.h"
+#include "AssimpInstance.h"
 
 class SingleInstanceBehavior {
   public:
@@ -20,21 +21,22 @@ class SingleInstanceBehavior {
     void setBehaviorData(std::shared_ptr<BehaviorData> data);
     std::shared_ptr<BehaviorData> getBehaviorData() const;
 
-    void setInstanceId(int instanceId);
-    int getInstanceId() const;
+    void setInstance(std::shared_ptr<AssimpInstance> instance);
+    std::shared_ptr<AssimpInstance> getInstance() const;
 
     void setInstanceNodeActionCallback(instanceNodeActionCallback callbackFunction);
-    void debugInstanceNodeCallback(int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting);
+    void debugInstanceNodeCallback(std::shared_ptr<AssimpInstance> instance, graphNodeType nodeType,
+      instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting);
     void nodeActionCallback(graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting);
 
     void addEvent(nodeEvent event);
 
   private:
-    fireNodeOutputCallback mFireNodeOutputCallback{};
-    instanceNodeActionCallback mInstanceNodeActionCallback{};
+    fireNodeOutputCallback mFireNodeOutputCallbackFunction{};
+    instanceNodeActionCallback mInstanceNodeActionCallbackFunction{};
 
-    std::shared_ptr<BehaviorData> mBehaviorData = nullptr;
-    int mInstanceId = 0;
+    std::shared_ptr<BehaviorData> mBehaviorManagerData = nullptr;
+    std::weak_ptr<AssimpInstance> mInstance;
 
     std::vector<nodeEvent> mPendingNodeEvents{};
     std::vector<nodeEvent> mNewPendingNodeEvents{};

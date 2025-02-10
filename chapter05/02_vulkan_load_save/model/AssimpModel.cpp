@@ -410,7 +410,7 @@ const std::vector<std::shared_ptr<AssimpAnimClip>>& AssimpModel::getAnimClips() 
 }
 
 bool AssimpModel::hasAnimations() {
-  return mAnimClips.size() > 0;
+  return !mAnimClips.empty();
 }
 
 VkShaderStorageBufferData& AssimpModel::getBoneMatrixOffsetBuffer() {

@@ -126,7 +126,7 @@ bool OGLRenderer::addModel(std::string modelFileName) {
 void OGLRenderer::deleteModel(std::string modelFileName) {
   std::string shortModelFileName = std::filesystem::path(modelFileName).filename().generic_string();
 
-  if (mModelInstData.miAssimpInstances.size() > 0) {
+  if (!mModelInstData.miAssimpInstances.empty()) {
     mModelInstData.miAssimpInstances.erase(
       std::remove_if(
         mModelInstData.miAssimpInstances.begin(),
@@ -360,7 +360,6 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToVBOTime = 0.0f;
   mRenderData.rdMatrixGenerateTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
 
   handleMovementKeys();
 
@@ -398,7 +397,7 @@ bool OGLRenderer::draw(float deltaTime) {
       std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
 
       /* animated models */
-      if (model->hasAnimations() && modelType.second.at(0)->getBoneMatrices().size() > 0) {
+      if (model->hasAnimations() && !modelType.second.at(0)->getBoneMatrices().empty()) {
         size_t numberOfBones = model->getBoneList().size();
 
         mMatrixGenerateTimer.start();
@@ -454,7 +453,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mUIDrawTimer.start();
   mUserInterface.render();
-  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
 
   return true;
 }

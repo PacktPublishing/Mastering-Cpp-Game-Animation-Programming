@@ -11,7 +11,7 @@ RandomNavigationNode::RandomNavigationNode(int nodeId) : GraphNodeBase(nodeId) {
 }
 
 std::shared_ptr<GraphNodeBase> RandomNavigationNode::clone() {
-  return std::make_shared<RandomNavigationNode>(*this);
+  return std::shared_ptr<GraphNodeBase>(new RandomNavigationNode(*this));
 }
 
 void RandomNavigationNode::draw(ModelInstanceCamData modInstCamData) {

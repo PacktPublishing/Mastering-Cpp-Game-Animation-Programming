@@ -67,8 +67,8 @@ class UserInterface {
     std::vector<float> mNumCollisionsValues{};
     int mNumNumCollisionValues = 90;
 
-    std::vector<float> mBehaviorValues{};
-    int mNumBehaviorValues = 90;
+    std::vector<float> mBehaviorManagerValues{};
+    int mNumBehaviorManagerValues = 90;
 
     std::vector<float> mInteractionValues{};
     int mNumInteractionValues = 90;
@@ -102,7 +102,7 @@ class UserInterface {
     int mCollisionDebugDrawOffset = 0;
     int mCollisionCheckOffset = 0;
     int mNumCollisionOffset = 0;
-    int mBehaviorOffset = 0;
+    int mBehaviorManagerOffset = 0;
     int mInteractionOffset = 0;
     int mFaceAnimOffset = 0;
     int mLevelCollisionOffset = 0;
@@ -126,7 +126,7 @@ class UserInterface {
     std::string mNewTreeName = "Tree1";
     std::string mSelectedTreeName;
     std::string mTreeToDelete;
-    std::shared_ptr<SingleInstanceBehavior> mBehavior = nullptr;
+    std::shared_ptr<SingleInstanceBehavior> mBehaviorManager = nullptr;
 
     bool mModelHasFaceAnims = false;
 
@@ -146,4 +146,6 @@ class UserInterface {
     glm::mat4 mScaleMat = glm::mat4(1.0f);
     glm::mat4 mRotationMat = glm::mat4(1.0f);
     glm::mat3 mOctreeViewMat = glm::mat3(1.0f);
+
+    std::string mControlsHelpText;
 };

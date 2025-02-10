@@ -1029,7 +1029,7 @@ bool VkRenderer::addModel(std::string modelFileName) {
 void VkRenderer::deleteModel(std::string modelFileName) {
   std::string shortModelFileName = std::filesystem::path(modelFileName).filename().generic_string();
 
-  if (mModelInstData.miAssimpInstances.size() > 0) {
+  if (!mModelInstData.miAssimpInstances.empty()) {
     mModelInstData.miAssimpInstances.erase(
       std::remove_if(
         mModelInstData.miAssimpInstances.begin(),
@@ -1343,7 +1343,6 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToVBOTime = 0.0f;
   mRenderData.rdMatrixGenerateTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
 
   /* wait for both fences before getting the new framebuffer image */
   std::vector<VkFence> waitFences = { mRenderData.rdComputeFence, mRenderData.rdRenderFence };
@@ -1379,10 +1378,11 @@ bool VkRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         size_t numberOfBones = model->getBoneList().size();
 
-        boneMatrixBufferSize += numberOfBones * numberOfInstances;
+        /* buffer size must always be a multiple of "local_size_y" instances to avoid undefined behavior */
+        boneMatrixBufferSize += numberOfBones * ((numberOfInstances - 1) / 32 + 1) * 32;
       }
     }
   }
@@ -1404,7 +1404,7 @@ bool VkRenderer::draw(float deltaTime) {
       std::shared_ptr<AssimpModel> model = modelType.second.at(0)->getModel();
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         size_t numberOfBones = model->getBoneList().size();
         animatedModelLoaded = true;
 
@@ -1485,7 +1485,7 @@ bool VkRenderer::draw(float deltaTime) {
       if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
         /* compute shader for animated models only */
-        if (model->hasAnimations() && model->getBoneList().size() > 0) {
+        if (model->hasAnimations() && !model->getBoneList().empty()) {
           size_t numberOfBones = model->getBoneList().size();
 
           runComputeShaders(model, numberOfInstances, computeShaderModelOffset);
@@ -1636,7 +1636,7 @@ bool VkRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         uint32_t numberOfBones = model->getBoneList().size();
 
         vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpSkinningPipeline);
@@ -1687,7 +1687,7 @@ bool VkRenderer::draw(float deltaTime) {
 
   mUIDrawTimer.start();
   mUserInterface.render(mRenderData);
-  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
 
   vkCmdEndRenderPass(mRenderData.rdCommandBuffer);
 

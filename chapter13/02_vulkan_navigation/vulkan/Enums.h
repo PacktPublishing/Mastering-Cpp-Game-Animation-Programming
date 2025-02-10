@@ -6,6 +6,14 @@ enum class appMode : uint8_t {
   view
 };
 
+inline appMode operator++ (appMode const& m) {
+  return static_cast<appMode>((static_cast<int>(m) + 1) % 2);
+}
+
+inline appMode operator-- (appMode const& m) {
+  return static_cast<appMode>(((static_cast<int>(m) - 1) % 2 + 2) % 2);
+}
+
 enum class instanceEditMode : uint8_t {
   move = 0,
   rotate,
@@ -112,7 +120,7 @@ enum class graphNodeType : uint8_t {
   randomWait,
   selector,
   sequence,
-  instance,
+  instanceMovement,
   event,
   action,
   debugLog,

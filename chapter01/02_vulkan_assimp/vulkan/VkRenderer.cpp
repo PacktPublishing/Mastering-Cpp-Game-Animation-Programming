@@ -698,7 +698,7 @@ bool VkRenderer::addModel(std::string modelFileName) {
 void VkRenderer::deleteModel(std::string modelFileName) {
   std::string shortModelFileName = std::filesystem::path(modelFileName).filename().generic_string();
 
-  if (mModelInstData.miAssimpInstances.size() > 0) {
+  if (!mModelInstData.miAssimpInstances.empty()) {
     mModelInstData.miAssimpInstances.erase(
       std::remove_if(
         mModelInstData.miAssimpInstances.begin(),
@@ -945,7 +945,6 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToVBOTime = 0.0f;
   mRenderData.rdMatrixGenerateTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
 
   handleMovementKeys();
 
@@ -1009,7 +1008,7 @@ bool VkRenderer::draw(float deltaTime) {
 
       /* animated models */
       if (model->hasAnimations() &&
-        modelType.second.at(0)->getBoneMatrices().size() > 0) {
+        !modelType.second.at(0)->getBoneMatrices().empty()) {
 
         mMatrixGenerateTimer.start();
         for (unsigned int i = 0; i < numberOfInstances; ++i) {
@@ -1110,7 +1109,7 @@ bool VkRenderer::draw(float deltaTime) {
 
       /* animated models */
       if (model->hasAnimations() &&
-        modelType.second.at(0)->getBoneMatrices().size() > 0) {
+        !modelType.second.at(0)->getBoneMatrices().empty()) {
         size_t numberOfBones = model->getBoneList().size();
 
         mUploadToUBOTimer.start();
@@ -1152,7 +1151,7 @@ bool VkRenderer::draw(float deltaTime) {
 
   mUIDrawTimer.start();
   mUserInterface.render(mRenderData);
-  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
 
   vkCmdEndRenderPass(mRenderData.rdCommandBuffer);
 

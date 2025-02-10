@@ -172,6 +172,7 @@ class VkRenderer {
 
     std::string mOrigWindowTitle;
     void setModeInWindowTitle();
+    void setAppMode(appMode newMode);
 
     void toggleFullscreen();
     void checkMouseEnable();

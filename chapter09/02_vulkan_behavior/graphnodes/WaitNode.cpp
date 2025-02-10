@@ -14,7 +14,7 @@ WaitNode::WaitNode(int nodeId, float waitTime) : GraphNodeBase(nodeId) {
 }
 
 std::shared_ptr<GraphNodeBase> WaitNode::clone() {
-  return std::make_shared<WaitNode>(*this);
+  return std::shared_ptr<GraphNodeBase>(new WaitNode(*this));
 }
 
 void WaitNode::draw(ModelInstanceCamData modInstCamData) {

@@ -335,6 +335,9 @@ endif()
 # enable experimental GLM functions globally
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 
+# allow ImGuiFileDialog dialogs to be closed with ESC
+add_definitions(-DUSE_DIALOG_EXIT_WITH_KEY -DIGFD_EXIT_KEY=ImGuiKey_Escape)
+
 # Fix "wrong" depth in Vulkan
 add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
 

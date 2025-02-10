@@ -15,7 +15,7 @@ FaceAnimNode::FaceAnimNode(int nodeId) : GraphNodeBase(nodeId) {
 }
 
 std::shared_ptr<GraphNodeBase> FaceAnimNode::clone() {
-  return std::make_shared<FaceAnimNode>(*this);
+  return std::shared_ptr<GraphNodeBase>(new FaceAnimNode(*this));
 }
 
 void FaceAnimNode::draw(ModelInstanceCamData modInstCamData) {

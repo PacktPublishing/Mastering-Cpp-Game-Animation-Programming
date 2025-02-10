@@ -16,7 +16,7 @@ RandomWaitNode::RandomWaitNode(int nodeId, float minWaitTime, float maxWaitTime)
 }
 
 std::shared_ptr<GraphNodeBase> RandomWaitNode::clone() {
-  return std::make_shared<RandomWaitNode>(*this);
+  return std::shared_ptr<GraphNodeBase>(new RandomWaitNode(*this));
 }
 
 /* we need a custom copy constructor to create a random time after cloning */

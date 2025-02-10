@@ -73,14 +73,16 @@ std::vector<std::string> YamlParser::getModelFileNames() {
   }
 
   YAML::Node modelsNode = mYamlNode["models"];
-  try {
-    for (size_t i = 0; i < modelsNode.size(); ++i) {
-      Logger::log(1, "%s: found model name: %s\n", __FUNCTION__, modelsNode[i]["model-name"].as<std::string>().c_str());
-      modelFileNames.emplace_back(modelsNode[i]["model-file"].as<std::string>());
+  std::string modelFileName;
+  for (size_t i = 0; i < modelsNode.size(); ++i) {
+    try {
+      modelFileName = modelsNode[i]["model-file"].as<std::string>();
+    } catch (...) {
+      Logger::log(1, "%s error: could not parse file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
+      continue;
     }
-  } catch (...) {
-    Logger::log(1, "%s error: could not parse file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
-    return std::vector<std::string>{};
+    modelFileNames.emplace_back(modelFileName);
+    Logger::log(1, "%s: found model name: %s\n", __FUNCTION__, modelFileName.c_str());
   }
 
   return modelFileNames;
@@ -116,13 +118,15 @@ std::vector<InstanceSettings> YamlParser::getInstanceConfigs() {
   }
 
   YAML::Node instanceNode = mYamlNode["instances"];
-  try {
-    for (size_t i = 0; i < instanceNode.size(); ++i) {
-      instSettings.emplace_back(instanceNode[i].as<InstanceSettings>());
+  InstanceSettings settings{};
+  for (size_t i = 0; i < instanceNode.size(); ++i) {
+    try {
+      settings = instanceNode[i].as<InstanceSettings>();
+    } catch (...) {
+      Logger::log(1, "%s error: could not parse file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
+      continue;
     }
-  } catch (...) {
-    Logger::log(1, "%s error: could not parse file '%s'\n", __FUNCTION__, mYamlFileName.c_str());
-    return std::vector<InstanceSettings>{};
+    instSettings.emplace_back(settings);
   }
 
   return instSettings;

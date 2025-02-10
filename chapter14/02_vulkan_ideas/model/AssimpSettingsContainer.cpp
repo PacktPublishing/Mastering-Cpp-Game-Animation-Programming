@@ -279,8 +279,8 @@ void AssimpSettingsContainer::undo() {
      break;
     case undoRedoObjectType::deleteInstance:
       instanceAddExistingCallbackFunction(undoSettings.ursInstanceSettings.aisDeletedInstance,
-                                          undoSettings.ursInstanceSettings.aisDeletedInstance->getInstanceSettings().isInstanceIndexPosition,
-                                          undoSettings.ursInstanceSettings.aisDeletedInstance->getInstanceSettings().isInstancePerModelIndexPosition);
+                                          undoSettings.ursInstanceSettings.aisDeletedInstance->getInstanceIndexPosition(),
+                                          undoSettings.ursInstanceSettings.aisDeletedInstance->getInstancePerModelIndexPosition());
         undoSettings.ursInstanceSettings.aisInstance = undoSettings.ursInstanceSettings.aisDeletedInstance;
         undoSettings.ursInstanceSettings.aisDeletedInstance.reset();
 
@@ -332,9 +332,9 @@ void AssimpSettingsContainer::undo() {
       setSelectedModelCallbackFunction(undoSettings.ursModelSettings.amsSavedSelectedModel);
 
       /* restore initial instance */
-      if (undoSettings.ursModelSettings.amsDeletedInstances.size() > 0 ) {
+      if (!undoSettings.ursModelSettings.amsDeletedInstances.empty()) {
         for (auto iter = undoSettings.ursModelSettings.amsDeletedInstances.begin(); iter != undoSettings.ursModelSettings.amsDeletedInstances.end(); ++iter) {
-          instanceAddExistingCallbackFunction((*iter), (*iter)->getInstanceSettings().isInstanceIndexPosition, (*iter)->getInstanceSettings().isInstancePerModelIndexPosition);
+          instanceAddExistingCallbackFunction((*iter), (*iter)->getInstanceIndexPosition(), (*iter)->getInstancePerModelIndexPosition());
           undoSettings.ursModelSettings.amsInstances.emplace_back(*iter);
         }
       }
@@ -392,8 +392,8 @@ void AssimpSettingsContainer::redo() {
       break;
     case undoRedoObjectType::addInstance:
       instanceAddExistingCallbackFunction(redoSettings.ursInstanceSettings.aisDeletedInstance,
-                                          redoSettings.ursInstanceSettings.aisDeletedInstance->getInstanceSettings().isInstanceIndexPosition,
-                                          redoSettings.ursInstanceSettings.aisDeletedInstance->getInstanceSettings().isInstancePerModelIndexPosition);
+                                          redoSettings.ursInstanceSettings.aisDeletedInstance->getInstanceIndexPosition(),
+                                          redoSettings.ursInstanceSettings.aisDeletedInstance->getInstancePerModelIndexPosition());
         redoSettings.ursInstanceSettings.aisInstance = redoSettings.ursInstanceSettings.aisDeletedInstance;
         redoSettings.ursInstanceSettings.aisDeletedInstance.reset();
 
@@ -420,8 +420,8 @@ void AssimpSettingsContainer::redo() {
       /* restore initial instance */
       if (redoSettings.ursModelSettings.amsDeletedInstances.size() == 1) {
         instanceAddExistingCallbackFunction(redoSettings.ursModelSettings.amsDeletedInstances.at(0),
-                                            redoSettings.ursModelSettings.amsDeletedInstances.at(0)->getInstanceSettings().isInstanceIndexPosition,
-                                            redoSettings.ursModelSettings.amsDeletedInstances.at(0)->getInstanceSettings().isInstancePerModelIndexPosition);
+                                            redoSettings.ursModelSettings.amsDeletedInstances.at(0)->getInstanceIndexPosition(),
+                                            redoSettings.ursModelSettings.amsDeletedInstances.at(0)->getInstancePerModelIndexPosition());
         redoSettings.ursModelSettings.amsInitialInstance = redoSettings.ursModelSettings.amsDeletedInstances.at(0);
         redoSettings.ursModelSettings.amsDeletedInstances.clear();
       }
@@ -471,8 +471,8 @@ void AssimpSettingsContainer::redo() {
         }
 
         for (auto& instSettings : redoSettings.ursMultiInstanceSettings.amisMultiInstanceSettings) {
-          instanceAddExistingCallbackFunction(instSettings.aisDeletedInstance, instSettings.aisDeletedInstance->getInstanceSettings().isInstanceIndexPosition,
-                                              instSettings.aisDeletedInstance->getInstanceSettings().isInstancePerModelIndexPosition);
+          instanceAddExistingCallbackFunction(instSettings.aisDeletedInstance, instSettings.aisDeletedInstance->getInstanceIndexPosition(),
+                                              instSettings.aisDeletedInstance->getInstancePerModelIndexPosition());
           instSettings.aisInstance = instSettings.aisDeletedInstance;
           instSettings.aisDeletedInstance.reset();
         }

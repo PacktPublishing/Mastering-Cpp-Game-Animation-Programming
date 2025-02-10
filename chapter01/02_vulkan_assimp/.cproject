@@ -22,12 +22,15 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration buildArtefactType="cmake4eclipse.mbs.buildArtefactType.cmake" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=cmake4eclipse.mbs.buildArtefactType.cmake,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" description="" id="cmake4eclipse.mbs.config.debug.737044259" name="Debug" parent="cmake4eclipse.mbs.config.debug">
+				<configuration buildArtefactType="cmake4eclipse.mbs.buildArtefactType.cmake" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=cmake4eclipse.mbs.buildArtefactType.cmake,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" description="" id="cmake4eclipse.mbs.config.debug.737044259" name="Debug" optionalBuildProperties="" parent="cmake4eclipse.mbs.config.debug">
 					<folderInfo id="cmake4eclipse.mbs.config.debug.737044259." name="/" resourcePath="">
 						<toolChain id="cmake4eclipse.mbs.config.debug.toolChain.2112627055" name="CMake driven" superClass="cmake4eclipse.mbs.config.debug.toolChain">
 							<targetPlatform id="cmake4eclipse.mbs.targetPlatform.cmake.976496310" name="Any Platform" superClass="cmake4eclipse.mbs.targetPlatform.cmake"/>
 							<builder buildPath="/01_02_vulkan_assimp/_build/Debug" id="cmake4eclipse.mbs.builder.1190198307" managedBuildOn="true" name="CMake Builder.Debug" superClass="cmake4eclipse.mbs.builder"/>
-							<tool id="cmake4eclipse.mbs.toolchain.tool.dummy.917149107" name="CMake" superClass="cmake4eclipse.mbs.toolchain.tool.dummy"/>
+							<tool id="cmake4eclipse.mbs.toolchain.tool.dummy.917149107" name="CMake" superClass="cmake4eclipse.mbs.toolchain.tool.dummy">
+								<inputType id="cmake4eclipse.mbs.inputType.c.1911884864" superClass="cmake4eclipse.mbs.inputType.c"/>
+								<inputType id="cmake4eclipse.mbs.inputType.cpp.106166744" superClass="cmake4eclipse.mbs.inputType.cpp"/>
+							</tool>
 						</toolChain>
 					</folderInfo>
 				</configuration>
@@ -53,12 +56,16 @@
 						<toolChain id="cmake4eclipse.mbs.config.cmake.toolChain.2084792602" name="CMake driven" superClass="cmake4eclipse.mbs.config.cmake.toolChain">
 							<targetPlatform id="cmake4eclipse.mbs.targetPlatform.cmake.1504628365" name="Any Platform" superClass="cmake4eclipse.mbs.targetPlatform.cmake"/>
 							<builder buildPath="/01_02_vulkan_assimp/_build/Default" id="cmake4eclipse.mbs.builder.901358611" managedBuildOn="true" name="CMake Builder.Default" superClass="cmake4eclipse.mbs.builder"/>
-							<tool id="cmake4eclipse.mbs.toolchain.tool.dummy.894053323" name="CMake" superClass="cmake4eclipse.mbs.toolchain.tool.dummy"/>
+							<tool id="cmake4eclipse.mbs.toolchain.tool.dummy.894053323" name="CMake" superClass="cmake4eclipse.mbs.toolchain.tool.dummy">
+								<inputType id="cmake4eclipse.mbs.inputType.c.932182653" superClass="cmake4eclipse.mbs.inputType.c"/>
+								<inputType id="cmake4eclipse.mbs.inputType.cpp.1346445984" superClass="cmake4eclipse.mbs.inputType.cpp"/>
+							</tool>
 						</toolChain>
 					</folderInfo>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="de.marw.cmake4eclipse.mbs.settings"/>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
 		<cconfiguration id="cmake4eclipse.mbs.config.release.828474495">
 			<storageModule buildSystemId="de.marw.cmake4eclipse.mbs.cmake4eclipse" id="cmake4eclipse.mbs.config.release.828474495" moduleId="org.eclipse.cdt.core.settings" name="Release">
@@ -78,12 +85,16 @@
 						<toolChain id="cmake4eclipse.mbs.config.release.toolChain.1986723270" name="CMake driven" superClass="cmake4eclipse.mbs.config.release.toolChain">
 							<targetPlatform id="cmake4eclipse.mbs.targetPlatform.cmake.1740548448" name="Any Platform" superClass="cmake4eclipse.mbs.targetPlatform.cmake"/>
 							<builder buildPath="/01_02_vulkan_assimp/_build/Release" id="cmake4eclipse.mbs.builder.419142720" managedBuildOn="true" name="CMake Builder.Release" superClass="cmake4eclipse.mbs.builder"/>
-							<tool id="cmake4eclipse.mbs.toolchain.tool.dummy.516740330" name="CMake" superClass="cmake4eclipse.mbs.toolchain.tool.dummy"/>
+							<tool id="cmake4eclipse.mbs.toolchain.tool.dummy.516740330" name="CMake" superClass="cmake4eclipse.mbs.toolchain.tool.dummy">
+								<inputType id="cmake4eclipse.mbs.inputType.c.1058282125" superClass="cmake4eclipse.mbs.inputType.c"/>
+								<inputType id="cmake4eclipse.mbs.inputType.cpp.621395160" superClass="cmake4eclipse.mbs.inputType.cpp"/>
+							</tool>
 						</toolChain>
 					</folderInfo>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="de.marw.cmake4eclipse.mbs.settings"/>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -93,4 +104,5 @@
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

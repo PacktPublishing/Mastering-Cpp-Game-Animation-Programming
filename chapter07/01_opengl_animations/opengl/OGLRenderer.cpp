@@ -153,6 +153,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mModelInstCamData.micCameraNameCheckCallbackFunction = [this](std::string cameraName) { return checkCameraNameUsed(cameraName); };
 
   mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
+  mModelInstCamData.micSsetAppModeCallbackFunction = [this](appMode newMode) { setAppMode(newMode); };
 
   /* init camera strings */
   mModelInstCamData.micCameraProjectionMap[cameraProjection::perspective] = "Perspective";
@@ -891,6 +892,12 @@ void OGLRenderer::setModeInWindowTitle() {
     mWindowTitleDirtySign);
 }
 
+void OGLRenderer::setAppMode(appMode newMode) {
+  mRenderData.rdApplicationMode = newMode;
+  setModeInWindowTitle();
+  checkMouseEnable();
+}
+
 void OGLRenderer::toggleFullscreen() {
   mRenderData.rdFullscreen = mRenderData.rdFullscreen ? false : true;
 
@@ -936,14 +943,17 @@ void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
 
   /* toggle between edit and view mode by pressing F10 */
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_F10) == GLFW_PRESS) {
-    int currentMode = static_cast<int>(mRenderData.rdApplicationMode);
     if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
         glfwGetKey(mRenderData.rdWindow, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-      mRenderData.rdApplicationMode = static_cast<appMode>((--currentMode + 2) % 2);
+      setAppMode(--mRenderData.rdApplicationMode);
     } else {
-      mRenderData.rdApplicationMode = static_cast<appMode>(++currentMode % 2);
+      setAppMode(++mRenderData.rdApplicationMode);
     }
-    setModeInWindowTitle();
+  }
+
+  /* use ESC to return to edit mode */
+  if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    setAppMode(appMode::edit);
   }
 
   /* toggle between full-screen and window mode by pressing F11 */
@@ -1408,7 +1418,6 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToVBOTime = 0.0f;
   mRenderData.rdMatrixGenerateTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
 
   /* save the selected instance for color highlight */
   std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
@@ -1479,7 +1488,7 @@ bool OGLRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
 
         size_t numberOfBones = model->getBoneList().size();
 
@@ -1523,7 +1532,7 @@ bool OGLRenderer::draw(float deltaTime) {
           }
 
           if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
-              instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition) {
+              instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceIndexPosition()) {
             firstPersonCamWorldPos = instSettings.isInstanceIndexPosition;
           }
         }
@@ -1572,8 +1581,8 @@ bool OGLRenderer::draw(float deltaTime) {
 
         if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
             model == cam->getInstanceToFollow()->getModel() &&
-            cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition == firstPersonCamWorldPos) {
-          int selectedInstance = cam->getInstanceToFollow()->getInstanceSettings().isInstancePerModelIndexPosition;
+            cam->getInstanceToFollow()->getInstanceIndexPosition() == firstPersonCamWorldPos) {
+          int selectedInstance = cam->getInstanceToFollow()->getInstancePerModelIndexPosition();
           int selectedBone = camSettings.csFirstPersonBoneToFollow;
           glm::mat4 offsetMatrix = glm::translate(glm::mat4(1.0f), camSettings.csFirstPersonOffsets);
           glm::mat4 boneMatrix = mShaderBoneMatrixBuffer.getSsboDataMat4(selectedInstance * numberOfBones + selectedBone, 1).at(0);
@@ -1739,7 +1748,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mUIDrawTimer.start();
   mUserInterface.render();
-  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
 
   return true;
 }

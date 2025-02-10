@@ -287,6 +287,22 @@ add_custom_command(TARGET ImGuiIniFile POST_BUILD
   "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/imgui.ini"
 )
 
+# copy controls.txt
+file(GLOB CONTROLS_TXT controls.txt)
+
+add_custom_target(
+  ControlsTxtxFile
+  DEPENDS ${CONTROLS_TXT}
+)
+
+add_dependencies(${PROJECT_NAME} ControlsTxtxFile)
+
+add_custom_command(TARGET ControlsTxtxFile POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+  "$<TARGET_PROPERTY:${PROJECT_NAME},SOURCE_DIR>/controls.txt"
+  "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/controls.txt"
+)
+
 # Copy SDL2 DLLs
 if (WIN32)
   add_custom_command(
@@ -312,6 +328,9 @@ endif()
 
 # enable experimental GLM functions globally
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL -DIMGUI_DEFINE_MATH_OPERATORS)
+
+# allow ImGuiFileDialog dialogs to be closed with ESC
+add_definitions(-DUSE_DIALOG_EXIT_WITH_KEY -DIGFD_EXIT_KEY=ImGuiKey_Escape)
 
 if(MSVC)
   # SDL defines its own main(), conflicts on Windows

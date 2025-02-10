@@ -270,6 +270,9 @@ endif()
 # enable experimental GLM functions globally
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 
+# allow ImGuiFileDialog dialogs to be closed with ESC
+add_definitions(-DUSE_DIALOG_EXIT_WITH_KEY -DIGFD_EXIT_KEY=ImGuiKey_Escape)
+
 if(MSVC)
   target_link_libraries(${PROJECT_NAME} PRIVATE glfw ${ASSIMP_LIBRARY} ${ASSIMP_ZLIB_LIBRARY} OpenGL::GL yaml-cpp::yaml-cpp)
 else()

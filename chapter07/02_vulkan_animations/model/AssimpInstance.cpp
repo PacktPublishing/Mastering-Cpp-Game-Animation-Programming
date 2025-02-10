@@ -486,3 +486,11 @@ void AssimpInstance::setInstanceSettings(InstanceSettings settings) {
 InstanceSettings AssimpInstance::getInstanceSettings() {
   return mInstanceSettings;
 }
+
+int AssimpInstance::getInstanceIndexPosition() {
+  return mInstanceSettings.isInstanceIndexPosition;
+}
+
+int AssimpInstance::getInstancePerModelIndexPosition() {
+  return mInstanceSettings.isInstancePerModelIndexPosition;
+}

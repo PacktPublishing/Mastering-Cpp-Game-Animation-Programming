@@ -32,6 +32,9 @@ class AssimpInstance {
     void setInstanceSettings(InstanceSettings settings);
     InstanceSettings getInstanceSettings();
 
+    int getInstanceIndexPosition();
+    int getInstancePerModelIndexPosition();
+
     void blendIdleWalkRunAnimation(float deltaTime);
     void playIdleWalkRunAnimation();
 

@@ -203,15 +203,15 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mModelInstCamData.micEditNodeGraphCallbackFunction = [this](std::string graphName) { editGraph(graphName); };
   mModelInstCamData.micCreateEmptyNodeGraphCallbackFunction= [this]() { return createEmptyGraph(); };
 
-  mModelInstCamData.micInstanceAddBehaviorCallbackFunction = [this](int instanceId, std::shared_ptr<SingleInstanceBehavior> behavior) {
-    addBehavior(instanceId, behavior);
+  mModelInstCamData.micInstanceAddBehaviorCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, std::shared_ptr<SingleInstanceBehavior> behavior) {
+    addBehavior(instance, behavior);
   };
-  mModelInstCamData.micInstanceDelBehaviorCallbackFunction = [this](int instanceId) { delBehavior(instanceId); };
+  mModelInstCamData.micInstanceDelBehaviorCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { delBehavior(instance); };
   mModelInstCamData.micModelAddBehaviorCallbackFunction = [this](std::string modelName, std::shared_ptr<SingleInstanceBehavior> behavior) {
     addModelBehavior(modelName, behavior);
   };
   mModelInstCamData.micModelDelBehaviorCallbackFunction = [this](std::string modelName) { delModelBehavior(modelName); };
-  mModelInstCamData.micNodeEventCallbackFunction = [this](int instanceId, nodeEvent event) { addBehaviorEvent(instanceId, event); };
+  mModelInstCamData.micNodeEventCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, nodeEvent event) { addBehaviorEvent(instance, event); };
   mModelInstCamData.micPostNodeTreeDelBehaviorCallbackFunction = [this](std::string nodeTreeName) { postDelNodeTree(nodeTreeName); };
 
   mModelInstCamData.micLevelCheckCallbackFunction = [this](std::string levelFileName) { return hasLevel(levelFileName); };
@@ -220,6 +220,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mModelInstCamData.micLevelGenerateAABBCallbackFunction = [this]() { generateLevelAABB(); };
 
   mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
+  mModelInstCamData.micSsetAppModeCallbackFunction = [this](appMode newMode) { setAppMode(newMode); };
   Logger::log(1, "%s: callbacks initialized\n", __FUNCTION__);
 
   /* init camera strings */
@@ -285,11 +286,12 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   mCollidingSphereMesh = mCollidingSphereModel.getVertexData();
   Logger::log(1, "%s: Colliding sphere line mesh storage initialized\n", __FUNCTION__);
 
-  mBehavior = std::make_shared<Behavior>();
-  mInstanceNodeActionCallbackFunction = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
-    updateInstanceSettings(instanceId, nodeType, updateType, data, extraSetting);
+  mBehaviorManager = std::make_shared<BehaviorManager>();
+  mInstanceNodeActionCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, graphNodeType nodeType,
+      instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
+    updateInstanceSettings(instance, nodeType, updateType, data, extraSetting);
   };
-  mBehavior->setNodeActionCallback(mInstanceNodeActionCallbackFunction);
+  mBehaviorManager->setNodeActionCallback(mInstanceNodeActionCallbackFunction);
   Logger::log(1, "%s: behavior data initialized\n", __FUNCTION__);
 
   mGraphEditor = std::make_shared<GraphEditor>();
@@ -401,7 +403,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   }
 
   /* get node trees for behavior, needed to be set (copied) in instances */
-  std::vector<EnhancedBehaviorData> behaviorData = parser.getBehaviorData();
+  std::vector<ExtendedBehaviorData> behaviorData = parser.getBehaviorData();
   if (behaviorData.empty()) {
     Logger::log(1, "%s error: no behaviors in file '%s', skipping\n", __FUNCTION__, parser.getFileName().c_str());
   } else {
@@ -467,7 +469,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
   for (auto& instance : mModelInstCamData.micAssimpInstances) {
     InstanceSettings instSettings = instance->getInstanceSettings();
     if (!instSettings.isNodeTreeName.empty()) {
-      addBehavior(instSettings.isInstanceIndexPosition, mModelInstCamData.micBehaviorData.at(instSettings.isNodeTreeName));
+      addBehavior(instance, mModelInstCamData.micBehaviorData.at(instSettings.isNodeTreeName));
     }
   }
 
@@ -667,7 +669,7 @@ void OGLRenderer::removeAllModelsAndInstances() {
   mRenderData.rdDrawLevelAABB = false;
 
   /* reset behavior data and graphEditor */
-  mBehavior->clear();
+  mBehaviorManager->clear();
   mModelInstCamData.micBehaviorData.clear();
   mGraphEditor = std::make_shared<GraphEditor>();
 
@@ -985,7 +987,7 @@ void OGLRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
   /* add behavior tree after new id was set */
   newInstanceSettings = newInstance->getInstanceSettings();
   if (!newInstanceSettings.isNodeTreeName.empty()) {
-    addBehavior(newInstanceSettings.isInstanceIndexPosition, mModelInstCamData.micBehaviorData.at(newInstanceSettings.isNodeTreeName));
+    addBehavior(newInstance, mModelInstCamData.micBehaviorData.at(newInstanceSettings.isNodeTreeName));
   }
 
   updateTriangleCount();
@@ -1018,7 +1020,7 @@ void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int n
   for (int i = 0; i < numClones; ++i) {
     InstanceSettings newInstanceSettings = newInstances.at(i)->getInstanceSettings();
     if (!newInstanceSettings.isNodeTreeName.empty()) {
-      addBehavior(newInstanceSettings.isInstanceIndexPosition, mModelInstCamData.micBehaviorData.at(newInstanceSettings.isNodeTreeName));
+      addBehavior(newInstances.at(i), mModelInstCamData.micBehaviorData.at(newInstanceSettings.isNodeTreeName));
     }
   }
 
@@ -1074,29 +1076,19 @@ std::shared_ptr<BoundingBox3D> OGLRenderer::getWorldBoundaries() {
   return mWorldBoundaries;
 }
 
-void OGLRenderer::addBehavior(int instanceId, std::shared_ptr<SingleInstanceBehavior> behavior) {
-  if (mModelInstCamData.micAssimpInstances.size() < instanceId) {
-    Logger::log(1, "%s error: number of instances is smaller than instance id %i\n", __FUNCTION__, instanceId);
-    return;
-  }
-
+void OGLRenderer::addBehavior(std::shared_ptr<AssimpInstance> instance, std::shared_ptr<SingleInstanceBehavior> behavior) {
   mBehviorTimer.start();
-  mBehavior->addInstance(instanceId, behavior);
+  mBehaviorManager->addInstance(instance, behavior);
   mRenderData.rdBehaviorTime += mBehviorTimer.stop();
-  Logger::log(1, "%s: added behavior %s to instance %i\n", __FUNCTION__, behavior->getBehaviorData()->bdName.c_str(), instanceId);
+  Logger::log(1, "%s: added behavior %s to instance %i\n", __FUNCTION__, behavior->getBehaviorData()->bdName.c_str(), instance->getInstanceIndexPosition());
 }
 
-void OGLRenderer::delBehavior(int instanceId) {
-  if (mModelInstCamData.micAssimpInstances.size() < instanceId) {
-    Logger::log(1, "%s error: number of instances is smaller than instance id %i\n", __FUNCTION__, instanceId);
-    return;
-  }
-
+void OGLRenderer::delBehavior(std::shared_ptr<AssimpInstance> instance) {
   mBehviorTimer.start();
-  mBehavior->removeInstance(instanceId);
+  mBehaviorManager->removeInstance(instance);
   mRenderData.rdBehaviorTime += mBehviorTimer.stop();
 
-  Logger::log(1, "%s: removed behavior from instance %i\n", __FUNCTION__, instanceId);
+  Logger::log(1, "%s: removed behavior from instance %i\n", __FUNCTION__, instance->getInstanceIndexPosition());
 }
 
 void OGLRenderer::addModelBehavior(std::string modelName, std::shared_ptr<SingleInstanceBehavior> behavior) {
@@ -1108,7 +1100,7 @@ void OGLRenderer::addModelBehavior(std::string modelName, std::shared_ptr<Single
 
   for (auto& instance : mModelInstCamData.micAssimpInstancesPerModel[modelName]) {
     InstanceSettings settings = instance->getInstanceSettings();
-    mBehavior->addInstance(settings.isInstanceIndexPosition, behavior);
+    mBehaviorManager->addInstance(instance, behavior);
     settings.isNodeTreeName = behavior->getBehaviorData()->bdName;
     instance->setInstanceSettings(settings);
   }
@@ -1125,7 +1117,7 @@ void OGLRenderer::delModelBehavior(std::string modelName) {
 
   for (auto& instance : mModelInstCamData.micAssimpInstancesPerModel[modelName]) {
     InstanceSettings settings = instance->getInstanceSettings();
-    mBehavior->removeInstance(settings.isInstanceIndexPosition);
+    mBehaviorManager->removeInstance(instance);
     settings.isNodeTreeName.clear();
     instance->setInstanceSettings(settings);
 
@@ -1136,19 +1128,14 @@ void OGLRenderer::delModelBehavior(std::string modelName) {
   Logger::log(1, "%s: removed behavior from all instances of model %s\n", __FUNCTION__, modelName.c_str());
 }
 
-void OGLRenderer::updateInstanceSettings(int instanceId, graphNodeType nodeType,
+void OGLRenderer::updateInstanceSettings(std::shared_ptr<AssimpInstance> instance, graphNodeType nodeType,
     instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
-  if (instanceId >= mModelInstCamData.micAssimpInstances.size()) {
-    Logger::log(1, "%s error: number of instances is smaller than instance id %i\n", __FUNCTION__, instanceId);
-    return;
-  }
-  std::shared_ptr<AssimpInstance> instance = mModelInstCamData.micAssimpInstances.at(instanceId);
   InstanceSettings settings = instance->getInstanceSettings();
   moveDirection dir = settings.isMoveDirection;
   moveState state = settings.isMoveState;
 
   switch (nodeType) {
-    case graphNodeType::instance:
+    case graphNodeType::instanceMovement:
       switch (updateType) {
         case instanceUpdateType::moveDirection:
           dir = std::get<moveDirection>(data);
@@ -1212,15 +1199,15 @@ void OGLRenderer::updateInstanceSettings(int instanceId, graphNodeType nodeType,
   }
 }
 
-void OGLRenderer::addBehaviorEvent(int instanceId, nodeEvent event) {
-  mBehavior->addEvent(instanceId, event);
+void OGLRenderer::addBehaviorEvent(std::shared_ptr<AssimpInstance> instance, nodeEvent event) {
+  mBehaviorManager->addEvent(instance, event);
 }
 
 void OGLRenderer::postDelNodeTree(std::string nodeTreeName) {
   for (auto& instance : mModelInstCamData.micAssimpInstances) {
     InstanceSettings settings = instance->getInstanceSettings();
     if (settings.isNodeTreeName == nodeTreeName) {
-      mBehavior->removeInstance(settings.isInstanceIndexPosition);
+      mBehaviorManager->removeInstance(instance);
       settings.isNodeTreeName.clear();
     }
     instance->setInstanceSettings(settings);
@@ -1362,7 +1349,7 @@ void OGLRenderer::enumerateInstances() {
   mOctree->clear();
   /* skip null instance */
   for (size_t i = 1; i < mModelInstCamData.micAssimpInstances.size(); ++i) {
-    mOctree->add(mModelInstCamData.micAssimpInstances.at(i)->getInstanceSettings().isInstanceIndexPosition);
+    mOctree->add(mModelInstCamData.micAssimpInstances.at(i)->getInstanceIndexPosition());
   }
 }
 
@@ -1446,6 +1433,12 @@ void OGLRenderer::setModeInWindowTitle() {
     mWindowTitleDirtySign);
 }
 
+void OGLRenderer::setAppMode(appMode newMode) {
+  mRenderData.rdApplicationMode = newMode;
+  setModeInWindowTitle();
+  checkMouseEnable();
+}
+
 void OGLRenderer::toggleFullscreen() {
   mRenderData.rdFullscreen = mRenderData.rdFullscreen ? false : true;
 
@@ -1491,14 +1484,17 @@ void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
 
   /* toggle between edit and view mode by pressing F10 */
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_F10) == GLFW_PRESS) {
-    int currentMode = static_cast<int>(mRenderData.rdApplicationMode);
     if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
         glfwGetKey(mRenderData.rdWindow, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-      mRenderData.rdApplicationMode = static_cast<appMode>((--currentMode + 2) % 2);
+      setAppMode(--mRenderData.rdApplicationMode);
     } else {
-      mRenderData.rdApplicationMode = static_cast<appMode>(++currentMode % 2);
+      setAppMode(++mRenderData.rdApplicationMode);
     }
-    setModeInWindowTitle();
+  }
+
+  /* use ESC to return to edit mode */
+  if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    setAppMode(appMode::edit);
   }
 
   /* toggle between full-screen and window mode by pressing F11 */
@@ -1926,7 +1922,7 @@ void OGLRenderer::handleMovementKeys() {
       if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_U) == GLFW_PRESS) {
         nextState = moveState::interact;
         if (mRenderData.rdInteractWithInstanceId > 0) {
-          mBehavior->addEvent(mRenderData.rdInteractWithInstanceId, nodeEvent::interaction);
+          mBehaviorManager->addEvent(getInstanceById(mRenderData.rdInteractWithInstanceId), nodeEvent::interaction);
         }
       }
       if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_P) == GLFW_PRESS) {
@@ -2152,7 +2148,7 @@ void OGLRenderer::checkForBorderCollisions() {
       if (minPos.x < mWorldBoundaries->getFrontTopLeft().x || maxPos.x > mWorldBoundaries->getRight() ||
           minPos.y < mWorldBoundaries->getFrontTopLeft().y || maxPos.y > mWorldBoundaries->getBottom() ||
           minPos.z < mWorldBoundaries->getFrontTopLeft().z || maxPos.z > mWorldBoundaries->getBack()) {
-        mModelInstCamData.micNodeEventCallbackFunction(instSettings.isInstanceIndexPosition, nodeEvent::instanceToEdgeCollision);
+        mModelInstCamData.micNodeEventCallbackFunction(instances.at(i), nodeEvent::instanceToEdgeCollision);
       }
     }
   }
@@ -2225,10 +2221,10 @@ void OGLRenderer::reactToInstanceCollisions() {
 
   for (const auto& instancePairs : mModelInstCamData.micInstanceCollisions) {
     mModelInstCamData.micNodeEventCallbackFunction(
-      instances.at(instancePairs.first)->getInstanceSettings().isInstanceIndexPosition,
+      instances.at(instancePairs.first),
       nodeEvent::instanceToInstanceCollision);
     mModelInstCamData.micNodeEventCallbackFunction(
-      instances.at(instancePairs.second)->getInstanceSettings().isInstanceIndexPosition,
+      instances.at(instancePairs.second),
       nodeEvent::instanceToInstanceCollision);
   }
 }
@@ -2427,7 +2423,7 @@ void OGLRenderer::drawInteractionDebug() {
     }
   }
 
-  if (InteractionMesh.vertices.size() > 0) {
+  if (!InteractionMesh.vertices.empty()) {
     mUploadToVBOTimer.start();
     mLineVertexBuffer.uploadData(InteractionMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
@@ -2475,7 +2471,7 @@ void OGLRenderer::drawAABBs(std::vector<std::shared_ptr<AssimpInstance>> instanc
     }
   }
 
-  if (mAABBMesh->vertices.size() > 0) {
+  if (!mAABBMesh->vertices.empty()) {
     mUploadToVBOTimer.start();
     mLineVertexBuffer.uploadData(*mAABBMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
@@ -2488,7 +2484,7 @@ void OGLRenderer::drawAABBs(std::vector<std::shared_ptr<AssimpInstance>> instanc
 void OGLRenderer::drawLevelAABB(glm::vec4 aabbColor) {
   mAABBMesh = mAllLevelAABB.getAABBLines(aabbColor);
 
-  if (mAABBMesh->vertices.size() > 0) {
+  if (!mAABBMesh->vertices.empty()) {
     mUploadToVBOTimer.start();
     mLineVertexBuffer.uploadData(*mAABBMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
@@ -2535,7 +2531,7 @@ void OGLRenderer::drawCollisionDebug() {
     case collisionDebugDraw::none:
       break;
     case collisionDebugDraw::colliding:
-      if (mModelInstCamData.micInstanceCollisions.size() > 0) {
+      if (!mModelInstCamData.micInstanceCollisions.empty()) {
         drawCollidingBoundingSpheres();
       }
       break;
@@ -2788,7 +2784,6 @@ bool OGLRenderer::draw(float deltaTime) {
   mRenderData.rdUploadToUBOTime = 0.0f;
   mRenderData.rdUploadToVBOTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
   mRenderData.rdNumberOfCollisions = 0;
   mRenderData.rdCollisionDebugDrawTime = 0.0f;
   mRenderData.rdCollisionCheckTime = 0.0f;
@@ -2890,7 +2885,7 @@ bool OGLRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
 
         size_t numberOfBones = model->getBoneList().size();
         ModelSettings modSettings = model->getModelSettings();
@@ -2953,7 +2948,7 @@ bool OGLRenderer::draw(float deltaTime) {
           }
 
           if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
-              instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition) {
+              instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceIndexPosition()) {
             firstPersonCamWorldPos = instSettings.isInstanceIndexPosition;
           }
 
@@ -3033,8 +3028,8 @@ bool OGLRenderer::draw(float deltaTime) {
 
         if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
             model == cam->getInstanceToFollow()->getModel() &&
-            cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition == firstPersonCamWorldPos) {
-          int selectedInstance = cam->getInstanceToFollow()->getInstanceSettings().isInstancePerModelIndexPosition;
+            cam->getInstanceToFollow()->getInstanceIndexPosition() == firstPersonCamWorldPos) {
+          int selectedInstance = cam->getInstanceToFollow()->getInstancePerModelIndexPosition();
           int selectedBone = camSettings.csFirstPersonBoneToFollow;
           glm::mat4 offsetMatrix = glm::translate(glm::mat4(1.0f), camSettings.csFirstPersonOffsets);
           glm::mat4 boneMatrix = mShaderBoneMatrixBuffer.getSsboDataMat4(selectedInstance * numberOfBones + selectedBone, 1).at(0);
@@ -3237,7 +3232,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   /* behavior update */
   mBehviorTimer.start();
-  mBehavior->update(deltaTime);
+  mBehaviorManager->update(deltaTime);
   mRenderData.rdBehaviorTime += mBehviorTimer.stop();
 
   mFramebuffer.unbind();
@@ -3274,7 +3269,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   mUIDrawTimer.start();
   mUserInterface.render();
-  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
 
   return true;
 }

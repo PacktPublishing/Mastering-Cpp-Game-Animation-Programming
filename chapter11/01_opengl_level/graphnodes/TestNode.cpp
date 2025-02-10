@@ -9,7 +9,7 @@ TestNode::TestNode(int nodeId) : GraphNodeBase(nodeId) {
 
 
 std::shared_ptr<GraphNodeBase> TestNode::clone() {
-  return std::make_shared<TestNode>(*this);
+  return std::shared_ptr<GraphNodeBase>(new TestNode(*this));
 }
 
 void TestNode::draw(ModelInstanceCamData modInstCamData) {

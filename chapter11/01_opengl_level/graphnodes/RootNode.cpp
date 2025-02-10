@@ -6,7 +6,7 @@ RootNode::RootNode() : GraphNodeBase(0) {
 
 
 std::shared_ptr<GraphNodeBase> RootNode::clone() {
-  return std::make_shared<RootNode>(*this);
+  return std::shared_ptr<GraphNodeBase>(new RootNode(*this));
 }
 
 void RootNode::draw(ModelInstanceCamData modInstCamData) {

@@ -156,7 +156,7 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
     mAnimClips.emplace_back(animClip);
   }
 
-  if (mAnimClips.size() > 0) {
+  if (!mAnimClips.empty()) {
     std::vector<glm::vec4> animLookupData{};
 
     /* store inverse scaling factor in first element of lookup row */
@@ -212,7 +212,7 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
   /* get root transformation matrix from model's root node */
   mRootTransformMatrix = Tools::convertAiToGLM(rootNode->mTransformation);
 
-  if (mBoneList.size() > 0) {
+  if (!mBoneList.empty()) {
     for (const auto& bone: mBoneList) {
       mBoneNameList.emplace_back(bone->getBoneName());
     }
@@ -377,7 +377,7 @@ const std::vector<std::shared_ptr<AssimpAnimClip>>& AssimpModel::getAnimClips() 
 }
 
 bool AssimpModel::hasAnimations() {
-  return mAnimClips.size() > 0;
+  return !mAnimClips.empty();
 }
 
 void AssimpModel::bindBoneMatrixOffsetBuffer(int bindingPoint) {

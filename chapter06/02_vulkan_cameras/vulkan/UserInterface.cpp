@@ -103,20 +103,18 @@ void UserInterface::createFrame(VkRenderData &renderData) {
 void UserInterface::hideMouse(bool hide) {
   /* v1.89.8 removed the check for disabled mouse cursor in GLFW
    * we need to ignore the mouse postion if the mouse lock is active */
+  ImGuiIO& io = ImGui::GetIO();
+
   if (hide) {
-    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
   } else {
-    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
   }
 }
 
 void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstanceCamData& modInstCamData) {
+  ImGuiIO& io = ImGui::GetIO();
   ImGuiWindowFlags imguiWindowFlags = 0;
-  //imguiWindowFlags |= ImGuiWindowFlags_NoCollapse;
-  //imguiWindowFlags |= ImGuiWindowFlags_NoResize;
-  //imguiWindowFlags |= ImGuiWindowFlags_NoMove;
 
   ImGui::SetNextWindowBgAlpha(0.8f);
 
@@ -180,7 +178,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
   /* application exit */
   if (renderData.rdRequestApplicationExit) {
     ImGuiFileDialog::Instance()->Close();
-    ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
     ImGui::OpenPopup("Do you want to quit?");
   }
 
@@ -189,7 +187,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     /* cheating a bit to get buttons more to the center */
     ImGui::Indent();
-    if (ImGui::Button("OK")) {
+    if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
       if (modInstCamData.micGetConfigDirtyCallbackFunction()) {
         openUnsavedChangesExitDialog = true;
         renderData.rdRequestApplicationExit = false;
@@ -200,7 +198,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
 
     ImGui::SameLine();
-    if (ImGui::Button("Cancel")) {
+    if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape))) {
       renderData.rdRequestApplicationExit = false;
       ImGui::CloseCurrentPopup();
     }
@@ -209,7 +207,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
   /* unsaved changes, ask */
   if (openUnsavedChangesExitDialog) {
-    ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
     ImGui::OpenPopup("Exit - Unsaved Changes");
   }
 
@@ -219,13 +217,13 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     /* cheating a bit to get buttons more to the center */
     ImGui::Indent();
-    if (ImGui::Button("OK")) {
+    if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
       renderData.rdAppExitCallbackFunction();
       ImGui::CloseCurrentPopup();
     }
 
     ImGui::SameLine();
-    if (ImGui::Button("Cancel")) {
+    if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape))) {
       renderData.rdRequestApplicationExit = false;
       ImGui::CloseCurrentPopup();
     }
@@ -243,7 +241,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
   /* unsaved changes, ask */
   if (openUnsavedChangesNewDialog) {
-    ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
     ImGui::OpenPopup("New - Unsaved Changes");
   }
 
@@ -253,17 +251,19 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     /* cheating a bit to get buttons more to the center */
     ImGui::Indent();
-    if (ImGui::Button("OK")) {
+    if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
       modInstCamData.micNewConfigCallbackFunction();
       ImGui::CloseCurrentPopup();
     }
 
     ImGui::SameLine();
-    if (ImGui::Button("Cancel")) {
+    if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape))) {
       ImGui::CloseCurrentPopup();
     }
     ImGui::EndPopup();
   }
+
+  const std::string defaultFileName = "config/conf.acfg";
 
   /* load config */
   if (renderData.rdLoadConfigRequest) {
@@ -271,8 +271,8 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     config.path = ".";
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal;
-    const std::string defaultFileName = "config/conf.acfg";
     config.filePathName = defaultFileName;
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
     ImGuiFileDialog::Instance()->OpenDialog("LoadConfigFile", "Load Configuration File",
       ".acfg", config);
   }
@@ -292,7 +292,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
   /* ask for replacement  */
   if (openUnsavedChangesLoadDialog) {
-    ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
     ImGui::OpenPopup("Load - Unsaved Changes");
   }
 
@@ -302,14 +302,14 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     /* cheating a bit to get buttons more to the center */
     ImGui::Indent();
-    if (ImGui::Button("OK")) {
+    if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
       std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
       loadSuccessful = modInstCamData.micLoadConfigCallbackFunction(filePathName);
       ImGui::CloseCurrentPopup();
     }
 
     ImGui::SameLine();
-    if (ImGui::Button("Cancel")) {
+    if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape))) {
       ImGui::CloseCurrentPopup();
     }
     ImGui::EndPopup();
@@ -317,7 +317,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
   /* show error message if load was not successful */
   if (!loadSuccessful) {
-    ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
     ImGui::OpenPopup("Load Error!");
   }
 
@@ -329,7 +329,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     ImGui::Indent();
     ImGui::Indent();
     ImGui::Indent();
-    if (ImGui::Button("OK")) {
+    if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
       ImGui::CloseCurrentPopup();
     }
     ImGui::EndPopup();
@@ -341,8 +341,8 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     config.path = ".";
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal | ImGuiFileDialogFlags_ConfirmOverwrite;
-    const std::string defaultFileName = "config/conf.acfg";
     config.filePathName = defaultFileName;
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
     ImGuiFileDialog::Instance()->OpenDialog("SaveConfigFile", "Save Configuration File",
       ".acfg", config);
   }
@@ -362,7 +362,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
   /* show error message if save was not successful */
   if (!saveSuccessful) {
-    ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
     ImGui::OpenPopup("Save Error!");
   }
 
@@ -374,7 +374,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     ImGui::Indent();
     ImGui::Indent();
     ImGui::Indent();
-    if (ImGui::Button("OK")) {
+    if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
       ImGui::CloseCurrentPopup();
     }
     ImGui::EndPopup();
@@ -386,6 +386,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     config.path = ".";
     config.countSelectionMax = 1;
     config.flags = ImGuiFileDialogFlags_Modal;
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
     ImGuiFileDialog::Instance()->OpenDialog("ChooseModelFile", "Choose Model File",
       "Supported Model Files{.gltf,.glb,.obj,.fbx,.dae,.mdl,.md3,.pk3}", config);
   }
@@ -460,6 +461,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
     averageFPS /= static_cast<float>(mNumFPSValues);
     std::string fpsOverlay = "now:     " + std::to_string(mFramesPerSecond) + "\n30s avg: " + std::to_string(averageFPS);
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("FPS");
     ImGui::SameLine();
     ImGui::PlotLines("##FrameTimes", mFPSValues.data(), mFPSValues.size(), mFpsOffset, fpsOverlay.c_str(), 0.0f,
@@ -503,6 +505,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       averageFrameTime /= static_cast<float>(mNumMatrixGenerationValues);
       std::string frameTimeOverlay = "now:     " + std::to_string(renderData.rdFrameTime) +
         " ms\n30s avg: " + std::to_string(averageFrameTime) + " ms";
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("Frame Time       ");
       ImGui::SameLine();
       ImGui::PlotLines("##FrameTime", mFrameTimeValues.data(), mFrameTimeValues.size(), mFrameTimeOffset,
@@ -521,6 +524,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       averageModelUpload /= static_cast<float>(mNumModelUploadValues);
       std::string modelUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToVBOTime) +
         " ms\n30s avg: " + std::to_string(averageModelUpload) + " ms";
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("VBO Upload");
       ImGui::SameLine();
       ImGui::PlotLines("##ModelUploadTimes", mModelUploadValues.data(), mModelUploadValues.size(), mModelUploadOffset,
@@ -539,6 +543,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       averageMatGen /= static_cast<float>(mNumMatrixGenerationValues);
       std::string matrixGenOverlay = "now:     " + std::to_string(renderData.rdMatrixGenerateTime) +
         " ms\n30s avg: " + std::to_string(averageMatGen) + " ms";
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("Matrix Generation");
       ImGui::SameLine();
       ImGui::PlotLines("##MatrixGenTimes", mMatrixGenerationValues.data(), mMatrixGenerationValues.size(), mMatrixGenOffset,
@@ -557,6 +562,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       averageMatrixUpload /= static_cast<float>(mNumMatrixUploadValues);
       std::string matrixUploadOverlay = "now:     " + std::to_string(renderData.rdUploadToUBOTime) +
         " ms\n30s avg: " + std::to_string(averageMatrixUpload) + " ms";
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("UBO Upload");
       ImGui::SameLine();
       ImGui::PlotLines("##MatrixUploadTimes", mMatrixUploadValues.data(), mMatrixUploadValues.size(), mMatrixUploadOffset,
@@ -575,6 +581,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       averageUiGen /= static_cast<float>(mNumUiGenValues);
       std::string uiGenOverlay = "now:     " + std::to_string(renderData.rdUIGenerateTime) +
         " ms\n30s avg: " + std::to_string(averageUiGen) + " ms";
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("UI Generation");
       ImGui::SameLine();
       ImGui::PlotLines("##UIGenTimes", mUiGenValues.data(), mUiGenValues.size(), mUiGenOffset,
@@ -593,6 +600,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       averageUiDraw /= static_cast<float>(mNumUiDrawValues);
       std::string uiDrawOverlay = "now:     " + std::to_string(renderData.rdUIDrawTime) +
         " ms\n30s avg: " + std::to_string(averageUiDraw) + " ms";
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("UI Draw");
       ImGui::SameLine();
       ImGui::PlotLines("##UIDrawTimes", mUiDrawValues.data(), mUiDrawValues.size(), mUiDrawOffset,
@@ -618,6 +626,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       ImGui::BeginDisabled();
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Cameras:         ");
     ImGui::SameLine();
 
@@ -683,6 +692,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     ImGuiInputTextFlags textinputFlags = ImGuiInputTextFlags_CharsNoBlank | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCharFilter;
     std::string camName = settings.csCamName;
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Camera Name:     ");
     ImGui::SameLine();
     if (ImGui::InputText("##CamName", &camName, textinputFlags, cameraNameInputFilter)) {
@@ -699,7 +709,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
 
     if (mShowDuplicateCamNameDialog) {
-      ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
       ImGui::OpenPopup("Duplicate Camera Name");
       mShowDuplicateCamNameDialog = false;
     }
@@ -713,12 +723,13 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       ImGui::Indent();
       ImGui::Indent();
       ImGui::Indent();
-      if (ImGui::Button("OK")) {
+      if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
         ImGui::CloseCurrentPopup();
       }
       ImGui::EndPopup();
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Camera Type:     ");
     ImGui::SameLine();
     ImGui::PushItemWidth(250.0f);
@@ -748,6 +759,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
 
     if (settings.csCamType == cameraType::firstPerson || settings.csCamType == cameraType::thirdPerson || settings.csCamType == cameraType::stationaryFollowing) {
+    ImGui::AlignTextToFramePadding();
       ImGui::Text("Following:  %4s ", followInstanceId.c_str());
       ImGui::SameLine();
 
@@ -778,6 +790,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         settings = cam->getCameraSettings();
       }
 
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("                 ");
       ImGui::SameLine();
       if (ImGui::Button("Selected Following Instance")) {
@@ -791,21 +804,25 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       }
 
       if (settings.csCamType == cameraType::thirdPerson && followInstance) {
+        ImGui::AlignTextToFramePadding();
         ImGui::Text("Distance:        ");
         ImGui::SameLine();
         ImGui::SliderFloat("##3rdPersonDistance", &settings.csThirdPersonDistance, 3.0f, 10.0f, "%.3f", flags);
 
+        ImGui::AlignTextToFramePadding();
         ImGui::Text("Camera Height:   ");
         ImGui::SameLine();
         ImGui::SliderFloat("##3rdPersonOffset", &settings.csThirdPersonHeightOffset, 0.0f, 3.0f, "%.3f", flags);
       }
 
       if (settings.csCamType == cameraType::firstPerson && followInstance) {
+        ImGui::AlignTextToFramePadding();
         ImGui::Text("Lock View:       ");
         ImGui::SameLine();
         ImGui::Checkbox("##1stPersonLockView", &settings.csFirstPersonLockView);
 
-        if (cam->getBoneNames().size() > 0) {
+        if (!cam->getBoneNames().empty()) {
+          ImGui::AlignTextToFramePadding();
           ImGui::Text("Bone to Follow:  ");
           ImGui::SameLine();
           ImGui::PushItemWidth(250.0f);
@@ -827,6 +844,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
           ImGui::PopItemWidth();
         }
 
+        ImGui::AlignTextToFramePadding();
         ImGui::Text("View Offsets:    ");
         ImGui::SameLine();
         ImGui::SliderFloat3("##1stPersonOffset", glm::value_ptr(settings.csFirstPersonOffsets), -1.0f, 1.0f, "%.3f", flags);
@@ -844,6 +862,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     /* disable settings in locked 3rd person mode */
     if (!(followInstance || settings.csCamType == cameraType::stationary)) {
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("Camera Position: ");
       ImGui::SameLine();
       ImGui::SliderFloat3("##CameraPos", glm::value_ptr(settings.csWorldPosition), -75.0f, 75.0f, "%.3f", flags);
@@ -855,6 +874,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
 
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("View Azimuth:    ");
       ImGui::SameLine();
       ImGui::SliderFloat("##CamAzimuth", &settings.csViewAzimuth, 0.0f, 360.0f, "%.3f", flags);
@@ -866,6 +886,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
       }
 
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("View Elevation:  ");
       ImGui::SameLine();
       ImGui::SliderFloat("##CamElevation", &settings.csViewElevation, -89.0f, 89.0f, "%.3f", flags);
@@ -885,6 +906,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     /* remove perspective settings in third person mode */
     if (settings.csCamType != cameraType::firstPerson && settings.csCamType != cameraType::thirdPerson) {
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("Projection:      ");
       ImGui::SameLine();
       if (ImGui::RadioButton("Perspective",
@@ -914,6 +936,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       ImGui::BeginDisabled();
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Field of View:   ");
     ImGui::SameLine();
     ImGui::SliderInt("##CamFOV", &settings.csFieldOfView, 40, 100, "%d", flags);
@@ -937,6 +960,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         ImGui::BeginDisabled();
       }
 
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("Ortho Scaling:   ");
       ImGui::SameLine();
       ImGui::SliderFloat("##CamOrthoScale", &settings.csOrthoScale, 1.0f, 50.0f, "%.3f", flags);
@@ -970,6 +994,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       ImGui::BeginDisabled();
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Models:          ");
     ImGui::SameLine();
     ImGui::PushItemWidth(200.0f);
@@ -1002,7 +1027,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     ImGui::SameLine();
     if (ImGui::Button("Delete Model")) {
-      ImGui::SetNextWindowPos(ImVec2(renderData.rdWidth / 2.0f, renderData.rdHeight / 2.0f), ImGuiCond_Always);
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
       ImGui::OpenPopup("Delete Model?");
     }
 
@@ -1012,13 +1037,13 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       /* cheating a bit to get buttons more to the center */
       ImGui::Indent();
       ImGui::Indent();
-      if (ImGui::Button("OK")) {
+      if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
         modInstCamData.micModelDeleteCallbackFunction(modInstCamData.micModelList.at(modInstCamData.micSelectedModel)->getModelFileName(), true);
 
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
-      if (ImGui::Button("Cancel")) {
+      if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape))) {
         ImGui::CloseCurrentPopup();
       }
       ImGui::EndPopup();
@@ -1051,6 +1076,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       ImGui::BeginDisabled();
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Select Instance: ");
     ImGui::SameLine();
     ImGui::PushButtonRepeat(true);
@@ -1080,6 +1106,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
     ImGui::PopButtonRepeat();
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Hightlight:      ");
     ImGui::SameLine();
     ImGui::Checkbox("##HighlightInstance", &renderData.rdHighlightSelectedInstance);
@@ -1130,7 +1157,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       modInstCamData.micInstanceDeleteCallbackFunction(mCurrentInstance, true);
 
       /* read back settings for UI */
-      settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
+      settings = mCurrentInstance->getInstanceSettings();
     }
 
     if (numberOfInstancesPerModel < 2) {
@@ -1143,7 +1170,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       modInstCamData.micInstanceCloneCallbackFunction(mCurrentInstance);
 
       /* read back settings for UI */
-      settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
+      settings = mCurrentInstance->getInstanceSettings();
     }
 
     ImGui::Text("Create Clones:   ");
@@ -1156,7 +1183,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       modInstCamData.micInstanceCloneManyCallbackFunction(mCurrentInstance, mManyInstanceCloneNum);
 
       /* read back settings for UI */
-      settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
+      settings = mCurrentInstance->getInstanceSettings();
     }
 
     if (modelListEmtpy || nullInstanceSelected) {
@@ -1168,7 +1195,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     std::string baseModelName = "None";
     if (numberOfInstances > 0 && !nullInstanceSelected) {
-      baseModelName = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel()->getModelFileName();
+      baseModelName =mCurrentInstance->getModel()->getModelFileName();
     }
     ImGui::Text("Base Model:        %s", baseModelName.c_str());
 
@@ -1176,58 +1203,63 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       ImGui::BeginDisabled();
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Swap Y/Z axes:   ");
     ImGui::SameLine();
     ImGui::Checkbox("##ModelAxisSwap", &settings.isSwapYZAxis);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
       modInstCamData.micSettingsContainer->applyEditInstanceSettings(
-        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        mCurrentInstance,
         settings, mSavedInstanceSettings);
       mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Pos (X/Y/Z):     ");
     ImGui::SameLine();
     ImGui::SliderFloat3("##ModelPos", glm::value_ptr(settings.isWorldPosition),
       -75.0f, 75.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
       modInstCamData.micSettingsContainer->applyEditInstanceSettings(
-        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        mCurrentInstance,
         settings, mSavedInstanceSettings);
       mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Rotation (X/Y/Z):");
     ImGui::SameLine();
     ImGui::SliderFloat3("##ModelRot", glm::value_ptr(settings.isWorldRotation),
       -180.0f, 180.0f, "%.3f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
       modInstCamData.micSettingsContainer->applyEditInstanceSettings(
-        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        mCurrentInstance,
         settings, mSavedInstanceSettings);
       mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Scale:           ");
     ImGui::SameLine();
     ImGui::SliderFloat("##ModelScale", &settings.isScale,
       0.001f, 10.0f, "%.4f", flags);
     if (ImGui::IsItemDeactivatedAfterEdit()) {
       modInstCamData.micSettingsContainer->applyEditInstanceSettings(
-        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        mCurrentInstance,
         settings, mSavedInstanceSettings);
       mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("                 ");
     ImGui::SameLine();
     if (ImGui::Button("Reset Values to Zero")) {
       modInstCamData.micSettingsContainer->applyEditInstanceSettings(
-        modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+        mCurrentInstance,
         settings, mSavedInstanceSettings);
       InstanceSettings defaultSettings{};
       settings = defaultSettings;
@@ -1240,7 +1272,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
 
     if (numberOfInstances > 0) {
-      modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->setInstanceSettings(settings);
+      mCurrentInstance->setInstanceSettings(settings);
     }
   }
 
@@ -1256,13 +1288,14 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
         mSavedInstanceSettings = settings;
       }
-      numberOfClips = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel()->getAnimClips().size();
+      numberOfClips =mCurrentInstance->getModel()->getAnimClips().size();
     }
 
     if (numberOfInstances > 0 && numberOfClips > 0) {
       std::vector<std::shared_ptr<AssimpAnimClip>> animClips =
-      modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getModel()->getAnimClips();
+        mCurrentInstance->getModel()->getAnimClips();
 
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("Animation Clip:");
       ImGui::SameLine();
       if (ImGui::BeginCombo("##ClipCombo",
@@ -1273,7 +1306,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
             settings.isAnimClipNr = i;
             /* save for undo */
             modInstCamData.micSettingsContainer->applyEditInstanceSettings(
-              modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+              mCurrentInstance,
               settings, mSavedInstanceSettings);
             mSavedInstanceSettings = settings;
             modInstCamData.micSetConfigDirtyCallbackFunction(true);
@@ -1286,12 +1319,13 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         ImGui::EndCombo();
       }
 
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("Replay Speed:  ");
       ImGui::SameLine();
       ImGui::SliderFloat("##ClipSpeed", &settings.isAnimSpeedFactor, 0.0f, 2.0f, "%.3f", flags);
       if (ImGui::IsItemDeactivatedAfterEdit()) {
         modInstCamData.micSettingsContainer->applyEditInstanceSettings(
-          modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance),
+          mCurrentInstance,
           settings, mSavedInstanceSettings);
         mSavedInstanceSettings = settings;
         modInstCamData.micSetConfigDirtyCallbackFunction(true);
@@ -1300,11 +1334,13 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       /* TODO: better solution if no instances or no clips are found */
       ImGui::BeginDisabled();
 
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("Animation Clip:");
       ImGui::SameLine();
       ImGui::BeginCombo("##ClipComboDisabled", "None");
 
       float playSpeed = 1.0f;
+      ImGui::AlignTextToFramePadding();
       ImGui::Text("Replay Speed:  ");
       ImGui::SameLine();
       ImGui::SliderFloat("##ClipSpeedDisabled", &playSpeed, 0.0f, 2.0f, "%.3f", flags);
@@ -1313,7 +1349,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
 
     if (numberOfInstances > 0) {
-      modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->setInstanceSettings(settings);
+      mCurrentInstance->setInstanceSettings(settings);
     }
   }
 
@@ -1323,8 +1359,8 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 void UserInterface::createStatusBar(VkRenderData& renderData, ModelInstanceCamData& modInstCamData) {
   ImGuiWindowFlags statusBarFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize;
 
-  ImGui::SetNextWindowPos(ImVec2(0.0f, renderData.rdHeight -30.0f), ImGuiCond_Always);
-  ImGui::SetNextWindowSize(ImVec2(renderData.rdWidth, 30.0f));
+  ImGui::SetNextWindowPos(ImVec2(0.0f,  renderData.rdHeight - 35.0f), ImGuiCond_Always);
+  ImGui::SetNextWindowSize(ImVec2(renderData.rdWidth, 35.0f));
   ImGui::SetNextWindowBgAlpha(0.5f);
 
   ImGui::Begin("Status", nullptr, statusBarFlags);

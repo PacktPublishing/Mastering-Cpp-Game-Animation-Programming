@@ -188,15 +188,15 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
   mModelInstCamData.micEditNodeGraphCallbackFunction = [this](std::string graphName) { editGraph(graphName); };
   mModelInstCamData.micCreateEmptyNodeGraphCallbackFunction= [this]() { return createEmptyGraph(); };
 
-  mModelInstCamData.micInstanceAddBehaviorCallbackFunction = [this](int instanceId, std::shared_ptr<SingleInstanceBehavior> behavior) {
-    addBehavior(instanceId, behavior);
+  mModelInstCamData.micInstanceAddBehaviorCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, std::shared_ptr<SingleInstanceBehavior> behavior) {
+    addBehavior(instance, behavior);
   };
-  mModelInstCamData.micInstanceDelBehaviorCallbackFunction = [this](int instanceId) { delBehavior(instanceId); };
+  mModelInstCamData.micInstanceDelBehaviorCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance) { delBehavior(instance); };
   mModelInstCamData.micModelAddBehaviorCallbackFunction = [this](std::string modelName, std::shared_ptr<SingleInstanceBehavior> behavior) {
     addModelBehavior(modelName, behavior);
   };
   mModelInstCamData.micModelDelBehaviorCallbackFunction = [this](std::string modelName) { delModelBehavior(modelName); };
-  mModelInstCamData.micNodeEventCallbackFunction = [this](int instanceId, nodeEvent event) { addBehaviorEvent(instanceId, event); };
+  mModelInstCamData.micNodeEventCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, nodeEvent event) { addBehaviorEvent(instance, event); };
   mModelInstCamData.micPostNodeTreeDelBehaviorCallbackFunction = [this](std::string nodeTreeName) { postDelNodeTree(nodeTreeName); };
 
   mModelInstCamData.micLevelCheckCallbackFunction = [this](std::string levelFileName) { return hasLevel(levelFileName); };
@@ -209,6 +209,7 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
   mModelInstCamData.micGetNavTargetsCallbackFunction = [this]() { return getNavTargets(); };
 
   mRenderData.rdAppExitCallbackFunction = [this]() { doExitApplication(); };
+  mModelInstCamData.micSsetAppModeCallbackFunction = [this](appMode newMode) { setAppMode(newMode); };
   Logger::log(1, "%s: callbacks initialized\n", __FUNCTION__);
 
   /* init camera strings */
@@ -285,11 +286,12 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
   mCollidingSphereMesh = mCollidingSphereModel.getVertexData();
   Logger::log(1, "%s: Colliding sphere line mesh storage initialized\n", __FUNCTION__);
 
-  mBehavior = std::make_shared<Behavior>();
-  mInstanceNodeActionCallbackFunction = [this](int instanceId, graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
-    updateInstanceSettings(instanceId, nodeType, updateType, data, extraSetting);
+  mBehaviorManager = std::make_shared<BehaviorManager>();
+  mInstanceNodeActionCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance, graphNodeType nodeType,
+      instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
+    updateInstanceSettings(instance, nodeType, updateType, data, extraSetting);
   };
-  mBehavior->setNodeActionCallback(mInstanceNodeActionCallbackFunction);
+  mBehaviorManager->setNodeActionCallback(mInstanceNodeActionCallbackFunction);
   Logger::log(1, "%s: behavior data initialized\n", __FUNCTION__);
 
   mGraphEditor = std::make_shared<GraphEditor>();
@@ -417,7 +419,7 @@ bool VkRenderer::loadConfigFile(std::string configFileName) {
   }
 
   /* get node trees for behavior, needed to be set (copied) in instances */
-  std::vector<EnhancedBehaviorData> behaviorData = parser.getBehaviorData();
+  std::vector<ExtendedBehaviorData> behaviorData = parser.getBehaviorData();
   if (behaviorData.empty()) {
     Logger::log(1, "%s error: no behaviors in file '%s', skipping\n", __FUNCTION__, parser.getFileName().c_str());
   } else {
@@ -483,7 +485,7 @@ bool VkRenderer::loadConfigFile(std::string configFileName) {
   for (auto& instance : mModelInstCamData.micAssimpInstances) {
     InstanceSettings instSettings = instance->getInstanceSettings();
     if (!instSettings.isNodeTreeName.empty()) {
-      addBehavior(instSettings.isInstanceIndexPosition, mModelInstCamData.micBehaviorData.at(instSettings.isNodeTreeName));
+      addBehavior(instance, mModelInstCamData.micBehaviorData.at(instSettings.isNodeTreeName));
     }
   }
 
@@ -693,7 +695,7 @@ void VkRenderer::removeAllModelsAndInstances() {
   resetLevelData();
 
   /* reset behavior data and graphEditor */
-  mBehavior->clear();
+  mBehaviorManager->clear();
   mModelInstCamData.micBehaviorData.clear();
   mGraphEditor = std::make_shared<GraphEditor>();
 
@@ -3426,7 +3428,7 @@ void VkRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
   /* add behavior tree after new id was set */
   newInstanceSettings = newInstance->getInstanceSettings();
   if (!newInstanceSettings.isNodeTreeName.empty()) {
-    addBehavior(newInstanceSettings.isInstanceIndexPosition, mModelInstCamData.micBehaviorData.at(newInstanceSettings.isNodeTreeName));
+    addBehavior(newInstance, mModelInstCamData.micBehaviorData.at(newInstanceSettings.isNodeTreeName));
   }
 
   updateTriangleCount();
@@ -3459,7 +3461,7 @@ void VkRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int nu
   for (int i = 0; i < numClones; ++i) {
     InstanceSettings newInstanceSettings = newInstances.at(i)->getInstanceSettings();
     if (!newInstanceSettings.isNodeTreeName.empty()) {
-      addBehavior(newInstanceSettings.isInstanceIndexPosition, mModelInstCamData.micBehaviorData.at(newInstanceSettings.isNodeTreeName));
+      addBehavior(newInstances.at(i), mModelInstCamData.micBehaviorData.at(newInstanceSettings.isNodeTreeName));
     }
   }
 
@@ -3519,29 +3521,20 @@ void VkRenderer::initTriangleOctree(int thresholdPerBox, int maxDepth) {
   mTriangleOctree = std::make_shared<TriangleOctree>(mWorldBoundaries, thresholdPerBox, maxDepth);
 }
 
-void VkRenderer::addBehavior(int instanceId, std::shared_ptr<SingleInstanceBehavior> behavior) {
-  if (mModelInstCamData.micAssimpInstances.size() < instanceId) {
-    Logger::log(1, "%s error: number of instances is smaller than instance id %i\n", __FUNCTION__, instanceId);
-    return;
-  }
+void VkRenderer::addBehavior(std::shared_ptr<AssimpInstance> instance, std::shared_ptr<SingleInstanceBehavior> behavior) {
 
   mBehviorTimer.start();
-  mBehavior->addInstance(instanceId, behavior);
+  mBehaviorManager->addInstance(instance, behavior);
   mRenderData.rdBehaviorTime += mBehviorTimer.stop();
-  Logger::log(1, "%s: added behavior %s to instance %i\n", __FUNCTION__, behavior->getBehaviorData()->bdName.c_str(), instanceId);
+  Logger::log(1, "%s: added behavior %s to instance %i\n", __FUNCTION__, behavior->getBehaviorData()->bdName.c_str(), instance->getInstanceIndexPosition());
 }
 
-void VkRenderer::delBehavior(int instanceId) {
-  if (mModelInstCamData.micAssimpInstances.size() < instanceId) {
-    Logger::log(1, "%s error: number of instances is smaller than instance id %i\n", __FUNCTION__, instanceId);
-    return;
-  }
-
+void VkRenderer::delBehavior(std::shared_ptr<AssimpInstance> instance) {
   mBehviorTimer.start();
-  mBehavior->removeInstance(instanceId);
+  mBehaviorManager->removeInstance(instance);
   mRenderData.rdBehaviorTime += mBehviorTimer.stop();
 
-  Logger::log(1, "%s: removed behavior from instance %i\n", __FUNCTION__, instanceId);
+  Logger::log(1, "%s: removed behavior from instance %i\n", __FUNCTION__, instance->getInstanceIndexPosition());
 }
 
 void VkRenderer::addModelBehavior(std::string modelName, std::shared_ptr<SingleInstanceBehavior> behavior) {
@@ -3553,7 +3546,7 @@ void VkRenderer::addModelBehavior(std::string modelName, std::shared_ptr<SingleI
 
   for (auto& instance : mModelInstCamData.micAssimpInstancesPerModel[modelName]) {
     InstanceSettings settings = instance->getInstanceSettings();
-    mBehavior->addInstance(settings.isInstanceIndexPosition, behavior);
+    mBehaviorManager->addInstance(instance, behavior);
     settings.isNodeTreeName = behavior->getBehaviorData()->bdName;
     instance->setInstanceSettings(settings);
   }
@@ -3570,7 +3563,7 @@ void VkRenderer::delModelBehavior(std::string modelName) {
 
   for (auto& instance : mModelInstCamData.micAssimpInstancesPerModel[modelName]) {
     InstanceSettings settings = instance->getInstanceSettings();
-    mBehavior->removeInstance(settings.isInstanceIndexPosition);
+    mBehaviorManager->removeInstance(instance);
     settings.isNodeTreeName.clear();
     instance->setInstanceSettings(settings);
 
@@ -3581,19 +3574,14 @@ void VkRenderer::delModelBehavior(std::string modelName) {
   Logger::log(1, "%s: removed behavior from all instances of model %s\n", __FUNCTION__, modelName.c_str());
 }
 
-void VkRenderer::updateInstanceSettings(int instanceId, graphNodeType nodeType,
+void VkRenderer::updateInstanceSettings(std::shared_ptr<AssimpInstance> instance, graphNodeType nodeType,
     instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
-  if (instanceId >= mModelInstCamData.micAssimpInstances.size()) {
-    Logger::log(1, "%s error: number of instances is smaller than instance id %i\n", __FUNCTION__, instanceId);
-    return;
-  }
-  std::shared_ptr<AssimpInstance> instance = mModelInstCamData.micAssimpInstances.at(instanceId);
   InstanceSettings settings = instance->getInstanceSettings();
   moveDirection dir = settings.isMoveDirection;
   moveState state = settings.isMoveState;
 
   switch (nodeType) {
-    case graphNodeType::instance:
+    case graphNodeType::instanceMovement:
       switch (updateType) {
         case instanceUpdateType::moveDirection:
           dir = std::get<moveDirection>(data);
@@ -3656,7 +3644,7 @@ void VkRenderer::updateInstanceSettings(int instanceId, graphNodeType nodeType,
         std::vector<int> allNavTargets = getNavTargets();
 
         /* use a random target as an example */
-        if (allNavTargets.size() > 0 && settings.isPathTargetInstance == -1) {
+        if (!allNavTargets.empty() && settings.isPathTargetInstance == -1) {
           std::shuffle(allNavTargets.begin(), allNavTargets.end(), mRandomEngine);
           instance->setPathTargetInstanceId(allNavTargets.at(0));
           instance->setNavigationEnabled(true);
@@ -3669,15 +3657,15 @@ void VkRenderer::updateInstanceSettings(int instanceId, graphNodeType nodeType,
   }
 }
 
-void VkRenderer::addBehaviorEvent(int instanceId, nodeEvent event) {
-  mBehavior->addEvent(instanceId, event);
+void VkRenderer::addBehaviorEvent(std::shared_ptr<AssimpInstance> instance, nodeEvent event) {
+  mBehaviorManager->addEvent(instance, event);
 }
 
 void VkRenderer::postDelNodeTree(std::string nodeTreeName) {
   for (auto& instance : mModelInstCamData.micAssimpInstances) {
     InstanceSettings settings = instance->getInstanceSettings();
     if (settings.isNodeTreeName == nodeTreeName) {
-      mBehavior->removeInstance(settings.isInstanceIndexPosition);
+      mBehaviorManager->removeInstance(instance);
       settings.isNodeTreeName.clear();
     }
     instance->setInstanceSettings(settings);
@@ -3819,7 +3807,7 @@ void VkRenderer::generateLevelAABB() {
   glm::vec4 levelAABBColor = glm::vec4(0.0f, 1.0f, 0.5, 1.0f);
   mLevelAABBMesh = mAllLevelAABB.getAABBLines(levelAABBColor);
 
-  if (mLevelAABBMesh->vertices.size() > 0) {
+  if (!mLevelAABBMesh->vertices.empty()) {
     mUploadToVBOTimer.start();
     VertexBuffer::uploadData(mRenderData, mLevelAABBVertexBuffer, *mLevelAABBMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
@@ -3887,7 +3875,7 @@ void VkRenderer::generateLevelOctree() {
     mLevelOctreeMesh->vertices.insert(mLevelOctreeMesh->vertices.end(), instanceLines->vertices.begin(), instanceLines->vertices.end());
   }
 
-  if (mLevelOctreeMesh->vertices.size() > 0) {
+  if (!mLevelOctreeMesh->vertices.empty()) {
     mUploadToVBOTimer.start();
     VertexBuffer::uploadData(mRenderData, mLevelOctreeVertexBuffer, *mLevelOctreeMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
@@ -3964,7 +3952,7 @@ void VkRenderer::generateLevelWireframe() {
     }
   }
 
-  if (mLevelWireframeMesh->vertices.size() > 0) {
+  if (!mLevelWireframeMesh->vertices.empty()) {
     mUploadToVBOTimer.start();
     VertexBuffer::uploadData(mRenderData, mLevelWireframeVertexBuffer, *mLevelWireframeMesh);
     mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
@@ -4030,7 +4018,7 @@ void VkRenderer::enumerateInstances() {
   mOctree->clear();
   /* skip null instance */
   for (size_t i = 1; i < mModelInstCamData.micAssimpInstances.size(); ++i) {
-    mOctree->add(mModelInstCamData.micAssimpInstances.at(i)->getInstanceSettings().isInstanceIndexPosition);
+    mOctree->add(mModelInstCamData.micAssimpInstances.at(i)->getInstanceIndexPosition());
   }
 
 }
@@ -4113,6 +4101,12 @@ void VkRenderer::setModeInWindowTitle() {
   mWindowTitleDirtySign);
 }
 
+void VkRenderer::setAppMode(appMode newMode) {
+  mRenderData.rdApplicationMode = newMode;
+  setModeInWindowTitle();
+  checkMouseEnable();
+}
+
 void VkRenderer::toggleFullscreen() {
   mRenderData.rdFullscreen = mRenderData.rdFullscreen ? false : true;
 
@@ -4158,14 +4152,17 @@ void VkRenderer::handleKeyEvents(int key, int scancode, int action, int mods) {
 
   /* toggle between edit and view mode by pressing F10 */
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_F10) == GLFW_PRESS) {
-    int currentMode = static_cast<int>(mRenderData.rdApplicationMode);
     if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-      glfwGetKey(mRenderData.rdWindow, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-      mRenderData.rdApplicationMode = static_cast<appMode>((--currentMode + 2) % 2);
+        glfwGetKey(mRenderData.rdWindow, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+      setAppMode(--mRenderData.rdApplicationMode);
     } else {
-      mRenderData.rdApplicationMode = static_cast<appMode>(++currentMode % 2);
+      setAppMode(++mRenderData.rdApplicationMode);
     }
-    setModeInWindowTitle();
+  }
+
+  /* use ESC to return to edit mode */
+  if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    setAppMode(appMode::edit);
   }
 
   /* toggle between full-screen and window mode by pressing F11 */
@@ -4592,7 +4589,7 @@ void VkRenderer::handleMovementKeys() {
       if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_U) == GLFW_PRESS) {
         nextState = moveState::interact;
         if (mRenderData.rdInteractWithInstanceId > 0) {
-          mBehavior->addEvent(mRenderData.rdInteractWithInstanceId, nodeEvent::interaction);
+          mBehaviorManager->addEvent(getInstanceById(mRenderData.rdInteractWithInstanceId), nodeEvent::interaction);
         }
       }
       if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_P) == GLFW_PRESS) {
@@ -5027,7 +5024,7 @@ void VkRenderer::checkForLevelCollisions() {
         vertexColor = glm::vec3(1.0f, 0.0f, 0.0f);
         /* fire wall collision event only when instance is on ground */
         if (instSettings.isInstanceOnGround) {
-          mModelInstCamData.micNodeEventCallbackFunction(instSettings.isInstanceIndexPosition, nodeEvent::instanceToLevelCollision);
+          mModelInstCamData.micNodeEventCallbackFunction(instance, nodeEvent::instanceToLevelCollision);
         }
       }
 
@@ -5052,8 +5049,8 @@ void VkRenderer::checkForLevelCollisions() {
 
         mLineIndexCount += mLevelCollidingTriangleMesh->vertices.size();
         mLineMesh->vertices.insert(mLineMesh->vertices.end(),
-                                   mLevelCollidingTriangleMesh->vertices.begin(),
-                                   mLevelCollidingTriangleMesh->vertices.end());
+          mLevelCollidingTriangleMesh->vertices.begin(),
+          mLevelCollidingTriangleMesh->vertices.end());
       }
     }
   }
@@ -5078,8 +5075,8 @@ void VkRenderer::checkForBorderCollisions() {
       if (minPos.x < mWorldBoundaries->getFrontTopLeft().x || maxPos.x > mWorldBoundaries->getRight() ||
           minPos.y < mWorldBoundaries->getFrontTopLeft().y || maxPos.y > mWorldBoundaries->getBottom() ||
           minPos.z < mWorldBoundaries->getFrontTopLeft().z || maxPos.z > mWorldBoundaries->getBack()) {
-        mModelInstCamData.micNodeEventCallbackFunction(instSettings.isInstanceIndexPosition, nodeEvent::instanceToEdgeCollision);
-        }
+        mModelInstCamData.micNodeEventCallbackFunction(instances.at(i), nodeEvent::instanceToEdgeCollision);
+      }
     }
   }
 }
@@ -5156,19 +5153,19 @@ void VkRenderer::reactToInstanceCollisions() {
     std::shared_ptr<AssimpInstance> secondInstance = instances.at(instancePairs.second);
     InstanceSettings secondInstSettings = secondInstance->getInstanceSettings();
 
-    mModelInstCamData.micNodeEventCallbackFunction(firstInstSettings.isInstanceIndexPosition, nodeEvent::instanceToInstanceCollision);
-    mModelInstCamData.micNodeEventCallbackFunction(secondInstSettings.isInstanceIndexPosition, nodeEvent::instanceToInstanceCollision);
+    mModelInstCamData.micNodeEventCallbackFunction(firstInstance, nodeEvent::instanceToInstanceCollision);
+    mModelInstCamData.micNodeEventCallbackFunction(secondInstance, nodeEvent::instanceToInstanceCollision);
 
     /* disable navigation if we collide with target */
     if (firstInstSettings.isNavigationEnabled && firstInstSettings.isPathTargetInstance == secondInstSettings.isInstanceIndexPosition) {
       firstInstance->setNavigationEnabled(false);
       firstInstance->setPathTargetInstanceId(-1);
-      mModelInstCamData.micNodeEventCallbackFunction(firstInstSettings.isInstanceIndexPosition, nodeEvent::navTargetReached);
+      mModelInstCamData.micNodeEventCallbackFunction(firstInstance, nodeEvent::navTargetReached);
     }
     if (secondInstSettings.isNavigationEnabled && secondInstSettings.isPathTargetInstance == firstInstSettings.isInstanceIndexPosition) {
       secondInstance->setNavigationEnabled(false);
       secondInstance->setPathTargetInstanceId(-1);
-      mModelInstCamData.micNodeEventCallbackFunction(secondInstSettings.isInstanceIndexPosition, nodeEvent::navTargetReached);
+      mModelInstCamData.micNodeEventCallbackFunction(secondInstance, nodeEvent::navTargetReached);
     }
   }
 }
@@ -6171,7 +6168,6 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdDownloadFromUBOTime = 0.0f;
   mRenderData.rdMatrixGenerateTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
-  mRenderData.rdUIDrawTime = 0.0f;
   mRenderData.rdNumberOfCollisions = 0;
   mRenderData.rdCollisionDebugDrawTime = 0.0f;
   mRenderData.rdCollisionCheckTime = 0.0f;
@@ -6221,10 +6217,11 @@ bool VkRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         size_t numberOfBones = model->getBoneList().size();
 
-        boneMatrixBufferSize += numberOfBones * numberOfInstances;
+        /* buffer size must always be a multiple of "local_size_y" instances to avoid undefined behavior */
+        boneMatrixBufferSize += numberOfBones * ((numberOfInstances - 1) / 32 + 1) * 32;
         lookupBufferSize += numberOfInstances;
       }
     }
@@ -6275,7 +6272,7 @@ bool VkRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         size_t numberOfBones = model->getBoneList().size();
         ModelSettings modSettings = model->getModelSettings();
 
@@ -6327,7 +6324,7 @@ bool VkRenderer::draw(float deltaTime) {
           }
 
           if (camSettings.csCamType == cameraType::firstPerson && cam->getInstanceToFollow() &&
-            instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceSettings().isInstanceIndexPosition) {
+            instSettings.isInstanceIndexPosition == cam->getInstanceToFollow()->getInstanceIndexPosition()) {
             firstPersonCamWorldPos = instanceToStore + i;
             firstPersonCamBoneMatrixPos = animatedInstancesToStore + i * numberOfBones;
           }
@@ -6450,12 +6447,12 @@ bool VkRenderer::draw(float deltaTime) {
               if (pathToTarget.size() > 1) {
                 pathToTarget.pop_back();
               }
-              if (pathToTarget.size() > 0) {
+              if (!pathToTarget.empty()) {
                 pathToTarget.erase(pathToTarget.begin());
               }
 
               /* navigate to target */
-              if (pathToTarget.size() > 0) {
+              if (!pathToTarget.empty()) {
                 /* navigate to next triangle, not the one we may stand on (start triangle)*/
                 int nextTarget = pathToTarget.at(0);
                 glm::vec3 destPos = mPathFinder.getTriangleCenter(nextTarget);
@@ -6475,7 +6472,7 @@ bool VkRenderer::draw(float deltaTime) {
                 vert.position = instSettings.isWorldPosition + pathYOffset;
                 mInstancePathMesh->vertices.emplace_back(vert);
 
-                if (pathToTarget.size() > 0) {
+                if (!pathToTarget.empty()) {
                   vert.position = mPathFinder.getTriangleCenter(pathToTarget.at(0)) + pathYOffset;
                   mInstancePathMesh->vertices.emplace_back(vert);
 
@@ -6659,7 +6656,7 @@ bool VkRenderer::draw(float deltaTime) {
       if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
         /* compute shader for animated models only */
-        if (model->hasAnimations() && model->getBoneList().size() > 0) {
+        if (model->hasAnimations() && !model->getBoneList().empty()) {
           size_t numberOfBones = model->getBoneList().size();
 
           runComputeShaders(model, numberOfInstances, computeShaderModelOffset, computeShaderInstanceOffset);
@@ -6778,7 +6775,7 @@ bool VkRenderer::draw(float deltaTime) {
       if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
         /* animated models only */
-        if (model->hasAnimations() && model->getBoneList().size() > 0) {
+        if (model->hasAnimations() && !model->getBoneList().empty()) {
 
           size_t numberOfBones = model->getBoneList().size();
           ModelSettings modSettings = model->getModelSettings();
@@ -6933,7 +6930,7 @@ bool VkRenderer::draw(float deltaTime) {
       }
     }
 
-    if (mIKFootPointMesh->vertices.size() > 0) {
+    if (!mIKFootPointMesh->vertices.empty()) {
       mUploadToVBOTimer.start();
       VertexBuffer::uploadData(mRenderData, mIKLinesVertexBuffer, *mIKFootPointMesh);
       mRenderData.rdUploadToVBOTime += mUploadToVBOTimer.stop();
@@ -7167,7 +7164,7 @@ bool VkRenderer::draw(float deltaTime) {
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
-      if (model->hasAnimations() && model->getBoneList().size() > 0) {
+      if (model->hasAnimations() && !model->getBoneList().empty()) {
         size_t numberOfBones = model->getBoneList().size();
 
         /* draw all meshes without morph anims first */
@@ -7369,7 +7366,7 @@ bool VkRenderer::draw(float deltaTime) {
     case collisionDebugDraw::none:
       break;
     case collisionDebugDraw::colliding:
-      if (mModelInstCamData.micInstanceCollisions.size() > 0) {
+      if (!mModelInstCamData.micInstanceCollisions.empty()) {
         createCollidingBoundingSpheres();
         sphereVertexCount = mCollidingSphereMesh.vertices.size();
       }
@@ -7410,38 +7407,38 @@ bool VkRenderer::draw(float deltaTime) {
   }
 
   mLevelCollisionTimer.start();
-  if (mRenderData.rdDrawLevelAABB && mLevelAABBMesh->vertices.size() > 0) {
+  if (mRenderData.rdDrawLevelAABB && !mLevelAABBMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mLevelAABBVertexBuffer.buffer, &offset);
     vkCmdDraw(mRenderData.rdLineCommandBuffer, mLevelAABBMesh->vertices.size(), 1, 0, 0);
   }
 
-  if (mRenderData.rdDrawLevelWireframe && mLevelWireframeMesh->vertices.size() > 0) {
+  if (mRenderData.rdDrawLevelWireframe && !mLevelWireframeMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mLevelWireframeVertexBuffer.buffer, &offset);
     vkCmdDraw(mRenderData.rdLineCommandBuffer, mLevelWireframeMesh->vertices.size(), 1, 0, 0);
   }
 
-  if (mRenderData.rdDrawLevelOctree && mLevelOctreeMesh->vertices.size() > 0) {
+  if (mRenderData.rdDrawLevelOctree && !mLevelOctreeMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mLevelOctreeVertexBuffer.buffer, &offset);
     vkCmdDraw(mRenderData.rdLineCommandBuffer, mLevelOctreeMesh->vertices.size(), 1, 0, 0);
   }
 
-  if (mRenderData.rdDrawIKDebugLines && mIKFootPointMesh->vertices.size() > 0) {
+  if (mRenderData.rdDrawIKDebugLines && !mIKFootPointMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mIKLinesVertexBuffer.buffer, &offset);
     vkCmdDraw(mRenderData.rdLineCommandBuffer, mIKFootPointMesh->vertices.size(), 1, 0, 0);
   }
   mRenderData.rdLevelCollisionTime += mLevelCollisionTimer.stop();
 
-  if (mRenderData.rdDrawInstancePaths && mInstancePathMesh->vertices.size() > 0) {
+  if (mRenderData.rdDrawInstancePaths && !mInstancePathMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mInstancePathVertexBuffer.buffer, &offset);
     vkCmdDraw(mRenderData.rdLineCommandBuffer, mInstancePathMesh->vertices.size(), 1, 0, 0);
   }
 
-  if (mRenderData.rdDrawNeighborTriangles && mLevelGroundNeighborsMesh->vertices.size() > 0) {
+  if (mRenderData.rdDrawNeighborTriangles && !mLevelGroundNeighborsMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mGroundMeshNeighborVertexBuffer.buffer, &offset);
     vkCmdDraw(mRenderData.rdLineCommandBuffer, mLevelGroundNeighborsMesh->vertices.size(), 1, 0, 0);
@@ -7469,7 +7466,7 @@ bool VkRenderer::draw(float deltaTime) {
 
   /* behavior update */
   mBehviorTimer.start();
-  mBehavior->update(deltaTime);
+  mBehaviorManager->update(deltaTime);
   mRenderData.rdBehaviorTime += mBehviorTimer.stop();
 
 
@@ -7517,7 +7514,7 @@ bool VkRenderer::draw(float deltaTime) {
 
   mUIDrawTimer.start();
   mUserInterface.render(mRenderData);
-  mRenderData.rdUIDrawTime += mUIDrawTimer.stop();
+  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
 
   vkCmdEndRenderPass(mRenderData.rdImGuiCommandBuffer);
 

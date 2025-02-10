@@ -73,7 +73,7 @@ bool AudioManager::loadMusicFromFolder(std::string folderName, std::string exten
   }
 
   std::vector<std::string> playList = Tools::getDirectoryContent(folderName, extension);
-  if (playList.size() > 0) {
+  if (!playList.empty()) {
     for (const auto& filename : playList) {
       loadMusicTitle(filename);
     }

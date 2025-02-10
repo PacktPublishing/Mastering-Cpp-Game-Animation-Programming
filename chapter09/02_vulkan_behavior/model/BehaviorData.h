@@ -32,6 +32,6 @@ struct PerNodeImportData {
   std::map<std::string, std::string> nodeProperties{};
 };
 
-struct EnhancedBehaviorData : BehaviorData {
+struct ExtendedBehaviorData : BehaviorData {
   std::vector<PerNodeImportData> nodeImportData{};
 };
