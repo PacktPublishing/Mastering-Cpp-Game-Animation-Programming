@@ -2222,8 +2222,10 @@ void OGLRenderer::handleMovementKeys() {
       }
       if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_U) == GLFW_PRESS) {
         nextState = moveState::interact;
-        if (mRenderData.rdInteractWithInstanceId > 0) {
-          mBehaviorManager->addEvent(getInstanceById(mRenderData.rdInteractWithInstanceId), nodeEvent::interaction);
+        if (mRenderData.rdInteraction) {
+          if (mRenderData.rdInteractWithInstanceId > 0) {
+            mBehaviorManager->addEvent(getInstanceById(mRenderData.rdInteractWithInstanceId), nodeEvent::interaction);
+          }
         }
       }
       if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_P) == GLFW_PRESS) {
@@ -2739,7 +2741,7 @@ void OGLRenderer::findInteractionInstances() {
 }
 
 void OGLRenderer::drawInteractionDebug() {
-  if (mModelInstCamData.micSelectedInstance == 0) {
+  if (mModelInstCamData.micSelectedInstance == 0 || !mRenderData.rdInteraction) {
     return;
   }
 
@@ -3355,6 +3357,25 @@ bool OGLRenderer::draw(float deltaTime) {
   mLevelGroundNeighborsMesh->vertices.clear();
   mInstancePathMesh->vertices.clear();
 
+  /* save the selected instance for color highlight */
+  std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
+  if (mRenderData.rdApplicationMode == appMode::edit) {
+    if (mRenderData.rdHighlightSelectedInstance) {
+      currentSelectedInstance = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance);
+      mRenderData.rdSelectedInstanceHighlightValue += deltaTime * 4.0f;
+      if (mRenderData.rdSelectedInstanceHighlightValue > 2.0f) {
+        mRenderData.rdSelectedInstanceHighlightValue = 0.1f;
+      }
+    }
+  }
+
+  /* find interaction instances */
+  if (mRenderData.rdInteraction) {
+    mInteractionTimer.start();
+    findInteractionInstances();
+    mRenderData.rdInteractionTime += mInteractionTimer.stop();
+  }
+
   handleMovementKeys();
 
   std::shared_ptr<Camera> cam = mModelInstCamData.micCameras.at(mModelInstCamData.micSelectedCamera);
@@ -3449,18 +3470,6 @@ bool OGLRenderer::draw(float deltaTime) {
   /* draw skybox first */
   if (mRenderData.rdDrawSkybox) {
     drawSkybox();
-  }
-
-  /* save the selected instance for color highlight */
-  std::shared_ptr<AssimpInstance> currentSelectedInstance = nullptr;
-  if (mRenderData.rdApplicationMode == appMode::edit) {
-    if (mRenderData.rdHighlightSelectedInstance) {
-      currentSelectedInstance = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance);
-      mRenderData.rdSelectedInstanceHighlightValue += deltaTime * 4.0f;
-      if (mRenderData.rdSelectedInstanceHighlightValue > 2.0f) {
-        mRenderData.rdSelectedInstanceHighlightValue = 0.1f;
-      }
-    }
   }
 
   /* draw level(s) second */
@@ -4179,8 +4188,8 @@ bool OGLRenderer::draw(float deltaTime) {
     }
   }
 
+  /* draw interaction debug */
   mInteractionTimer.start();
-  findInteractionInstances();
   drawInteractionDebug();
   mRenderData.rdInteractionTime += mInteractionTimer.stop();
 

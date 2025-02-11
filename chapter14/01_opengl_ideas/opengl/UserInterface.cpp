@@ -108,8 +108,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
   ImGuiStyle& style = ImGui::GetStyle();
   style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
 
-  ImGui::Begin("Control", nullptr, imguiWindowFlags);
-
   bool loadModelRequest = false;
   bool loadLevelRequest = false;
 
@@ -165,13 +163,19 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
       ImGui::EndMenu();
     }
 
+    if (ImGui::BeginMenu("View")) {
+      ImGui::MenuItem("Control", nullptr, &mControlWindowOpen);
+      ImGui::MenuItem("Instance Positions", nullptr, &mInstancePosWindowOpen);
+      ImGui::MenuItem("Status Bar", nullptr, &mStatusBarVisible);
+      ImGui::EndMenu();
+    }
+
     if (!mControlsHelpText.empty()) {
       if (ImGui::BeginMenu("Help")) {
         ImGui::MenuItem("Show Controls", "F1", &renderData.rdShowControlsHelpRequest);
         ImGui::EndMenu();
       }
     }
-
     ImGui::EndMainMenuBar();
   }
 
@@ -528,6 +532,17 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     mPathFindingOffset = ++mPathFindingOffset % mNumPathFindingValues;
 
     mUpdateTime += 1.0 / 30.0;
+  }
+
+  /* window closed */
+  if (!mControlWindowOpen) {
+    return;
+  }
+
+  if (!ImGui::Begin("Control", &mControlWindowOpen, imguiWindowFlags)) {
+    /* window collapsed */
+    ImGui::End();
+    return;
   }
 
   ImGui::Text("FPS: %10.4f", mFramesPerSecond);
@@ -3373,11 +3388,19 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
 void UserInterface::createPositionsWindow(OGLRenderData& renderData, ModelInstanceCamData& modInstCamData) {
   std::shared_ptr<BoundingBox3D> worldBoundaries = modInstCamData.micWorldGetBoundariesCallbackFunction();
+  /* window closed */
+  if (!mInstancePosWindowOpen) {
+    return;
+  }
 
   ImGuiWindowFlags posWinFlags = 0;
   ImGui::SetNextWindowBgAlpha(0.5f);
 
-  ImGui::Begin("Instance Positions", nullptr, posWinFlags);
+  if (!ImGui::Begin("Instance Positions", &mInstancePosWindowOpen, posWinFlags)) {
+    /* window collapsed */
+    ImGui::End();
+    return;
+  }
 
   if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows)) {
     /* zoom in/out with mouse wheel */
@@ -3513,6 +3536,10 @@ void UserInterface::resetPositionWindowOctreeView() {
 
 void UserInterface::createStatusBar(OGLRenderData& renderData, ModelInstanceCamData& modInstCamData) {
   ImGuiWindowFlags statusBarFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize;
+  /* status bar disabled */
+  if (!mStatusBarVisible) {
+    return;
+  }
 
   ImGui::SetNextWindowPos(ImVec2(0.0f,  renderData.rdHeight - 35.0f), ImGuiCond_Always);
   ImGui::SetNextWindowSize(ImVec2(renderData.rdWidth, 35.0f));

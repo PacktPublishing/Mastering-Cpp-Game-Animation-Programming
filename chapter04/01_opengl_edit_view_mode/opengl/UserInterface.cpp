@@ -65,8 +65,6 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
   ImGuiStyle& style = ImGui::GetStyle();
   style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
 
-  ImGui::Begin("Control", nullptr, imguiWindowFlags);
-
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("Edit")) {
       if (modInstData.miSettingsContainer->getUndoSize() == 0) {
@@ -131,6 +129,12 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     mUiDrawOffset = ++mUiDrawOffset % mNumUiDrawValues;
 
     mUpdateTime += 1.0 / 30.0;
+  }
+
+  if (!ImGui::Begin("Control", nullptr, imguiWindowFlags)) {
+    /* window collapsed */
+    ImGui::End();
+    return;
   }
 
   ImGui::Text("FPS: %10.4f", mFramesPerSecond);

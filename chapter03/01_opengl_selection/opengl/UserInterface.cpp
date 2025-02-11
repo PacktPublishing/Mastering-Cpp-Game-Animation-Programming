@@ -66,8 +66,6 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
   ImGuiStyle& style = ImGui::GetStyle();
   style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
 
-  ImGui::Begin("Control", nullptr, imguiWindowFlags);
-
   /* avoid inf values (division by zero) */
   if (renderData.rdFrameTime > 0.0) {
     mNewFps = 1.0f / renderData.rdFrameTime * 1000.f;
@@ -106,6 +104,12 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
     mUiDrawOffset = ++mUiDrawOffset % mNumUiDrawValues;
 
     mUpdateTime += 1.0 / 30.0;
+  }
+
+  if (!ImGui::Begin("Control", nullptr, imguiWindowFlags)) {
+    /* window collapsed */
+    ImGui::End();
+    return;
   }
 
   ImGui::Text("FPS: %10.4f", mFramesPerSecond);

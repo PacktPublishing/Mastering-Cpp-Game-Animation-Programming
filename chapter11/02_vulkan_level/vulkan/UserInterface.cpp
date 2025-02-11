@@ -140,8 +140,6 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
   ImGuiStyle& style = ImGui::GetStyle();
   style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
 
-  ImGui::Begin("Control", nullptr, imguiWindowFlags);
-
   bool loadModelRequest = false;
   bool loadLevelRequest = false;
 
@@ -525,6 +523,12 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     mFaceAnimOffset = ++mFaceAnimOffset % mNumFaceAnimValues;
 
     mUpdateTime += 1.0 / 30.0;
+  }
+
+  if (!ImGui::Begin("Control", nullptr, imguiWindowFlags)) {
+    /* window collapsed */
+    ImGui::End();
+    return;
   }
 
   ImGui::Text("FPS: %10.4f", mFramesPerSecond);
@@ -2757,7 +2761,11 @@ void UserInterface::createPositionsWindow(VkRenderData& renderData, ModelInstanc
   ImGuiWindowFlags posWinFlags = 0;
   ImGui::SetNextWindowBgAlpha(0.5f);
 
-  ImGui::Begin("Instance Positions", nullptr, posWinFlags);
+  if (!ImGui::Begin("Instance Positions", nullptr, posWinFlags)) {
+    /* window collapsed */
+    ImGui::End();
+    return;
+  }
 
   if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows)) {
     /* zoom in/out with mouse wheel */

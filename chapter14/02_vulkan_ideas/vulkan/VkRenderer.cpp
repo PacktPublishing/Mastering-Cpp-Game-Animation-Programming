@@ -4719,8 +4719,10 @@ void VkRenderer::handleMovementKeys() {
       }
       if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_U) == GLFW_PRESS) {
         nextState = moveState::interact;
-        if (mRenderData.rdInteractWithInstanceId > 0) {
-          mBehaviorManager->addEvent(getInstanceById(mRenderData.rdInteractWithInstanceId), nodeEvent::interaction);
+        if (mRenderData.rdInteraction) {
+          if (mRenderData.rdInteractWithInstanceId > 0) {
+            mBehaviorManager->addEvent(getInstanceById(mRenderData.rdInteractWithInstanceId), nodeEvent::interaction);
+          }
         }
       }
       if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_P) == GLFW_PRESS) {
@@ -5661,7 +5663,7 @@ void VkRenderer::findInteractionInstances() {
 }
 
 void VkRenderer::drawInteractionDebug() {
-  if (mModelInstCamData.micSelectedInstance == 0) {
+  if (mModelInstCamData.micSelectedInstance == 0 || !mRenderData.rdInteraction) {
     return;
   }
 

@@ -148,4 +148,8 @@ class UserInterface {
     glm::mat3 mOctreeViewMat = glm::mat3(1.0f);
 
     std::string mControlsHelpText;
+
+    bool mControlWindowOpen = true;
+    bool mInstancePosWindowOpen = true;
+    bool mStatusBarVisible = true;
 };
