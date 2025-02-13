@@ -1100,8 +1100,8 @@ bool VkRenderer::draw(float deltaTime) {
   vkCmdSetScissor(mRenderData.rdCommandBuffer, 0, 1, &scissor);
 
   /* draw the models */
-  int worldPosOffset = 0;
-  int worldPosOffsetSkinned = 0;
+  uint32_t worldPosOffset = 0;
+  uint32_t worldPosOffsetSkinned = 0;
   for (const auto& modelType : mModelInstData.miAssimpInstancesPerModel) {
     size_t numberOfInstances = modelType.second.size();
     if (numberOfInstances > 0) {

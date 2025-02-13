@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <unordered_map>
 #include <functional>
-#include <cstdint>
 
 #include <glm/glm.hpp>
 

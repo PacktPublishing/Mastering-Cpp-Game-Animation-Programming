@@ -185,7 +185,7 @@ class VkRenderer {
     VkLineMesh mCollidingSphereMesh{};
 
     unsigned int mLineIndexCount = 0;
-    unsigned int mCollidingSphereCount = 0;
+    uint32_t mCollidingSphereCount = 0;
 
     bool mMouseLock = false;
     int mMouseXPos = 0;
@@ -316,7 +316,7 @@ class VkRenderer {
     std::shared_ptr<VkLineMesh> mLevelGroundNeighborsMesh = nullptr;
     std::shared_ptr<VkLineMesh> mInstancePathMesh = nullptr;
 
-    unsigned int mGroundMeshVertexCount = 0;
+    uint32_t mGroundMeshVertexCount = 0;
 
     std::vector<int> getNavTargets();
     std::random_device mRandomDevice{};

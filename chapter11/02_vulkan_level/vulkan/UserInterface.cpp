@@ -70,7 +70,7 @@ bool UserInterface::init(VkRenderData& renderData) {
   imguiIinitInfo.Queue = renderData.rdGraphicsQueue;
   imguiIinitInfo.DescriptorPool = renderData.rdImguiDescriptorPool;
   imguiIinitInfo.MinImageCount = 2;
-  imguiIinitInfo.ImageCount = renderData.rdSwapchainImages.size();
+  imguiIinitInfo.ImageCount = static_cast<uint32_t>(renderData.rdSwapchainImages.size());
   imguiIinitInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
   imguiIinitInfo.RenderPass = renderData.rdImGuiRenderpass;
 

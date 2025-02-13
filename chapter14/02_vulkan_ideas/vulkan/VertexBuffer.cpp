@@ -82,7 +82,7 @@ bool VertexBuffer::uploadData(VkRenderData& renderData, VkVertexBufferData &vert
 
 bool VertexBuffer::uploadData(VkRenderData& renderData, VkVertexBufferData &vertexBufferData,
     VkLineMesh vertexData) {
-  unsigned int vertexDataSize = vertexData.vertices.size() * sizeof(VkLineVertex);
+  size_t vertexDataSize = vertexData.vertices.size() * sizeof(VkLineVertex);
 
   /* buffer too small, resize */
   if (vertexBufferData.bufferSize < vertexDataSize) {

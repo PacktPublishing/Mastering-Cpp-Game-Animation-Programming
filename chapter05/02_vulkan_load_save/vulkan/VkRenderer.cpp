@@ -2371,7 +2371,7 @@ void VkRenderer::handleMovementKeys() {
 }
 
 void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances, uint32_t modelOffset) {
-  uint32_t numberOfBones = model->getBoneList().size();
+  uint32_t numberOfBones = static_cast<uint32_t>(model->getBoneList().size());
 
   /* node transformation */
   vkCmdBindPipeline(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
@@ -2802,8 +2802,8 @@ bool VkRenderer::draw(float deltaTime) {
   vkCmdSetViewport(mRenderData.rdCommandBuffer, 0, 1, &viewport);
   vkCmdSetScissor(mRenderData.rdCommandBuffer, 0, 1, &scissor);
 
-  int worldPosOffset = 0;
-  int skinMatOffset = 0;
+  uint32_t worldPosOffset = 0;
+  uint32_t skinMatOffset = 0;
   for (const auto& model : mModelInstData.miModelList) {
     size_t numberOfInstances = mModelInstData.miAssimpInstancesPerModel[model->getModelFileName()].size();
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {

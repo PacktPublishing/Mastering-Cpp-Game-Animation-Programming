@@ -272,7 +272,7 @@ const std::vector<std::shared_ptr<AssimpNode>>& AssimpModel::getNodeList() {
   return mNodeList;
 }
 
-const std::map<std::string, std::shared_ptr<AssimpNode>>& AssimpModel::getNodeMap() {
+const std::unordered_map<std::string, std::shared_ptr<AssimpNode>>& AssimpModel::getNodeMap() {
   return mNodeMap;
 }
 
@@ -280,7 +280,7 @@ const std::vector<std::shared_ptr<AssimpBone>>& AssimpModel::getBoneList() {
   return mBoneList;
 }
 
-const std::map<std::string, glm::mat4>& AssimpModel::getBoneOffsetMatrices() {
+const std::unordered_map<std::string, glm::mat4>& AssimpModel::getBoneOffsetMatrices() {
   return mBoneOffsetMatrices;
 }
 

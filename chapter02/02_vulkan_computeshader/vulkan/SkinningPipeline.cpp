@@ -33,37 +33,37 @@ bool SkinningPipeline::init(VkRenderData& renderData, VkPipelineLayout& pipeline
   std::vector<VkPipelineShaderStageCreateInfo> shaderStagesInfo = { vertexStageInfo, fragmentStageInfo };
 
   /* assemble the graphics pipeline itself */
-  std::vector<VkVertexInputBindingDescription> vertexBindings = { { 0, sizeof(VkVertex), VK_VERTEX_INPUT_RATE_VERTEX } };
+  std::vector<VkVertexInputBindingDescription> vertexBindings = { { 0, static_cast<uint32_t>(sizeof(VkVertex)), VK_VERTEX_INPUT_RATE_VERTEX } };
 
   VkVertexInputAttributeDescription positionAttribute{};
   positionAttribute.binding = 0;
   positionAttribute.location = 0;
   positionAttribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-  positionAttribute.offset = offsetof(VkVertex, position);
+  positionAttribute.offset = static_cast<uint32_t>(offsetof(VkVertex, position));
 
   VkVertexInputAttributeDescription colorAttribute{};
   colorAttribute.binding = 0;
   colorAttribute.location = 1;
   colorAttribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-  colorAttribute.offset = offsetof(VkVertex, color);
+  colorAttribute.offset = static_cast<uint32_t>(offsetof(VkVertex, color));
 
   VkVertexInputAttributeDescription normalAttribute{};
   normalAttribute.binding = 0;
   normalAttribute.location = 2;
   normalAttribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-  normalAttribute.offset = offsetof(VkVertex, normal);
+  normalAttribute.offset = static_cast<uint32_t>(offsetof(VkVertex, normal));
 
   VkVertexInputAttributeDescription jointsAttribute{};
   jointsAttribute.binding = 0;
   jointsAttribute.location = 3;
   jointsAttribute.format = VK_FORMAT_R32G32B32A32_UINT;
-  jointsAttribute.offset = offsetof(VkVertex, boneNumber);
+  jointsAttribute.offset = static_cast<uint32_t>(offsetof(VkVertex, boneNumber));
 
   VkVertexInputAttributeDescription weightAttribute{};
   weightAttribute.binding = 0;
   weightAttribute.location = 4;
   weightAttribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-  weightAttribute.offset = offsetof(VkVertex, boneWeight);
+  weightAttribute.offset = static_cast<uint32_t>(offsetof(VkVertex, boneWeight));
 
   std::vector<VkVertexInputAttributeDescription> attributes{};
   attributes.emplace_back(positionAttribute);

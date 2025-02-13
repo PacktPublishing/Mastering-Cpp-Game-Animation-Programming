@@ -5174,7 +5174,7 @@ void VkRenderer::reactToInstanceCollisions() {
 
 void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances,
     uint32_t modelOffset, uint32_t instanceOffset, bool useEmptyBoneOffsets) {
-  uint32_t numberOfBones = model->getBoneList().size();
+  uint32_t numberOfBones = static_cast<uint32_t>(model->getBoneList().size());
 
   /* node transformation */
   if (model->hasHeadMovementAnimationsMapped()) {
@@ -5250,7 +5250,7 @@ void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numIn
 
 void VkRenderer::runBoundingSphereComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances,
     uint32_t modelOffset) {
-  uint32_t numberOfBones = model->getBoneList().size();
+  uint32_t numberOfBones = static_cast<uint32_t>(model->getBoneList().size());
 
   /* node transformation */
   vkCmdBindPipeline(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
@@ -5342,7 +5342,7 @@ void VkRenderer::runBoundingSphereComputeShaders(std::shared_ptr<AssimpModel> mo
 
 bool VkRenderer::runIKComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances,
     uint32_t modelOffset, int totalNumberOfBones) {
-  uint32_t numberOfBones = model->getBoneList().size();
+  uint32_t numberOfBones = static_cast<uint32_t>(model->getBoneList().size());
 
   /* upload changed TRS data */
   mUploadToUBOTimer.start();
@@ -7159,8 +7159,8 @@ bool VkRenderer::draw(float deltaTime) {
 
   vkCmdBeginRenderPass(mRenderData.rdCommandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-  int worldPosOffset = 0;
-  int skinMatOffset = 0;
+  uint32_t worldPosOffset = 0;
+  uint32_t skinMatOffset = 0;
   for (const auto& model : mModelInstCamData.micModelList) {
     size_t numberOfInstances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].size();
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
@@ -7412,38 +7412,38 @@ bool VkRenderer::draw(float deltaTime) {
   if (mRenderData.rdDrawLevelAABB && !mLevelAABBMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mLevelAABBVertexBuffer.buffer, &offset);
-    vkCmdDraw(mRenderData.rdLineCommandBuffer, mLevelAABBMesh->vertices.size(), 1, 0, 0);
+    vkCmdDraw(mRenderData.rdLineCommandBuffer, static_cast<uint32_t>(mLevelAABBMesh->vertices.size()), 1, 0, 0);
   }
 
   if (mRenderData.rdDrawLevelWireframe && !mLevelWireframeMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mLevelWireframeVertexBuffer.buffer, &offset);
-    vkCmdDraw(mRenderData.rdLineCommandBuffer, mLevelWireframeMesh->vertices.size(), 1, 0, 0);
+    vkCmdDraw(mRenderData.rdLineCommandBuffer, static_cast<uint32_t>(mLevelWireframeMesh->vertices.size()), 1, 0, 0);
   }
 
   if (mRenderData.rdDrawLevelOctree && !mLevelOctreeMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mLevelOctreeVertexBuffer.buffer, &offset);
-    vkCmdDraw(mRenderData.rdLineCommandBuffer, mLevelOctreeMesh->vertices.size(), 1, 0, 0);
+    vkCmdDraw(mRenderData.rdLineCommandBuffer, static_cast<uint32_t>(mLevelOctreeMesh->vertices.size()), 1, 0, 0);
   }
 
   if (mRenderData.rdDrawIKDebugLines && !mIKFootPointMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mIKLinesVertexBuffer.buffer, &offset);
-    vkCmdDraw(mRenderData.rdLineCommandBuffer, mIKFootPointMesh->vertices.size(), 1, 0, 0);
+    vkCmdDraw(mRenderData.rdLineCommandBuffer, static_cast<uint32_t>(mIKFootPointMesh->vertices.size()), 1, 0, 0);
   }
   mRenderData.rdLevelCollisionTime += mLevelCollisionTimer.stop();
 
   if (mRenderData.rdDrawInstancePaths && !mInstancePathMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mInstancePathVertexBuffer.buffer, &offset);
-    vkCmdDraw(mRenderData.rdLineCommandBuffer, mInstancePathMesh->vertices.size(), 1, 0, 0);
+    vkCmdDraw(mRenderData.rdLineCommandBuffer, static_cast<uint32_t>(mInstancePathMesh->vertices.size()), 1, 0, 0);
   }
 
   if (mRenderData.rdDrawNeighborTriangles && !mLevelGroundNeighborsMesh->vertices.empty()) {
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mGroundMeshNeighborVertexBuffer.buffer, &offset);
-    vkCmdDraw(mRenderData.rdLineCommandBuffer, mLevelGroundNeighborsMesh->vertices.size(), 1, 0, 0);
+    vkCmdDraw(mRenderData.rdLineCommandBuffer, static_cast<uint32_t>(mLevelGroundNeighborsMesh->vertices.size()), 1, 0, 0);
   }
 
   mLevelGroundNeighborUpdateTimer.start();

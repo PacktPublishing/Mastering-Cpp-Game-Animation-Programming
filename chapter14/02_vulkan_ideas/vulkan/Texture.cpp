@@ -11,7 +11,7 @@ bool Texture::loadTexture(VkRenderData &renderData, VkTextureData &texData, std:
   int texWidth;
   int texHeight;
   int numberOfChannels;
-  int mipmapLevels = 1;
+  uint32_t mipmapLevels = 1;
 
   stbi_set_flip_vertically_on_load(flipImage);
   /* always load as RGBA */
@@ -24,7 +24,7 @@ bool Texture::loadTexture(VkRenderData &renderData, VkTextureData &texData, std:
   }
 
   if (generateMipmaps) {
-    mipmapLevels += std::floor(std::log2(std::max(texWidth, texHeight)));
+    mipmapLevels += static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight))));
   }
 
   VkDeviceSize imageSize = texWidth * texHeight * 4;
@@ -80,7 +80,7 @@ bool Texture::loadTexture(VkRenderData& renderData, VkTextureData& texData, std:
   int texWidth;
   int texHeight;
   int numberOfChannels;
-  int mipmapLevels = 1;
+  uint32_t mipmapLevels = 1;
 
   /* allow to flip the image, similar to file loaded from disk */
   stbi_set_flip_vertically_on_load(flipImage);
@@ -101,7 +101,7 @@ bool Texture::loadTexture(VkRenderData& renderData, VkTextureData& texData, std:
   }
 
   if (generateMipmaps) {
-    mipmapLevels += std::floor(std::log2(std::max(texWidth, texHeight)));
+    mipmapLevels += static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight))));
   }
 
   VkDeviceSize imageSize = texWidth * texHeight * 4;
@@ -112,7 +112,7 @@ bool Texture::loadTexture(VkRenderData& renderData, VkTextureData& texData, std:
   imageInfo.extent.width = static_cast<uint32_t>(texWidth);
   imageInfo.extent.height = static_cast<uint32_t>(texHeight);
   imageInfo.extent.depth = 1;
-  imageInfo.mipLevels = static_cast<uint32_t>(mipmapLevels);
+  imageInfo.mipLevels = mipmapLevels;
   imageInfo.arrayLayers = 1;
   imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
   imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;

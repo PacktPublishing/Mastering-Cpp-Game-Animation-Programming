@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <map>
 #include <unordered_map>
 #include <glad/glad.h>
 
@@ -34,10 +33,10 @@ class AssimpModel {
     const std::vector<std::shared_ptr<AssimpAnimClip>>& getAnimClips();
 
     const std::vector<std::shared_ptr<AssimpNode>>& getNodeList();
-    const std::map<std::string, std::shared_ptr<AssimpNode>>& getNodeMap();
+    const std::unordered_map<std::string, std::shared_ptr<AssimpNode>>& getNodeMap();
 
     const std::vector<std::shared_ptr<AssimpBone>>& getBoneList();
-    const std::map<std::string, glm::mat4>& getBoneOffsetMatrices();
+    const std::unordered_map<std::string, glm::mat4>& getBoneOffsetMatrices();
 
     const std::shared_ptr<AssimpNode> getRootNode();
 
@@ -53,12 +52,12 @@ private:
     /* store the root node for direct access */
     std::shared_ptr<AssimpNode> mRootNode = nullptr;
     /* a map to find the node by name */
-    std::map<std::string, std::shared_ptr<AssimpNode>> mNodeMap{};
+    std::unordered_map<std::string, std::shared_ptr<AssimpNode>> mNodeMap{};
     /* and a 'flat' map to keep the order of insertation  */
     std::vector<std::shared_ptr<AssimpNode>> mNodeList{};
 
     std::vector<std::shared_ptr<AssimpBone>> mBoneList{};
-    std::map<std::string, glm::mat4> mBoneOffsetMatrices{};
+    std::unordered_map<std::string, glm::mat4> mBoneOffsetMatrices{};
 
     std::vector<std::shared_ptr<AssimpAnimClip>> mAnimClips{};
 

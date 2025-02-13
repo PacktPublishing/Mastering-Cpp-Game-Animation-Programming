@@ -93,14 +93,6 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
     }
   }
 
-  for (const auto& node : mNodeList) {
-    std::string nodeName = node->getNodeName();
-    const auto boneIter = std::find_if(mBoneList.begin(), mBoneList.end(), [nodeName](std::shared_ptr<AssimpBone>& bone) { return bone->getBoneName() == nodeName; });
-     if (boneIter != mBoneList.end()) {
-      mBoneOffsetMatrices.insert({nodeName, mBoneList.at(std::distance(mBoneList.begin(), boneIter))->getOffsetMatrix()});
-    }
-  }
-
   std::vector<glm::mat4> boneOffsetMatricesList{};
   std::vector<int32_t> boneParentIndexList{};
 
@@ -381,7 +373,7 @@ const std::vector<std::shared_ptr<AssimpNode>>& AssimpModel::getNodeList() {
   return mNodeList;
 }
 
-const std::map<std::string, std::shared_ptr<AssimpNode>>& AssimpModel::getNodeMap() {
+const std::unordered_map<std::string, std::shared_ptr<AssimpNode>>& AssimpModel::getNodeMap() {
   return mNodeMap;
 }
 

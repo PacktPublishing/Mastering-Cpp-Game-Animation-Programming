@@ -159,7 +159,7 @@ class VkRenderer {
     VkLineMesh mCollidingSphereMesh{};
 
     unsigned int mLineIndexCount = 0;
-    unsigned int mCollidingSphereCount = 0;
+    uint32_t mCollidingSphereCount = 0;
 
     bool mMouseLock = false;
     int mMouseXPos = 0;

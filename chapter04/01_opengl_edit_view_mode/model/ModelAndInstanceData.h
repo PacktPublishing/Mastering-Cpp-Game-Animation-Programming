@@ -3,9 +3,7 @@
 
 #include <memory>
 #include <vector>
-#include <map>
 #include <unordered_map>
-#include <functional>
 
 // forward declaration
 class AssimpModel;
@@ -31,7 +29,7 @@ struct ModelAndInstanceData {
   int miSelectedModel = 0;
 
   std::vector<std::shared_ptr<AssimpInstance>> miAssimpInstances{};
-  std::map<std::string, std::vector<std::shared_ptr<AssimpInstance>>> miAssimpInstancesPerModel{};
+  std::unordered_map<std::string, std::vector<std::shared_ptr<AssimpInstance>>> miAssimpInstancesPerModel{};
   int miSelectedInstance = 0;
 
   std::shared_ptr<AssimpSettingsContainer> miSettingsContainer{};

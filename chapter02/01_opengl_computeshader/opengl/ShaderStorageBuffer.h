@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <cstdint>
-
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 

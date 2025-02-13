@@ -3,9 +3,9 @@
 
 #include <memory>
 #include <vector>
-#include <map>
-#include <set>
 #include <unordered_map>
+#include <set>
+#include <map>
 
 #include "Callbacks.h"
 #include "SingleInstanceBehavior.h"
@@ -21,7 +21,7 @@ struct ModelInstanceCamData {
   int micSelectedModel = 0;
 
   std::vector<std::shared_ptr<AssimpInstance>> micAssimpInstances{};
-  std::map<std::string, std::vector<std::shared_ptr<AssimpInstance>>> micAssimpInstancesPerModel{};
+  std::unordered_map<std::string, std::vector<std::shared_ptr<AssimpInstance>>> micAssimpInstancesPerModel{};
   int micSelectedInstance = 0;
 
   std::shared_ptr<AssimpSettingsContainer> micSettingsContainer{};

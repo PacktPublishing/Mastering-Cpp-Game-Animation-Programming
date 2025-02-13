@@ -1262,7 +1262,7 @@ void VkRenderer::handleMovementKeys() {
 }
 
 void VkRenderer::runComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances, uint32_t modelOffset) {
-  uint32_t numberOfBones = model->getBoneList().size();
+  uint32_t numberOfBones = static_cast<uint32_t>(model->getBoneList().size());
 
   /* node transformation */
   vkCmdBindPipeline(mRenderData.rdComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
@@ -1637,7 +1637,7 @@ bool VkRenderer::draw(float deltaTime) {
 
       /* animated models */
       if (model->hasAnimations() && !model->getBoneList().empty()) {
-        uint32_t numberOfBones = model->getBoneList().size();
+        uint32_t numberOfBones = static_cast<uint32_t>(model->getBoneList().size());
 
         vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mRenderData.rdAssimpSkinningPipeline);
 

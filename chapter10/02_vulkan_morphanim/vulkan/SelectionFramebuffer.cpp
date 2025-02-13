@@ -38,8 +38,8 @@ float SelectionFramebuffer::getPixelValueFromPos(VkRenderData& renderData, unsig
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageInfo.imageType = VK_IMAGE_TYPE_2D;
-  imageInfo.extent.width = static_cast<uint32_t>(renderData.rdVkbSwapchain.extent.width);
-  imageInfo.extent.height = static_cast<uint32_t>(renderData.rdVkbSwapchain.extent.height);
+  imageInfo.extent.width = renderData.rdVkbSwapchain.extent.width;
+  imageInfo.extent.height = renderData.rdVkbSwapchain.extent.height;
   imageInfo.extent.depth = 1;
   imageInfo.mipLevels = 1;
   imageInfo.arrayLayers = 1;
@@ -94,8 +94,8 @@ float SelectionFramebuffer::getPixelValueFromPos(VkRenderData& renderData, unsig
   imageCopyRegion.srcSubresource.layerCount = 1;
   imageCopyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
   imageCopyRegion.dstSubresource.layerCount = 1;
-  imageCopyRegion.extent.width = static_cast<uint32_t>(renderData.rdVkbSwapchain.extent.width);
-  imageCopyRegion.extent.height = static_cast<uint32_t>(renderData.rdVkbSwapchain.extent.height);
+  imageCopyRegion.extent.width = renderData.rdVkbSwapchain.extent.width;
+  imageCopyRegion.extent.height = renderData.rdVkbSwapchain.extent.height;
   imageCopyRegion.extent.depth = 1;
 
   /* transition destination (local) image to general layout to allow mapping */

@@ -5,7 +5,6 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
-#include <cstdint>
 #include <functional>
 
 #include <glm/glm.hpp>
