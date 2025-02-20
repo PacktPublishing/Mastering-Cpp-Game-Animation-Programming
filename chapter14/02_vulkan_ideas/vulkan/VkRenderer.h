@@ -210,7 +210,7 @@ class VkRenderer {
     void handleMovementKeys();
     void updateTriangleCount();
     void updateLevelTriangleCount();
-    void enumerateInstances();
+    void assignInstanceIndices();
 
     /* identity matrices for view and perspective, zero matrix for light and fog  */
     VkUploadMatrices mMatrices{ glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(0.0f) };

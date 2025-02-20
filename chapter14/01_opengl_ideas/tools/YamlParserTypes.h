@@ -242,8 +242,8 @@ namespace YAML {
       if (!rhs.isNodeTreeName.empty()) {
         node["node-tree"] = rhs.isNodeTreeName;
       }
-      if (rhs.isFaceAnim != faceAnimation::none) {
-        node["face-anim"] = rhs.isFaceAnim;
+      if (rhs.isFaceAnimType != faceAnimation::none) {
+        node["face-anim"] = rhs.isFaceAnimType;
         node["face-anim-weight"] = rhs.isFaceAnimWeight;
       }
       if (rhs.isHeadLeftRightMove != 0.0f) {
@@ -333,11 +333,11 @@ namespace YAML {
       }
       if (node["face-anim"]) {
         try {
-          rhs.isFaceAnim = node["face-anim"].as<faceAnimation>();
+          rhs.isFaceAnimType = node["face-anim"].as<faceAnimation>();
           rhs.isFaceAnimWeight = node["face-anim-weight"].as<float>();
         } catch (...) {
           Logger::log(1, "%s warning: could not parse face anim settings of an instance of model '%s', ignoring\n", __FUNCTION__, rhs.isModelFile.c_str());
-          rhs.isFaceAnim = faceAnimation::none;
+          rhs.isFaceAnimType = faceAnimation::none;
           rhs.isFaceAnimWeight = defaultSettings.isFaceAnimWeight;
         }
       }
@@ -650,7 +650,7 @@ namespace YAML {
             rhs.msFootIKChainNodes.at(0).emplace_back(entry);
           }
           rhs.msFootIKChainPair.at(0).first = rhs.msFootIKChainNodes.at(0).at(0);
-          rhs.msFootIKChainPair.at(0).second = rhs.msFootIKChainNodes.at(0).at(rhs.msFootIKChainNodes.at(0).size() -1);
+          rhs.msFootIKChainPair.at(0).second = rhs.msFootIKChainNodes.at(0).at(rhs.msFootIKChainNodes.at(0).size() - 1);
         } catch (...) {
           Logger::log(1, "%s warning: could not parse left foot ik chain of model '%s', ignoring\n", __FUNCTION__, rhs.msModelFilename.c_str());
           rhs.msFootIKChainNodes.at(0).clear();
@@ -663,7 +663,7 @@ namespace YAML {
             rhs.msFootIKChainNodes.at(1).emplace_back(entry);
           }
           rhs.msFootIKChainPair.at(1).first = rhs.msFootIKChainNodes.at(1).at(0);
-          rhs.msFootIKChainPair.at(1).second = rhs.msFootIKChainNodes.at(1).at(rhs.msFootIKChainNodes.at(1).size() -1);
+          rhs.msFootIKChainPair.at(1).second = rhs.msFootIKChainNodes.at(1).at(rhs.msFootIKChainNodes.at(1).size() - 1);
         } catch (...) {
           Logger::log(1, "%s warning: could not parse right foot ik chain of model '%s', ignoring\n", __FUNCTION__, rhs.msModelFilename.c_str());
           rhs.msFootIKChainNodes.at(1).clear();

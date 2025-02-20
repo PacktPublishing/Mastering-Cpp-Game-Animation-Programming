@@ -217,7 +217,7 @@ class OGLRenderer {
 
     void updateTriangleCount();
     void updateLevelTriangleCount();
-    void enumerateInstances();
+    void assignInstanceIndices();
 
     /* create identity matrix by default */
     glm::mat4 mViewMatrix = glm::mat4(1.0f);

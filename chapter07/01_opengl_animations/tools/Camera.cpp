@@ -23,7 +23,7 @@ void Camera::updateCamera(OGLRenderData& renderData, float deltaTime) {
   }
 
   /* default handling is free camera if nothing has been locked  */
-  if (!mCamSettings.csInstanceToFollow.lock() || renderData.rdApplicationMode == appMode::edit) {
+  if (!mCamSettings.csInstanceToFollow.lock()) {
     updateCameraView();
     updateCameraPosition(renderData, deltaTime);
     return;
@@ -118,9 +118,9 @@ void Camera::updateCameraView() {
 void Camera::updateCameraPosition(OGLRenderData& renderData, const float deltaTime) {
   /* update camera position depending on desired movement */
   mCamSettings.csWorldPosition +=
-    renderData.rdMoveForward * deltaTime * mViewDirection
-    + renderData.rdMoveRight * deltaTime * mRightDirection
-    + renderData.rdMoveUp * deltaTime * mUpDirection;
+    renderData.rdMoveForward * deltaTime * mViewDirection +
+      renderData.rdMoveRight * deltaTime * mRightDirection +
+      renderData.rdMoveUp * deltaTime * mUpDirection;
 }
 
 

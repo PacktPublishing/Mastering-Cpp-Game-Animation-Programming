@@ -152,7 +152,7 @@ bool VkRenderer::init(unsigned int width, unsigned int height) {
   std::shared_ptr<AssimpInstance> nullInstance = std::make_shared<AssimpInstance>(nullModel);
   mModelInstData.miAssimpInstancesPerModel[nullModel->getModelFileName()].emplace_back(nullInstance);
   mModelInstData.miAssimpInstances.emplace_back(nullInstance);
-  enumerateInstances();
+  assignInstanceIndices();
 
   /* signal graphics semaphore before doing anything else to be able to run compute submit */
   VkSubmitInfo submitInfo{};
@@ -1587,7 +1587,7 @@ void VkRenderer::deleteModel(std::string modelFileName) {
     )
   );
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -1596,7 +1596,7 @@ std::shared_ptr<AssimpInstance> VkRenderer::addInstance(std::shared_ptr<AssimpMo
   mModelInstData.miAssimpInstances.emplace_back(newInstance);
   mModelInstData.miAssimpInstancesPerModel[model->getModelFileName()].emplace_back(newInstance);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 
   return newInstance;
@@ -1623,7 +1623,7 @@ void VkRenderer::addInstances(std::shared_ptr<AssimpModel> model, int numInstanc
     mModelInstData.miAssimpInstancesPerModel[model->getModelFileName()].emplace_back(newInstance);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -1650,7 +1650,7 @@ void VkRenderer::deleteInstance(std::shared_ptr<AssimpInstance> instance) {
       }
     ));
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -1666,7 +1666,7 @@ void VkRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
   mModelInstData.miAssimpInstances.emplace_back(newInstance);
   mModelInstData.miAssimpInstancesPerModel[currentModel->getModelFileName()].emplace_back(newInstance);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -1697,7 +1697,7 @@ void VkRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int nu
     mModelInstData.miAssimpInstancesPerModel[model->getModelFileName()].emplace_back(newInstance);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -1714,7 +1714,7 @@ void VkRenderer::updateTriangleCount() {
   }
 }
 
-void VkRenderer::enumerateInstances() {
+void VkRenderer::assignInstanceIndices() {
   for (size_t i = 0; i < mModelInstData.miAssimpInstances.size(); ++i) {
     InstanceSettings instSettings = mModelInstData.miAssimpInstances.at(i)->getInstanceSettings();
     instSettings.isInstanceIndexPosition = i;

@@ -39,7 +39,7 @@ layout (std430, binding = 4) readonly restrict buffer AnimMorphBuffer {
 };
 
 layout (std430, binding = 5) readonly restrict buffer AnimMorphData {
-  vec4 perInstanceMorphData[];
+  vec4 vertsPerMorphAnim[];
 };
 
 uniform int aModelStride;
@@ -57,12 +57,12 @@ void main() {
   mat4 worldPosSkinMat = worldPos[gl_InstanceID] * skinMat;
 
   /* y and z data contain the offset into the morph anim buffer */
-  int morphAnimOffset = int(perInstanceMorphData[gl_InstanceID].y * perInstanceMorphData[gl_InstanceID].z);
+  int morphAnimIndex = int(vertsPerMorphAnim[gl_InstanceID].y * vertsPerMorphAnim[gl_InstanceID].z);
 
   vec4 origVertex = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-  vec4 morphVertex = vec4(morphVertices[gl_VertexID + morphAnimOffset].position.xyz, 1.0);
+  vec4 morphVertex = vec4(morphVertices[gl_VertexID + morphAnimIndex].position.xyz, 1.0);
 
-  gl_Position = projection * view * worldPosSkinMat * mix(origVertex, morphVertex, perInstanceMorphData[gl_InstanceID].x);
+  gl_Position = projection * view * worldPosSkinMat * mix(origVertex, morphVertex, vertsPerMorphAnim[gl_InstanceID].x);
 
   color = aColor * selected[gl_InstanceID].x;
   /* draw the instance always on top when highlighted, helps to find it better */
@@ -71,8 +71,8 @@ void main() {
   }
 
   vec4 origNormal = vec4(aNormal.x, aNormal.y, aNormal.z, 1.0);
-  vec4 morphNormal = vec4(morphVertices[gl_VertexID + morphAnimOffset].normal.xyz, 1.0);
-  normal = transpose(inverse(worldPosSkinMat)) * mix(origNormal, morphNormal, perInstanceMorphData[gl_InstanceID].x);
+  vec4 morphNormal = vec4(morphVertices[gl_VertexID + morphAnimIndex].normal.xyz, 1.0);
+  normal = transpose(inverse(worldPosSkinMat)) * mix(origNormal, morphNormal, vertsPerMorphAnim[gl_InstanceID].x);
 
   texCoord = vec2(aPos.w, aNormal.w);
 }

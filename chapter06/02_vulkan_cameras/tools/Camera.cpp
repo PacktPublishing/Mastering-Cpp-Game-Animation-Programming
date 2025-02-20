@@ -121,9 +121,9 @@ void Camera::updateCameraView() {
 void Camera::updateCameraPosition(VkRenderData& renderData, const float deltaTime) {
   /* update camera position depending on desired movement */
   mCamSettings.csWorldPosition +=
-  renderData.rdMoveForward * deltaTime * mViewDirection
-  + renderData.rdMoveRight * deltaTime * mRightDirection
-  + renderData.rdMoveUp * deltaTime * mUpDirection;
+   renderData.rdMoveForward * deltaTime * mViewDirection +
+      renderData.rdMoveRight * deltaTime * mRightDirection +
+      renderData.rdMoveUp * deltaTime * mUpDirection;
 }
 
 void Camera::moveCameraTo(glm::vec3 position) {

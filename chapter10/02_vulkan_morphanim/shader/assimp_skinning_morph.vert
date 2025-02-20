@@ -38,7 +38,7 @@ layout (std430, set = 1, binding = 3) readonly restrict buffer InstanceSelected 
 };
 
 layout (std430, set = 1, binding = 4) readonly restrict buffer AnimMorphData {
-  vec4 perInstanceMorphData[];
+  vec4 vertsPerMorphAnim[];
 };
 
 layout (std430, set = 2, binding = 0) readonly restrict buffer AnimMorphBuffer {
@@ -57,14 +57,14 @@ void main() {
   mat4 worldPosSkinMat = worldPos[gl_InstanceIndex + worldPosOffset] * skinMat;
 
   /* y and z data contain the offset into the morph anim buffer */
-  int morphAnimOffset = int(perInstanceMorphData[gl_InstanceIndex + worldPosOffset].y *
-    perInstanceMorphData[gl_InstanceIndex + worldPosOffset].z);
+  int morphAnimIndex = int(vertsPerMorphAnim[gl_InstanceIndex + worldPosOffset].y *
+    vertsPerMorphAnim[gl_InstanceIndex + worldPosOffset].z);
 
   vec4 origVertex = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-  vec4 morphVertex = vec4(morphVertices[gl_VertexIndex + morphAnimOffset].position.xyz, 1.0);
+  vec4 morphVertex = vec4(morphVertices[gl_VertexIndex + morphAnimIndex].position.xyz, 1.0);
 
   gl_Position = projection * view * worldPosSkinMat *
-    mix(origVertex, morphVertex, perInstanceMorphData[gl_InstanceIndex + worldPosOffset].x);
+    mix(origVertex, morphVertex, vertsPerMorphAnim[gl_InstanceIndex + worldPosOffset].x);
 
   color = aColor * selected[gl_InstanceIndex + worldPosOffset].x;
   /* draw the instance always on top when highlighted, helps to find it better */
@@ -73,9 +73,9 @@ void main() {
   }
 
   vec4 origNormal = vec4(aNormal.x, aNormal.y, aNormal.z, 1.0);
-  vec4 morphNormal = vec4(morphVertices[gl_VertexIndex + morphAnimOffset].normal.xyz, 1.0);
+  vec4 morphNormal = vec4(morphVertices[gl_VertexIndex + morphAnimIndex].normal.xyz, 1.0);
   normal = transpose(inverse(worldPosSkinMat)) *
-    mix(origNormal, morphNormal, perInstanceMorphData[gl_InstanceIndex + worldPosOffset].x);
+    mix(origNormal, morphNormal, vertsPerMorphAnim[gl_InstanceIndex + worldPosOffset].x);
 
   texCoord = vec2(aPos.w, aNormal.w);
 }

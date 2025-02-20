@@ -287,7 +287,7 @@ bool VkRenderer::loadConfigFile(std::string configFileName) {
     newInstance->setInstanceSettings(instSettings);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
 
   /* restore selected instance num */
   int selectedInstance = parser.getSelectedInstanceNum();
@@ -395,7 +395,7 @@ void VkRenderer::undoLastOperation() {
   mModelInstCamData.micSettingsContainer->undo();
   /* we need to update the index numbers in case instances were deleted,
    * and the settings files still contain the old index number */
-  enumerateInstances();
+  assignInstanceIndices();
 
   int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
@@ -416,7 +416,7 @@ void VkRenderer::redoLastOperation() {
   }
 
   mModelInstCamData.micSettingsContainer->redo();
-  enumerateInstances();
+  assignInstanceIndices();
 
   int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
@@ -439,7 +439,7 @@ void VkRenderer::addNullModelAndInstance() {
   std::shared_ptr<AssimpInstance> nullInstance = std::make_shared<AssimpInstance>(nullModel);
   mModelInstCamData.micAssimpInstancesPerModel[nullModel->getModelFileName()].emplace_back(nullInstance);
   mModelInstCamData.micAssimpInstances.emplace_back(nullInstance);
-  enumerateInstances();
+  assignInstanceIndices();
 
   /* init the central settings container */
   mModelInstCamData.micSettingsContainer.reset();
@@ -2013,7 +2013,7 @@ void VkRenderer::deleteModel(std::string modelFileName, bool withUndo) {
       mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -2039,7 +2039,7 @@ std::shared_ptr<AssimpInstance> VkRenderer::addInstance(std::shared_ptr<AssimpMo
     mModelInstCamData.micSettingsContainer->applyNewInstance(newInstance, mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 
   return newInstance;
@@ -2052,7 +2052,7 @@ void VkRenderer::addExistingInstance(std::shared_ptr<AssimpInstance> instance, i
     mModelInstCamData.micAssimpInstancesPerModel[instance->getModel()->getModelFileName()].begin() +
     indexPerModelPos, instance);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -2086,7 +2086,7 @@ void VkRenderer::addInstances(std::shared_ptr<AssimpModel> model, int numInstanc
   mModelInstCamData.micSelectedInstance = mModelInstCamData.micAssimpInstances.size() - 1;
   mModelInstCamData.micSettingsContainer->applyNewMultiInstance(newInstances, mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -2119,7 +2119,7 @@ void VkRenderer::deleteInstance(std::shared_ptr<AssimpInstance> instance, bool w
     mModelInstCamData.micSettingsContainer->applyDeleteInstance(instance, mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -2141,7 +2141,7 @@ void VkRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
   mModelInstCamData.micSelectedInstance = mModelInstCamData.micAssimpInstances.size() - 1;
   mModelInstCamData.micSettingsContainer->applyNewInstance(newInstance, mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -2182,7 +2182,7 @@ void VkRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int nu
   mModelInstCamData.micSelectedInstance = mModelInstCamData.micAssimpInstances.size() - 1;
   mModelInstCamData.micSettingsContainer->applyNewMultiInstance(newInstances, mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -2198,7 +2198,7 @@ void VkRenderer::updateTriangleCount() {
   }
 }
 
-void VkRenderer::enumerateInstances() {
+void VkRenderer::assignInstanceIndices() {
   for (size_t i = 0; i < mModelInstCamData.micAssimpInstances.size(); ++i) {
     InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(i)->getInstanceSettings();
     instSettings.isInstanceIndexPosition = i;
@@ -2964,6 +2964,7 @@ bool VkRenderer::draw(float deltaTime) {
   size_t animatedInstancesLookupToStore = 0;
   for (const auto& model : mModelInstCamData.micModelList) {
     size_t numberOfInstances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].size();
+    std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
@@ -2973,7 +2974,6 @@ bool VkRenderer::draw(float deltaTime) {
 
         mMatrixGenerateTimer.start();
 
-        std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
         for (unsigned int i = 0; i < numberOfInstances; ++i) {
           instances.at(i)->updateInstanceSpeed(deltaTime);
           instances.at(i)->updateInstancePosition(deltaTime);
@@ -3025,7 +3025,6 @@ bool VkRenderer::draw(float deltaTime) {
         /* non-animated models */
         mMatrixGenerateTimer.start();
 
-        std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
         for (unsigned int i = 0; i < numberOfInstances; ++i) {
           mWorldPosMatrices.at(instanceToStore + i) = instances.at(i)->getWorldTransformMatrix();
 

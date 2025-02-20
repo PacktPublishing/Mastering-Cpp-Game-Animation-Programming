@@ -917,11 +917,32 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     if (numCameras == 0 || modInstCamData.micSelectedCamera == 0) {
       ImGui::BeginDisabled();
     }
+
     ImGui::SameLine();
     if (ImGui::Button("Delete Camera")) {
-      modInstCamData.micCameraDeleteCallbackFunction();
-      numCameras = modInstCamData.micCameras.size() - 1;
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
+      ImGui::OpenPopup("Delete Camera?");
     }
+
+    if (ImGui::BeginPopupModal("Delete Camera?", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
+      ImGui::Text("Delete Camera '%s'?", modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName().c_str());
+
+      /* cheating a bit to get buttons more to the center */
+      ImGui::Indent();
+      ImGui::Indent();
+      ImGui::Indent();
+      if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
+        modInstCamData.micCameraDeleteCallbackFunction();
+        numCameras = modInstCamData.micCameras.size() - 1;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape))) {
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::EndPopup();
+    }
+
     if (numCameras == 0 || modInstCamData.micSelectedCamera == 0) {
       ImGui::EndDisabled();
     }
@@ -2392,6 +2413,20 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
         }
         ImGui::PopItemWidth();
 
+        bool leftChainEmpty = modSettings.msFootIKChainNodes.at(0).empty();
+        if (leftChainEmpty) {
+          ImGui::BeginDisabled();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear##LeftFoot")) {
+          leftEffector = 0;
+          leftRoot = 0;
+          modSettings.msFootIKChainNodes.at(0).clear();
+        }
+        if (leftChainEmpty) {
+          ImGui::EndDisabled();
+        }
+
         ImGui::AlignTextToFramePadding();
         ImGui::Text("Right Foot:     ");
         ImGui::SameLine();
@@ -2431,6 +2466,20 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
           ImGui::EndCombo();
         }
         ImGui::PopItemWidth();
+      }
+
+      bool rightChainEmpty = modSettings.msFootIKChainNodes.at(1).empty();
+      if (rightChainEmpty) {
+        ImGui::BeginDisabled();
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Clear##RightFoot")) {
+        rightEffector = 0;
+        rightRoot = 0;
+        modSettings.msFootIKChainNodes.at(1).clear();
+      }
+      if (rightChainEmpty) {
+        ImGui::EndDisabled();
       }
 
       ImGui::AlignTextToFramePadding();
@@ -2764,13 +2813,13 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::Text("Face Anim Clip:   ");
     ImGui::SameLine();
     ImGui::PushItemWidth(200.0f);
-    if (ImGui::BeginCombo("##FaceAnimClipCombo", modInstCamData.micFaceAnimationNameMap.at(settings.isFaceAnim).c_str())) {
+    if (ImGui::BeginCombo("##FaceAnimClipCombo", modInstCamData.micFaceAnimationNameMap.at(settings.isFaceAnimType).c_str())) {
       for (unsigned int i = 0; i < modInstCamData.micFaceAnimationNameMap.size(); ++i) {
-        const bool isSelected = (static_cast<int>(settings.isFaceAnim) == i);
+        const bool isSelected = (static_cast<int>(settings.isFaceAnimType) == i);
 
         if (ImGui::Selectable(modInstCamData.micFaceAnimationNameMap.at(static_cast<faceAnimation>(i)).c_str(), isSelected)) {
           settings.isFaceAnimWeight = 0.0f;
-          settings.isFaceAnim = static_cast<faceAnimation>(i);
+          settings.isFaceAnimType = static_cast<faceAnimation>(i);
         }
 
         if (isSelected) {

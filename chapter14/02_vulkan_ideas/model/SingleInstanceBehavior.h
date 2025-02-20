@@ -35,7 +35,7 @@ class SingleInstanceBehavior {
     fireNodeOutputCallback mFireNodeOutputCallbackFunction;
     instanceNodeActionCallback mInstanceNodeActionCallbackFunction;
 
-    std::shared_ptr<BehaviorData> mBehaviorManagerData = nullptr;
+    std::shared_ptr<BehaviorData> mBehaviorData = nullptr;
     std::weak_ptr<AssimpInstance> mInstance;
 
     std::vector<nodeEvent> mPendingNodeEvents{};

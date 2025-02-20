@@ -413,7 +413,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
     newInstance->setInstanceSettings(instSettings);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
 
   /* restore selected instance num */
   int selectedInstance = parser.getSelectedInstanceNum();
@@ -536,7 +536,7 @@ void OGLRenderer::undoLastOperation() {
   mModelInstCamData.micSettingsContainer->undo();
   /* we need to update the index numbers in case instances were deleted,
    * and the settings files still contain the old index number */
-  enumerateInstances();
+  assignInstanceIndices();
 
   int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
@@ -557,7 +557,7 @@ void OGLRenderer::redoLastOperation() {
   }
 
   mModelInstCamData.micSettingsContainer->redo();
-  enumerateInstances();
+  assignInstanceIndices();
 
   int selectedInstance = mModelInstCamData.micSettingsContainer->getCurrentInstance();
   if (selectedInstance < mModelInstCamData.micAssimpInstances.size()) {
@@ -580,7 +580,7 @@ void OGLRenderer::addNullModelAndInstance() {
   std::shared_ptr<AssimpInstance> nullInstance = std::make_shared<AssimpInstance>(nullModel);
   mModelInstCamData.micAssimpInstancesPerModel[nullModel->getModelFileName()].emplace_back(nullInstance);
   mModelInstCamData.micAssimpInstances.emplace_back(nullInstance);
-  enumerateInstances();
+  assignInstanceIndices();
 
   /* init the central settings container */
   mModelInstCamData.micSettingsContainer.reset();
@@ -800,7 +800,7 @@ void OGLRenderer::deleteModel(std::string modelFileName, bool withUndo) {
       mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -827,7 +827,7 @@ std::shared_ptr<AssimpInstance> OGLRenderer::addInstance(std::shared_ptr<AssimpM
       mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 
   return newInstance;
@@ -840,7 +840,7 @@ void OGLRenderer::addExistingInstance(std::shared_ptr<AssimpInstance> instance, 
     mModelInstCamData.micAssimpInstancesPerModel[instance->getModel()->getModelFileName()].begin() +
     indexPerModelPos, instance);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -874,7 +874,7 @@ void OGLRenderer::addInstances(std::shared_ptr<AssimpModel> model, int numInstan
   mModelInstCamData.micSelectedInstance = mModelInstCamData.micAssimpInstances.size() - 1;
   mModelInstCamData.micSettingsContainer->applyNewMultiInstance(newInstances, mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -907,7 +907,7 @@ void OGLRenderer::deleteInstance(std::shared_ptr<AssimpInstance> instance, bool 
     mModelInstCamData.micSettingsContainer->applyDeleteInstance(instance, mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -929,7 +929,7 @@ void OGLRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
   mModelInstCamData.micSelectedInstance = mModelInstCamData.micAssimpInstances.size() - 1;
   mModelInstCamData.micSettingsContainer->applyNewInstance(newInstance, mModelInstCamData.micSelectedInstance, prevSelectedInstanceId);
 
-  enumerateInstances();
+  assignInstanceIndices();
 
   /* add behavior tree after new id was set */
   newInstanceSettings = newInstance->getInstanceSettings();
@@ -961,7 +961,7 @@ void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int n
     mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].emplace_back(newInstance);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
 
   /* add behavior tree after new id was set */
   for (int i = 0; i < numClones; ++i) {
@@ -1147,7 +1147,11 @@ void OGLRenderer::updateInstanceSettings(std::shared_ptr<AssimpInstance> instanc
 }
 
 void OGLRenderer::addBehaviorEvent(std::shared_ptr<AssimpInstance> instance, nodeEvent event) {
-  mBehaviorManager->addEvent(instance, event);
+  InstanceSettings instSettings = instance->getInstanceSettings();
+  /* add event only if instance has a node tree template to react */
+  if (!instSettings.isNodeTreeName.empty()) {
+    mBehaviorManager->addEvent(instance, event);
+  }
 }
 
 void OGLRenderer::postDelNodeTree(std::string nodeTreeName) {
@@ -1174,7 +1178,7 @@ void OGLRenderer::updateTriangleCount() {
   }
 }
 
-void OGLRenderer::enumerateInstances() {
+void OGLRenderer::assignInstanceIndices() {
   for (size_t i = 0; i < mModelInstCamData.micAssimpInstances.size(); ++i) {
     InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(i)->getInstanceSettings();
     instSettings.isInstanceIndexPosition = i;
@@ -2703,6 +2707,7 @@ bool OGLRenderer::draw(float deltaTime) {
 
   for (const auto& model : mModelInstCamData.micModelList) {
     size_t numberOfInstances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].size();
+    std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
     if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
       /* animated models */
@@ -2720,7 +2725,6 @@ bool OGLRenderer::draw(float deltaTime) {
 
         mFaceAnimPerInstanceData.resize(numberOfInstances);
 
-        std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
         for (size_t i = 0; i < numberOfInstances; ++i) {
           instances.at(i)->updateAnimation(deltaTime);
           instances.at(i)->updateInstanceSpeed(deltaTime);
@@ -2790,9 +2794,9 @@ bool OGLRenderer::draw(float deltaTime) {
           mFaceAnimTimer.start();
 
           glm::vec4 morphData = glm::vec4(0.0f);
-          if (instSettings.isFaceAnim != faceAnimation::none)  {
+          if (instSettings.isFaceAnimType != faceAnimation::none)  {
             morphData.x = instSettings.isFaceAnimWeight;
-            morphData.y = static_cast<int>(instSettings.isFaceAnim) - 1;
+            morphData.y = static_cast<int>(instSettings.isFaceAnimType) - 1;
             morphData.z = model->getAnimMeshVertexSize();
           }
           mFaceAnimPerInstanceData.at(i) = morphData;
@@ -2918,8 +2922,6 @@ bool OGLRenderer::draw(float deltaTime) {
         mMatrixGenerateTimer.start();
         mWorldPosMatrices.resize(numberOfInstances);
         mSelectedInstance.resize(numberOfInstances);
-
-        std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
 
         for (size_t i = 0; i < numberOfInstances; ++i) {
           InstanceSettings instSettings = instances.at(i)->getInstanceSettings();

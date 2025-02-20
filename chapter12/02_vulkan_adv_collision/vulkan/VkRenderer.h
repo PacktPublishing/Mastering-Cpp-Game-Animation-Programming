@@ -200,7 +200,7 @@ class VkRenderer {
     void handleMovementKeys();
     void updateTriangleCount();
     void updateLevelTriangleCount();
-    void enumerateInstances();
+    void assignInstanceIndices();
 
     /* identity matrices */
     VkUploadMatrices mMatrices{ glm::mat4(1.0f), glm::mat4(1.0f) };

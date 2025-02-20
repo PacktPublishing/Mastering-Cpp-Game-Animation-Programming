@@ -77,6 +77,11 @@ int QuadTree::getQuadrantId(BoundingBox2D nodeBox, BoundingBox2D valueBox) {
 }
 
 void QuadTree::add(int instanceId) {
+  /* do not add instance when outside of quadtree */
+  if (!mRootBoundingBox.intersects(mInstanceGetBoundingBox2DCallbackFunction(instanceId))) {
+    return;
+  }
+
   add(mRootNode, 0, mRootBoundingBox, instanceId);
 }
 

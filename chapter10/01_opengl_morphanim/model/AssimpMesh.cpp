@@ -154,7 +154,7 @@ bool AssimpMesh::processMesh(aiMesh* mesh, const aiScene* scene, std::string ass
       float animMeshWeigth = animMesh->mWeight;
       unsigned int animVertexCount = animMesh->mNumVertices;
       if (animVertexCount != mVertexCount) {
-        Logger::log(1, "%s error: moprh mesh %i vertex count does not match (orig mesh has %i vertices, morph mesh %i)\n",
+        Logger::log(1, "%s error: morph mesh %i vertex count does not match (orig mesh has %i vertices, morph mesh %i)\n",
           __FUNCTION__, i, mVertexCount, animVertexCount);
         continue;
       }

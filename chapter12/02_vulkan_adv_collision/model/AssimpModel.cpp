@@ -503,15 +503,15 @@ bool AssimpModel::createDescriptorSet(VkRenderData& renderData) {
     morphAnimInfo.offset = 0;
     morphAnimInfo.range = VK_WHOLE_SIZE;
 
-    VkWriteDescriptorSet moprhAnimWriteDescriptorSet{};
-    moprhAnimWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    moprhAnimWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    moprhAnimWriteDescriptorSet.dstSet = mMorphAnimPerModelDescriptorSet;
-    moprhAnimWriteDescriptorSet.dstBinding = 0;
-    moprhAnimWriteDescriptorSet.descriptorCount = 1;
-    moprhAnimWriteDescriptorSet.pBufferInfo = &morphAnimInfo;
+    VkWriteDescriptorSet morphAnimWriteDescriptorSet{};
+    morphAnimWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    morphAnimWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    morphAnimWriteDescriptorSet.dstSet = mMorphAnimPerModelDescriptorSet;
+    morphAnimWriteDescriptorSet.dstBinding = 0;
+    morphAnimWriteDescriptorSet.descriptorCount = 1;
+    morphAnimWriteDescriptorSet.pBufferInfo = &morphAnimInfo;
 
-    vkUpdateDescriptorSets(renderData.rdVkbDevice.device, 1, &moprhAnimWriteDescriptorSet, 0, nullptr);
+    vkUpdateDescriptorSets(renderData.rdVkbDevice.device, 1, &morphAnimWriteDescriptorSet, 0, nullptr);
   }
 
   return true;

@@ -202,7 +202,7 @@ bool OGLRenderer::loadConfigFile(std::string configFileName) {
     newInstance->setInstanceSettings(instance);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
 
   /* restore selected model number */
   int selectedModel = parser.getSelectedModelNum();
@@ -264,7 +264,7 @@ void OGLRenderer::undoLastOperation() {
   mModelInstData.miSettingsContainer->undo();
   /* we need to update the index numbers in case instances were deleted,
    * and the settings files still contain the old index number */
-  enumerateInstances();
+  assignInstanceIndices();
 
   int selectedInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
   if (selectedInstance < mModelInstData.miAssimpInstances.size()) {
@@ -280,7 +280,7 @@ void OGLRenderer::redoLastOperation() {
   }
 
   mModelInstData.miSettingsContainer->redo();
-  enumerateInstances();
+  assignInstanceIndices();
 
   int selectedInstance = mModelInstData.miSettingsContainer->getCurrentInstance();
   if (selectedInstance < mModelInstData.miAssimpInstances.size()) {
@@ -298,7 +298,7 @@ void OGLRenderer::addNullModelAndInstance() {
   std::shared_ptr<AssimpInstance> nullInstance = std::make_shared<AssimpInstance>(nullModel);
   mModelInstData.miAssimpInstancesPerModel[nullModel->getModelFileName()].emplace_back(nullInstance);
   mModelInstData.miAssimpInstances.emplace_back(nullInstance);
-  enumerateInstances();
+  assignInstanceIndices();
 
   /* init the central settings container */
   mModelInstData.miSettingsContainer.reset();
@@ -479,7 +479,7 @@ void OGLRenderer::deleteModel(std::string modelFileName, bool withUndo) {
       mModelInstData.miSelectedInstance, prevSelectedInstanceId);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -505,7 +505,7 @@ std::shared_ptr<AssimpInstance> OGLRenderer::addInstance(std::shared_ptr<AssimpM
     mModelInstData.miSettingsContainer->applyNewInstance(newInstance, mModelInstData.miSelectedInstance, prevSelectedInstanceId);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 
   return newInstance;
@@ -516,7 +516,7 @@ void OGLRenderer::addExistingInstance(std::shared_ptr<AssimpInstance> instance, 
   mModelInstData.miAssimpInstances.insert(mModelInstData.miAssimpInstances.begin() + indexPos, instance);
   mModelInstData.miAssimpInstancesPerModel[instance->getModel()->getModelFileName()].emplace_back(instance);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -548,7 +548,7 @@ void OGLRenderer::addInstances(std::shared_ptr<AssimpModel> model, int numInstan
   mModelInstData.miSelectedInstance = mModelInstData.miAssimpInstances.size() - 1;
   mModelInstData.miSettingsContainer->applyNewMultiInstance(newInstances, mModelInstData.miSelectedInstance, prevSelectedInstanceId);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -581,7 +581,7 @@ void OGLRenderer::deleteInstance(std::shared_ptr<AssimpInstance> instance, bool 
     mModelInstData.miSettingsContainer->applyDeleteInstance(instance, mModelInstData.miSelectedInstance, prevSelectedInstanceId);
   }
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -603,7 +603,7 @@ void OGLRenderer::cloneInstance(std::shared_ptr<AssimpInstance> instance) {
   mModelInstData.miSelectedInstance = mModelInstData.miAssimpInstances.size() - 1;
   mModelInstData.miSettingsContainer->applyNewInstance(newInstance, mModelInstData.miSelectedInstance, prevSelectedInstanceId);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -642,7 +642,7 @@ void OGLRenderer::cloneInstances(std::shared_ptr<AssimpInstance> instance, int n
   mModelInstData.miSelectedInstance = mModelInstData.miAssimpInstances.size() - 1;
   mModelInstData.miSettingsContainer->applyNewMultiInstance(newInstances, mModelInstData.miSelectedInstance, prevSelectedInstanceId);
 
-  enumerateInstances();
+  assignInstanceIndices();
   updateTriangleCount();
 }
 
@@ -658,7 +658,7 @@ void OGLRenderer::updateTriangleCount() {
   }
 }
 
-void OGLRenderer::enumerateInstances() {
+void OGLRenderer::assignInstanceIndices() {
   for (size_t i = 0; i < mModelInstData.miAssimpInstances.size(); ++i) {
     InstanceSettings instSettings = mModelInstData.miAssimpInstances.at(i)->getInstanceSettings();
     instSettings.isInstanceIndexPosition = i;

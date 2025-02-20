@@ -6,14 +6,14 @@
 #include "Logger.h"
 
 SingleInstanceBehavior::SingleInstanceBehavior() {
-  mBehaviorManagerData = std::make_shared<BehaviorData>();
+  mBehaviorData = std::make_shared<BehaviorData>();
   mFireNodeOutputCallbackFunction = [this](int pinId) { updateNodeStatus(pinId); };
 
   mInstanceNodeActionCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance,
       graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
     debugInstanceNodeCallback(instance, nodeType, updateType, data, extraSetting);
   };
-  mBehaviorManagerData->bdNodeActionCallbackFunction = [this](graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
+  mBehaviorData->bdNodeActionCallbackFunction = [this](graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
     nodeActionCallback(nodeType, updateType, data, extraSetting);
   };
 }
@@ -22,22 +22,22 @@ SingleInstanceBehavior::SingleInstanceBehavior() {
 SingleInstanceBehavior::SingleInstanceBehavior(const SingleInstanceBehavior& orig) {
   mFireNodeOutputCallbackFunction = [this](int pinId) { updateNodeStatus(pinId); };
 
-  mBehaviorManagerData = std::make_shared<BehaviorData>();
-  mBehaviorManagerData->bdNodeActionCallbackFunction = [this](graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
+  mBehaviorData = std::make_shared<BehaviorData>();
+  mBehaviorData->bdNodeActionCallbackFunction = [this](graphNodeType nodeType, instanceUpdateType updateType, nodeCallbackVariant data, bool extraSetting) {
     nodeActionCallback(nodeType, updateType, data, extraSetting);
   };
 
   std::shared_ptr<BehaviorData> origBehavior = orig.getBehaviorData();
-  mBehaviorManagerData->bdGraphLinks = origBehavior->bdGraphLinks;
-  mBehaviorManagerData->bdName = origBehavior->bdName;
+  mBehaviorData->bdGraphLinks = origBehavior->bdGraphLinks;
+  mBehaviorData->bdName = origBehavior->bdName;
 
   for (const auto& node : origBehavior->bdGraphNodes) {
     std::shared_ptr<GraphNodeBase> newNode = node->clone();
     if (node->getNodeType() == graphNodeType::instanceMovement || node->getNodeType() == graphNodeType::action) {
-      newNode->setNodeActionCallback(mBehaviorManagerData->bdNodeActionCallbackFunction);
+      newNode->setNodeActionCallback(mBehaviorData->bdNodeActionCallbackFunction);
     }
     newNode->setNodeOutputTriggerCallback(mFireNodeOutputCallbackFunction);
-    mBehaviorManagerData->bdGraphNodes.emplace_back(std::move(newNode));
+    mBehaviorData->bdGraphNodes.emplace_back(std::move(newNode));
   }
 
   mInstanceNodeActionCallbackFunction = [this](std::shared_ptr<AssimpInstance> instance,
@@ -48,18 +48,18 @@ SingleInstanceBehavior::SingleInstanceBehavior(const SingleInstanceBehavior& ori
 
 void SingleInstanceBehavior::update(float deltaTime, bool triggerRoot) {
   /* no data, no updates */
-  if (mBehaviorManagerData->bdGraphNodes.size() == 1) {
+  if (mBehaviorData->bdGraphNodes.size() == 1) {
     return;
   }
 
   /* normal path update */
-  for (const auto& node: mBehaviorManagerData->bdGraphNodes) {
+  for (const auto& node: mBehaviorData->bdGraphNodes) {
     node->update(deltaTime);;
   }
 
   for (auto iter = mPendingNodeEvents.begin(); iter != mPendingNodeEvents.end(); /* forwarded in loop */ ) {
     bool eventHandled = false;
-    for (const auto& node: mBehaviorManagerData->bdGraphNodes) {
+    for (const auto& node: mBehaviorData->bdGraphNodes) {
       if (node->getNodeType() == graphNodeType::event && node->listensToEvent(*iter)) {
         node->handleEvent();
         eventHandled = true;
@@ -84,7 +84,7 @@ void SingleInstanceBehavior::update(float deltaTime, bool triggerRoot) {
 
   /* check if we have any active nodes */
   unsigned int activeNodes = 0;
-  for (const auto& node: mBehaviorManagerData->bdGraphNodes) {
+  for (const auto& node: mBehaviorData->bdGraphNodes) {
     if (node->isActive()) {
       activeNodes++;
     }
@@ -93,22 +93,22 @@ void SingleInstanceBehavior::update(float deltaTime, bool triggerRoot) {
   /* (re)-trigger root node if we don't have any active nodes left  */
   if (triggerRoot && activeNodes == 0) {
     //Logger::log(1, "%s: no active nodes left, trigger root \n" , __FUNCTION__);
-    mBehaviorManagerData->bdGraphNodes.at(0)->activate();
+    mBehaviorData->bdGraphNodes.at(0)->activate();
   }
 }
 
 void SingleInstanceBehavior::deactivateAll(bool informParentNodes) {
-  for (const auto& node: mBehaviorManagerData->bdGraphNodes) {
+  for (const auto& node: mBehaviorData->bdGraphNodes) {
     node->deactivate(informParentNodes);
   }
 }
 
 std::shared_ptr<BehaviorData> SingleInstanceBehavior::getBehaviorData() const {
-  return mBehaviorManagerData;
+  return mBehaviorData;
 }
 
 void SingleInstanceBehavior::setBehaviorData(std::shared_ptr<BehaviorData> data) {
-  mBehaviorManagerData = data;
+  mBehaviorData = data;
 }
 
 void SingleInstanceBehavior::setInstance(std::shared_ptr<AssimpInstance> instance) {
@@ -162,7 +162,7 @@ void SingleInstanceBehavior::updateNodeStatus(int pinId) {
 
   /* search parent node by storing output to the input from node just triggered */
   std::vector<int> parentIds{};
-  for (const auto& link : mBehaviorManagerData->bdGraphLinks) {
+  for (const auto& link : mBehaviorData->bdGraphLinks) {
     if (link.second.second == pinId) {
       parentIds.emplace_back(link.second.first);
     }
@@ -172,9 +172,9 @@ void SingleInstanceBehavior::updateNodeStatus(int pinId) {
     for (const auto& parentNodePin : parentIds) {
       const int destNodeId = parentNodePin / 1000;
       Logger::log(2, "%s: found output %i on node %i\n", __FUNCTION__, parentNodePin, destNodeId);
-      const auto node = std::find_if(mBehaviorManagerData->bdGraphNodes.begin(), mBehaviorManagerData->bdGraphNodes.end(),
+      const auto node = std::find_if(mBehaviorData->bdGraphNodes.begin(), mBehaviorData->bdGraphNodes.end(),
         [destNodeId](std::shared_ptr<GraphNodeBase> node) { return node->getNodeId() == destNodeId; } );
-      if (node != mBehaviorManagerData->bdGraphNodes.end()) {
+      if (node != mBehaviorData->bdGraphNodes.end()) {
         Logger::log(2, "%s: inform parent node %i\n", __FUNCTION__, destNodeId);
         (*node)->childFinishedExecution();
       } else {
@@ -188,7 +188,7 @@ void SingleInstanceBehavior::updateNodeStatus(int pinId) {
 
   /* search child nodes */
   std::vector<int> childIds{};
-  for (const auto& link : mBehaviorManagerData->bdGraphLinks) {
+  for (const auto& link : mBehaviorData->bdGraphLinks) {
     if (link.second.first == pinId) {
       childIds.emplace_back(link.second.second);
     }
@@ -197,9 +197,9 @@ void SingleInstanceBehavior::updateNodeStatus(int pinId) {
   /* if no child node was found: tell parent node that execution finished */
   if (childIds.empty()) {
     Logger::log(2, "%s warning: no other node connected to input %i of node %i\n", __FUNCTION__, pinId, nodeId);
-    const auto node = std::find_if(mBehaviorManagerData->bdGraphNodes.begin(), mBehaviorManagerData->bdGraphNodes.end(),
+    const auto node = std::find_if(mBehaviorData->bdGraphNodes.begin(), mBehaviorData->bdGraphNodes.end(),
       [nodeId](std::shared_ptr<GraphNodeBase> node) { return node->getNodeId() == nodeId; } );
-    if (node != mBehaviorManagerData->bdGraphNodes.end()) {
+    if (node != mBehaviorData->bdGraphNodes.end()) {
       Logger::log(2, "%s: unconnected pin, inform parent node %i\n", __FUNCTION__, nodeId);
       (*node)->childFinishedExecution();
     }
@@ -209,9 +209,9 @@ void SingleInstanceBehavior::updateNodeStatus(int pinId) {
   for (const auto& childNodePin : childIds) {
     const int destNodeId = childNodePin / 1000;
     Logger::log(2, "%s: found input %i on node %i\n", __FUNCTION__, childNodePin, destNodeId);
-    const auto node = std::find_if(mBehaviorManagerData->bdGraphNodes.begin(), mBehaviorManagerData->bdGraphNodes.end(),
+    const auto node = std::find_if(mBehaviorData->bdGraphNodes.begin(), mBehaviorData->bdGraphNodes.end(),
      [destNodeId](std::shared_ptr<GraphNodeBase> node) { return node->getNodeId() == destNodeId; } );
-    if (node != mBehaviorManagerData->bdGraphNodes.end()) {
+    if (node != mBehaviorData->bdGraphNodes.end()) {
       Logger::log(2, "%s: activate node %i\n", __FUNCTION__, destNodeId);
       (*node)->activate();
     } else {

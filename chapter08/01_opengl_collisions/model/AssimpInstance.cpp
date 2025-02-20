@@ -205,7 +205,7 @@ void AssimpInstance::updateInstanceSpeed(float deltaTime) {
   float currentSpeed = glm::length(mInstanceSettings.isSpeed);
 
   /* limit to max speed */
-  static float maxSpeed = MAX_ABS_SPEED;
+  float maxSpeed = MAX_ABS_SPEED;
 
   if (!mInstanceSettings.isMoveKeyPressed && !mKeepInstanceSpeed) {
     /* decelerate */

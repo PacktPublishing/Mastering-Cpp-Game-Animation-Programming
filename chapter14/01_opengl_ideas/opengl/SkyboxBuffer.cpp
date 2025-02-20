@@ -47,15 +47,10 @@ void SkyboxBuffer::unbind() {
 }
 
 void SkyboxBuffer::draw() {
-  GLint prevDepthFuncMode;
-  glGetIntegerv(GL_DEPTH_FUNC, &prevDepthFuncMode);
-
   /* change depth test for skybox  */
-  glDepthFunc(GL_LEQUAL);
-
+  glDisable(GL_DEPTH_TEST);
   glDrawArrays(GL_TRIANGLES, 0, mNumVertices);
-
-  glDepthFunc(prevDepthFuncMode);
+  glEnable(GL_DEPTH_TEST);
 }
 
 void SkyboxBuffer::bindAndDraw() {

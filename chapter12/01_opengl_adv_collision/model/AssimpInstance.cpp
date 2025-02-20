@@ -539,11 +539,11 @@ void AssimpInstance::setFaceAnim(faceAnimation faceAnim) {
     /* reset weigth only when disabling animation */
     mInstanceSettings.isFaceAnimWeight = 0.0f;
   }
-  mInstanceSettings.isFaceAnim = faceAnim;
+  mInstanceSettings.isFaceAnimType = faceAnim;
 }
 
 void AssimpInstance::setFaceAnimWeight(float weight) {
-  if (mInstanceSettings.isFaceAnim == faceAnimation::none) {
+  if (mInstanceSettings.isFaceAnimType == faceAnimation::none) {
     return;
   }
   mInstanceSettings.isFaceAnimWeight = std::clamp(weight, 0.0f, 1.0f);

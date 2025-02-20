@@ -39,7 +39,7 @@ struct InstanceSettings {
 
   std::string isNodeTreeName;
 
-  faceAnimation isFaceAnim = faceAnimation::none;
+  faceAnimation isFaceAnimType = faceAnimation::none;
   float isFaceAnimWeight = 0.0f;
 };
 

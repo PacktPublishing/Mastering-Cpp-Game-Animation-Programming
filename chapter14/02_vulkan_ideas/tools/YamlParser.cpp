@@ -94,9 +94,9 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const InstanceSettings& settings) 
     out << YAML::Key << "node-tree";
     out << YAML::Value << settings.isNodeTreeName;
   }
-  if (settings.isFaceAnim != faceAnimation::none) {
+  if (settings.isFaceAnimType != faceAnimation::none) {
     out << YAML::Key << "face-anim-index";
-    out << YAML::Value << settings.isFaceAnim;
+    out << YAML::Value << settings.isFaceAnimType;
     out << YAML::Key << "face-anim-weight";
     out << YAML::Value << settings.isFaceAnimWeight;
   }

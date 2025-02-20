@@ -131,6 +131,11 @@ int Octree::getOctantId(BoundingBox3D nodeBox, BoundingBox3D valueBox) {
 }
 
 void Octree::add(int instanceId) {
+  /* do not add instance when outside of octree */
+  if (!mRootBoundingBox.intersects(mInstanceGetBoundingBoxCallbackFunction(instanceId))) {
+    return;
+  }
+
   add(mRootNode, 0, mRootBoundingBox, instanceId);
 }
 

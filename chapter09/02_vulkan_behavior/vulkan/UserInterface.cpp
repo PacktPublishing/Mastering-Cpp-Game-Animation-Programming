@@ -782,11 +782,32 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     if (numCameras == 0 || modInstCamData.micSelectedCamera == 0) {
       ImGui::BeginDisabled();
     }
+
     ImGui::SameLine();
     if (ImGui::Button("Delete Camera")) {
-      modInstCamData.micCameraDeleteCallbackFunction();
-      numCameras = modInstCamData.micCameras.size() - 1;
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
+      ImGui::OpenPopup("Delete Camera?");
     }
+
+    if (ImGui::BeginPopupModal("Delete Camera?", nullptr, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
+      ImGui::Text("Delete Camera '%s'?", modInstCamData.micCameras.at(modInstCamData.micSelectedCamera)->getName().c_str());
+
+      /* cheating a bit to get buttons more to the center */
+      ImGui::Indent();
+      ImGui::Indent();
+      ImGui::Indent();
+      if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
+        modInstCamData.micCameraDeleteCallbackFunction();
+        numCameras = modInstCamData.micCameras.size() - 1;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape))) {
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::EndPopup();
+    }
+
     if (numCameras == 0 || modInstCamData.micSelectedCamera == 0) {
       ImGui::EndDisabled();
     }
