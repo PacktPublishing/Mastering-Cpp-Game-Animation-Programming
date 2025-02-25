@@ -311,6 +311,7 @@ class VkRenderer {
     std::vector<TRSMatrixData> mTRSData{};
 
     std::vector<glm::mat4> mIKMatrices{};
+    std::vector<glm::mat4> mIKModelMatrices{};
     VkShaderStorageBufferData mIKBoneMatrixBuffer{};
     VkShaderStorageBufferData mIKTRSMatrixBuffer{};
 
@@ -371,7 +372,6 @@ class VkRenderer {
     void runBoundingSphereComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances,
       uint32_t modelOffset);
 
-    bool runIKComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances,
-      uint32_t modelOffset, int totalNumberOfBones);
+    bool runIKComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances, uint32_t modelOffset);
 
 };

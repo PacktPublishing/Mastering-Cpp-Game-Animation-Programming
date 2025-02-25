@@ -225,6 +225,8 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const ModelSettings& settings) {
     }
     out << YAML::EndSeq;
   }
+  out << YAML::Key << "forward-speed-factor";
+  out << YAML::Value << settings.msForwardSpeedFactor;
   if (!settings.msHeadMoveClipMappings.empty() &&
     settings.msHeadMoveClipMappings.at(headMoveDirection::left) >= 0 &&
     settings.msHeadMoveClipMappings.at(headMoveDirection::right) >= 0 &&

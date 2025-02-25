@@ -3,8 +3,9 @@
 
 #include <memory>
 #include <vector>
-#include <set>
 #include <unordered_map>
+#include <set>
+#include <unordered_set>
 
 #include "Callbacks.h"
 
@@ -33,6 +34,9 @@ struct ModelInstanceCamData {
   std::unordered_map<moveState, std::string> micMoveStateMap{};
 
   std::set<std::pair<int, int>> micInstanceCollisions{};
+
+  /* delete models that were loaded during application runtime */
+  std::unordered_set<std::shared_ptr<AssimpModel>> micPendingDeleteAssimpModels{};
 
   /* callbacks */
   setWindowTitleCallback micSetWindowTitleFunction;

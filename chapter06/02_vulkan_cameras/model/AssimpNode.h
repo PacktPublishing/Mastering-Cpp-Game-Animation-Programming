@@ -11,7 +11,6 @@ class AssimpNode : public std::enable_shared_from_this<AssimpNode>  {
     static std::shared_ptr<AssimpNode> createNode(std::string nodeName);
 
     AssimpNode(std::string nodeName);
-    virtual ~AssimpNode() noexcept;
 
     std::shared_ptr<AssimpNode> addChild(std::string childNode);
     void addChilds(std::vector<std::string> childNodes);

@@ -4,10 +4,6 @@
 #include "Texture.h"
 #include "Logger.h"
 
-void Texture::cleanup() {
-  glDeleteTextures(1, &mTexture);
-}
-
 bool Texture::loadTexture(std::string textureFilename, bool flipImage) {
   mTextureName = textureFilename;
 
@@ -79,6 +75,9 @@ bool Texture::loadTexture(std::string textureName, aiTexel* textureData, int wid
   return true;
 }
 
+void Texture::cleanup() {
+  glDeleteTextures(1, &mTexture);
+}
 
 void Texture::bind() {
   glBindTexture(GL_TEXTURE_2D, mTexture);

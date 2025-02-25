@@ -416,8 +416,17 @@ void OGLRenderer::removeAllModelsAndInstances() {
   mModelInstCamData.micSelectedInstance = 0;
   mModelInstCamData.micSelectedModel = 0;
 
-  mModelInstCamData.micAssimpInstances.erase(mModelInstCamData.micAssimpInstances.begin(),mModelInstCamData.micAssimpInstances.end());
+  mModelInstCamData.micAssimpInstances.erase(mModelInstCamData.micAssimpInstances.begin(),
+    mModelInstCamData.micAssimpInstances.end());
   mModelInstCamData.micAssimpInstancesPerModel.clear();
+
+  /* add models to pending delete list */
+  for (const auto& model : mModelInstCamData.micModelList) {
+    if (model && (model->getTriangleCount() > 0)) {
+      mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
+    }
+  }
+
   mModelInstCamData.micModelList.erase(mModelInstCamData.micModelList.begin(), mModelInstCamData.micModelList.end());
 
   /* no instances, no dirty flag (catches 'load' and 'new') */
@@ -548,6 +557,10 @@ void OGLRenderer::deleteModel(std::string modelFileName, bool withUndo) {
 
   if (mModelInstCamData.micAssimpInstancesPerModel.count(shortModelFileName) > 0) {
     deletedInstances.swap(mModelInstCamData.micAssimpInstancesPerModel[shortModelFileName]);
+  }
+
+  if (model && (model->getTriangleCount() > 0)) {
+    mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
   }
 
   mModelInstCamData.micModelList.erase(
@@ -1628,13 +1641,19 @@ bool OGLRenderer::draw(float deltaTime) {
 }
 
 void OGLRenderer::cleanup() {
+  /* delete models to destroy OpenGL objects */
+  for (const auto& model : mModelInstCamData.micModelList) {
+    model->cleanup();
+  }
+
+  for (const auto& model : mModelInstCamData.micPendingDeleteAssimpModels) {
+    model->cleanup();
+  }
+
   mSelectedInstanceBuffer.cleanup();
-
   mShaderModelRootMatrixBuffer.cleanup();
-
   mShaderBoneMatrixBuffer.cleanup();
   mShaderTRSMatrixBuffer.cleanup();
-
   mNodeTransformBuffer.cleanup();
 
   mAssimpTransformComputeShader.cleanup();

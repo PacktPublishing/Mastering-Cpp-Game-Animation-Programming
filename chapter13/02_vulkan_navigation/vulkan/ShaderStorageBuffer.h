@@ -37,6 +37,29 @@ class ShaderStorageBuffer {
       vmaUnmapMemory(renderData.rdAllocator, SSBOData.bufferAlloc);
     }
 
+    template <typename T>
+    static void uploadData(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData, std::vector<T> bufferData,
+        int offset) {
+      if (bufferData.empty()) {
+        return;
+      }
+
+      size_t bufferSize = bufferData.size() * sizeof(T);
+      if (bufferSize > SSBOData.bufferSize) {
+        Logger::log(1, "%s error: resize SSBO %p would re-init buffer\n", __FUNCTION__, SSBOData.buffer);
+        return;
+      }
+
+      T* data;
+      VkResult result = vmaMapMemory(renderData.rdAllocator, SSBOData.bufferAlloc, (void**)&data);
+      if (result != VK_SUCCESS) {
+        Logger::log(1, "%s error: could not map SSBO memory (error: %i)\n", __FUNCTION__, result);
+        return;
+      }
+      std::memcpy(data + offset, bufferData.data() + offset, bufferSize - offset * sizeof(T));
+      vmaUnmapMemory(renderData.rdAllocator, SSBOData.bufferAlloc);
+    }
+
     static void checkForResize(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData,
       size_t bufferSize);
 

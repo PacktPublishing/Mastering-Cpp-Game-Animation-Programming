@@ -932,7 +932,7 @@ bool AssimpModel::hasHeadMovementAnimationsMapped() {
 
 glm::mat4 AssimpModel::getInverseBoneOffsetMatrix(int boneId) {
   if (boneId > mInverseBoneOffsetMatricesList.size()) {
-    Logger::log(1, "error: inverse bone index out of range (want: %i, size: %i)\n", __FUNCTION__, boneId, mInverseBoneOffsetMatricesList.size());
+    Logger::log(1, "%s error: inverse bone index out of range (want: %i, size: %i)\n", __FUNCTION__, boneId, mInverseBoneOffsetMatricesList.size());
     return glm::mat4(1.0f);
   }
   return mInverseBoneOffsetMatricesList.at(boneId);
@@ -940,7 +940,7 @@ glm::mat4 AssimpModel::getInverseBoneOffsetMatrix(int boneId) {
 
 glm::mat4 AssimpModel::getBoneOffsetMatrix(int boneId) {
   if (boneId > mBoneOffsetMatricesList.size()) {
-    Logger::log(1, "error: bone index out of range (want: %i, size: %i)\n", __FUNCTION__, boneId, mBoneOffsetMatricesList.size());
+    Logger::log(1, "%s error: bone index out of range (want: %i, size: %i)\n", __FUNCTION__, boneId, mBoneOffsetMatricesList.size());
     return glm::mat4(1.0f);
   }
 

@@ -362,14 +362,16 @@ void VkRenderer::removeAllModelsAndInstances() {
   mModelInstData.miSelectedInstance = 0;
   mModelInstData.miSelectedModel = 0;
 
-  mModelInstData.miAssimpInstances.erase(mModelInstData.miAssimpInstances.begin(),mModelInstData.miAssimpInstances.end());
+  mModelInstData.miAssimpInstances.erase(mModelInstData.miAssimpInstances.begin(),
+    mModelInstData.miAssimpInstances.end());
   mModelInstData.miAssimpInstancesPerModel.clear();
 
-  /* cleanup remaining models */
-  for (auto& model : mModelInstData.miModelList) {
-    mModelInstData.miPendingDeleteAssimpModels.insert(model);
+  /* add models to pending delete list */
+  for (const auto& model : mModelInstData.miModelList) {
+    if (model && (model->getTriangleCount() > 0)) {
+      mModelInstData.miPendingDeleteAssimpModels.insert(model);
+    }
   }
-  mModelInstData.miDoDeletePendingAssimpModels = true;
 
   mModelInstData.miModelList.erase(mModelInstData.miModelList.begin(), mModelInstData.miModelList.end());
 
@@ -1821,7 +1823,7 @@ void VkRenderer::deleteModel(std::string modelFileName, bool withUndo) {
   }
 
   /* save model in separate pending deletion list before purging from model list */
-  if (model) {
+  if (model && (model->getTriangleCount() > 0)) {
     mModelInstData.miPendingDeleteAssimpModels.insert(model);
   }
 
@@ -2697,15 +2699,6 @@ bool VkRenderer::draw(float deltaTime) {
 
   handleMovementKeys();
 
-  /* here it is safe to delete the Vulkan objects in the pending deletion models */
-  if (mModelInstData.miDoDeletePendingAssimpModels) {
-    mModelInstData.miDoDeletePendingAssimpModels = false;
-    for (auto& model : mModelInstData.miPendingDeleteAssimpModels) {
-      model->cleanup(mRenderData);
-    }
-    mModelInstData.miPendingDeleteAssimpModels.clear();
-  }
-
   mMatrixGenerateTimer.start();
   mCamera.updateCamera(mRenderData, deltaTime);
 
@@ -3075,6 +3068,10 @@ void VkRenderer::cleanup() {
 
   /* delete models to destroy Vulkan objects */
   for (const auto& model : mModelInstData.miModelList) {
+    model->cleanup(mRenderData);
+  }
+
+  for (const auto& model : mModelInstData.miPendingDeleteAssimpModels) {
     model->cleanup(mRenderData);
   }
 

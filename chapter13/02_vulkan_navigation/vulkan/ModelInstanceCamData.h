@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include <set>
+#include <unordered_set>
 #include <map>
 
 #include "Callbacks.h"
@@ -48,10 +49,8 @@ struct ModelInstanceCamData {
 
   /* we can only delete models and levels in Vulkan outside the command buffers,
    * so let's use a separate pending list */
-  std::set<std::shared_ptr<AssimpModel>> micPendingDeleteAssimpModels{};
-  std::set<std::shared_ptr<AssimpLevel>> micPendingDeleteAssimpLevels{};
-  /* we need a flag to signal the real deletion (undo/redo would break) */
-  bool micDoDeletePendingAssimpModels = false;
+  std::unordered_set<std::shared_ptr<AssimpModel>> micPendingDeleteAssimpModels{};
+  std::unordered_set<std::shared_ptr<AssimpLevel>> micPendingDeleteAssimpLevels{};
 
   /* callbacks */
   setWindowTitleCallback micSetWindowTitleFunction;

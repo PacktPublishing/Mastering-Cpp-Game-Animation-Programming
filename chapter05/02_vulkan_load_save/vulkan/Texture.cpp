@@ -7,7 +7,7 @@
 #include "Logger.h"
 
 bool Texture::loadTexture(VkRenderData &renderData, VkTextureData &texData, std::string textureFilename,
-      bool generateMipmaps, bool flipImage) {
+    bool generateMipmaps, bool flipImage) {
   int texWidth;
   int texHeight;
   int numberOfChannels;

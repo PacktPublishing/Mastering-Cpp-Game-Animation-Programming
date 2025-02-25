@@ -406,14 +406,18 @@ unsigned int AssimpModel::getTriangleCount() {
 }
 
 void AssimpModel::cleanup() {
-  for (auto buffer : mVertexBuffers) {
+  for (auto& buffer : mVertexBuffers) {
     buffer.cleanup();
   }
 
-  for (auto tex : mTextures) {
+  for (auto& tex : mTextures) {
     tex.second->cleanup();
   }
-  mPlaceholderTexture->cleanup();
+
+  /* empty for null model */
+  if (mPlaceholderTexture) {
+    mPlaceholderTexture->cleanup();
+  }
 }
 
 std::string AssimpModel::getModelFileName() {

@@ -4,8 +4,9 @@
 #include <memory>
 #include <vector>
 #include <map>
-#include <set>
 #include <unordered_map>
+#include <set>
+#include <unordered_set>
 
 #include "Callbacks.h"
 #include "SingleInstanceBehavior.h"
@@ -45,6 +46,10 @@ struct ModelInstanceCamData {
 
   std::vector<std::shared_ptr<AssimpLevel>> micLevels{};
   int micSelectedLevel = 0;
+
+  /* delete models and levels that were loaded during application runtime */
+  std::unordered_set<std::shared_ptr<AssimpModel>> micPendingDeleteAssimpModels{};
+  std::unordered_set<std::shared_ptr<AssimpLevel>> micPendingDeleteAssimpLevels{};
 
   /* callbacks */
   setWindowTitleCallback micSetWindowTitleFunction;

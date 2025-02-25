@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
-#include <set>
+#include <unordered_set>
 
 #include "Callbacks.h"
 
@@ -25,9 +25,7 @@ struct ModelAndInstanceData {
 
   /* we can only delete models in Vulkan outside the command buffers,
    * so let's use a separate pending list */
-  std::set<std::shared_ptr<AssimpModel>> miPendingDeleteAssimpModels{};
-  /* we need a flag to signal the real deletion (undo/redo would break) */
-  bool miDoDeletePendingAssimpModels = false;
+  std::unordered_set<std::shared_ptr<AssimpModel>> miPendingDeleteAssimpModels{};
 
   /* callbacks */
   setWindowTitleCallback miSetWindowTitleFunction;

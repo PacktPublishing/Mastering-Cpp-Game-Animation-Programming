@@ -1,13 +1,7 @@
 #include "AssimpNode.h"
 #include "Logger.h"
 
-AssimpNode::AssimpNode(std::string nodeName) : mNodeName(nodeName) {
-  Logger::log(1, "%s: created node %s\n", __FUNCTION__, mNodeName.c_str());
-}
-
-AssimpNode::~AssimpNode() noexcept {
-  Logger::log(1, "%s: destroyed node %s\n", __FUNCTION__, mNodeName.c_str());
-}
+AssimpNode::AssimpNode(std::string nodeName) : mNodeName(nodeName) {}
 
 std::shared_ptr<AssimpNode> AssimpNode::createNode(std::string nodeName) {
   std::shared_ptr<AssimpNode> node = std::make_shared<AssimpNode>(nodeName);

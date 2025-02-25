@@ -723,14 +723,16 @@ void VkRenderer::removeAllModelsAndInstances() {
   mModelInstCamData.micSelectedModel = 0;
   mModelInstCamData.micSelectedLevel = 0;
 
-  mModelInstCamData.micAssimpInstances.erase(mModelInstCamData.micAssimpInstances.begin(),mModelInstCamData.micAssimpInstances.end());
+  mModelInstCamData.micAssimpInstances.erase(mModelInstCamData.micAssimpInstances.begin(),
+    mModelInstCamData.micAssimpInstances.end());
   mModelInstCamData.micAssimpInstancesPerModel.clear();
 
-  /* cleanup remaining models */
-  for (auto& model : mModelInstCamData.micModelList) {
-    mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
+  /* add models to pending delete list */
+  for (const auto& model : mModelInstCamData.micModelList) {
+    if (model && (model->getTriangleCount() > 0)) {
+      mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
+    }
   }
-  mModelInstCamData.micDoDeletePendingAssimpModels = true;
 
   mModelInstCamData.micModelList.erase(mModelInstCamData.micModelList.begin(), mModelInstCamData.micModelList.end());
 
@@ -3386,8 +3388,7 @@ void VkRenderer::deleteModel(std::string modelFileName, bool withUndo) {
     deletedInstances.swap(mModelInstCamData.micAssimpInstancesPerModel[shortModelFileName]);
   }
 
-  /* save model in separate pending deletion list before purging from model list */
-  if (model) {
+  if (model && (model->getTriangleCount() > 0)) {
     mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
   }
 
@@ -3859,7 +3860,8 @@ void VkRenderer::deleteLevel(std::string levelFileName) {
   std::shared_ptr<AssimpLevel> level = getLevel(levelFileName);
 
   /* save level in separate pending deletion list before purging from model list */
-  if (level) {
+  if (level && (level->getTriangleCount() > 0)) {
+    Logger::log(1, "%s: -- adding level %s to pending\n", __FUNCTION__, level->getLevelFileName().c_str());
     mModelInstCamData.micPendingDeleteAssimpLevels.insert(level);
   }
 
@@ -5499,13 +5501,12 @@ void VkRenderer::runBoundingSphereComputeShaders(std::shared_ptr<AssimpModel> mo
     &boundingSphereBufferBarrier, 0, nullptr, 0, nullptr);
 }
 
-bool VkRenderer::runIKComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances,
-    uint32_t modelOffset, int totalNumberOfBones) {
+bool VkRenderer::runIKComputeShaders(std::shared_ptr<AssimpModel> model, int numInstances, uint32_t modelOffset) {
   uint32_t numberOfBones = static_cast<uint32_t>(model->getBoneList().size());
 
-  /* upload changed TRS data */
+  /* upload changed TRS data of this model only */
   mUploadToUBOTimer.start();
-  ShaderStorageBuffer::uploadData(mRenderData, mIKTRSMatrixBuffer, mTRSData);
+  ShaderStorageBuffer::uploadData(mRenderData, mIKTRSMatrixBuffer, mTRSData, modelOffset);
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   VkResult result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdComputeFence);
@@ -5576,9 +5577,11 @@ bool VkRenderer::runIKComputeShaders(std::shared_ptr<AssimpModel> model, int num
     return false;
   }
 
-  /* read (new) bone positions */
+  /* read (new) bone positions of this model only */
   mDownloadFromUBOTimer.start();
-  mIKMatrices = ShaderStorageBuffer::getSsboDataMat4(mRenderData, mIKBoneMatrixBuffer, 0, totalNumberOfBones);
+  mIKModelMatrices = ShaderStorageBuffer::getSsboDataMat4(mRenderData, mIKBoneMatrixBuffer,
+    modelOffset, numInstances * numberOfBones);
+  std::memcpy(mIKMatrices.data() + modelOffset, mIKModelMatrices.data(), numInstances * numberOfBones);
   mRenderData.rdDownloadFromUBOTime += mDownloadFromUBOTimer.stop();
 
   return true;
@@ -5867,7 +5870,15 @@ void VkRenderer::resetLevelData() {
   mRenderData.rdTimeScaleFactor = 10.0f;
   mRenderData.rdTimeOfDayPreset = timeOfDay::fullLight;
 
+  /* add loaded levels to pending delete list */
+  for (const auto& level : mModelInstCamData.micLevels) {
+    if (level && (level->getTriangleCount() > 0)) {
+      mModelInstCamData.micPendingDeleteAssimpLevels.insert(level);
+    }
+  }
+
   mModelInstCamData.micLevels.erase(mModelInstCamData.micLevels.begin(), mModelInstCamData.micLevels.end());
+
   /* re-add null level */
   addNullLevel();
 
@@ -6975,6 +6986,7 @@ bool VkRenderer::draw(float deltaTime) {
     uint32_t ikAnimatedModelOffset = 0;
     for (const auto& model : mModelInstCamData.micModelList) {
       size_t numberOfInstances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()].size();
+      std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
 
       if (numberOfInstances > 0 && model->getTriangleCount() > 0) {
 
@@ -6989,7 +7001,6 @@ bool VkRenderer::draw(float deltaTime) {
           }
 
           /* get positions of left and right foot from final world positions */
-          std::vector<std::shared_ptr<AssimpInstance>> instances = mModelInstCamData.micAssimpInstancesPerModel[model->getModelFileName()];
           for (size_t i = 0; i < numberOfInstances; ++i) {
             InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
             for (int foot = 0; foot < modSettings.msFootIKChainPair.size(); ++foot) {
@@ -7084,8 +7095,6 @@ bool VkRenderer::draw(float deltaTime) {
 
             /* no data (yet), continue */
             if (nodeChainSize == 0) {
-              /* run compute shader for models without foot nodes set to create the bone matrices */
-              runIKComputeShaders(model, numberOfInstances, ikAnimatedModelOffset, boneMatrixBufferSize);
               continue;
             }
 
@@ -7121,7 +7130,7 @@ bool VkRenderer::draw(float deltaTime) {
                 mTRSData.at(ikAnimatedModelOffset + i * numberOfBones + nodeId).rotation = newRotation;
               }
               /* un the compute shader to create the bone matrices  */
-              runIKComputeShaders(model, numberOfInstances, ikAnimatedModelOffset, boneMatrixBufferSize);
+              runIKComputeShaders(model, numberOfInstances, ikAnimatedModelOffset);
             }
           }
 
@@ -7173,21 +7182,6 @@ bool VkRenderer::draw(float deltaTime) {
       mMouseWheelScrolling = false;
     }
   }
-
-  /* here it is safe to delete the Vulkan objects in the pending deletion models */
-  if (mModelInstCamData.micDoDeletePendingAssimpModels) {
-    mModelInstCamData.micDoDeletePendingAssimpModels = false;
-    for (auto& model : mModelInstCamData.micPendingDeleteAssimpModels) {
-      model->cleanup(mRenderData);
-    }
-  }
-  mModelInstCamData.micPendingDeleteAssimpModels.clear();
-
-  for (auto& level : mModelInstCamData.micPendingDeleteAssimpLevels) {
-    level->cleanup(mRenderData);
-  }
-  mModelInstCamData.micPendingDeleteAssimpLevels.clear();
-
 
   mMatrixGenerateTimer.start();
   cam->updateCamera(mRenderData, deltaTime);
@@ -7870,7 +7864,15 @@ void VkRenderer::cleanup() {
     model->cleanup(mRenderData);
   }
 
+  for (const auto& model : mModelInstCamData.micPendingDeleteAssimpModels) {
+    model->cleanup(mRenderData);
+  }
+
   for (const auto& level : mModelInstCamData.micLevels) {
+    level->cleanup(mRenderData);
+  }
+
+  for (const auto& level : mModelInstCamData.micPendingDeleteAssimpLevels) {
     level->cleanup(mRenderData);
   }
 

@@ -34,6 +34,8 @@ struct ModelSettings {
 
   std::vector<glm::vec4> msBoundingSphereAdjustments{};
 
+  float msForwardSpeedFactor = 4.0f;
+
   std::map<headMoveDirection, int> msHeadMoveClipMappings{};
 
   /* first in array is left, second is right foot */

@@ -281,7 +281,11 @@ void AssimpModel::cleanup() {
   for (auto tex : mTextures) {
     tex.second->cleanup();
   }
-  mPlaceholderTexture->cleanup();
+
+  /* empty for null model */
+  if (mPlaceholderTexture) {
+    mPlaceholderTexture->cleanup();
+  }
 }
 
 std::string AssimpModel::getModelFileName() {

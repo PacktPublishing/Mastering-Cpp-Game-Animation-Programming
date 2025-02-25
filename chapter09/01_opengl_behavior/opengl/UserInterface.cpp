@@ -1743,6 +1743,33 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     }
   }
 
+  if (ImGui::CollapsingHeader("Model Forward Speed")) {
+    size_t numberOfInstances = modInstCamData.micAssimpInstances.size() - 1;
+
+    ModelSettings modSettings;
+
+    if (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
+      mCurrentModel = mCurrentInstance->getModel();
+      modSettings = mCurrentModel->getModelSettings();
+
+      if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
+        mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+      }
+    }
+
+    if (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
+      ImGui::AlignTextToFramePadding();
+      ImGui::Text("Forward Speed Factor:");
+      ImGui::SameLine();
+      ImGui::PushItemWidth(250.0f);
+      ImGui::SliderFloat("##ModelForwardSpeedFactor", &modSettings.msForwardSpeedFactor,
+        0.0f, 10.0f, "%.2f", flags);
+      ImGui::PopItemWidth();
+
+      mCurrentModel->setModelSettings(modSettings);
+    }
+  }
+
   if (ImGui::CollapsingHeader("Model Bounding Sphere Adjustment")) {
     size_t numberOfInstances = modInstCamData.micAssimpInstances.size() - 1;
 

@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <functional>
 
 // forward declaration
@@ -26,6 +27,9 @@ struct ModelAndInstanceData {
   std::vector<std::shared_ptr<AssimpInstance>> miAssimpInstances{};
   std::unordered_map<std::string, std::vector<std::shared_ptr<AssimpInstance>>> miAssimpInstancesPerModel{};
   int miSelectedInstance = 0;
+
+  /* delete models that were loaded during application runtime */
+  std::unordered_set<std::shared_ptr<AssimpModel>> miPendingDeleteAssimpModels{};
 
   /* callbacks */
   modelCheckCallback miModelCheckCallbackFunction;

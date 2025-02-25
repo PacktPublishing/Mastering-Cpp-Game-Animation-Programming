@@ -33,5 +33,7 @@ struct ModelSettings {
 
   std::vector<glm::vec4> msBoundingSphereAdjustments{};
 
+  float msForwardSpeedFactor = 4.0f;
+
   bool msPreviewMode = false;
 };

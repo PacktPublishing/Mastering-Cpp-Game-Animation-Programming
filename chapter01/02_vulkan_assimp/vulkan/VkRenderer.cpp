@@ -716,10 +716,11 @@ void VkRenderer::deleteModel(std::string modelFileName) {
     mModelInstData.miAssimpInstancesPerModel.erase(shortModelFileName);
   }
 
-  /* save model in separate pending deletion list before purging from model list */
-  std::shared_ptr<AssimpModel> model = getModel(shortModelFileName);
-  if (model) {
-    mModelInstData.miPendingDeleteAssimpModels.emplace_back(model);
+  /* add models to pending delete list */
+  for (const auto& model : mModelInstData.miModelList) {
+    if (model && (model->getTriangleCount() > 0)) {
+      mModelInstData.miPendingDeleteAssimpModels.insert(model);
+    }
   }
 
   mModelInstData.miModelList.erase(
@@ -977,12 +978,6 @@ bool VkRenderer::draw(float deltaTime) {
     return false;
   }
 
-  /* here it is safe to delete the Vulkan objects in the pending deletion models */
-  for (auto& model : mModelInstData.miPendingDeleteAssimpModels) {
-    model->cleanup(mRenderData);
-  }
-  mModelInstData.miPendingDeleteAssimpModels.clear();
-
   mMatrixGenerateTimer.start();
   mCamera.updateCamera(mRenderData, deltaTime);
 
@@ -1212,8 +1207,12 @@ void VkRenderer::cleanup() {
     return;
   }
 
-  /* destroy Vulkan objects in models */
+  /* delete models to destroy Vulkan objects */
   for (const auto& model : mModelInstData.miModelList) {
+    model->cleanup(mRenderData);
+  }
+
+  for (const auto& model : mModelInstData.miPendingDeleteAssimpModels) {
     model->cleanup(mRenderData);
   }
 

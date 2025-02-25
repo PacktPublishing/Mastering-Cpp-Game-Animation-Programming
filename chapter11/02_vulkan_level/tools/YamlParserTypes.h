@@ -531,6 +531,7 @@ namespace YAML {
       for (const auto& state : rhs.msAllowedStateOrder) {
         clips[state.first] = state.second;
       }
+      node["forward-speed-factor"] = rhs.msForwardSpeedFactor;
       node["bounding-sphere-adjustment"] = rhs.msBoundingSphereAdjustments;
       clips = node["head-movement-mappings"];
       for (const auto& state : rhs.msHeadMoveClipMappings) {
@@ -592,6 +593,14 @@ namespace YAML {
         } catch (...) {
           Logger::log(1, "%s warning: could not parse bounding sphere adjustment, using empty defaults'\n", __FUNCTION__);
           rhs.msBoundingSphereAdjustments = defaultSettings.msBoundingSphereAdjustments;
+        }
+      }
+      if (Node clipNode = node["forward-speed-factor"]) {
+        try {
+          rhs.msForwardSpeedFactor = node["forward-speed-factor"].as<float>();
+        } catch (...) {
+          Logger::log(1, "%s warning: could not parse forward speed factor of model '%s', using empty defaults'\n", __FUNCTION__, rhs.msModelFilename.c_str());
+          rhs.msForwardSpeedFactor = defaultSettings.msForwardSpeedFactor;
         }
       }
       if (Node clipNode = node["head-movement-mappings"]) {

@@ -201,14 +201,18 @@ unsigned int AssimpLevel::getTriangleCount() {
 }
 
 void AssimpLevel::cleanup(){
-  for (auto buffer : mVertexBuffers) {
+  for (auto& buffer : mVertexBuffers) {
     buffer.cleanup();
   }
 
-  for (auto tex : mTextures) {
+  for (auto& tex : mTextures) {
     tex.second->cleanup();
   }
-  mPlaceholderTexture->cleanup();
+
+  /* empty for null level */
+  if (mPlaceholderTexture) {
+    mPlaceholderTexture->cleanup();
+  }
 }
 
 glm::mat4 AssimpLevel::getWorldTransformMatrix() {

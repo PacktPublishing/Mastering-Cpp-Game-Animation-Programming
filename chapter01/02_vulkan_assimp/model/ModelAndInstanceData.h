@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <functional>
 
 // forward declaration
@@ -29,7 +30,7 @@ struct ModelAndInstanceData {
 
   /* we can only delete models in Vulkan outside the command buffers,
    * so let's use a separate pending list */
-  std::vector<std::shared_ptr<AssimpModel>> miPendingDeleteAssimpModels{};
+  std::unordered_set<std::shared_ptr<AssimpModel>> miPendingDeleteAssimpModels{};
 
   /* callbacks */
   modelCheckCallback miModelCheckCallbackFunction;

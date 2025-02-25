@@ -670,14 +670,16 @@ void VkRenderer::removeAllModelsAndInstances() {
   mModelInstCamData.micSelectedModel = 0;
   mModelInstCamData.micSelectedLevel = 0;
 
-  mModelInstCamData.micAssimpInstances.erase(mModelInstCamData.micAssimpInstances.begin(),mModelInstCamData.micAssimpInstances.end());
+  mModelInstCamData.micAssimpInstances.erase(mModelInstCamData.micAssimpInstances.begin(),
+    mModelInstCamData.micAssimpInstances.end());
   mModelInstCamData.micAssimpInstancesPerModel.clear();
 
-  /* cleanup remaining models */
-  for (auto& model : mModelInstCamData.micModelList) {
-    mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
+  /* add models to pending delete list */
+  for (const auto& model : mModelInstCamData.micModelList) {
+    if (model && (model->getTriangleCount() > 0)) {
+      mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
+    }
   }
-  mModelInstCamData.micDoDeletePendingAssimpModels = true;
 
   mModelInstCamData.micModelList.erase(mModelInstCamData.micModelList.begin(), mModelInstCamData.micModelList.end());
 
@@ -3154,8 +3156,7 @@ void VkRenderer::deleteModel(std::string modelFileName, bool withUndo) {
     deletedInstances.swap(mModelInstCamData.micAssimpInstancesPerModel[shortModelFileName]);
   }
 
-  /* save model in separate pending deletion list before purging from model list */
-  if (model) {
+  if (model && (model->getTriangleCount() > 0)) {
     mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
   }
 
@@ -3615,7 +3616,8 @@ void VkRenderer::deleteLevel(std::string levelFileName) {
   std::shared_ptr<AssimpLevel> level = getLevel(levelFileName);
 
   /* save level in separate pending deletion list before purging from model list */
-  if (level) {
+  if (level && (level->getTriangleCount() > 0)) {
+    Logger::log(1, "%s: -- adding level %s to pending\n", __FUNCTION__, level->getLevelFileName().c_str());
     mModelInstCamData.micPendingDeleteAssimpLevels.insert(level);
   }
 
@@ -5506,7 +5508,15 @@ void VkRenderer::resetLevelData() {
   mRenderData.rdEnableFeetIK = false;
   mRenderData.rdDrawIKDebugLines = false;
 
+  /* add loaded levels to pending delete list */
+  for (const auto& level : mModelInstCamData.micLevels) {
+    if (level && (level->getTriangleCount() > 0)) {
+      mModelInstCamData.micPendingDeleteAssimpLevels.insert(level);
+    }
+  }
+
   mModelInstCamData.micLevels.erase(mModelInstCamData.micLevels.begin(), mModelInstCamData.micLevels.end());
+
   /* re-add null level */
   addNullLevel();
 
@@ -6649,21 +6659,6 @@ bool VkRenderer::draw(float deltaTime) {
     }
   }
 
-  /* here it is safe to delete the Vulkan objects in the pending deletion models */
-  if (mModelInstCamData.micDoDeletePendingAssimpModels) {
-    mModelInstCamData.micDoDeletePendingAssimpModels = false;
-    for (auto& model : mModelInstCamData.micPendingDeleteAssimpModels) {
-      model->cleanup(mRenderData);
-    }
-  }
-  mModelInstCamData.micPendingDeleteAssimpModels.clear();
-
-  for (auto& level : mModelInstCamData.micPendingDeleteAssimpLevels) {
-    level->cleanup(mRenderData);
-  }
-  mModelInstCamData.micPendingDeleteAssimpLevels.clear();
-
-
   mMatrixGenerateTimer.start();
   cam->updateCamera(mRenderData, deltaTime);
 
@@ -7262,7 +7257,15 @@ void VkRenderer::cleanup() {
     model->cleanup(mRenderData);
   }
 
+  for (const auto& model : mModelInstCamData.micPendingDeleteAssimpModels) {
+    model->cleanup(mRenderData);
+  }
+
   for (const auto& level : mModelInstCamData.micLevels) {
+    level->cleanup(mRenderData);
+  }
+
+  for (const auto& level : mModelInstCamData.micPendingDeleteAssimpLevels) {
     level->cleanup(mRenderData);
   }
 

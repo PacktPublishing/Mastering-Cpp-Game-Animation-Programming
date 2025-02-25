@@ -445,14 +445,16 @@ void VkRenderer::removeAllModelsAndInstances() {
   mModelInstCamData.micSelectedInstance = 0;
   mModelInstCamData.micSelectedModel = 0;
 
-  mModelInstCamData.micAssimpInstances.erase(mModelInstCamData.micAssimpInstances.begin(),mModelInstCamData.micAssimpInstances.end());
+  mModelInstCamData.micAssimpInstances.erase(mModelInstCamData.micAssimpInstances.begin(),
+    mModelInstCamData.micAssimpInstances.end());
   mModelInstCamData.micAssimpInstancesPerModel.clear();
 
-  /* cleanup remaining models */
-  for (auto& model : mModelInstCamData.micModelList) {
-    mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
+  /* add models to pending delete list */
+  for (const auto& model : mModelInstCamData.micModelList) {
+    if (model && (model->getTriangleCount() > 0)) {
+      mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
+    }
   }
-  mModelInstCamData.micDoDeletePendingAssimpModels = true;
 
   mModelInstCamData.micModelList.erase(mModelInstCamData.micModelList.begin(), mModelInstCamData.micModelList.end());
 
@@ -1923,8 +1925,7 @@ void VkRenderer::deleteModel(std::string modelFileName, bool withUndo) {
     deletedInstances.swap(mModelInstCamData.micAssimpInstancesPerModel[shortModelFileName]);
   }
 
-  /* save model in separate pending deletion list before purging from model list */
-  if (model) {
+  if (model && (model->getTriangleCount() > 0)) {
     mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
   }
 
@@ -3036,16 +3037,6 @@ bool VkRenderer::draw(float deltaTime) {
     }
   }
 
-  /* here it is safe to delete the Vulkan objects in the pending deletion models */
-  if (mModelInstCamData.micDoDeletePendingAssimpModels) {
-    mModelInstCamData.micDoDeletePendingAssimpModels = false;
-    for (auto& model : mModelInstCamData.micPendingDeleteAssimpModels) {
-      model->cleanup(mRenderData);
-    }
-    mModelInstCamData.micPendingDeleteAssimpModels.clear();
-  }
-  mModelInstCamData.micPendingDeleteAssimpModels.clear();
-
   mMatrixGenerateTimer.start();
   cam->updateCamera(mRenderData, deltaTime);
 
@@ -3427,6 +3418,10 @@ void VkRenderer::cleanup() {
 
   /* delete models to destroy Vulkan objects */
   for (const auto& model : mModelInstCamData.micModelList) {
+    model->cleanup(mRenderData);
+  }
+
+  for (const auto& model : mModelInstCamData.micPendingDeleteAssimpModels) {
     model->cleanup(mRenderData);
   }
 

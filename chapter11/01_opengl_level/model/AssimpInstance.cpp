@@ -267,9 +267,10 @@ void AssimpInstance::updateInstanceSpeed(float deltaTime) {
 
 void AssimpInstance::updateInstancePosition(float deltaTime) {
   if (!mInstanceSettings.isNoMovement) {
+    ModelSettings modSettings = mAssimpModel->getModelSettings();
     /* rotate accel/speed according to instance azimuth -> WASD */
-    float sinRot = std::sin(glm::radians(mInstanceSettings.isWorldRotation.y)) * 4.0f;
-    float cosRot = std::cos(glm::radians(mInstanceSettings.isWorldRotation.y)) * 4.0f;
+    float sinRot = std::sin(glm::radians(mInstanceSettings.isWorldRotation.y)) * modSettings.msForwardSpeedFactor;
+    float cosRot = std::cos(glm::radians(mInstanceSettings.isWorldRotation.y)) * modSettings.msForwardSpeedFactor;
     float xSpeed = mInstanceSettings.isSpeed.x * sinRot + mInstanceSettings.isSpeed.z * cosRot;
     float zSpeed = mInstanceSettings.isSpeed.x * cosRot - mInstanceSettings.isSpeed.z * sinRot;
 
@@ -431,7 +432,7 @@ void AssimpInstance::playIdleWalkRunAnimation() {
     mInstanceSettings.isFirstAnimClipNr = blend.iwrbWalkClipNr;
     mInstanceSettings.isSecondAnimClipNr = blend.iwrbRunClipNr;
     mInstanceSettings.isAnimSpeedFactor = glm::mix(blend.iwrbWalkClipSpeed, blend.iwrbRunClipSpeed, instanceSpeed - 1.0f);
-    mInstanceSettings.isAnimBlendFactor = instanceSpeed - 1.0f;
+    mInstanceSettings.isAnimBlendFactor = 1.0f;
   }
 }
 

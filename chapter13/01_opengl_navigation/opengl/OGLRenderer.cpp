@@ -703,8 +703,16 @@ void OGLRenderer::removeAllModelsAndInstances() {
   mModelInstCamData.micSelectedLevel = 0;
 
   mModelInstCamData.micAssimpInstances.erase(mModelInstCamData.micAssimpInstances.begin(),
-                                             mModelInstCamData.micAssimpInstances.end());
+    mModelInstCamData.micAssimpInstances.end());
   mModelInstCamData.micAssimpInstancesPerModel.clear();
+
+  /* add models to pending delete list */
+  for (const auto& model : mModelInstCamData.micModelList) {
+    if (model && (model->getTriangleCount() > 0)) {
+      mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
+    }
+  }
+
   mModelInstCamData.micModelList.erase(mModelInstCamData.micModelList.begin(), mModelInstCamData.micModelList.end());
 
   /* reset all level related setings */
@@ -859,6 +867,10 @@ void OGLRenderer::deleteModel(std::string modelFileName, bool withUndo) {
 
   if (mModelInstCamData.micAssimpInstancesPerModel.count(shortModelFileName) > 0) {
     deletedInstances.swap(mModelInstCamData.micAssimpInstancesPerModel[shortModelFileName]);
+  }
+
+  if (model && (model->getTriangleCount() > 0)) {
+    mModelInstCamData.micPendingDeleteAssimpModels.insert(model);
   }
 
   mModelInstCamData.micModelList.erase(
@@ -1325,6 +1337,12 @@ bool OGLRenderer::addLevel(std::string levelFileName, bool updateVertexData) {
 
 void OGLRenderer::deleteLevel(std::string levelFileName) {
   std::shared_ptr<AssimpLevel> level = getLevel(levelFileName);
+
+  /* save level in separate pending deletion list before purging from model list */
+  if (level && (level->getTriangleCount() > 0)) {
+    Logger::log(1, "%s: -- adding level %s to pending\n", __FUNCTION__, level->getLevelFileName().c_str());
+    mModelInstCamData.micPendingDeleteAssimpLevels.insert(level);
+  }
 
   mModelInstCamData.micLevels.erase(
     std::remove_if(
@@ -2868,7 +2886,15 @@ void OGLRenderer::resetLevelData() {
 
   mRenderData.rdEnableNavigation = false;
 
+  /* add loaded levels to pending delete list */
+  for (const auto& level : mModelInstCamData.micLevels) {
+    if (level && (level->getTriangleCount() > 0)) {
+      mModelInstCamData.micPendingDeleteAssimpLevels.insert(level);
+    }
+  }
+
   mModelInstCamData.micLevels.erase(mModelInstCamData.micLevels.begin(), mModelInstCamData.micLevels.end());
+
   /* re-add null level */
   addNullLevel();
 
@@ -4163,6 +4189,23 @@ bool OGLRenderer::draw(float deltaTime) {
 }
 
 void OGLRenderer::cleanup() {
+  /* delete models and levels to destroy OpenGL objects */
+  for (const auto& model : mModelInstCamData.micModelList) {
+    model->cleanup();
+  }
+
+  for (const auto& model : mModelInstCamData.micPendingDeleteAssimpModels) {
+    model->cleanup();
+  }
+
+  for (const auto& level : mModelInstCamData.micLevels) {
+    level->cleanup();
+  }
+
+  for (const auto& level : mModelInstCamData.micPendingDeleteAssimpLevels) {
+    level->cleanup();
+  }
+
   mShaderModelRootMatrixBuffer.cleanup();
   mShaderBoneMatrixBuffer.cleanup();
   mShaderTRSMatrixBuffer.cleanup();
