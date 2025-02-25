@@ -2231,7 +2231,7 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       }
     }
 
-    nf (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
+    if (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
       ImGui::AlignTextToFramePadding();
       ImGui::Text("Forward Speed Factor:");
       ImGui::SameLine();
