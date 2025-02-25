@@ -1,0 +1,35 @@
+caravan.ogg
+-----------
+"Desert theme" by yd (https://opengameart.org/content/desert-theme)
+Licensed under CC0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+cave themeb4.ogg
+----------------
+"Cave Theme" by Brandon75689 (https://opengameart.org/content/cave-theme)
+Licensed under CC0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+Factory.ogg
+-----------
+"Factory ambiance" by yd (https://opengameart.org/content/factory-ambiance)
+Licensed under CC0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+forest.ogg
+----------
+"Creepy Forest (F)" by Augmentality (Brandon Morris) (https://opengameart.org/content/creepy-forest-f)
+Licensed under CC0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+Insistent.ogg
+-------------
+"Insistent: background loop" by yd (https://opengameart.org/content/insistent-background-loop)
+Licensed under CC0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+ObservingTheStar.ogg
+--------------------
+"Another space background track" by yd (https://opengameart.org/content/another-space-background-track)
+Licensed under CC0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+OutThere.ogg
+------------
+"Space Music: Out There" by yd (https://opengameart.org/content/space-music-out-there)
+Licensed under CC0 (https://creativecommons.org/publicdomain/zero/1.0/)
+

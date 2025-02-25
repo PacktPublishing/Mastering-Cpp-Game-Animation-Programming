@@ -1,0 +1,6422 @@
+# Application viewer config file
+version: 6.0
+
+settings:
+  selected-model: 1
+  selected-instance: 484
+  selected-camera: 0
+  highlight-selection: false
+  collision-enabled: 2
+  interaction-enabled: true
+  interaction-min-range: 1.5
+  interaction-max-range: 10
+  interaction-fov: 45
+
+cameras:
+  - camera-name: FreeCam
+    position: [-26.4635983, 9.12943459, 156.155182]
+    view-azimuth: 28.0000648
+    view-elevation: -19.1000042
+    camera-type: 0
+    camera-projection: 0
+    field-of-view: 94
+  - camera-name: OrthoCam
+    position: [-0.0973121524, 8.39158821, 2.11331558]
+    view-azimuth: 4.69999981
+    view-elevation: -18.2000122
+    camera-type: 0
+    camera-projection: 1
+    ortho-scale: 20
+  - camera-name: ThirdPersonCam
+    position: [112.631668, 5, 15.70191]
+    view-azimuth: 38.8796844
+    view-elevation: -22.5
+    camera-type: 2
+    camera-projection: 0
+    field-of-view: 91
+    3rd-person-view-distance: 5
+    3rd-person-height-offset: 0
+  - camera-name: FollowCam
+    position: [3.76401448, 5.73458576, -5.39343214]
+    view-azimuth: 340.833191
+    view-elevation: -6.36617279
+    camera-type: 4
+    camera-projection: 0
+    field-of-view: 90
+    follow-cam-height-offset: 2
+  - camera-name: FirstPersonCam
+    position: [149.782974, -0.0801852494, 3.78474951]
+    view-azimuth: 225.700012
+    view-elevation: -6.60000229
+    camera-type: 1
+    camera-projection: 0
+    field-of-view: 88
+    1st-person-view-lock: true
+    1st-person-bone-to-follow: 5
+    1st-person-view-offsets: [0, 0.100000001, 0.449999988]
+
+models:
+  - model-name: Woman.gltf
+    model-file: assets/woman/Woman.gltf
+    idle-walk-run-clips:
+      - 255:
+          idle-clip: 0
+          idle-clip-speed: 2
+          walk-clip: 9
+          walk-clip-speed: 8
+          run-clip: 6
+          run-clip-speed: 10
+    action-clips:
+      - 3:
+          clip: 2
+          clip-speed: 5
+      - 4:
+          clip: 1
+          clip-speed: 5
+      - 5:
+          clip: 5
+          clip-speed: 6
+      - 6:
+          clip: 4
+          clip-speed: 2
+    action-sequences:
+      - 0: 3
+      - 0: 5
+      - 0: 6
+      - 1: 4
+      - 2: 4
+    bounding-sphere-adjustments:
+      - [0, -0.31400001, 0, 0.600000024]
+      - [0, 0, 0, 1.70000005]
+      - [0, 0, 0, 3]
+      - [0, 0, 0, 3]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0.300000012, 0, 1.75]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [-0.0500000007, -0.00999999978, 0, 1.5]
+      - [-0.100000001, 0.200000003, 0, 1.5]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 0.00999999978]
+      - [0.0500000007, -0.00999999978, 0, 1.5]
+      - [0.100000001, 0.200000003, 0, 1.5]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, -0.200000003, 0, 4]
+      - [0, 0, 0, 1.5]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, -0.200000003, -0, 4]
+      - [0, 0, 0, 1.29999995]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+  - model-name: Man.gltf
+    model-file: assets/man/Man.gltf
+    idle-walk-run-clips:
+      - 0:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 22
+          walk-clip-speed: 1.5
+          run-clip: 17
+          run-clip-speed: 1.5
+      - 1:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 22
+          walk-clip-speed: 2
+          run-clip: 17
+          run-clip-speed: 3
+      - 2:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 16
+          walk-clip-speed: 2
+          run-clip: 16
+          run-clip-speed: 3
+      - 4:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 19
+          walk-clip-speed: 1
+          run-clip: 19
+          run-clip-speed: 3
+      - 8:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 18
+          walk-clip-speed: 1
+          run-clip: 18
+          run-clip-speed: 3
+    action-clips:
+      - 5:
+          clip: 14
+          clip-speed: 1.5
+      - 7:
+          clip: 15
+          clip-speed: 1.20000005
+      - 8:
+          clip: 12
+          clip-speed: 1.20000005
+      - 9:
+          clip: 10
+          clip-speed: 1.20000005
+      - 10:
+          clip: 23
+          clip-speed: 1.20000005
+    action-sequences:
+      - 0: 5
+      - 0: 8
+      - 0: 9
+      - 0: 10
+      - 1: 7
+      - 2: 7
+    bounding-sphere-adjustments:
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 10]
+      - [0, 0, 0, 3]
+      - [0, 0, 0, 2]
+      - [0, 0, 0, 2]
+      - [0, 0.207000002, 0, 0.00999999978]
+      - [0, 0.409000009, -0.0329999998, 2]
+      - [0, 0, 0, 0.00999999978]
+      - [-0.200000003, 0, -0.100000001, 1.70000005]
+      - [0, 0, 0, 0.00999999978]
+      - [0, -0.100000001, 0, 1.39999998]
+      - [0, 0, 0, 0.778500021]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1.52209997]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0.200000003, 0, 0.100000001, 1.70000005]
+      - [0, 0, 0, 0.00999999978]
+      - [0, -0.100000001, 0, 1.39999998]
+      - [0, 0, 0, 0.752099991]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1.57009995]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1]
+      - [-0.100000001, -0.200000003, 0, 1]
+      - [0, 0, 0, 1]
+      - [-0.100000001, -0.200000003, 0, 1]
+      - [0, 0.25, 0, 0.699999988]
+      - [0, 0.25, 0, 0.699999988]
+    head-movement-mappings:
+      - 0: 25
+      - 1: 26
+      - 2: 27
+      - 3: 24
+
+node-trees:
+  - node-tree-name: AllRunCollisionMan
+    editor-settings: "[editor]\npanning=-1981,997\n\n[node.0]\norigin=-79,102\n\n[node.9]\norigin=1014,520\n\n[node.8]\norigin=798,405\n\n[node.7]\norigin=614,896\n\n[node.6]\norigin=331,884\n\n[node.5]\norigin=557,461\n\n[node.4]\norigin=241,662\n\n[node.3]\norigin=953,-376\n\n[node.2]\norigin=530,-123\n\n[node.1]\norigin=57,107\n\n[node.10]\norigin=149,-118\n\n[node.11]\norigin=1142,-346\n\n[node.14]\norigin=332,-131\n\n[node.17]\norigin=1129,-211\n\n[node.13]\norigin=931,-206\n\n[node.24]\norigin=1940,180\n\n[node.16]\norigin=1612,137\n\n[node.12]\norigin=937,246\n\n[node.42]\norigin=2795,-176\n\n[node.19]\norigin=1544,-247\n\n[node.25]\norigin=681,-208\n\n[node.40]\norigin=2461,-183\n\n[node.30]\norigin=1752,-89\n\n[node.29]\norigin=1732,-296\n\n[node.28]\norigin=1708,-514\n\n[node.27]\norigin=693,-419\n\n[node.39]\norigin=3437,-604\n\n[node.38]\norigin=2768,-597\n\n[node.37]\norigin=2452,-592\n\n[node.23]\norigin=1789,172\n\n[node.22]\norigin=1467,143\n\n[node.21]\norigin=1245,190\n\n[node.15]\norigin=1541,-423\n\n[node.20]\norigin=1105,-17\n\n[node.18]\norigin=917,21\n\n[node.36]\norigin=2312,-301\n\n[node.31]\norigin=2058,-297\n\n[node.34]\norigin=1317,-33\n\n[node.33]\norigin=1320,-192\n\n[node.32]\norigin=1312,-363\n\n[node.26]\norigin=680,1\n\n[node.35]\norigin=1551,-58\n\n[node.43]\norigin=3099,-602\n"
+    nodes:
+      - node-type: 1
+        node-id: 0
+      - node-type: 7
+        node-id: 1
+        node-data:
+          - instance-move-direction: 1
+          - instance-move-state: 1
+      - node-type: 8
+        node-id: 4
+        node-data:
+          - event-cooldown: 1.000000
+          - event-type: 2
+      - node-type: 7
+        node-id: 5
+        node-data:
+          - instance-max-rotation: 0.000000
+          - instance-min-rotation: 180.000000
+          - instance-random-rotation: 0
+          - instance-relative-rotation: 1
+      - node-type: 8
+        node-id: 6
+        node-data:
+          - event-cooldown: 0.200000
+          - event-type: 1
+      - node-type: 5
+        node-id: 7
+        node-data:
+          - selector-num-outs: 2
+          - selector-wait-time: 0.000000
+      - node-type: 7
+        node-id: 8
+        node-data:
+          - instance-max-rotation: -40.000000
+          - instance-min-rotation: -50.000000
+          - instance-random-rotation: 1
+          - instance-relative-rotation: 1
+      - node-type: 7
+        node-id: 9
+        node-data:
+          - instance-max-rotation: 40.000000
+          - instance-min-rotation: 40.000000
+          - instance-random-rotation: 1
+          - instance-relative-rotation: 1
+      - node-type: 4
+        node-id: 10
+        node-data:
+          - random-wait-max-time: 12.000000
+          - random-wait-min-time: 4.000000
+      - node-type: 5
+        node-id: 2
+        node-data:
+          - selector-num-outs: 3
+          - selector-wait-time: 1.000000
+      - node-type: 9
+        node-id: 3
+        node-data:
+          - action-move-state: 5
+      - node-type: 3
+        node-id: 11
+        node-data:
+          - wait-time: 2.500000
+      - node-type: 9
+        node-id: 13
+        node-data:
+          - action-move-state: 10
+      - node-type: 7
+        node-id: 14
+        node-data:
+          - instance-move-direction: 0
+          - instance-move-state: 0
+      - node-type: 3
+        node-id: 17
+        node-data:
+          - wait-time: 3.500000
+      - node-type: 9
+        node-id: 18
+        node-data:
+          - action-move-state: 8
+      - node-type: 3
+        node-id: 20
+        node-data:
+          - wait-time: 4.000000
+      - node-type: 8
+        node-id: 12
+        node-data:
+          - event-cooldown: 0.000000
+          - event-type: 3
+      - node-type: 9
+        node-id: 16
+        node-data:
+          - action-move-state: 10
+      - node-type: 7
+        node-id: 21
+        node-data:
+          - instance-move-direction: 0
+          - instance-move-state: 0
+      - node-type: 3
+        node-id: 22
+        node-data:
+          - wait-time: 1.000000
+      - node-type: 3
+        node-id: 23
+        node-data:
+          - wait-time: 1.000000
+      - node-type: 9
+        node-id: 24
+        node-data:
+          - action-move-state: 0
+      - node-type: 11
+        node-id: 25
+        node-data:
+          - face-anim: 4
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 11
+        node-id: 26
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 11
+        node-id: 27
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 11
+        node-id: 28
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 29
+        node-data:
+          - face-anim: 4
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 30
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 31
+      - node-type: 9
+        node-id: 32
+        node-data:
+          - action-move-state: 0
+      - node-type: 9
+        node-id: 33
+        node-data:
+          - action-move-state: 0
+      - node-type: 9
+        node-id: 34
+        node-data:
+          - action-move-state: 0
+      - node-type: 3
+        node-id: 15
+        node-data:
+          - wait-time: 0.500000
+      - node-type: 3
+        node-id: 19
+        node-data:
+          - wait-time: 0.500000
+      - node-type: 3
+        node-id: 35
+        node-data:
+          - wait-time: 0.500000
+      - node-type: 5
+        node-id: 36
+        node-data:
+          - selector-num-outs: 2
+          - selector-wait-time: 0.500000
+      - node-type: 12
+        node-id: 37
+        node-data:
+          - head-anim-left-right: 1
+          - head-anim-left-right-blend-time: 0.200000
+          - head-anim-left-right-end-weight: 0.750000
+          - head-anim-left-right-start-weight: 0.000000
+      - node-type: 12
+        node-id: 38
+        node-data:
+          - head-anim-left-right: 1
+          - head-anim-left-right-blend-time: 0.400000
+          - head-anim-left-right-end-weight: -0.750000
+          - head-anim-left-right-start-weight: 0.750000
+      - node-type: 12
+        node-id: 39
+        node-data:
+          - head-anim-left-right: 1
+          - head-anim-left-right-blend-time: 0.200000
+          - head-anim-left-right-end-weight: 0.000000
+          - head-anim-left-right-start-weight: 0.750000
+      - node-type: 12
+        node-id: 40
+        node-data:
+          - head-anim-up-down: 1
+          - head-anim-up-down-blend-time: 0.250000
+          - head-anim-up-down-end-weight: -0.750000
+          - head-anim-up-down-start-weight: 0.000000
+      - node-type: 12
+        node-id: 42
+        node-data:
+          - head-anim-up-down: 1
+          - head-anim-up-down-blend-time: 0.250000
+          - head-anim-up-down-end-weight: 0.000000
+          - head-anim-up-down-start-weight: -0.750000
+      - node-type: 12
+        node-id: 43
+        node-data:
+          - head-anim-left-right: 1
+          - head-anim-left-right-blend-time: 0.400000
+          - head-anim-left-right-end-weight: 0.750000
+          - head-anim-left-right-start-weight: -0.750000
+    links:
+      - 10020: [15200, 28000]
+      - 10028: [35200, 30000]
+      - 10031: [33200, 19000]
+      - 10002: [16200, 23000]
+      - 10016: [10200, 14000]
+      - 10023: [30200, 31000]
+      - 10036: [40200, 42000]
+      - 10007: [7201, 9000]
+      - 10027: [17200, 33000]
+      - 10014: [12200, 21000]
+      - 10024: [27200, 3000]
+      - 10040: [43200, 39000]
+      - 10010: [2200, 27000]
+      - 10039: [37200, 38000]
+      - 10005: [6200, 7000]
+      - 10034: [31200, 36000]
+      - 10006: [7200, 8000]
+      - 10035: [36201, 40000]
+      - 10038: [36200, 37000]
+      - 10009: [1200, 10000]
+      - 10025: [19200, 29000]
+      - 10022: [26200, 18000]
+      - 10033: [34200, 35000]
+      - 10004: [4200, 5000]
+      - 10008: [14200, 2000]
+      - 10021: [18200, 20000]
+      - 10000: [21200, 22000]
+      - 10029: [32200, 15000]
+      - 10013: [2202, 26000]
+      - 10026: [0, 1000]
+      - 10001: [22200, 16000]
+      - 10030: [11200, 32000]
+      - 10017: [28200, 31000]
+      - 10018: [13200, 17000]
+      - 10015: [25200, 13000]
+      - 10019: [29200, 31000]
+      - 10032: [20200, 34000]
+      - 10003: [23200, 24000]
+      - 10012: [2201, 25000]
+      - 10041: [38200, 43000]
+      - 10011: [3200, 11000]
+  - node-tree-name: AllRunCollisionWoman
+    editor-settings: "[editor]\npanning=-354,495\n\n[node.0]\norigin=-144,33\n\n[node.9]\norigin=1014,520\n\n[node.8]\norigin=798,405\n\n[node.7]\norigin=614,896\n\n[node.6]\norigin=331,884\n\n[node.5]\norigin=557,461\n\n[node.4]\norigin=241,662\n\n[node.3]\norigin=988,-270\n\n[node.2]\norigin=530,-123\n\n[node.1]\norigin=-17,25\n\n[node.10]\norigin=157,-125\n\n[node.11]\norigin=1205,-267\n\n[node.14]\norigin=332,-131\n\n[node.17]\norigin=1218,11\n\n[node.13]\norigin=994,13\n\n[node.16]\norigin=1207,-126\n\n[node.12]\norigin=994,-128\n\n[node.30]\norigin=2075,-208\n\n[node.29]\norigin=1794,34\n\n[node.28]\norigin=1790,-183\n\n[node.27]\norigin=1785,-390\n\n[node.25]\norigin=1615,11\n\n[node.24]\norigin=1611,-131\n\n[node.19]\norigin=1603,-315\n\n[node.23]\norigin=1390,30\n\n[node.22]\norigin=1404,-124\n\n[node.21]\norigin=727,74\n\n[node.15]\norigin=1374,-284\n\n[node.20]\norigin=723,-133\n\n[node.18]\norigin=709,-345\n"
+    nodes:
+      - node-type: 1
+        node-id: 0
+      - node-type: 7
+        node-id: 1
+        node-data:
+          - instance-move-direction: 1
+          - instance-move-state: 1
+      - node-type: 8
+        node-id: 4
+        node-data:
+          - event-cooldown: 1.000000
+          - event-type: 2
+      - node-type: 7
+        node-id: 5
+        node-data:
+          - instance-max-rotation: 0.000000
+          - instance-min-rotation: 180.000000
+          - instance-random-rotation: 0
+          - instance-relative-rotation: 1
+      - node-type: 8
+        node-id: 6
+        node-data:
+          - event-cooldown: 0.200000
+          - event-type: 1
+      - node-type: 5
+        node-id: 7
+        node-data:
+          - selector-num-outs: 2
+          - selector-wait-time: 0.000000
+      - node-type: 7
+        node-id: 8
+        node-data:
+          - instance-max-rotation: -40.000000
+          - instance-min-rotation: -50.000000
+          - instance-random-rotation: 1
+          - instance-relative-rotation: 1
+      - node-type: 7
+        node-id: 9
+        node-data:
+          - instance-max-rotation: 40.000000
+          - instance-min-rotation: 40.000000
+          - instance-random-rotation: 1
+          - instance-relative-rotation: 1
+      - node-type: 4
+        node-id: 10
+        node-data:
+          - random-wait-max-time: 12.000000
+          - random-wait-min-time: 4.000000
+      - node-type: 5
+        node-id: 2
+        node-data:
+          - selector-num-outs: 3
+          - selector-wait-time: 1.000000
+      - node-type: 9
+        node-id: 3
+        node-data:
+          - action-move-state: 5
+      - node-type: 3
+        node-id: 11
+        node-data:
+          - wait-time: 2.500000
+      - node-type: 9
+        node-id: 12
+        node-data:
+          - action-move-state: 6
+      - node-type: 7
+        node-id: 14
+        node-data:
+          - instance-move-direction: 0
+          - instance-move-state: 0
+      - node-type: 9
+        node-id: 15
+        node-data:
+          - action-move-state: 0
+      - node-type: 3
+        node-id: 16
+        node-data:
+          - wait-time: 3.000000
+      - node-type: 3
+        node-id: 17
+        node-data:
+          - wait-time: 3.000000
+      - node-type: 9
+        node-id: 13
+        node-data:
+          - action-move-state: 3
+      - node-type: 11
+        node-id: 18
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 11
+        node-id: 20
+        node-data:
+          - face-anim: 3
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 11
+        node-id: 21
+        node-data:
+          - face-anim: 4
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 9
+        node-id: 22
+        node-data:
+          - action-move-state: 0
+      - node-type: 9
+        node-id: 23
+        node-data:
+          - action-move-state: 0
+      - node-type: 11
+        node-id: 27
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 28
+        node-data:
+          - face-anim: 3
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 29
+        node-data:
+          - face-anim: 4
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 30
+      - node-type: 3
+        node-id: 19
+        node-data:
+          - wait-time: 0.500000
+      - node-type: 3
+        node-id: 24
+        node-data:
+          - wait-time: 0.500000
+      - node-type: 3
+        node-id: 25
+        node-data:
+          - wait-time: 0.500000
+    links:
+      - 10025: [22200, 24000]
+      - 10022: [24200, 28000]
+      - 10024: [23200, 25000]
+      - 10020: [25200, 29000]
+      - 10007: [7201, 9000]
+      - 10023: [15200, 19000]
+      - 10021: [19200, 27000]
+      - 10008: [14200, 2000]
+      - 10013: [12200, 16000]
+      - 10015: [13200, 17000]
+      - 10005: [6200, 7000]
+      - 10017: [11200, 15000]
+      - 10004: [4200, 5000]
+      - 10009: [1200, 10000]
+      - 10006: [7200, 8000]
+      - 10011: [3200, 11000]
+      - 10016: [10200, 14000]
+      - 10003: [0, 1000]
+      - 10018: [16200, 22000]
+      - 10019: [17200, 23000]
+      - 10014: [2202, 21000]
+      - 10001: [2200, 18000]
+      - 10027: [28200, 30000]
+      - 10012: [21200, 13000]
+      - 10010: [2201, 20000]
+      - 10002: [20200, 12000]
+      - 10028: [29200, 30000]
+      - 10026: [27200, 30000]
+      - 10000: [18200, 3000]
+
+instances:
+  - model-file: Woman.gltf
+    position: [86.7772598, -0.4941082, 109.060745]
+    rotation: [0, -177.350037, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 0.438145906
+  - model-file: Woman.gltf
+    position: [135.727753, 0, 66.8481979]
+    rotation: [0, 168.669968, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-129.492569, 0, 135.961914]
+    rotation: [0, 74.0000763, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [30.0249653, 0, 35.9776688]
+    rotation: [0, 56.7199707, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [72.8819504, 0, -65.8667297]
+    rotation: [0, -151.239136, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-134.503326, 0, -56.4665375]
+    rotation: [0, -132.310104, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [70.7258224, 0, -71.8462372]
+    rotation: [0, 59.3699608, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-39.7163162, 0, 13.2127075]
+    rotation: [0, 46.6200638, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-74.7392731, 0, 138.524155]
+    rotation: [0, 88.1900024, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-28.9208221, 0, 47.9741325]
+    rotation: [0, -52.389946, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [123.657928, 0, 129.270691]
+    rotation: [0, -48.4299927, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [35.1311951, 0, -55.4862709]
+    rotation: [0, -33.7599335, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-98.827179, 0, 75.5754318]
+    rotation: [0, -71.8099976, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-14.6587715, 0, 107.201965]
+    rotation: [0, 175.89003, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [17.7966461, 0, -122.118172]
+    rotation: [0, 171.269867, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-4.06725216, 0, 142.827881]
+    rotation: [0, -83.9099579, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [2.62476826, 0, 85.7242203]
+    rotation: [0, 67.5700073, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-121.093918, 0, -84.331665]
+    rotation: [0, 176.109863, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [97.7451553, 0, 90.7782669]
+    rotation: [0, -130.030014, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [64.672699, 0, 151.987457]
+    rotation: [0, -99.8600769, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [113.039322, 0, 118.646744]
+    rotation: [0, 47.2300491, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-153.409241, 0, 4.74910259]
+    rotation: [0, -17.1201134, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 9.01752567
+    anim-blend-factor: 0.196494982
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 0.866093993
+  - model-file: Woman.gltf
+    position: [50.9117584, 0, 144.914612]
+    rotation: [0, 29.5199203, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-82.9671631, 0, 42.6469383]
+    rotation: [0, 121.749908, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-86.1353912, 0, -27.1540413]
+    rotation: [0, 134.290192, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-94.0413361, 0, 156.680359]
+    rotation: [0, 24.1700211, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-10.2103558, 0, -72.2255249]
+    rotation: [0, 2.83991241, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [24.0042515, 0, -141.573685]
+    rotation: [0, 84.5600891, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [115.337685, 0, -151.95874]
+    rotation: [0, 121.92009, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-38.2162819, 0, -85.7332611]
+    rotation: [0, -2.61008453, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-73.2975845, 0, 48.2323608]
+    rotation: [0, -15.6401405, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [16.0099888, 0, 60.5405693]
+    rotation: [0, 69.9398499, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [53.0160408, 0, -136.208496]
+    rotation: [0, 26.1899414, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-30.3267879, 0, -84.2660751]
+    rotation: [0, -43.2900429, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-116.052429, 0, -7.80710554]
+    rotation: [0, -55.4799309, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [53.715992, 0, -87.4129944]
+    rotation: [0, -84.2801208, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [85.2225189, 0, -90.293045]
+    rotation: [0, -66.3700562, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-up-down-timestamp: -0.479054987
+  - model-file: Woman.gltf
+    position: [16.1162548, 0, -93.172699]
+    rotation: [0, 41.9501495, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [94.4544983, 0, -13.8293295]
+    rotation: [0, 34.339962, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 0.920055985
+  - model-file: Woman.gltf
+    position: [-117.333496, 0, -96.0148392]
+    rotation: [0, 53.7500076, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 7.45171976
+    anim-blend-factor: 0.90861994
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-125.837219, 0, -27.9940796]
+    rotation: [0, -146.099884, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-134.795761, 0, 119.063713]
+    rotation: [0, -11.9799042, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [100.364197, 0, -135.277115]
+    rotation: [0, 84.5400696, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-46.1217079, 0, 158.324844]
+    rotation: [0, -168.959885, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-64.4520798, 0, 153.168427]
+    rotation: [0, -37.2400818, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [141.371307, 0, -20.2487125]
+    rotation: [0, -89.2799988, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [7.60839558, 0, 155.784729]
+    rotation: [0, -156.829803, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-130.747513, 0, 20.8863678]
+    rotation: [0, 38.5500183, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-26.0587425, 0, -140.414673]
+    rotation: [0, 30.1000366, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-52.304493, 0, -80.8016586]
+    rotation: [0, -4.9300499, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [51.0144844, 0, -85.7058716]
+    rotation: [0, -147.309875, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-64.6899643, 0, 29.7437954]
+    rotation: [0, 94.219986, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+    target-of-cameras:
+      - FollowCam
+  - model-file: Woman.gltf
+    position: [-102.6604, 0, 76.6147308]
+    rotation: [0, -120.7397, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [90.1741791, 0, 83.1064148]
+    rotation: [0, -39.8000031, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-34.7945328, 0, -113.536621]
+    rotation: [0, -54.4001465, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-13.4138584, 0, 153.27774]
+    rotation: [0, -152.829941, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [45.1532288, -0.149022669, 12.7606449]
+    rotation: [0, -30.7195816, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Woman.gltf
+    position: [124.332649, 0, 47.2553482]
+    rotation: [0, 4.76996231, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [127.658928, 0, -112.027641]
+    rotation: [0, 167.129944, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [28.6884251, 0, 101.813683]
+    rotation: [0, -39.7901344, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [121.787132, 0, 106.432831]
+    rotation: [0, -154.920013, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [130.219742, 0, 135.090179]
+    rotation: [0, -15.0099831, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-81.8315201, 0, 49.49757]
+    rotation: [0, 9.67010498, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-27.6221542, 0, 64.41436]
+    rotation: [0, -12.2100029, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-35.5966682, 0, 76.7491608]
+    rotation: [0, 116.80011, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [115.01387, 0, -5.02135658]
+    rotation: [0, -44.1999359, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [141.092239, 0, -9.64489079]
+    rotation: [0, 130.920044, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-138.353607, 0, 152.7686]
+    rotation: [0, -50.3798828, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [130.353745, 0, -146.543655]
+    rotation: [0, 42.6900024, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [63.4475403, 0, -108.966225]
+    rotation: [0, 54.4402466, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [132.425613, 0, 150.350159]
+    rotation: [0, 81.3499985, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [122.334541, 0, -131.498428]
+    rotation: [0, 35.1897888, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-147.430954, 0, -45.5085678]
+    rotation: [0, -58.3098602, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-21.079052, 0, 129.685974]
+    rotation: [0, -119.939995, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [95.2925568, 0, -109.296631]
+    rotation: [0, 12.0899544, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-18.4648094, 0, 68.7057571]
+    rotation: [0, -142.800064, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [89.9227829, 0, -112.714218]
+    rotation: [0, -134.97995, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 0.117131934
+  - model-file: Woman.gltf
+    position: [-120.626976, 0, 69.0326691]
+    rotation: [0, -50.0300293, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [45.5886803, 0, -24.6909981]
+    rotation: [0, 1.09000015, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [44.2489967, 0, -100.469055]
+    rotation: [0, -80.2301331, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [129.890335, 0, 112.775635]
+    rotation: [0, -5.71988297, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-15.7328758, 0, 84.0863953]
+    rotation: [0, -176.32991, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-96.538353, 0, 154.597839]
+    rotation: [0, -48.0999603, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [87.227684, 0, 125.735832]
+    rotation: [0, -96.1099091, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-142.444977, 0, 85.8082428]
+    rotation: [0, -112.450089, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [113.760956, 0, 11.4114676]
+    rotation: [0, -84.4699097, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-38.8138008, 0, 144.290314]
+    rotation: [0, -102.360001, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-48.322731, 0, -43.2544327]
+    rotation: [0, 177.82988, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-156.571152, 0, -2.47327399]
+    rotation: [0, -13.4199829, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-35.0250244, 0, -28.3451576]
+    rotation: [0, -28.7201691, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [75.1342926, 0, 41.5224419]
+    rotation: [0, -95.309906, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-149.690933, 0, -15.3514252]
+    rotation: [0, 79.4300385, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 0.117131934
+  - model-file: Woman.gltf
+    position: [-52.9854736, 0, -87.5469437]
+    rotation: [0, -103.050034, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 0.117131934
+  - model-file: Woman.gltf
+    position: [25.2841854, 0, 134.364685]
+    rotation: [0, 155.250061, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 0.705149889
+  - model-file: Woman.gltf
+    position: [137.247864, 0, 44.7037811]
+    rotation: [0, 168.179916, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [98.8936844, 0, -70.6671982]
+    rotation: [0, -140.860077, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [127.275726, 0, -30.5442905]
+    rotation: [0, -71.0501404, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [86.8612137, 0, 157.794052]
+    rotation: [0, 163.440002, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [27.1579037, 0, -23.2072887]
+    rotation: [0, -95.8000793, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-68.7812881, 0, 155.729401]
+    rotation: [0, -151.419937, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [105.241417, 0, -109.469604]
+    rotation: [0, -3.52004242, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [140.798538, 0, -131.596817]
+    rotation: [0, 145.869965, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 0.358011991
+  - model-file: Woman.gltf
+    position: [2.33228588, 0, -126.868835]
+    rotation: [0, 96.1098709, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [3.8551991, 0, -71.1885986]
+    rotation: [0, -75.4898834, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [28.4451714, 0, -72.9284515]
+    rotation: [0, 126.789856, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [73.6363373, 0, 45.1418724]
+    rotation: [0, -174.810043, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [38.4671478, 0, -5.62289047]
+    rotation: [0, -53.8299637, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [19.8139153, 0, -57.8302956]
+    rotation: [0, 113.129883, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-131.742523, 0, -17.1678581]
+    rotation: [0, -10.8200531, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 0.0905119032
+  - model-file: Woman.gltf
+    position: [-125.081795, 0, -61.2404213]
+    rotation: [0, -122.559814, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 0.571627975
+  - model-file: Woman.gltf
+    position: [-68.8746948, 0, 134.769882]
+    rotation: [0, -50.460022, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [54.1215286, 0, -101.831772]
+    rotation: [0, -123.240044, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [69.6833115, 0, -94.3143311]
+    rotation: [0, 103.770264, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [85.0827103, 0, -135.579819]
+    rotation: [0, -110.019951, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-65.7051773, 0, -56.3584862]
+    rotation: [0, 68.2999954, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-156.131989, 0, -128.5298]
+    rotation: [0, 57.9100952, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [141.030716, 0, 127.065048]
+    rotation: [0, -4.80999374, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-115.052208, 0, 65.108284]
+    rotation: [0, 170.660019, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [35.4137039, 0, -135.816818]
+    rotation: [0, 73.9900665, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-103.307701, 0, -132.931549]
+    rotation: [0, 105.710068, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-132.855148, 0, 93.3587799]
+    rotation: [0, 83.7199707, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [141.266602, 0, 93.420578]
+    rotation: [0, -170.419876, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [73.5950623, 0, -130.17366]
+    rotation: [0, 11.1199951, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-66.2649536, 0, 135.00209]
+    rotation: [0, 6.20002747, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [118.115089, 0, 63.3917389]
+    rotation: [0, 120.969955, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-85.9077759, 0, 123.564346]
+    rotation: [0, -66.0599823, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-110.256821, 0, -155.765045]
+    rotation: [0, -55.8900299, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-65.6834106, 0, 140.990982]
+    rotation: [0, 32.5700073, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-89.5304031, 0, 149.232254]
+    rotation: [0, 54.0499687, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [27.1060791, 0, -136.820724]
+    rotation: [0, 26.7500229, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [98.2697067, 0, 149.151382]
+    rotation: [0, 121.210129, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 0.0119759031
+  - model-file: Woman.gltf
+    position: [-135.520721, 0, -9.2589798]
+    rotation: [0, -103.830063, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [93.665184, 0, -120.150764]
+    rotation: [0, -56.7897911, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-7.49175358, 0, -76.8621902]
+    rotation: [0, -65.3200607, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-114.141571, 0, -74.4085693]
+    rotation: [0, 176.769974, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-45.4672852, 0, 57.4403763]
+    rotation: [0, -120.669907, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-101.213737, 0, -24.1822548]
+    rotation: [0, 58.9200439, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [20.2811413, 0, -79.9095001]
+    rotation: [0, 1.18992996, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [55.1922722, 0, -81.1919861]
+    rotation: [0, -96.5801315, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-68.111351, 0, -2.94587159]
+    rotation: [0, -101.729988, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [5.59932232, 0, 10.6312447]
+    rotation: [0, -65.4598694, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-47.9414177, 0, 140.514404]
+    rotation: [0, 112.480042, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [55.9080658, 0, -92.2386398]
+    rotation: [0, -51.0500107, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 7.11480761
+    anim-blend-factor: 0.852467954
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-84.094017, 0, 140.163925]
+    rotation: [0, -22.3699837, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-63.5686455, 0, -152.156525]
+    rotation: [0, -58.5898972, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [1.5005604, 0, -108.123116]
+    rotation: [0, 6.49995422, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-145.592712, 0, -72.9315109]
+    rotation: [0, 159.989899, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-112.89798, 0, -84.2301483]
+    rotation: [0, -68.3398666, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Man.gltf
+    position: [67.2274323, 0, 80.8779068]
+    rotation: [0, 169.64003, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [17.8319798, 0, -142.539688]
+    rotation: [0, -51.430069, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.82044005
+    anim-blend-factor: 0.640879989
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [94.5257492, 0, 144.371185]
+    rotation: [0, -44.0497322, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-80.9335175, 0, -34.0067368]
+    rotation: [0, 121.510216, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [82.592453, 0, -0.506372094]
+    rotation: [0, -161.519928, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [106.711418, 0, -58.5093384]
+    rotation: [0, 105.339989, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 14
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 0.920055985
+  - model-file: Man.gltf
+    position: [-8.55470562, 0, 54.5108604]
+    rotation: [0, 177.929901, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-7.53585339, 0, 65.9704285]
+    rotation: [0, 153.629944, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-114.796295, 0, 37.7198639]
+    rotation: [0, -35.7499046, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-up-down-timestamp: -0.200858951
+  - model-file: Man.gltf
+    position: [48.6333046, 0, -112.108643]
+    rotation: [0, 76.8800507, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-72.5927963, 0, 44.3162689]
+    rotation: [0, 166.990097, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [104.332558, 0, -85.6571426]
+    rotation: [0, -141.72998, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 14
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [95.6683273, 0, -96.852005]
+    rotation: [0, 153.210114, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [40.8745956, 0, -45.6064072]
+    rotation: [0, -47.1700592, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [50.3588867, 0, 66.4743958]
+    rotation: [0, -94.7699051, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-left-right-timestamp: -0.653610051
+  - model-file: Man.gltf
+    position: [-36.382618, 0, -61.8003044]
+    rotation: [0, -11.5798569, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [16.8810787, 0, 25.0211639]
+    rotation: [0, -61.1500816, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-131.447067, 0, 83.1858597]
+    rotation: [0, 85.5401001, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [53.892128, 0, -90.8287735]
+    rotation: [0, 109.769981, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [60.4085083, 0, -134.799332]
+    rotation: [0, -152.049957, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 14
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-48.4787216, 0, -67.4879303]
+    rotation: [0, -33.9001045, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 0.972702026
+  - model-file: Man.gltf
+    position: [-109.093834, 0, -31.7449112]
+    rotation: [0, -59.7698631, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [21.4873219, 0, 139.701492]
+    rotation: [0, -6.62990189, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 14
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-108.379662, 0, 16.1660252]
+    rotation: [0, 177.040085, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-up-down-timestamp: -0.388830066
+  - model-file: Man.gltf
+    position: [78.254982, 0, -12.4277992]
+    rotation: [0, -74.5199966, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-44.670929, 0, -63.737896]
+    rotation: [0, 30.289978, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [70.111824, 0, -14.2118778]
+    rotation: [0, -156.130066, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 14
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [33.2023735, 0, 57.6112633]
+    rotation: [0, -79.5100708, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 14
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 0.145549938
+  - model-file: Man.gltf
+    position: [111.879646, 0, -95.0100479]
+    rotation: [0, -7.31999207, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-76.8039398, 0, -126.236855]
+    rotation: [0, 36.539856, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 14
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-29.0148697, 0, -96.7942047]
+    rotation: [0, 66.3999176, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-left-right-timestamp: 0.401857495
+  - model-file: Man.gltf
+    position: [12.9360132, 0, -50.2748413]
+    rotation: [0, -9.53997421, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: -0.00429500639
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [85.7361832, 0, -16.4950752]
+    rotation: [0, 175.12999, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-75.6701126, 0, -11.8762417]
+    rotation: [0, -4.86003494, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [50.2392921, 0, -88.3084412]
+    rotation: [0, 75.079895, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-left-right-timestamp: 0.704748869
+  - model-file: Man.gltf
+    position: [122.45697, 0, 128.996841]
+    rotation: [0, 146.030182, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [158.042053, 0, 78.7058258]
+    rotation: [0, -129.660004, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [136.795715, 0, 119.362305]
+    rotation: [0, -76.3098755, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-125.753967, 0, 14.5294466]
+    rotation: [0, -46.2700424, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-left-right-timestamp: -0.554538727
+  - model-file: Man.gltf
+    position: [-40.213295, 0, 59.1661949]
+    rotation: [0, -35.3399925, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [14.427434, 0, -16.1295776]
+    rotation: [0, -53.9499512, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-left-right-timestamp: 0.401857495
+  - model-file: Man.gltf
+    position: [-71.9906921, 0, -114.647964]
+    rotation: [0, 0.0900268555, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [7.68087816, 0, 150.682846]
+    rotation: [0, 28.5200386, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 14
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [77.7111359, 0, -69.7784119]
+    rotation: [0, -102.689972, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-up-down-timestamp: -0.148677051
+  - model-file: Man.gltf
+    position: [-44.4565964, 0, 4.23301792]
+    rotation: [0, -37.9099159, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-45.2463646, 0, -73.2571716]
+    rotation: [0, 61.7198486, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [62.3525391, 0, 70.6115494]
+    rotation: [0, 65.7200012, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [13.5025616, 0, -59.287014]
+    rotation: [0, -28.5999489, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-29.8052845, 0, -143.114059]
+    rotation: [0, -28.8499832, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-88.5017624, 0, -32.2113266]
+    rotation: [0, 3.09007263, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [29.405468, 0, -30.5522079]
+    rotation: [0, -103.540024, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [147.256363, 0, 69.0808868]
+    rotation: [0, 171.699905, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-146.275223, 0, -48.1981773]
+    rotation: [0, 134.060028, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [19.5668297, 0, -154.966995]
+    rotation: [0, -14.0300674, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 14
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [136.559616, 0, 120.586525]
+    rotation: [0, 96.509903, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [69.1330109, 0, -61.1259384]
+    rotation: [0, -12.9299278, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-137.549911, 0, 139.272476]
+    rotation: [0, 117.830109, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [56.5114708, 0, 59.395401]
+    rotation: [0, -74.7400513, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 14
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 0.251408011
+  - model-file: Man.gltf
+    position: [-139.471756, 0, -86.1674652]
+    rotation: [0, 18.2799149, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-59.1147919, 0, 139.137207]
+    rotation: [0, 78.5699921, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-32.0332794, 0, 102.320816]
+    rotation: [0, -140.769867, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-155.286209, 0, -114.537071]
+    rotation: [0, -47.6401062, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [112.232147, 0, -28.6617107]
+    rotation: [0, -173.300049, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [67.1896591, 0, -79.3171997]
+    rotation: [0, 125.590088, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-42.9705162, 0, -157.897705]
+    rotation: [0, 96.5600281, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-8.03438377, 0, 121.004295]
+    rotation: [0, -167.500092, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-19.2466259, 0, -99.7343979]
+    rotation: [0, 94.9699478, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [144.265091, 0, -149.75174]
+    rotation: [0, -164.370163, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-58.8520126, 0, -57.9471703]
+    rotation: [0, 1.79005051, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [16.9540024, 0, 46.6218567]
+    rotation: [0, 3.08007812, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-left-right-timestamp: 0.248486042
+  - model-file: Man.gltf
+    position: [-123.353638, 0, -98.0382385]
+    rotation: [0, -86.1699982, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-up-down-timestamp: -0.027587967
+  - model-file: Man.gltf
+    position: [86.8326416, 0, -131.818344]
+    rotation: [0, 153.690186, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-99.6936874, 0, 57.6132736]
+    rotation: [0, -99.2399902, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-141.921722, 0, 57.3157654]
+    rotation: [0, 166.21991, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.76755202
+    anim-blend-factor: 0.535103977
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [76.1812897, 0, 69.1827774]
+    rotation: [0, 68.2001038, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-102.523087, 0, -128.697464]
+    rotation: [0, -127.209946, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 0.0364498906
+  - model-file: Man.gltf
+    position: [-3.4278276, 0, 135.943817]
+    rotation: [0, 79.1900787, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    target-of-cameras:
+      - FirstPersonCam
+  - model-file: Man.gltf
+    position: [69.7254868, 0, -91.0904312]
+    rotation: [0, 85.2501373, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [158.822891, 0, -20.6683121]
+    rotation: [0, -155.559952, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-53.4553146, 0, 100.941154]
+    rotation: [0, -32.4899178, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 0.680629969
+  - model-file: Man.gltf
+    position: [-15.6106157, 0, -95.014946]
+    rotation: [0, -78.33992, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-left-right-timestamp: 0.75
+  - model-file: Man.gltf
+    position: [-100.567886, 0, 31.5495796]
+    rotation: [0, 134.530029, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 23
+    2nd-anim-clip-number: 23
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [12.9850445, 0, 154.29245]
+    rotation: [0, -63.6599731, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Man.gltf
+    position: [-106.138397, 0, 66.5854492]
+    rotation: [0, -152.550034, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-93.6315918, 0, -80.2189331]
+    rotation: [0, 153.899918, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-up-down-timestamp: -0.429210037
+  - model-file: Man.gltf
+    position: [-72.5802536, 0, 103.3032]
+    rotation: [0, -31.6699524, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-113.816414, 0, -73.2008438]
+    rotation: [0, 106.849976, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-66.6727142, 0, 21.8880348]
+    rotation: [0, 80.4300232, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [98.7965546, 0, 85.4415894]
+    rotation: [0, -35.7098656, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [158.0681, 0, 96.5605621]
+    rotation: [0, -132.389984, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    head-anim-left-right-timestamp: -0.153014898
+  - model-file: Man.gltf
+    position: [-59.2708397, 0, -135.81189]
+    rotation: [0, -148.320129, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 14
+    2nd-anim-clip-number: 14
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [28.6730499, 0, 155.719589]
+    rotation: [0, -27.5199623, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-60.4426155, 0, 56.5301094]
+    rotation: [0, -37.35009, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-5.40801907, 0, -93.147316]
+    rotation: [0, -14.0999413, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-52.3451996, 0, 59.5499496]
+    rotation: [0, 26.6800079, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [112.138535, 0, 36.7066422]
+    rotation: [0, -160.750183, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-102.610207, 0, 51.7524529]
+    rotation: [0, -21.2999992, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [33.6263428, 0, -81.0723038]
+    rotation: [0, 109.970062, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [135.203888, 0, -105.540825]
+    rotation: [0, -177.039841, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [78.9561157, 0, 142.010513]
+    rotation: [0, 86.789978, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [132.081772, 0, 45.8711548]
+    rotation: [0, 37.5300941, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-103.096901, 0, -136.776108]
+    rotation: [0, 67.1698074, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-72.1267548, 0, 8.92678547]
+    rotation: [0, -138.220108, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-49.5029373, 0, -60.0290489]
+    rotation: [0, 171.849762, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [145.705795, 0, 24.3639908]
+    rotation: [0, 158.430054, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 0.786139965
+  - model-file: Woman.gltf
+    position: [135.144852, 0, -90.8339462]
+    rotation: [0, 157.339966, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-24.2981014, 0, -121.590012]
+    rotation: [0, 155.660034, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [115.932701, 0, 94.5594482]
+    rotation: [0, -49.2000542, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [22.5999088, 0, -21.1935101]
+    rotation: [0, -174.5401, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [154.386475, 0, 111.726173]
+    rotation: [0, -95.6699524, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [138.163757, 0, 3.83579087]
+    rotation: [0, 111.189957, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-61.0779457, 0, 33.7026863]
+    rotation: [0, -135.499924, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-107.045868, 0, 81.1154022]
+    rotation: [0, 166.76001, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-148.010101, 0, -13.5146027]
+    rotation: [0, 145.480011, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-81.0225754, 0, 116.163902]
+    rotation: [0, -88.9499893, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-154.558594, 0, -39.9798927]
+    rotation: [0, -140.999924, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [17.2180958, 0, -94.0632401]
+    rotation: [0, 51.2399979, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [149.425247, 0, -124.953102]
+    rotation: [0, 46.8997726, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-38.8117371, 0, 141.532059]
+    rotation: [0, -71.420105, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [77.0075989, 0, 3.64423633]
+    rotation: [0, 121.869972, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [49.348877, 0, -139.074936]
+    rotation: [0, 113.610138, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-100.987289, 0, -117.2136]
+    rotation: [0, 173.169952, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-108.203575, 0, 92.3995667]
+    rotation: [0, -127.76004, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [13.8650484, 0, 47.6787529]
+    rotation: [0, 117.629959, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-58.0373268, 0, 93.1713104]
+    rotation: [0, 28.5200882, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [46.0134125, 0, -130.859634]
+    rotation: [0, -117.58992, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [92.3859024, 0, -100.22789]
+    rotation: [0, 55.8900909, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-36.5423737, 0, -130.701675]
+    rotation: [0, 142.129913, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [127.348587, 0, -85.9667358]
+    rotation: [0, 148.019943, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-147.658676, 0, 16.2374325]
+    rotation: [0, -32.7500725, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [87.0520248, 0, 16.5907936]
+    rotation: [0, -118.610184, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 0.518391967
+  - model-file: Woman.gltf
+    position: [71.4646606, 0, -43.0944443]
+    rotation: [0, 145.62001, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-158.332458, 0, 53.4507027]
+    rotation: [0, -152.620041, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [64.5567245, 0, 29.8109283]
+    rotation: [0, -151.889954, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-16.3436565, 0, -152.586014]
+    rotation: [0, -39.6500549, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [128.472549, 0, -78.7804794]
+    rotation: [0, 88.3500824, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-47.9925461, 0, 28.6262836]
+    rotation: [0, 73.5299149, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-157.83638, 0, -102.481956]
+    rotation: [0, -13.8700485, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [21.0823975, 0, -17.8679085]
+    rotation: [0, 64.0099106, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [67.5424957, 0, 117.466995]
+    rotation: [0, -66.5500031, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-58.7724838, 0, 131.844681]
+    rotation: [0, 66.3901672, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-106.156647, 0, 128.606567]
+    rotation: [0, 165.389954, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 7.45171976
+    anim-blend-factor: 0.90861994
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-54.032341, 0, 152.880783]
+    rotation: [0, -116.559952, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [41.6947861, 0, 60.121563]
+    rotation: [0, -5.67002869, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [44.500927, 0, 58.4297981]
+    rotation: [0, -172.270218, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [155.741104, 0, -68.7546082]
+    rotation: [0, 174.889908, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [1.31054652, 0, -55.8200645]
+    rotation: [0, -113.980019, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [146.312637, 0, -35.8803215]
+    rotation: [0, -77.0001831, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-119.046722, 0, 43.4815102]
+    rotation: [0, -75.9899826, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-21.448019, 0, -62.6294441]
+    rotation: [0, 50.3701591, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-115.020218, 0, 25.1988869]
+    rotation: [0, 155.549927, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [150.645813, 0, 84.9498215]
+    rotation: [0, 56.1500244, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-11.0783195, 0, -108.98597]
+    rotation: [0, 14.0399742, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-46.5923843, 0, 89.6928406]
+    rotation: [0, -41.4200554, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 0.625429988
+  - model-file: Woman.gltf
+    position: [-77.7423859, 0, -51.450325]
+    rotation: [0, 149.100082, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-99.8779526, 0, -1.20545506]
+    rotation: [0, -45.4599304, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [107.464836, 0, -70.5109253]
+    rotation: [0, 55.1601105, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 0.145549938
+  - model-file: Woman.gltf
+    position: [-106.543983, 0, -36.0508423]
+    rotation: [0, -157.900101, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-142.089752, 0, -37.4545898]
+    rotation: [0, -163.869995, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-134.673645, 0, -79.5588226]
+    rotation: [0, 99.5201569, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [35.0559807, 0, 86.8964767]
+    rotation: [0, -56.9298668, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [116.9804, 0, -138.155624]
+    rotation: [0, -104.039978, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [86.0680084, 0, -8.25658321]
+    rotation: [0, 104.900009, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [103.434235, 0, -139.852951]
+    rotation: [0, 25.3701172, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-87.7997208, 0, -5.71185446]
+    rotation: [0, 9.86992645, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [152.662643, 0, -108.74691]
+    rotation: [0, -101.919945, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [156.458466, 0, 135.624985]
+    rotation: [0, 33.329998, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [17.3775997, 0, -156.715744]
+    rotation: [0, -163.200043, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-11.5163603, 0, -127.249672]
+    rotation: [0, 120.380066, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-85.4437027, 0, 132.565399]
+    rotation: [0, -3.05008316, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-82.3726807, 0, 25.3087196]
+    rotation: [0, -121.690216, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [34.393959, 0, -93.2785492]
+    rotation: [0, 171.999878, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-38.070343, 0, 85.5643768]
+    rotation: [0, 143.159927, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [14.3760967, 0, -94.0505142]
+    rotation: [0, 125.39003, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-151.889191, 0, -92.2957916]
+    rotation: [0, 30.7799683, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [151.791077, 0, 67.2274323]
+    rotation: [0, 41.6200676, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-8.27963924, 0, -142.825974]
+    rotation: [0, -90.0498962, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [115.161491, 0, 99.077919]
+    rotation: [0, -39.9599991, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-57.1589546, 0, -103.417374]
+    rotation: [0, 163.409927, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [21.9177475, 0, 77.0221405]
+    rotation: [0, -132.739899, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-51.5281219, 0, 148.399734]
+    rotation: [0, 128.179947, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-140.014435, 0, 135.34465]
+    rotation: [0, -19.4300613, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [95.6900177, 0, -26.0167141]
+    rotation: [0, 169.320129, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-53.3076859, 0, -12.4308939]
+    rotation: [0, 38.289959, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-43.6435928, 0, -80.1852417]
+    rotation: [0, -65, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-11.5193453, 0, 117.628784]
+    rotation: [0, -8.0700531, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [34.0350418, 0, -66.5533066]
+    rotation: [0, 176.920074, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 0.413429916
+  - model-file: Woman.gltf
+    position: [-20.8273582, 0, 152.252563]
+    rotation: [0, 121.049866, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-20.65769, 0, 110.655449]
+    rotation: [0, -119.01001, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-9.26582718, 0, 114.468864]
+    rotation: [0, -105.569855, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-105.412819, 0, -55.9445915]
+    rotation: [0, 179.469925, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-140.825012, 0, -124.785179]
+    rotation: [0, -64.4898987, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-61.5602112, 0, -110.705635]
+    rotation: [0, -6.41989136, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 0.19732593
+  - model-file: Woman.gltf
+    position: [32.7300072, 0, 102.142838]
+    rotation: [0, 173.179871, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-134.214203, 0, 51.4074135]
+    rotation: [0, -30.9299622, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-8.62147427, 0, 70.9107208]
+    rotation: [0, 41.5001717, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-105.344872, 0, -22.0001755]
+    rotation: [0, 1.55011749, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [148.526733, 0, 143.724701]
+    rotation: [0, 33.8298531, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [131.42807, 0, 95.9795685]
+    rotation: [0, -120.819916, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [120.657394, 0, 70.0509033]
+    rotation: [0, -102.209976, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [136.274582, 0, 32.6721764]
+    rotation: [0, 52.6601067, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-113.252396, 0, 108.725136]
+    rotation: [0, -157.029999, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 5.21062374
+    anim-blend-factor: 0.535103977
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-32.7088661, 0, 111.642883]
+    rotation: [0, 113.410049, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-15.5658312, 0, -10.8654642]
+    rotation: [0, 71.8000031, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-127.515259, 0, -142.350372]
+    rotation: [0, 3.71990967, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-109.312904, 0, -95.2735519]
+    rotation: [0, -168.970016, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [63.3695297, 0, -16.6563396]
+    rotation: [0, -144.690033, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-107.734352, 0, 148.706055]
+    rotation: [0, -74.0999603, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [73.3316574, 0, -143.346146]
+    rotation: [0, -7.96996689, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 0.625429988
+  - model-file: Woman.gltf
+    position: [-6.91958332, 0, -88.0294724]
+    rotation: [0, -9.05014038, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [94.0414963, 0, 82.8392715]
+    rotation: [0, -19.189949, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-72.6747894, 0, 5.01682043]
+    rotation: [0, -33.2600708, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [17.4276657, 0, -123.213852]
+    rotation: [0, -112.449905, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [105.076752, 0, -28.1974144]
+    rotation: [0, 96.6598206, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-48.2952919, 0, 98.8838806]
+    rotation: [0, -23.3800964, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [140.0746, 0, -35.9328461]
+    rotation: [0, 69.7299347, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-38.6419334, 0, 50.6915932]
+    rotation: [0, -89.9699097, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-25.7063789, 0, -91.4276657]
+    rotation: [0, 36.2200928, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [78.0149002, 0, 103.06089]
+    rotation: [0, -107.61998, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-54.375824, 0, 32.2670822]
+    rotation: [0, 115.859924, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [116.448524, 0, 82.9836502]
+    rotation: [0, -33.8400002, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [154.909546, 0, 121.908249]
+    rotation: [0, -70.0299835, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-132.689346, 0, 36.5701027]
+    rotation: [0, -176.230026, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [66.0886154, 0, 155.040878]
+    rotation: [0, 27.1099854, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [94.776062, 0, 103.955475]
+    rotation: [0, 173.069885, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [53.233532, 0, -90.7391205]
+    rotation: [0, -114.739929, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 0.839129925
+  - model-file: Woman.gltf
+    position: [-9.16731548, 0, -49.5305901]
+    rotation: [0, -146.920013, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [68.447731, 0, 134.139282]
+    rotation: [0, 75.300148, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Man.gltf
+    position: [-6.43463898, 0, -12.3657064]
+    rotation: [0, -44.2898865, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 12
+    2nd-anim-clip-number: 12
+    anim-clip-speed: 1.20000005
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [54.2594414, 0, 2.23850536]
+    rotation: [0, 9.27993393, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-91.5606537, 0, 67.3973923]
+    rotation: [0, 17.8899689, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-152.913162, 0, 119.335625]
+    rotation: [0, 167.249969, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [148.303925, 0, -111.525032]
+    rotation: [0, -9.15005493, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-145.628616, 0, -78.9960709]
+    rotation: [0, -168.339905, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-110.616814, 0, -155.281662]
+    rotation: [0, -90.5000992, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-155.816254, 0, -26.8018627]
+    rotation: [0, -141.33017, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-82.285553, 0, 105.979836]
+    rotation: [0, -33.2802048, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [36.272995, 0, 139.731476]
+    rotation: [0, -1.26997757, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-18.9338589, 0, -143.899734]
+    rotation: [0, -82.6698532, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [14.3800964, 0, -71.9288254]
+    rotation: [0, 115.700012, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [96.7230148, 0, 99.8867798]
+    rotation: [0, 103.449997, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-63.1463051, 0, 78.8368759]
+    rotation: [0, 138.640015, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [15.5745153, 0, -155.454483]
+    rotation: [0, -178.200089, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-23.6794777, 0, -65.6280518]
+    rotation: [0, 34.6600723, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-32.1969261, 0, -150.659378]
+    rotation: [0, -81.3679504, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-96.9416275, 0, -48.0781136]
+    rotation: [0, -2.34989548, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-49.9186974, 0, 156.305939]
+    rotation: [0, -49.5100098, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-106.365433, 0, -68.9118118]
+    rotation: [0, -85.770134, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-54.9881973, 0, -131.913406]
+    rotation: [0, 63.1399918, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [124.200211, 0, 157.022598]
+    rotation: [0, -171.190048, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [26.6569462, 0, 101.579811]
+    rotation: [0, -78.3499985, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-102.476822, 0, -65.4795914]
+    rotation: [0, -94.2399597, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-99.4083633, 0, -116.688698]
+    rotation: [0, -81.1900024, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [18.4182491, 0, -132.505768]
+    rotation: [0, -113.619934, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-110.767593, 0, 151.320099]
+    rotation: [0, 37.9600372, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-13.5396614, 0, 30.0246582]
+    rotation: [0, 21.6599159, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-65.3495789, 0, 51.8885841]
+    rotation: [0, 74.3400879, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [49.5126953, 0, -31.8224163]
+    rotation: [0, 64.5200653, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-28.8092995, 0, -56.3389893]
+    rotation: [0, -44.1301117, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [77.2385864, 0, 143.876205]
+    rotation: [0, 16.5799751, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-25.4943905, 0, 57.5450935]
+    rotation: [0, -148.759949, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [78.3866806, 0, -149.752594]
+    rotation: [0, 35.6699142, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-151.079803, 0, -130.665085]
+    rotation: [0, 60.0098267, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 0.170205936
+  - model-file: Woman.gltf
+    position: [135.030502, 0, -31.6569157]
+    rotation: [0, 0.939987183, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [116.263512, 0, 13.7789574]
+    rotation: [0, 125.649902, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-92.654068, 0, -56.8754082]
+    rotation: [0, 179.440048, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-69.2508621, 0, 121.837891]
+    rotation: [0, -172.889984, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [56.0834541, 0, -119.102844]
+    rotation: [0, -87.9700775, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [136.916107, 0, 101.462349]
+    rotation: [0, 13.5999298, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-115.78643, 0, 67.9292145]
+    rotation: [0, -129.200073, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [139.639542, 0, 113.26638]
+    rotation: [0, 84.059906, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 4.23874378
+    anim-blend-factor: 0.373123974
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [82.8551636, 0, -64.11689]
+    rotation: [0, 65.379837, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [70.2377243, 0, -49.0623093]
+    rotation: [0, -82.8199463, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-29.8794613, 0, -30.3159466]
+    rotation: [0, 121.040009, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-26.41078, 0, -36.3642502]
+    rotation: [0, 129.16011, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [12.8665075, 0, -78.658165]
+    rotation: [0, -137.819946, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-5.40110445, 0, 13.1849508]
+    rotation: [0, -126.570068, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [120.790184, 0, -85.031189]
+    rotation: [0, -29.1298981, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [34.4192772, 0, -42.492527]
+    rotation: [0, 119.52002, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-72.3471298, 0, 30.0180817]
+    rotation: [0, 7.08996201, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-11.9395895, 0, 39.2150764]
+    rotation: [0, -60.379921, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 5.84527969
+    anim-blend-factor: 0.640879989
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [105.252983, 0, -146.789612]
+    rotation: [0, -89.960022, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [53.6812134, 0, 71.3467865]
+    rotation: [0, -32.1300621, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-73.0187912, 0, 85.1784134]
+    rotation: [0, 22.9200478, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-1.16482031, 0, 79.7132721]
+    rotation: [0, -80.6400146, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-61.8072166, 0, -13.4895563]
+    rotation: [0, -67.3600159, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [122.858856, 0, -89.5161972]
+    rotation: [0, -15.2898293, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-75.9030533, 0, 48.8502045]
+    rotation: [0, 146.470093, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [21.990593, 0, -112.631134]
+    rotation: [0, -105.949898, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [41.0037766, 0, -67.042717]
+    rotation: [0, -113.300018, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [120.449409, 0, 6.86469507]
+    rotation: [0, -64.4498749, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [15.7308712, 0, 53.8955498]
+    rotation: [0, 7.25008011, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-54.9421387, 0, 16.7226429]
+    rotation: [0, -81.5998993, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [46.3268433, 0, -36.6680031]
+    rotation: [0, 105.619934, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 0.759219885
+  - model-file: Woman.gltf
+    position: [-49.2354507, 0, -101.725601]
+    rotation: [0, 163.590149, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 0.279202014
+  - model-file: Woman.gltf
+    position: [64.5973053, 0, -72.3054047]
+    rotation: [0, 20.7300797, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-25.7966633, 0, 2.93780589]
+    rotation: [0, -84.6601715, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [92.8834229, 0, -54.8804932]
+    rotation: [0, 33.300106, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-57.1025047, 0, 29.3499565]
+    rotation: [0, 101.060005, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [70.7752228, 0, -20.6962223]
+    rotation: [0, -95.3399734, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [17.3028603, 0, -137.354126]
+    rotation: [0, -64.3500671, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [27.5035839, 0, 62.3291893]
+    rotation: [0, 76.9899139, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-129.022079, 0, -76.3050003]
+    rotation: [0, -177.190125, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [82.3108902, 0, 40.5498123]
+    rotation: [0, 129.709915, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-72.8503113, 0, -93.7339478]
+    rotation: [0, -16.9399681, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-126.001747, 0, -94.6297455]
+    rotation: [0, -38.9200897, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 5.84527969
+    anim-blend-factor: 0.640879989
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [82.1985703, 0, 12.1316805]
+    rotation: [0, 162.449966, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [127.986984, 0, 60.6403084]
+    rotation: [0, -85.0499268, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 0.117131934
+  - model-file: Woman.gltf
+    position: [-153.496475, 0, 4.71838665]
+    rotation: [0, -148.220047, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-55.1942711, 0, -35.3743973]
+    rotation: [0, -45.4295197, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+    target-of-cameras:
+      - ThirdPersonCam
+  - model-file: Woman.gltf
+    position: [119.424721, 0, 94.1059952]
+    rotation: [0, -90.0297089, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-69.0957413, 0, -109.425491]
+    rotation: [0, 162.399841, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [21.3278008, 0, -20.7272568]
+    rotation: [0, -105.89016, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-138.368271, 0, -81.9920273]
+    rotation: [0, -171.019943, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [140.328339, 0, 22.3570786]
+    rotation: [0, -11.7199898, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [81.6996384, 0, 124.960945]
+    rotation: [0, -135.530045, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-41.9103012, 0, -157.668518]
+    rotation: [0, -154.54007, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [116.620369, 0, 15.8981142]
+    rotation: [0, 40.2899551, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [143.804794, 0, -138.45639]
+    rotation: [0, 126.370178, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [80.4907379, 0, -131.575562]
+    rotation: [0, -153.299988, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [3.27363372, 0, 83.304184]
+    rotation: [0, -119.039917, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 0.145549938
+  - model-file: Woman.gltf
+    position: [7.06649828, 0, 134.516159]
+    rotation: [0, 162.679993, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-70.591156, 0, 50.2053146]
+    rotation: [0, -106.869919, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [89.4786987, 0, -110.406311]
+    rotation: [0, 7.37003708, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 0.251408011
+  - model-file: Woman.gltf
+    position: [18.6286201, 0, -35.2937546]
+    rotation: [0, -112.649857, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-143.794281, 0, 121.472969]
+    rotation: [0, -82.970047, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-129.624496, 0, -97.2705078]
+    rotation: [0, -13.0300331, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-116.390015, 0, 155.47673]
+    rotation: [0, -39.8300323, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-84.918457, 0, -18.8303242]
+    rotation: [0, -23.9599037, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [108.622902, 0, -60.6752243]
+    rotation: [0, -26.349823, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-101.150459, 0, -7.16786957]
+    rotation: [0, 166.89003, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-54.2297516, 0, -3.9071641]
+    rotation: [0, 142.789917, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [30.4387321, 0, -3.90767026]
+    rotation: [0, 48.2199554, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [18.1702385, 0, 35.8518715]
+    rotation: [0, 118.950073, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [3.6211822, 0, 29.5422382]
+    rotation: [0, -90.3699341, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-46.4818687, 0, 126.280724]
+    rotation: [0, 91.1198959, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-93.9408951, 0, -22.0254555]
+    rotation: [0, -95.1299591, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [3.64856625, 0, 133.971146]
+    rotation: [0, -69.6398621, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-107.283035, 0, 70.4565506]
+    rotation: [0, -39.7599106, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-113.088715, 0, 26.5964546]
+    rotation: [0, 125.770248, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [4.54785109, 0, -13.7186642]
+    rotation: [0, 155.149841, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-33.0783958, 0, 115.812126]
+    rotation: [0, -15.9202538, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [121.287659, 0, 128.066681]
+    rotation: [0, 179.219894, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-136.662811, 0, -1.1754303]
+    rotation: [0, -95.7499237, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [155.125549, 0, 103.489098]
+    rotation: [0, 23.5400276, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-33.1297569, 0, 17.8720188]
+    rotation: [0, 177.090012, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [152.522156, 0, 134.515594]
+    rotation: [0, -110.140121, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-150.524963, 0, -102.741127]
+    rotation: [0, -109.809982, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-102.342911, 0, -92.3537369]
+    rotation: [0, -87.4600372, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 0.384717971
+  - model-file: Woman.gltf
+    position: [98.8824387, 0, -3.36415648]
+    rotation: [0, 55.3099976, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-2.90548515, 0, 158.602524]
+    rotation: [0, 162.380157, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-109.172264, 0, -90.6986084]
+    rotation: [0, 30.9799042, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [6.78035879, 0, -125.330635]
+    rotation: [0, -99.5401459, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-139.133057, 0, 147.268387]
+    rotation: [0, 9.43977356, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [106.882431, 0, -50.181118]
+    rotation: [0, 174.699921, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-12.8671827, 0, 103.278023]
+    rotation: [0, 169.610138, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [129.54657, 0, 66.4839859]
+    rotation: [0, -158.500015, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [76.6480484, 0, 70.4906082]
+    rotation: [0, -120.23024, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [150.707291, 0, 41.1611061]
+    rotation: [0, -131.150055, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 5.50486374
+    anim-blend-factor: 0.584143937
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [48.6064453, 0, 82.3087234]
+    rotation: [0, 50.880127, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 10.0171795
+    anim-blend-factor: -0.00429500639
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 0.892866015
+  - model-file: Woman.gltf
+    position: [-134.998413, 0, 29.9103546]
+    rotation: [0, 23.880043, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-74.7704849, 0, 2.58605766]
+    rotation: [0, 42.8998718, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-120.9226, 0, -92.921608]
+    rotation: [0, 0.649929047, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [124.623962, 0, 23.8280945]
+    rotation: [0, 70.8700256, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-55.6244507, 0, 33.8933411]
+    rotation: [0, 5.17990494, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 5
+    2nd-anim-clip-number: 5
+    anim-clip-speed: 6
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 1
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [37.416935, 0, 9.04668427]
+    rotation: [0, -132.079956, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [102.109428, 0, 122.922897]
+    rotation: [0, -68.9999695, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-68.6915436, 0, -129.958405]
+    rotation: [0, 46.0501518, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-7.5527153, 0, 17.8854065]
+    rotation: [0, -120.750046, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 2
+    2nd-anim-clip-number: 2
+    anim-clip-speed: 5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 4
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [-48.3170357, 0, -110.353661]
+    rotation: [0, -64.8799133, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 4
+    anim-clip-speed: 2
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionWoman
+    face-anim-index: 3
+    face-anim-weight: 1
+  - model-file: Woman.gltf
+    position: [29.1015129, 0, -47.5595779]
+    rotation: [0, -68.1100464, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [148.397781, 0, -77.6803131]
+    rotation: [0, -159.269897, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Man.gltf
+    position: [123.506165, 0, 76.0484619]
+    rotation: [0, 46.6401062, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan

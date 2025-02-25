@@ -1,0 +1,870 @@
+# Application viewer config file
+version: 8.0
+
+settings:
+  selected-model: 2
+  selected-instance: 4
+  selected-camera: 0
+  selected-level: 1
+  highlight-selection: false
+  collision-enabled: 2
+  interaction-enabled: true
+  interaction-min-range: 1.5
+  interaction-max-range: 10
+  interaction-fov: 45
+  gravity-enabled: true
+  level-collision-ground-slope: 40
+  level-collision-max-stairstep-height: 2
+  inverse-kinematics-enabled: true
+  inverse-kinematics-iterations: 10
+
+levels:
+  - level-name: de_dust.glb
+    level-file: assets/level/de_dust.glb
+    position: [0, 0, 0]
+    rotation: [0, 0, 0]
+    scale: 5
+    swap-axes: false
+
+cameras:
+  - camera-name: FreeCam
+    position: [28.172617, 9.94978809, 54.4927559]
+    view-azimuth: 15.4999266
+    view-elevation: -15.8998566
+    camera-type: 0
+    camera-projection: 0
+    field-of-view: 94
+  - camera-name: OrthoCam
+    position: [-0.0973121524, 8.39158821, 2.11331558]
+    view-azimuth: 4.69999981
+    view-elevation: -18.2000122
+    camera-type: 0
+    camera-projection: 1
+    ortho-scale: 20
+  - camera-name: ThirdPersonCam
+    position: [112.631668, 5, 15.70191]
+    view-azimuth: 38.8796844
+    view-elevation: -22.5
+    camera-type: 2
+    camera-projection: 0
+    field-of-view: 91
+    3rd-person-view-distance: 5
+    3rd-person-height-offset: 0
+  - camera-name: FollowCam
+    position: [3.76401448, 5.73458576, -5.39343214]
+    view-azimuth: 340.833191
+    view-elevation: -6.36617279
+    camera-type: 4
+    camera-projection: 0
+    field-of-view: 90
+    follow-cam-height-offset: 2
+  - camera-name: FirstPersonCam
+    position: [149.782974, -0.0801852494, 3.78474951]
+    view-azimuth: 225.700012
+    view-elevation: -6.60000229
+    camera-type: 1
+    camera-projection: 0
+    field-of-view: 88
+    1st-person-view-lock: true
+    1st-person-bone-to-follow: 5
+    1st-person-view-offsets: [0, 0.100000001, 0.449999988]
+
+models:
+  - model-name: Woman.gltf
+    model-file: assets/woman/Woman.gltf
+    idle-walk-run-clips:
+      - 255:
+          idle-clip: 0
+          idle-clip-speed: 2
+          walk-clip: 9
+          walk-clip-speed: 8
+          run-clip: 6
+          run-clip-speed: 10
+    action-clips:
+      - 3:
+          clip: 2
+          clip-speed: 5
+      - 4:
+          clip: 1
+          clip-speed: 5
+      - 5:
+          clip: 5
+          clip-speed: 6
+      - 6:
+          clip: 4
+          clip-speed: 2
+    action-sequences:
+      - 0: 3
+      - 0: 5
+      - 0: 6
+      - 1: 4
+      - 2: 4
+    bounding-sphere-adjustments:
+      - [0, -0.31400001, 0, 0.600000024]
+      - [0, 0, 0, 1.70000005]
+      - [0, 0, 0, 3]
+      - [0, 0, 0, 3]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0.300000012, 0, 1.75]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [-0.0500000007, -0.00999999978, 0, 1.5]
+      - [-0.100000001, 0.200000003, 0, 1.5]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 0.00999999978]
+      - [0.0500000007, -0.00999999978, 0, 1.5]
+      - [0.100000001, 0.200000003, 0, 1.5]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, -0.200000003, 0, 4]
+      - [0, 0, 0, 1.5]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, -0.200000003, -0, 4]
+      - [0, 0, 0, 1.29999995]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+      - [0, 0, 0, 1]
+    left-foot-ik-chain:
+      - 33
+      - 32
+      - 31
+    right-foot-ik-chain:
+      - 38
+      - 37
+      - 36
+  - model-name: Man.gltf
+    model-file: assets/man/Man.gltf
+    idle-walk-run-clips:
+      - 0:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 22
+          walk-clip-speed: 1.5
+          run-clip: 17
+          run-clip-speed: 1.5
+      - 1:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 22
+          walk-clip-speed: 2
+          run-clip: 17
+          run-clip-speed: 3
+      - 2:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 16
+          walk-clip-speed: 2
+          run-clip: 16
+          run-clip-speed: 3
+      - 4:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 19
+          walk-clip-speed: 1
+          run-clip: 19
+          run-clip-speed: 3
+      - 8:
+          idle-clip: 4
+          idle-clip-speed: 1.5
+          walk-clip: 18
+          walk-clip-speed: 1
+          run-clip: 18
+          run-clip-speed: 3
+    action-clips:
+      - 5:
+          clip: 14
+          clip-speed: 1.5
+      - 7:
+          clip: 15
+          clip-speed: 1.20000005
+      - 8:
+          clip: 12
+          clip-speed: 1.20000005
+      - 9:
+          clip: 10
+          clip-speed: 1.20000005
+      - 10:
+          clip: 23
+          clip-speed: 1.20000005
+    action-sequences:
+      - 0: 5
+      - 0: 8
+      - 0: 9
+      - 0: 10
+      - 1: 7
+      - 2: 7
+    bounding-sphere-adjustments:
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 10]
+      - [0, 0, 0, 3]
+      - [0, 0, 0, 2]
+      - [0, 0, 0, 2]
+      - [0, 0.207000002, 0, 0.00999999978]
+      - [0, 0.409000009, -0.0329999998, 2]
+      - [0, 0, 0, 0.00999999978]
+      - [-0.200000003, 0, -0.100000001, 1.70000005]
+      - [0, 0, 0, 0.00999999978]
+      - [0, -0.100000001, 0, 1.39999998]
+      - [0, 0, 0, 0.778500021]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1.52209997]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0.200000003, 0, 0.100000001, 1.70000005]
+      - [0, 0, 0, 0.00999999978]
+      - [0, -0.100000001, 0, 1.39999998]
+      - [0, 0, 0, 0.752099991]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1.57009995]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 0.00999999978]
+      - [0, 0, 0, 1]
+      - [-0.100000001, -0.200000003, 0, 1]
+      - [0, 0, 0, 1]
+      - [-0.100000001, -0.200000003, 0, 1]
+      - [0, 0.25, 0, 0.699999988]
+      - [0, 0.25, 0, 0.699999988]
+    head-movement-mappings:
+      - 0: 25
+      - 1: 26
+      - 2: 27
+      - 3: 24
+
+node-trees:
+  - node-tree-name: AllRunCollisionMan
+    editor-settings: "[editor]\npanning=-528,-89\n\n[node.0]\norigin=-79,102\n\n[node.9]\norigin=1014,520\n\n[node.8]\norigin=798,405\n\n[node.7]\norigin=614,896\n\n[node.6]\norigin=331,884\n\n[node.5]\norigin=557,461\n\n[node.4]\norigin=241,662\n\n[node.3]\norigin=953,-376\n\n[node.2]\norigin=530,-123\n\n[node.1]\norigin=57,107\n\n[node.10]\norigin=149,-118\n\n[node.11]\norigin=1142,-346\n\n[node.14]\norigin=332,-131\n\n[node.17]\norigin=1129,-211\n\n[node.13]\norigin=931,-206\n\n[node.24]\norigin=1940,180\n\n[node.16]\norigin=1612,137\n\n[node.12]\norigin=937,246\n\n[node.42]\norigin=2795,-176\n\n[node.19]\norigin=1544,-247\n\n[node.25]\norigin=681,-208\n\n[node.40]\norigin=2461,-183\n\n[node.30]\norigin=1752,-89\n\n[node.29]\norigin=1732,-296\n\n[node.28]\norigin=1708,-514\n\n[node.27]\norigin=693,-419\n\n[node.39]\norigin=3437,-604\n\n[node.38]\norigin=2768,-597\n\n[node.37]\norigin=2452,-592\n\n[node.23]\norigin=1789,172\n\n[node.22]\norigin=1467,143\n\n[node.21]\norigin=1245,190\n\n[node.15]\norigin=1541,-423\n\n[node.20]\norigin=1105,-17\n\n[node.18]\norigin=917,21\n\n[node.36]\norigin=2312,-301\n\n[node.31]\norigin=2058,-297\n\n[node.34]\norigin=1317,-33\n\n[node.33]\norigin=1320,-192\n\n[node.32]\norigin=1312,-363\n\n[node.26]\norigin=680,1\n\n[node.35]\norigin=1551,-58\n\n[node.43]\norigin=3099,-602\n\n[node.41]\norigin=1300,821\n\n[node.44]\norigin=1661,616\n"
+    nodes:
+      - node-type: 1
+        node-id: 0
+      - node-type: 7
+        node-id: 1
+        node-data:
+          - instance-move-direction: 1
+          - instance-move-state: 1
+      - node-type: 8
+        node-id: 4
+        node-data:
+          - event-cooldown: 1.000000
+          - event-type: 2
+      - node-type: 7
+        node-id: 5
+        node-data:
+          - instance-max-rotation: 0.000000
+          - instance-min-rotation: 180.000000
+          - instance-random-rotation: 0
+          - instance-relative-rotation: 1
+      - node-type: 8
+        node-id: 6
+        node-data:
+          - event-cooldown: 0.200000
+          - event-type: 1
+      - node-type: 5
+        node-id: 7
+        node-data:
+          - selector-num-outs: 2
+          - selector-wait-time: 0.000000
+      - node-type: 7
+        node-id: 8
+        node-data:
+          - instance-max-rotation: -40.000000
+          - instance-min-rotation: -50.000000
+          - instance-random-rotation: 1
+          - instance-relative-rotation: 1
+      - node-type: 7
+        node-id: 9
+        node-data:
+          - instance-max-rotation: 40.000000
+          - instance-min-rotation: 40.000000
+          - instance-random-rotation: 1
+          - instance-relative-rotation: 1
+      - node-type: 4
+        node-id: 10
+        node-data:
+          - random-wait-max-time: 12.000000
+          - random-wait-min-time: 4.000000
+      - node-type: 5
+        node-id: 2
+        node-data:
+          - selector-num-outs: 3
+          - selector-wait-time: 1.000000
+      - node-type: 9
+        node-id: 3
+        node-data:
+          - action-move-state: 5
+      - node-type: 3
+        node-id: 11
+        node-data:
+          - wait-time: 2.500000
+      - node-type: 9
+        node-id: 13
+        node-data:
+          - action-move-state: 10
+      - node-type: 7
+        node-id: 14
+        node-data:
+          - instance-move-direction: 0
+          - instance-move-state: 0
+      - node-type: 3
+        node-id: 17
+        node-data:
+          - wait-time: 3.500000
+      - node-type: 9
+        node-id: 18
+        node-data:
+          - action-move-state: 8
+      - node-type: 3
+        node-id: 20
+        node-data:
+          - wait-time: 4.000000
+      - node-type: 8
+        node-id: 12
+        node-data:
+          - event-cooldown: 0.000000
+          - event-type: 3
+      - node-type: 9
+        node-id: 16
+        node-data:
+          - action-move-state: 10
+      - node-type: 7
+        node-id: 21
+        node-data:
+          - instance-move-direction: 0
+          - instance-move-state: 0
+      - node-type: 3
+        node-id: 22
+        node-data:
+          - wait-time: 1.000000
+      - node-type: 3
+        node-id: 23
+        node-data:
+          - wait-time: 1.000000
+      - node-type: 9
+        node-id: 24
+        node-data:
+          - action-move-state: 0
+      - node-type: 11
+        node-id: 25
+        node-data:
+          - face-anim: 4
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 11
+        node-id: 26
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 11
+        node-id: 27
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 11
+        node-id: 28
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 29
+        node-data:
+          - face-anim: 4
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 30
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 31
+      - node-type: 9
+        node-id: 32
+        node-data:
+          - action-move-state: 0
+      - node-type: 9
+        node-id: 33
+        node-data:
+          - action-move-state: 0
+      - node-type: 9
+        node-id: 34
+        node-data:
+          - action-move-state: 0
+      - node-type: 3
+        node-id: 15
+        node-data:
+          - wait-time: 0.500000
+      - node-type: 3
+        node-id: 19
+        node-data:
+          - wait-time: 0.500000
+      - node-type: 3
+        node-id: 35
+        node-data:
+          - wait-time: 0.500000
+      - node-type: 5
+        node-id: 36
+        node-data:
+          - selector-num-outs: 2
+          - selector-wait-time: 0.500000
+      - node-type: 12
+        node-id: 37
+        node-data:
+          - head-anim-left-right: 1
+          - head-anim-left-right-blend-time: 0.200000
+          - head-anim-left-right-end-weight: 0.750000
+          - head-anim-left-right-start-weight: 0.000000
+      - node-type: 12
+        node-id: 38
+        node-data:
+          - head-anim-left-right: 1
+          - head-anim-left-right-blend-time: 0.400000
+          - head-anim-left-right-end-weight: -0.750000
+          - head-anim-left-right-start-weight: 0.750000
+      - node-type: 12
+        node-id: 39
+        node-data:
+          - head-anim-left-right: 1
+          - head-anim-left-right-blend-time: 0.200000
+          - head-anim-left-right-end-weight: 0.000000
+          - head-anim-left-right-start-weight: 0.750000
+      - node-type: 12
+        node-id: 40
+        node-data:
+          - head-anim-up-down: 1
+          - head-anim-up-down-blend-time: 0.250000
+          - head-anim-up-down-end-weight: -0.750000
+          - head-anim-up-down-start-weight: 0.000000
+      - node-type: 12
+        node-id: 42
+        node-data:
+          - head-anim-up-down: 1
+          - head-anim-up-down-blend-time: 0.250000
+          - head-anim-up-down-end-weight: 0.000000
+          - head-anim-up-down-start-weight: -0.750000
+      - node-type: 12
+        node-id: 43
+        node-data:
+          - head-anim-left-right: 1
+          - head-anim-left-right-blend-time: 0.400000
+          - head-anim-left-right-end-weight: 0.750000
+          - head-anim-left-right-start-weight: -0.750000
+      - node-type: 8
+        node-id: 41
+        node-data:
+          - event-cooldown: 1.000000
+          - event-type: 4
+      - node-type: 7
+        node-id: 44
+        node-data:
+          - instance-max-rotation: 0.000000
+          - instance-min-rotation: 180.000000
+          - instance-random-rotation: 0
+          - instance-relative-rotation: 1
+    links:
+      - 10040: [43200, 39000]
+      - 10011: [3200, 11000]
+      - 10024: [27200, 3000]
+      - 10041: [38200, 43000]
+      - 10012: [2201, 25000]
+      - 10038: [36200, 37000]
+      - 10009: [1200, 10000]
+      - 10003: [23200, 24000]
+      - 10032: [20200, 34000]
+      - 10018: [13200, 17000]
+      - 10017: [28200, 31000]
+      - 10030: [11200, 32000]
+      - 10001: [22200, 16000]
+      - 10014: [12200, 21000]
+      - 10027: [17200, 33000]
+      - 10039: [37200, 38000]
+      - 10010: [2200, 27000]
+      - 10007: [7201, 9000]
+      - 10036: [40200, 42000]
+      - 10023: [30200, 31000]
+      - 10016: [10200, 14000]
+      - 10015: [25200, 13000]
+      - 10002: [16200, 23000]
+      - 10031: [33200, 19000]
+      - 10028: [35200, 30000]
+      - 10005: [6200, 7000]
+      - 10034: [31200, 36000]
+      - 10025: [19200, 29000]
+      - 10035: [36201, 40000]
+      - 10006: [7200, 8000]
+      - 10022: [26200, 18000]
+      - 10037: [41200, 44000]
+      - 10008: [14200, 2000]
+      - 10019: [29200, 31000]
+      - 10020: [15200, 28000]
+      - 10033: [34200, 35000]
+      - 10004: [4200, 5000]
+      - 10021: [18200, 20000]
+      - 10000: [21200, 22000]
+      - 10029: [32200, 15000]
+      - 10026: [0, 1000]
+      - 10013: [2202, 26000]
+  - node-tree-name: AllRunCollisionWoman
+    editor-settings: "[editor]\npanning=-612,98\n\n[node.0]\norigin=-144,33\n\n[node.9]\norigin=1014,520\n\n[node.8]\norigin=798,405\n\n[node.7]\norigin=614,896\n\n[node.6]\norigin=331,884\n\n[node.5]\norigin=557,461\n\n[node.4]\norigin=241,662\n\n[node.3]\norigin=988,-270\n\n[node.2]\norigin=530,-123\n\n[node.1]\norigin=-17,25\n\n[node.10]\norigin=157,-125\n\n[node.11]\norigin=1205,-267\n\n[node.14]\norigin=332,-131\n\n[node.17]\norigin=1218,11\n\n[node.13]\norigin=994,13\n\n[node.16]\norigin=1207,-126\n\n[node.12]\norigin=994,-128\n\n[node.30]\norigin=2075,-208\n\n[node.29]\norigin=1794,34\n\n[node.28]\norigin=1790,-183\n\n[node.27]\norigin=1785,-390\n\n[node.25]\norigin=1615,11\n\n[node.24]\norigin=1611,-131\n\n[node.19]\norigin=1603,-315\n\n[node.23]\norigin=1390,30\n\n[node.22]\norigin=1404,-124\n\n[node.21]\norigin=727,74\n\n[node.15]\norigin=1374,-284\n\n[node.20]\norigin=723,-133\n\n[node.18]\norigin=709,-345\n\n[node.26]\norigin=1009,267\n\n[node.31]\norigin=1643,243\n\n[node.32]\norigin=1265,355\n\n[node.33]\norigin=1433,393\n"
+    nodes:
+      - node-type: 1
+        node-id: 0
+      - node-type: 7
+        node-id: 1
+        node-data:
+          - instance-move-direction: 1
+          - instance-move-state: 1
+      - node-type: 8
+        node-id: 4
+        node-data:
+          - event-cooldown: 1.000000
+          - event-type: 2
+      - node-type: 7
+        node-id: 5
+        node-data:
+          - instance-max-rotation: 0.000000
+          - instance-min-rotation: 180.000000
+          - instance-random-rotation: 0
+          - instance-relative-rotation: 1
+      - node-type: 8
+        node-id: 6
+        node-data:
+          - event-cooldown: 0.200000
+          - event-type: 1
+      - node-type: 5
+        node-id: 7
+        node-data:
+          - selector-num-outs: 2
+          - selector-wait-time: 0.000000
+      - node-type: 7
+        node-id: 8
+        node-data:
+          - instance-max-rotation: -40.000000
+          - instance-min-rotation: -50.000000
+          - instance-random-rotation: 1
+          - instance-relative-rotation: 1
+      - node-type: 7
+        node-id: 9
+        node-data:
+          - instance-max-rotation: 40.000000
+          - instance-min-rotation: 40.000000
+          - instance-random-rotation: 1
+          - instance-relative-rotation: 1
+      - node-type: 4
+        node-id: 10
+        node-data:
+          - random-wait-max-time: 12.000000
+          - random-wait-min-time: 4.000000
+      - node-type: 5
+        node-id: 2
+        node-data:
+          - selector-num-outs: 3
+          - selector-wait-time: 1.000000
+      - node-type: 9
+        node-id: 3
+        node-data:
+          - action-move-state: 5
+      - node-type: 3
+        node-id: 11
+        node-data:
+          - wait-time: 2.500000
+      - node-type: 9
+        node-id: 12
+        node-data:
+          - action-move-state: 6
+      - node-type: 7
+        node-id: 14
+        node-data:
+          - instance-move-direction: 0
+          - instance-move-state: 0
+      - node-type: 9
+        node-id: 15
+        node-data:
+          - action-move-state: 0
+      - node-type: 3
+        node-id: 16
+        node-data:
+          - wait-time: 3.000000
+      - node-type: 3
+        node-id: 17
+        node-data:
+          - wait-time: 3.000000
+      - node-type: 9
+        node-id: 13
+        node-data:
+          - action-move-state: 3
+      - node-type: 11
+        node-id: 18
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 11
+        node-id: 20
+        node-data:
+          - face-anim: 3
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 11
+        node-id: 21
+        node-data:
+          - face-anim: 4
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 1.000000
+          - face-anim-start-weight: 0.000000
+      - node-type: 9
+        node-id: 22
+        node-data:
+          - action-move-state: 0
+      - node-type: 9
+        node-id: 23
+        node-data:
+          - action-move-state: 0
+      - node-type: 11
+        node-id: 27
+        node-data:
+          - face-anim: 1
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 28
+        node-data:
+          - face-anim: 3
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 29
+        node-data:
+          - face-anim: 4
+          - face-anim-blend-time: 0.500000
+          - face-anim-end-weight: 0.000000
+          - face-anim-start-weight: 1.000000
+      - node-type: 11
+        node-id: 30
+      - node-type: 3
+        node-id: 19
+        node-data:
+          - wait-time: 0.500000
+      - node-type: 3
+        node-id: 24
+        node-data:
+          - wait-time: 0.500000
+      - node-type: 3
+        node-id: 25
+        node-data:
+          - wait-time: 0.500000
+      - node-type: 8
+        node-id: 26
+        node-data:
+          - event-cooldown: 1.000000
+          - event-type: 4
+      - node-type: 7
+        node-id: 31
+        node-data:
+          - instance-max-rotation: -170.000000
+          - instance-min-rotation: -180.000000
+          - instance-random-rotation: 1
+          - instance-relative-rotation: 1
+      - node-type: 5
+        node-id: 32
+        node-data:
+          - selector-num-outs: 2
+          - selector-wait-time: 0.000000
+      - node-type: 7
+        node-id: 33
+        node-data:
+          - instance-max-rotation: 180.000000
+          - instance-min-rotation: 170.000000
+          - instance-random-rotation: 1
+          - instance-relative-rotation: 1
+    links:
+      - 10028: [29200, 30000]
+      - 10010: [2201, 20000]
+      - 10023: [15200, 19000]
+      - 10001: [2200, 18000]
+      - 10030: [32200, 31000]
+      - 10020: [25200, 29000]
+      - 10007: [7201, 9000]
+      - 10021: [19200, 27000]
+      - 10008: [14200, 2000]
+      - 10029: [26200, 32000]
+      - 10000: [18200, 3000]
+      - 10015: [13200, 17000]
+      - 10013: [12200, 16000]
+      - 10026: [27200, 30000]
+      - 10017: [11200, 15000]
+      - 10004: [4200, 5000]
+      - 10018: [16200, 22000]
+      - 10005: [6200, 7000]
+      - 10031: [32201, 33000]
+      - 10002: [20200, 12000]
+      - 10024: [23200, 25000]
+      - 10022: [24200, 28000]
+      - 10025: [22200, 24000]
+      - 10009: [1200, 10000]
+      - 10006: [7200, 8000]
+      - 10011: [3200, 11000]
+      - 10016: [10200, 14000]
+      - 10003: [0, 1000]
+      - 10019: [17200, 23000]
+      - 10027: [28200, 30000]
+      - 10014: [2202, 21000]
+      - 10012: [21200, 13000]
+
+instances:
+  - model-file: Woman.gltf
+    position: [28.5176735, 0, -50.8313141]
+    rotation: [0, -67.7800293, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Man.gltf
+    position: [49.7089157, 1.56789351, 28.4596252]
+    rotation: [0, 62.6401062, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Woman.gltf
+    position: [53.3677444, 0, -45.8988152]
+    rotation: [0, 85.5899963, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [8.54283428, 0, 48.7818718]
+    rotation: [0, -77.2600098, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-3.02830243, 0, -48.1882553]
+    rotation: [0, 39.0899658, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Woman.gltf
+    position: [-36.6509781, 0, 19.3253555]
+    rotation: [0, 113.669952, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 0
+    2nd-anim-clip-number: 9
+    anim-clip-speed: 8
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionWoman
+  - model-file: Man.gltf
+    position: [4.52486992, 5.43471146, 132.838318]
+    rotation: [0, -11.1098785, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 2
+    anim-blend-factor: 1
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [61.2457237, 2.15419698, 47.2017555]
+    rotation: [0, 46.9000931, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0.198915079
+    node-tree: AllRunCollisionMan
+  - model-file: Man.gltf
+    position: [-44.2990417, 5.43471146, 132.113892]
+    rotation: [0, 5.15011597, 0]
+    scale: 1
+    swap-axes: false
+    1st-anim-clip-number: 4
+    2nd-anim-clip-number: 22
+    anim-clip-speed: 1.5
+    anim-blend-factor: 0
+    node-tree: AllRunCollisionMan

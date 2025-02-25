@@ -1,0 +1,63 @@
+#version 460 core
+layout(local_size_x = 1, local_size_y = 32, local_size_z = 1) in;
+
+layout (push_constant) uniform Constants {
+  uint modelOffset;
+  uint instanceOffset;
+};
+
+layout (std430, set = 0, binding = 0) readonly restrict buffer NodeMatrix {
+  mat4 nodeMat[];
+};
+
+layout (std430, set = 0, binding = 1) readonly restrict buffer WorldPosMatrices {
+  mat4 worldPosMat[];
+};
+
+layout (std430, set = 1, binding = 0) readonly restrict buffer ParentNodeIndices {
+  int parentIndex[];
+};
+
+layout (std430, set = 1, binding = 1) readonly restrict buffer SphereAdjustment {
+  vec4 sphereAdjustment[];
+};
+
+layout (std430, set = 0, binding = 2) writeonly restrict buffer BoundingSpheres {
+  vec4 sphereData[];
+};
+
+void main() {
+  uint node = gl_GlobalInvocationID.x;
+  uint instance = gl_GlobalInvocationID.y;
+
+  /* X work group size is number of bones */
+  uint numberOfBones = gl_NumWorkGroups.x;
+
+  uint index = node + numberOfBones * instance;
+  uint sphereIndex = node + numberOfBones * instance + modelOffset;
+
+  float radius = 1.0;
+
+  vec3 nodePos = (worldPosMat[instance] * nodeMat[index])[3].xyz;
+  nodePos += sphereAdjustment[node].xyz;
+  int parentNode = parentIndex[node];
+
+  if (parentNode >= 0) {
+    uint parentIndex = parentNode + numberOfBones * instance;
+    vec3 parentPos = (worldPosMat[instance] * nodeMat[parentIndex])[3].xyz;
+    parentPos += sphereAdjustment[parentNode].xyz;
+
+    vec3 center = mix(nodePos, parentPos, 0.5);
+    radius = length(center - nodePos) * sphereAdjustment[node].w;
+  } else {
+    radius = sphereAdjustment[node].w;
+  }
+
+  /* ignore very small shperes */
+  if (radius < 0.05) {
+    sphereData[sphereIndex] = vec4(0.0);
+  } else {
+    //sphereData[index] = vec4(center, radius);
+    sphereData[sphereIndex] = vec4(nodePos, radius);
+  }
+}

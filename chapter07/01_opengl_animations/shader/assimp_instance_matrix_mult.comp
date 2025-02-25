@@ -1,0 +1,45 @@
+#version 460 core
+layout(local_size_x = 1, local_size_y = 32, local_size_z = 1) in;
+
+layout (std430, binding = 0) readonly restrict buffer TRSMatrix {
+  mat4 trsMat[];
+};
+
+layout (std430, binding = 1) readonly restrict buffer ParentMatrixIndices {
+  int parentIndex[];
+};
+
+layout (std430, binding = 2) readonly restrict buffer BoneOffsets {
+  mat4 boneOff[];
+};
+
+layout (std430, binding = 3) writeonly restrict buffer NodeMatrices {
+  mat4 nodeMat[];
+};
+
+void main() {
+  uint node = gl_GlobalInvocationID.x;
+  uint instance = gl_GlobalInvocationID.y;
+
+  /* X work group size is number of bones */
+  uint numberOfBones = gl_NumWorkGroups.x;
+
+  uint index = node + numberOfBones * instance;
+
+  /* get node matrix, always valid */
+  mat4 nodeMatrix = trsMat[index];
+
+  uint parent = 0;
+
+  int parentNode = parentIndex[node];
+  while (parentNode >= 0) {
+    parent = parentNode + numberOfBones * instance;
+    nodeMatrix = trsMat[parent] * nodeMatrix;
+    parentNode = parentIndex[parentNode];
+  }
+
+  /* root node has index -1 */
+  if (parentNode == -1) {
+    nodeMat[index] = nodeMatrix * boneOff[node];
+  }
+}
