@@ -1653,7 +1653,11 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
         settings = mCurrentInstance->getInstanceSettings();
+
+        numberOfClips = mCurrentModel->getAnimClips().size();
+        modSettings = mCurrentModel->getModelSettings();
 
         if (!modSettings.msIWRBlendings.empty()) {
           direction = modSettings.msIWRBlendings.begin()->first;
@@ -1932,7 +1936,11 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
         settings = mCurrentInstance->getInstanceSettings();
+
+        numberOfClips = mCurrentModel->getAnimClips().size();
+        modSettings = mCurrentModel->getModelSettings();
 
         if (!modSettings.msActionClipMappings.empty()) {
           state = modSettings.msActionClipMappings.begin()->first;
@@ -2072,6 +2080,10 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
+
+        numberOfClips = mCurrentModel->getAnimClips().size();
+        modSettings = mCurrentModel->getModelSettings();
       }
     }
 
@@ -2175,7 +2187,9 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
         settings = mCurrentInstance->getInstanceSettings();
+        modSettings = mCurrentModel->getModelSettings();
       }
 
       if (mCurrentModel->hasAnimations()) {
@@ -2269,6 +2283,8 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
+        modSettings = mCurrentModel->getModelSettings();
       }
     }
 
@@ -2306,7 +2322,11 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
         settings = mCurrentInstance->getInstanceSettings();
+        modSettings = mCurrentModel->getModelSettings();
+
+        nodeNames = mCurrentModel->getBoneNameList();
       }
 
       glm::vec4 value = modSettings.msBoundingSphereAdjustments.at(selectedNode);

@@ -12,10 +12,10 @@ class ShaderStorageBuffer {
     /* set an arbitraty buffer size as default */
     static bool init(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData, size_t bufferSize = 1024);
 
-    static void uploadData(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData,
+    static bool uploadSsboData(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData,
       std::vector<glm::mat4> bufferData);
 
-    static void checkForResize(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData,
+    static bool checkForResize(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData,
       size_t bufferSize);
 
     static void cleanup(VkRenderData &renderData, VkShaderStorageBufferData &SSBOData);

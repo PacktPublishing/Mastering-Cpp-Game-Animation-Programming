@@ -48,7 +48,7 @@ FIND_LIBRARY(ASSIMP_LIBRARY NAMES assimp
 PATHS ${_assimp_LIB_SEARCH_DIRS} )
 
 # Search for the libraies
-FIND_LIBRARY(ASSIMP_ZLIB_LIBRARY NAMES zlibstatic
+FIND_LIBRARY(ASSIMP_ZLIB_LIBRARY NAMES zlibstatic libz
 PATHS ${_assimp_LIB_SEARCH_DIRS} )
 
 INCLUDE(FindPackageHandleStandardArgs)

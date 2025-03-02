@@ -202,11 +202,11 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
     }
 
     Logger::log(1, "%s: generated %i elements of lookup data (%i bytes)\n", __FUNCTION__, animLookupData.size(), animLookupData.size() * sizeof(glm::vec4));
-    ShaderStorageBuffer::uploadData(renderData, mAnimLookupBuffer, animLookupData);
+    ShaderStorageBuffer::uploadSsboData(renderData, mAnimLookupBuffer, animLookupData);
   }
 
-  ShaderStorageBuffer::uploadData(renderData, mShaderBoneMatrixOffsetBuffer, boneOffsetMatricesList);
-  ShaderStorageBuffer::uploadData(renderData, mShaderBoneParentBuffer, boneParentIndexList);
+  ShaderStorageBuffer::uploadSsboData(renderData, mShaderBoneMatrixOffsetBuffer, boneOffsetMatricesList);
+  ShaderStorageBuffer::uploadSsboData(renderData, mShaderBoneParentBuffer, boneParentIndexList);
 
   /* create descriptor set for per-model data */
   createDescriptorSet(renderData);

@@ -65,6 +65,7 @@ bool IndexBuffer::uploadData(VkRenderData& renderData, VkIndexBufferData& buffer
   }
   std::memcpy(data, vertexData.indices.data(), indexDataSize);
   vmaUnmapMemory(renderData.rdAllocator, bufferData.stagingBufferAlloc);
+  vmaFlushAllocation(renderData.rdAllocator, bufferData.stagingBufferAlloc, 0, indexDataSize);
 
   VkBufferMemoryBarrier indexBufferBarrier{};
   indexBufferBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;

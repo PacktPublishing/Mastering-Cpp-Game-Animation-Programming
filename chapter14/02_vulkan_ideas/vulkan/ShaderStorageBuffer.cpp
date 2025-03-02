@@ -29,12 +29,14 @@ bool ShaderStorageBuffer::init(VkRenderData& renderData, VkShaderStorageBufferDa
     return true;
 }
 
-void ShaderStorageBuffer::checkForResize(VkRenderData& renderData, VkShaderStorageBufferData& SSBOData, size_t bufferSize) {
+bool ShaderStorageBuffer::checkForResize(VkRenderData& renderData, VkShaderStorageBufferData& SSBOData, size_t bufferSize) {
   if (bufferSize > SSBOData.bufferSize) {
     Logger::log(1, "%s: resize SSBO %p from %i to %i bytes\n", __FUNCTION__, SSBOData.buffer, SSBOData.bufferSize, bufferSize);
     cleanup(renderData, SSBOData);
     init(renderData, SSBOData, bufferSize);
+    return true;
   }
+  return false;
 }
 
 glm::mat4 ShaderStorageBuffer::getSsboDataMat4(VkRenderData& renderData, VkShaderStorageBufferData& SSBOData, size_t offset) {

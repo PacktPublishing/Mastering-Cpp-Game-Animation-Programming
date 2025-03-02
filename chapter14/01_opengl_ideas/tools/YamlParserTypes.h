@@ -317,6 +317,12 @@ namespace YAML {
         Logger::log(1, "%s warning: could not parse anim clip speed of an instance of model '%s', init with a default value\n", __FUNCTION__, rhs.isModelFile.c_str());
         rhs.isAnimSpeedFactor = defaultSettings.isAnimSpeedFactor;
       }
+      try {
+        rhs.isAnimBlendFactor = node["anim-blend-factor"].as<float>();
+      } catch (...) {
+        Logger::log(1, "%s warning: could not parse anim blend factor of an instance of model '%s', init with a default value\n", __FUNCTION__, rhs.isModelFile.c_str());
+        rhs.isAnimBlendFactor = defaultSettings.isAnimBlendFactor;
+      }
       if (node["target-of-cameras"]) {
         try {
           rhs.eisCameraNames = node["target-of-cameras"].as<std::vector<std::string>>();
