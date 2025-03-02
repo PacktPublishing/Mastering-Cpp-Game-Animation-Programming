@@ -345,6 +345,7 @@ bool VkRenderer::createDescriptorSets() {
 }
 
 bool VkRenderer::updateDescriptorSets() {
+  Logger::log(1, "%s: updating descriptor sets\n", __FUNCTION__);
   /* we must update the descriptor sets whenever the buffer size has changed */
   {
     /* non-animated shader */
@@ -1031,17 +1032,12 @@ bool VkRenderer::draw(float deltaTime) {
     mWorldPosMatrices.size() * sizeof(glm::mat4);
 
   /* we need to update descriptors after the upload if buffer size changed */
-  bool doDescriptorUpdates = false;
-  if (mBoneMatrixBuffer.bufferSize != mModelBoneMatrices.size() * sizeof(glm::mat4) ||
-      mWorldPosBuffer.bufferSize != mWorldPosMatrices.size() * sizeof(glm::mat4)) {
-    doDescriptorUpdates = true;
-  }
-
+  bool bufferResized = false;
   mUploadToUBOTimer.start();
-  ShaderStorageBuffer::uploadData(mRenderData, mBoneMatrixBuffer, mModelBoneMatrices);
-  ShaderStorageBuffer::uploadData(mRenderData, mWorldPosBuffer, mWorldPosMatrices);
+  bufferResized =  ShaderStorageBuffer::uploadSsboData(mRenderData, mBoneMatrixBuffer, mModelBoneMatrices);
+  bufferResized |= ShaderStorageBuffer::uploadSsboData(mRenderData, mWorldPosBuffer, mWorldPosMatrices);
 
-  if (doDescriptorUpdates) {
+  if (bufferResized) {
     updateDescriptorSets();
   }
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();

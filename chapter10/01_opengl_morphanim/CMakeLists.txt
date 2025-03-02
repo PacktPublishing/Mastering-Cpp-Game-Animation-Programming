@@ -94,7 +94,7 @@ if(NOT imnodes_POPULATED)
 endif()
 
 # get YAML-CPP, GLFW3 and GLM via FetchContent on Windows systems
-if(WIN32)
+if(WIN32 AND NOT MINGW)
   # yaml-cpp
   FetchContent_Declare(
     yaml-cpp
@@ -131,7 +131,7 @@ if(WIN32)
   set(GLFW3_INCLUDE_DIR ${glfw3_SOURCE_DIR}/include)
   set(GLFW3_LIBRARY "${glfw3_BINARY_DIR}/src/$<CONFIGURATION>/glfw3.lib")
 
-  # Skip downloading GLM if VUlkan SDK has been found
+  # Skip downloading if Vulkan SDK has been found
   if (NOT DEFINED ENV{VK_SDK_PATH})
     # get GLM
     FetchContent_Declare(
@@ -151,7 +151,7 @@ if(WIN32)
     endif()
 
     # set variables that will be used later
-    set(GLM_INCLUDE_DIR ${glm_SOURCE_DIR})
+    set(GLM_INCLUDE_DIRS ${glm_SOURCE_DIR})
   endif()
 endif()
 
@@ -188,7 +188,7 @@ find_package(glm REQUIRED)
 find_package(assimp REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
-include_directories(${GLFW3_INCLUDE_DIR} ${GLM_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${YAML_CPP_INCLUDE_DIR})
+include_directories(${GLFW3_INCLUDE_DIR} ${GLM_INCLUDE_DIRS} ${ASSIMP_INCLUDE_DIR} ${YAML_CPP_INCLUDE_DIR})
 
 
 # copy shader files
@@ -278,10 +278,11 @@ add_custom_command(TARGET ImGuiIniFile POST_BUILD
   "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/imgui.ini"
 )
 
-# FindAssimp.cmake sets ASSIMP_LIBRARY and ASSIMP_ZLIB_LIBRARY under Windows, reuse the value for Linux
+# FindAssimp.cmake sets ASSIMP_LIBRARY and ASSIMP_ZLIB_LIBRARY/FindGLFW3 set GLF3_LIBRARY under Windows, reuse the value for Linux
 if(UNIX)
   set(ASSIMP_LIBRARY assimp)
   set(ASSIMP_ZLIB_LIBRARY z)
+  set(GLFW3_LIBRARY glfw)
 endif()
 
 # enable experimental GLM functions globally
@@ -294,5 +295,5 @@ if(MSVC)
   target_link_libraries(${PROJECT_NAME} PRIVATE glfw ${ASSIMP_LIBRARY} ${ASSIMP_ZLIB_LIBRARY} OpenGL::GL yaml-cpp::yaml-cpp)
 else()
   # Clang and GCC may need libstd++ and libmath
-  target_link_libraries(${PROJECT_NAME} PRIVATE glfw ${ASSIMP_LIBRARY} ${ASSIMP_ZLIB_LIBRARY} OpenGL::GL yaml-cpp stdc++ m)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${GLFW3_LIBRARY} ${ASSIMP_LIBRARY} ${ASSIMP_ZLIB_LIBRARY} OpenGL::GL yaml-cpp stdc++ m)
 endif()

@@ -731,11 +731,13 @@ bool VkRenderer::createDescriptorSets() {
   }
 
   updateDescriptorSets();
+  updateComputeDescriptorSets();
 
   return true;
 }
 
 void VkRenderer::updateDescriptorSets() {
+  Logger::log(1, "%s: updating descriptor sets\n", __FUNCTION__);
   /* we must update the descriptor sets whenever the buffer size has changed */
   {
     /* non-animated shader */
@@ -980,6 +982,7 @@ void VkRenderer::updateDescriptorSets() {
 }
 
 void VkRenderer::updateComputeDescriptorSets() {
+  Logger::log(1, "%s: updating compute descriptor sets\n", __FUNCTION__);
   {
     /* transform compute shader */
     VkDescriptorBufferInfo transformInfo{};
@@ -2176,23 +2179,18 @@ bool VkRenderer::draw(float deltaTime) {
   }
 
   /* we need to update descriptors after the upload if buffer size changed */
-  bool doComputeDescriptorUpdates = false;
-  if (mShaderNodeTransformBuffer.bufferSize != animatedInstancesToStore * sizeof(NodeTransformData) ||
-    mShaderTRSMatrixBuffer.bufferSize != boneMatrixBufferSize * sizeof(glm::mat4) ||
-    mShaderBoneMatrixBuffer.bufferSize != boneMatrixBufferSize * sizeof(glm::mat4)) {
-    doComputeDescriptorUpdates = true;
-  }
-
+  bool bufferResized = false;
   mUploadToUBOTimer.start();
-  ShaderStorageBuffer::uploadData(mRenderData, mShaderNodeTransformBuffer, mShaderNodeTransFormData);
-  ShaderStorageBuffer::uploadData(mRenderData, mSelectedInstanceBuffer, mSelectedInstance);
+  bufferResized = ShaderStorageBuffer::uploadSsboData(mRenderData, mShaderNodeTransformBuffer, mShaderNodeTransFormData);
+  bufferResized |= ShaderStorageBuffer::uploadSsboData(mRenderData, mSelectedInstanceBuffer, mSelectedInstance);
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
   /* resize SSBO if needed */
-  ShaderStorageBuffer::checkForResize(mRenderData, mShaderTRSMatrixBuffer, boneMatrixBufferSize * sizeof(glm::mat4));
-  ShaderStorageBuffer::checkForResize(mRenderData, mShaderBoneMatrixBuffer, boneMatrixBufferSize * sizeof(glm::mat4));
+  bufferResized |= ShaderStorageBuffer::checkForResize(mRenderData, mShaderTRSMatrixBuffer, boneMatrixBufferSize * sizeof(glm::mat4));
+  bufferResized |= ShaderStorageBuffer::checkForResize(mRenderData, mShaderBoneMatrixBuffer, boneMatrixBufferSize * sizeof(glm::mat4));
 
-  if (doComputeDescriptorUpdates) {
+  if (bufferResized) {
+    updateDescriptorSets();
     updateComputeDescriptorSets();
   }
 
@@ -2283,21 +2281,16 @@ bool VkRenderer::draw(float deltaTime) {
     0.1f, 500.0f);
 
   mMatrices.viewMatrix = mCamera.getViewMatrix(mRenderData);
+
   mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
 
   /* we need to update descriptors after the upload if buffer size changed */
-  bool doDescriptorUpdates = false;
-  if (mShaderModelRootMatrixBuffer.bufferSize != mWorldPosMatrices.size() * sizeof(glm::mat4) ||
-    mShaderBoneMatrixBuffer.bufferSize != boneMatrixBufferSize * sizeof(glm::mat4)) {
-    doDescriptorUpdates = true;
-  }
-
   mUploadToUBOTimer.start();
   UniformBuffer::uploadData(mRenderData, mPerspectiveViewMatrixUBO, mMatrices);
-  ShaderStorageBuffer::uploadData(mRenderData, mShaderModelRootMatrixBuffer, mWorldPosMatrices);
+  bufferResized = ShaderStorageBuffer::uploadSsboData(mRenderData, mShaderModelRootMatrixBuffer, mWorldPosMatrices);
   mRenderData.rdUploadToUBOTime += mUploadToUBOTimer.stop();
 
-  if (doDescriptorUpdates) {
+  if (bufferResized) {
     updateDescriptorSets();
   }
 

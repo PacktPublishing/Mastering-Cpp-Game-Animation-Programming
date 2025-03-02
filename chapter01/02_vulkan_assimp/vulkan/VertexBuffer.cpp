@@ -69,6 +69,7 @@ bool VertexBuffer::uploadData(VkRenderData& renderData, VkVertexBufferData &vert
   }
   std::memcpy(data, vertexData.vertices.data(), vertexDataSize);
   vmaUnmapMemory(renderData.rdAllocator, vertexBufferData.stagingBufferAlloc);
+  vmaFlushAllocation(renderData.rdAllocator, vertexBufferData.stagingBufferAlloc, 0, vertexDataSize);
 
   VkBufferMemoryBarrier vertexBufferBarrier{};
   vertexBufferBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -126,6 +127,7 @@ bool VertexBuffer::uploadData(VkRenderData& renderData, VkVertexBufferData &vert
   }
   std::memcpy(data, vertexData.data(), vertexDataSize);
   vmaUnmapMemory(renderData.rdAllocator, vertexBufferData.stagingBufferAlloc);
+  vmaFlushAllocation(renderData.rdAllocator, vertexBufferData.stagingBufferAlloc, 0, vertexDataSize);
 
   VkBufferMemoryBarrier vertexBufferBarrier{};
   vertexBufferBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;

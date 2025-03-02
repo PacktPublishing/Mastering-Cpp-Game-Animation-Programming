@@ -1965,7 +1965,11 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
         settings = mCurrentInstance->getInstanceSettings();
+
+        numberOfClips = mCurrentModel->getAnimClips().size();
+        modSettings = mCurrentModel->getModelSettings();
 
         if (!modSettings.msIWRBlendings.empty()) {
           direction = modSettings.msIWRBlendings.begin()->first;
@@ -2245,7 +2249,11 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
         settings = mCurrentInstance->getInstanceSettings();
+
+        numberOfClips = mCurrentModel->getAnimClips().size();
+        modSettings = mCurrentModel->getModelSettings();
 
         if (!modSettings.msActionClipMappings.empty()) {
           state = modSettings.msActionClipMappings.begin()->first;
@@ -2385,6 +2393,10 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
+
+        numberOfClips = mCurrentModel->getAnimClips().size();
+        modSettings = mCurrentModel->getModelSettings();
       }
     }
 
@@ -2472,33 +2484,6 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
   }
 
-  if (ImGui::CollapsingHeader("Model Forward Speed")) {
-    size_t numberOfInstances = modInstCamData.micAssimpInstances.size() - 1;
-
-    ModelSettings modSettings;
-
-    if (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
-      mCurrentModel = mCurrentInstance->getModel();
-      modSettings = mCurrentModel->getModelSettings();
-
-      if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
-        mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
-      }
-    }
-
-    if (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
-      ImGui::AlignTextToFramePadding();
-      ImGui::Text("Forward Speed Factor:");
-      ImGui::SameLine();
-      ImGui::PushItemWidth(250.0f);
-      ImGui::SliderFloat("##ModelForwardSpeedFactor", &modSettings.msForwardSpeedFactor,
-        0.0f, 10.0f, "%.2f", flags);
-      ImGui::PopItemWidth();
-
-      mCurrentModel->setModelSettings(modSettings);
-    }
-  }
-
   if (ImGui::CollapsingHeader("Model Head Movement Animation Mappings")) {
     size_t numberOfInstances = modInstCamData.micAssimpInstances.size() - 1;
 
@@ -2515,7 +2500,9 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
         settings = mCurrentInstance->getInstanceSettings();
+        modSettings = mCurrentModel->getModelSettings();
       }
 
       if (mCurrentModel->hasAnimations()) {
@@ -2598,6 +2585,35 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
     }
   }
 
+  if (ImGui::CollapsingHeader("Model Forward Speed")) {
+    size_t numberOfInstances = modInstCamData.micAssimpInstances.size() - 1;
+
+    ModelSettings modSettings;
+
+    if (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
+      mCurrentModel = mCurrentInstance->getModel();
+      modSettings = mCurrentModel->getModelSettings();
+
+      if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
+        mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
+        modSettings = mCurrentModel->getModelSettings();
+      }
+    }
+
+    if (numberOfInstances > 0 && modInstCamData.micSelectedInstance > 0) {
+      ImGui::AlignTextToFramePadding();
+      ImGui::Text("Forward Speed Factor:");
+      ImGui::SameLine();
+      ImGui::PushItemWidth(250.0f);
+      ImGui::SliderFloat("##ModelForwardSpeedFactor", &modSettings.msForwardSpeedFactor,
+        0.0f, 10.0f, "%.2f", flags);
+      ImGui::PopItemWidth();
+
+      mCurrentModel->setModelSettings(modSettings);
+    }
+  }
+
   if (ImGui::CollapsingHeader("Model Bounding Sphere Adjustment")) {
     size_t numberOfInstances = modInstCamData.micAssimpInstances.size() - 1;
 
@@ -2619,7 +2635,11 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
         settings = mCurrentInstance->getInstanceSettings();
+        modSettings = mCurrentModel->getModelSettings();
+
+        nodeNames = mCurrentModel->getBoneNameList();
       }
 
       glm::vec4 value = modSettings.msBoundingSphereAdjustments.at(selectedNode);

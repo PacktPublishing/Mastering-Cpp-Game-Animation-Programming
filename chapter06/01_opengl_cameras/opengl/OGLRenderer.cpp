@@ -170,7 +170,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   } else {
     Logger::log(1, "%s: could not load default config file '%s'\n", __FUNCTION__, mDefaultConfigFileName.c_str());
     /* clear everything and add null model/instance/settings container */
-    removeAllModelsAndInstances();
+    createEmptyConfig();
   }
 
   mFrameTimer.start();

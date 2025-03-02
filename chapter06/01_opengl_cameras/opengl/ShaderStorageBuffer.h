@@ -6,20 +6,51 @@
 #include <glad/glad.h>
 
 #include "OGLRenderData.h"
+#include "Logger.h"
 
 class ShaderStorageBuffer {
   public:
     void init(size_t bufferSize);
 
-    void uploadSsboData(std::vector<glm::mat4> bufferData, int bindingPoint);
-    void uploadSsboData(std::vector<glm::mat2x4> bufferData, int bindingPoint);
-    void uploadSsboData(std::vector<NodeTransformData> bufferData, int bindingPoint);
-    void uploadSsboData(std::vector<int32_t> bufferData, int bindingPoint);
-    void uploadSsboData(std::vector<glm::vec2> bufferData, int bindingPoint);
+    /* upload and bind */
+    template <typename T>
+    void uploadSsboData(std::vector<T> bufferData, int bindingPoint) {
+      if (bufferData.empty()) {
+        return;
+      }
+
+      size_t bufferSize = bufferData.size() * sizeof(T);
+      if (bufferSize > mBufferSize) {
+        Logger::log(1, "%s: resizing SSBO %i from %i to %i bytes\n", __FUNCTION__, mShaderStorageBuffer, mBufferSize, bufferSize);
+        cleanup();
+        init(bufferSize);
+      }
+
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, mShaderStorageBuffer);
+      glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, bufferSize, bufferData.data());
+      glBindBufferRange(GL_SHADER_STORAGE_BUFFER, bindingPoint, mShaderStorageBuffer, 0,
+        bufferSize);
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
 
     /* just upload, use bind() call to use */
-    void uploadSsboData(std::vector<glm::mat4> bufferData);
-    void uploadSsboData(std::vector<int32_t> bufferData);
+    template <typename T>
+    void uploadSsboData(std::vector<T> bufferData) {
+      if (bufferData.empty()) {
+        return;
+      }
+
+      size_t bufferSize = bufferData.size() * sizeof(T);
+      if (bufferSize > mBufferSize) {
+        Logger::log(1, "%s: resizing SSBO %i from %i to %i bytes\n", __FUNCTION__, mShaderStorageBuffer, mBufferSize, bufferSize);
+        cleanup();
+        init(bufferSize);
+      }
+
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, mShaderStorageBuffer);
+      glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, bufferSize, bufferData.data());
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
 
     void bind(int bindingPoint);
     GLuint getBufferId();

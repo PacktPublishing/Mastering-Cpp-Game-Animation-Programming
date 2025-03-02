@@ -205,15 +205,15 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
     }
 
     Logger::log(1, "%s: generated %i elements of lookup data (%i bytes)\n", __FUNCTION__, animLookupData.size(), animLookupData.size() * sizeof(glm::vec4));
-    ShaderStorageBuffer::uploadData(renderData, mAnimLookupBuffer, animLookupData);
+    ShaderStorageBuffer::uploadSsboData(renderData, mAnimLookupBuffer, animLookupData);
   }
 
-  ShaderStorageBuffer::uploadData(renderData, mShaderBoneMatrixOffsetBuffer, boneOffsetMatricesList);
-  ShaderStorageBuffer::uploadData(renderData, mShaderBoneParentBuffer, mBoneParentIndexList);
+  ShaderStorageBuffer::uploadSsboData(renderData, mShaderBoneMatrixOffsetBuffer, boneOffsetMatricesList);
+  ShaderStorageBuffer::uploadSsboData(renderData, mShaderBoneParentBuffer, mBoneParentIndexList);
 
   /* we MUST set bone offsets to identity matrices to get the skeleton data for the AABBs */
   std::vector<glm::mat4> emptyBoneOffsets(mBoneList.size(), glm::mat4(1.0f));
-  ShaderStorageBuffer::uploadData(renderData, mEmptyBoneOffsetBuffer, emptyBoneOffsets);
+  ShaderStorageBuffer::uploadSsboData(renderData, mEmptyBoneOffsetBuffer, emptyBoneOffsets);
 
   mModelSettings.msModelFilenamePath = modelFilename;
   mModelSettings.msModelFilename = std::filesystem::path(modelFilename).filename().generic_string();
@@ -228,7 +228,7 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
     mModelSettings.msBoundingSphereAdjustments = std::vector(mBoneList.size(), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
   }
 
-  ShaderStorageBuffer::uploadData(renderData, mBoundingSphereAdjustmentBuffer, mModelSettings.msBoundingSphereAdjustments);
+  ShaderStorageBuffer::uploadSsboData(renderData, mBoundingSphereAdjustmentBuffer, mModelSettings.msBoundingSphereAdjustments);
 
   /* create descriptor set for per-model data */
   createDescriptorSet(renderData);
@@ -470,7 +470,7 @@ void AssimpModel::updateBoundingSphereDescriptorSet(VkRenderData &renderData) {
 }
 
 void AssimpModel::updateBoundingSphereAdjustments(VkRenderData& renderData) {
-  ShaderStorageBuffer::uploadData(renderData, mBoundingSphereAdjustmentBuffer, mModelSettings.msBoundingSphereAdjustments);
+  ShaderStorageBuffer::uploadSsboData(renderData, mBoundingSphereAdjustmentBuffer, mModelSettings.msBoundingSphereAdjustments);
   updateBoundingSphereDescriptorSet(renderData);
 }
 

@@ -132,8 +132,8 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
   ShaderStorageBuffer::init(renderData, mShaderBoneMatrixOffsetBuffer);
   ShaderStorageBuffer::init(renderData, mShaderBoneParentBuffer);
 
-  ShaderStorageBuffer::uploadData(renderData, mShaderBoneMatrixOffsetBuffer, boneOffsetMatricesList);
-  ShaderStorageBuffer::uploadData(renderData, mShaderBoneParentBuffer, boneParentIndexList);
+  ShaderStorageBuffer::uploadSsboData(renderData, mShaderBoneMatrixOffsetBuffer, boneOffsetMatricesList);
+  ShaderStorageBuffer::uploadSsboData(renderData, mShaderBoneParentBuffer, boneParentIndexList);
 
   /* create descriptor set for per-model data */
   createDescriptorSet(renderData);

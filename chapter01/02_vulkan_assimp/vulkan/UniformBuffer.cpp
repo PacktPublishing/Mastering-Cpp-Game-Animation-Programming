@@ -30,6 +30,7 @@ void UniformBuffer::uploadData(VkRenderData &renderData, VkUniformBufferData &ub
   }
   std::memcpy(data, &matrices, sizeof(VkUploadMatrices));
   vmaUnmapMemory(renderData.rdAllocator, uboData.bufferAlloc);
+  vmaFlushAllocation(renderData.rdAllocator, uboData.bufferAlloc, 0, uboData.bufferSize);
 }
 
 void UniformBuffer::cleanup(VkRenderData& renderData, VkUniformBufferData &uboData) {

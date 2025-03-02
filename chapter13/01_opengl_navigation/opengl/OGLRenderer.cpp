@@ -1219,6 +1219,7 @@ void OGLRenderer::updateInstanceSettings(std::shared_ptr<AssimpInstance> instanc
           /* do nothing */
           break;
       }
+      break;
     case graphNodeType::action:
       if (updateType == instanceUpdateType::moveState) {
         state = std::get<moveState>(data);
