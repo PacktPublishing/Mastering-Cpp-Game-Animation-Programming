@@ -27,11 +27,13 @@ We need the following packages for general compilation:
 * ninja
 * gcc (or clang)
 * glm
-* glew
 * glfw
 * assimp
 * zlib
-* mesa
+
+If you want to compile the Vulkan examples, the following two packages are needed:
+* vulkan-devel
+* glslang
 
 For Chapter 5 and later, *YAML-CPP* is needed:
 * yaml-cpp
@@ -40,19 +42,15 @@ For Chater 14, *SDL* is needed:
 * SDL2
 * SDL2\_mixer
 
-And if you want to compile the Vulkan examples, the following two packages are needed:
-* vulkan-devel
-* glslang
-
 
 ### Installing for MINGW
 
 Use the following command to install all required packages for **MINGW** builds:
 ```
 pacman -S git mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja\
-  mingw-w64-x86_64-gcc mingw-w64-x86_64-glm mingw-w64-x86_64-glew mingw-w64-x86_64-glfw\
+  mingw-w64-x86_64-gcc mingw-w64-x86_64-glm mingw-w64-x86_64-glfw\
   mingw-w64-x86_64-assimp mingw-w64-x86_64-zlib\
-  mingw-w64-x86_64-mesa mingw-w64-x86_64-vulkan-devel mingw-w64-x86_64-glslang\
+  mingw-w64-x86_64-vulkan-devel mingw-w64-x86_64-glslang\
   mingw-w64-x86_64-yaml-cpp mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_mixer
 ```
 
@@ -73,9 +71,9 @@ export CXX=/mingw64/bin/clang++.exe
 Use this commandline to install all required packages for UCRT builds:
 ```
 pacman -S git mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja\
-  mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-glm mingw-w64-ucrt-x86_64-glew\
+  mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-glm mingw-w64-ucrt-x86_64-glfw\
   mingw-w64-ucrt-x86_64-assimp mingw-w64-ucrt-x86_64-zlib\
-  mingw-w64-ucrt-x86_64-mesa mingw-w64-ucrt-x86_64-vulkan-devel mingw-w64-ucrt-x86_64-glslang\
+  mingw-w64-ucrt-x86_64-vulkan-devel mingw-w64-ucrt-x86_64-glslang\
   mingw-w64-ucrt-x86_64-yaml-cpp mingw-w64-ucrt-x86_64-SDL2 mingw-w64-ucrt-x86_64-SDL2_mixer
 ```
 
