@@ -291,7 +291,7 @@ void AssimpInstance::updateInstancePosition(float deltaTime) {
 
 void AssimpInstance::applyGravity(float deltaTime) {
   /* apply gravity */
-  glm::vec3 gravity = glm::vec3(0.0f, 9.81 * deltaTime, 0.0f);
+  glm::vec3 gravity = glm::vec3(0.0f, GRAVITY_CONSTANT * deltaTime, 0.0f);
 
   /* we are off ground on hop and jump, do not apply gravity */
   if (mInstanceSettings.isMoveState != moveState::hop && mInstanceSettings.isMoveState != moveState::jump) {

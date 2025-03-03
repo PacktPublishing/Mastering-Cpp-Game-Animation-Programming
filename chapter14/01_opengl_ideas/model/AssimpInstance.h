@@ -103,6 +103,7 @@ class AssimpInstance {
     const float MAX_ACCEL = 4.0f;
     const float MAX_ABS_SPEED = 1.0f;
     const float MIN_STOP_SPEED = 0.01f;
+    const float GRAVITY_CONSTANT = 9.81f;
 
     float mMaxInstanceSpeed = MAX_ABS_SPEED;
 

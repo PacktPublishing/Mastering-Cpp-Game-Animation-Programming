@@ -3121,7 +3121,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Enable Navigation:");
     ImGui::SameLine();
-    ImGui::Checkbox("##EnableNav", &settings.isNavigationEnabled);
+    ImGui::Checkbox("##EnableNavInstance", &settings.isNavigationEnabled);
 
     if (!settings.isNavigationEnabled) {
       ImGui::BeginDisabled();
@@ -3476,7 +3476,7 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Enable Navigation:     ");
     ImGui::SameLine();
-    ImGui::Checkbox("##EnableNav", &renderData.rdEnableNavigation);
+    ImGui::Checkbox("##EnableNavGlobal", &renderData.rdEnableNavigation);
   }
 
   ImGui::End();

@@ -309,6 +309,7 @@ class OGLRenderer {
     std::shared_ptr<TriangleOctree> mTriangleOctree = nullptr;
 
     void checkForLevelCollisions();
+    const float GRAVITY_CONSTANT = 9.81f;
 
     AABB mAllLevelAABB{};
     std::shared_ptr<OGLLineMesh> mLevelAABBMesh = nullptr;
