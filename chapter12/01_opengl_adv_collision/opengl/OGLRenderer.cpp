@@ -3350,7 +3350,7 @@ bool OGLRenderer::draw(float deltaTime) {
           /* set state to "instance on ground" if gravity is disabled */
           bool instanceOnGround = true;
           if (mRenderData.rdEnableSimpleGravity) {
-            glm::vec3 gravity = glm::vec3(0.0f, 9.81 * deltaTime, 0.0f);
+            glm::vec3 gravity = glm::vec3(0.0f,  GRAVITY_CONSTANT * deltaTime, 0.0f);
             glm::vec3 footPoint = instSettings.isWorldPosition;
 
             instanceOnGround = false;
