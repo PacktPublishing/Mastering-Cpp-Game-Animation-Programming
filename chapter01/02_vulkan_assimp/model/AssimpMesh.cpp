@@ -25,46 +25,6 @@ bool AssimpMesh::processMesh(VkRenderData &renderData, aiMesh* mesh, const aiSce
     }
   }
 
-  for (unsigned int i = 0; i < mVertexCount; ++i) {
-    VkVertex vertex;
-    vertex.position.x = mesh->mVertices[i].x;
-    vertex.position.y = mesh->mVertices[i].y;
-    vertex.position.z = mesh->mVertices[i].z;
-
-    if (mesh->HasVertexColors(0)) {
-      vertex.color.r = mesh->mColors[0][i].r;
-      vertex.color.g = mesh->mColors[0][i].g;
-      vertex.color.b = mesh->mColors[0][i].b;
-      vertex.color.a = mesh->mColors[0][i].a;
-    } else {
-      vertex.color = glm::vec4(1.0f, 1.0, 1.0, 1.0f);
-    }
-
-    if (mesh->HasNormals()) {
-      vertex.normal.x = mesh->mNormals[i].x;
-      vertex.normal.y = mesh->mNormals[i].y;
-      vertex.normal.z = mesh->mNormals[i].z;
-    } else {
-      vertex.normal = glm::vec3(0.0f);
-    }
-
-    if (mesh->HasTextureCoords(0)) {
-      vertex.uv.x = mesh->mTextureCoords[0][i].x;
-      vertex.uv.y = mesh->mTextureCoords[0][i].y;
-    } else {
-      vertex.uv = glm::vec2(0.0f);
-    }
-
-    mMesh.vertices.emplace_back(vertex);
-  }
-
-  for (unsigned int i = 0; i < mTriangleCount; ++i) {
-    aiFace face = mesh->mFaces[i];
-    mMesh.indices.push_back(face.mIndices[0]);
-    mMesh.indices.push_back(face.mIndices[1]);
-    mMesh.indices.push_back(face.mIndices[2]);
-  }
-
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
   if (material) {
     aiString materialName = material->GetName();
@@ -107,6 +67,56 @@ bool AssimpMesh::processMesh(VkRenderData &renderData, aiMesh* mesh, const aiSce
         }
       }
     }
+
+    aiColor4D baseColor(0.0f, 0.0f, 0.0f, 1.0f);
+    if (material->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == aiReturn_SUCCESS && textures.empty()) {
+      mBaseColor = glm::vec4(baseColor.r, baseColor.g, baseColor.b, baseColor.a);
+      mMesh.usesPBRColors = true;
+    }
+  }
+
+  for (unsigned int i = 0; i < mVertexCount; ++i) {
+    VkVertex vertex;
+    vertex.position.x = mesh->mVertices[i].x;
+    vertex.position.y = mesh->mVertices[i].y;
+    vertex.position.z = mesh->mVertices[i].z;
+
+    if (mesh->HasVertexColors(0)) {
+      vertex.color.r = mesh->mColors[0][i].r;
+      vertex.color.g = mesh->mColors[0][i].g;
+      vertex.color.b = mesh->mColors[0][i].b;
+      vertex.color.a = mesh->mColors[0][i].a;
+    } else {
+      if (mMesh.usesPBRColors) {
+        vertex.color = mBaseColor;
+      } else {
+        vertex.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+      }
+    }
+
+    if (mesh->HasNormals()) {
+      vertex.normal.x = mesh->mNormals[i].x;
+      vertex.normal.y = mesh->mNormals[i].y;
+      vertex.normal.z = mesh->mNormals[i].z;
+    } else {
+      vertex.normal = glm::vec3(0.0f);
+    }
+
+    if (mesh->HasTextureCoords(0)) {
+      vertex.uv.x = mesh->mTextureCoords[0][i].x;
+      vertex.uv.y = mesh->mTextureCoords[0][i].y;
+    } else {
+      vertex.uv = glm::vec2(0.0f);
+    }
+
+    mMesh.vertices.emplace_back(vertex);
+  }
+
+  for (unsigned int i = 0; i < mTriangleCount; ++i) {
+    aiFace face = mesh->mFaces[i];
+    mMesh.indices.push_back(face.mIndices[0]);
+    mMesh.indices.push_back(face.mIndices[1]);
+    mMesh.indices.push_back(face.mIndices[2]);
   }
 
   if (mesh->HasBones()) {

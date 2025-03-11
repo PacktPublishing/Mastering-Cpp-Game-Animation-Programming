@@ -115,6 +115,7 @@ private:
     // map textures to external or internal texture names
     std::unordered_map<std::string, VkTextureData> mTextures{};
     VkTextureData mPlaceholderTexture{};
+    VkTextureData mWhiteTexture{};
 
     glm::mat4 mRootTransformMatrix = glm::mat4(1.0f);
 

@@ -63,6 +63,13 @@ bool AssimpModel::loadModel(VkRenderData &renderData, std::string modelFilename,
     Logger::log(1, "%s: scene has %i embedded textures\n", __FUNCTION__, numTextures);
   }
 
+  /* add a white texture in case there is no diffuse tex but colors */
+  std::string whiteTexName = "textures/white.png";
+  if (!Texture::loadTexture(renderData, mWhiteTexture, whiteTexName)) {
+    Logger::log(1, "%s error: could not load white default texture '%s'\n", __FUNCTION__, whiteTexName.c_str());
+    return false;
+  }
+
   /* add a placeholder texture in case there is no diffuse tex */
   std::string placeholderTexName = "textures/missing_tex.png";
   if (!Texture::loadTexture(renderData, mPlaceholderTexture, placeholderTexName)) {
@@ -589,8 +596,13 @@ void AssimpModel::draw(VkRenderData &renderData, bool selectionModeActive) {
       vkCmdBindDescriptorSets(renderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
         renderLayout, 0, 1, &diffuseTex.descriptorSet, 0, nullptr);
     } else {
-      vkCmdBindDescriptorSets(renderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-        renderLayout, 0, 1, &mPlaceholderTexture.descriptorSet, 0, nullptr);
+      if (mesh.usesPBRColors) {
+        vkCmdBindDescriptorSets(renderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+          renderLayout, 0, 1, &mWhiteTexture.descriptorSet, 0, nullptr);
+      } else {
+        vkCmdBindDescriptorSets(renderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+          renderLayout, 0, 1, &mPlaceholderTexture.descriptorSet, 0, nullptr);
+      }
     }
 
     VkDeviceSize offset = 0;
@@ -667,8 +679,13 @@ void AssimpModel::drawInstanced(VkRenderData &renderData, int bufferIndex,
     vkCmdBindDescriptorSets(renderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
       renderLayout, 0, 1, &diffuseTex.descriptorSet, 0, nullptr);
   } else {
-    vkCmdBindDescriptorSets(renderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-      renderLayout, 0, 1, &mPlaceholderTexture.descriptorSet, 0, nullptr);
+    if (mesh.usesPBRColors) {
+      vkCmdBindDescriptorSets(renderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+        renderLayout, 0, 1, &mWhiteTexture.descriptorSet, 0, nullptr);
+    } else {
+      vkCmdBindDescriptorSets(renderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+        renderLayout, 0, 1, &mPlaceholderTexture.descriptorSet, 0, nullptr);
+    }
   }
   if (drawMorphMeshes) {
     vkCmdBindDescriptorSets(renderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -711,6 +728,7 @@ void AssimpModel::cleanup(VkRenderData &renderData) {
   }
 
   Texture::cleanup(renderData, mPlaceholderTexture);
+  Texture::cleanup(renderData, mWhiteTexture);
 }
 
 std::string AssimpModel::getModelFileName() {

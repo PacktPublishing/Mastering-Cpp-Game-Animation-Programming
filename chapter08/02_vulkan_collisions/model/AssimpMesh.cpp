@@ -25,6 +25,58 @@ bool AssimpMesh::processMesh(VkRenderData &renderData, aiMesh* mesh, const aiSce
     }
   }
 
+  aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+  if (material) {
+    aiString materialName = material->GetName();
+    Logger::log(1, "%s: - material found, name '%s'\n", __FUNCTION__, materialName.C_Str());
+
+    bool texturesFound = false;
+    if (mesh->mMaterialIndex >= 0) {
+      // scan only for diifuse and scalar textures for a start
+      std::vector<aiTextureType> supportedTexTypes = { aiTextureType_DIFFUSE, aiTextureType_SPECULAR };
+      for (const auto& texType : supportedTexTypes) {
+        unsigned int textureCount = material->GetTextureCount(texType);
+        if (textureCount > 0) {
+          Logger::log(1, "%s: -- material '%s' has %i images of type %i\n", __FUNCTION__, materialName.C_Str(), textureCount, texType);
+          for (unsigned int i = 0; i < textureCount; ++i) {
+            aiString textureName;
+            material->GetTexture(texType, i, &textureName);
+            Logger::log(1, "%s: --- image %i has name '%s'\n", __FUNCTION__, i, textureName.C_Str());
+
+            std::string texName = textureName.C_Str();
+            mMesh.textures.insert({texType, texName});
+            texturesFound = true;;
+
+            /* skip already loaded textures */
+            if (textures.count(texName) > 0) {
+              Logger::log(1, "%s: texture '%s' already loaded, skipping\n", __FUNCTION__, texName.c_str());
+              continue;
+            }
+
+            // do not try to load internal textures
+            if (!texName.empty() && texName.find("*") != 0) {
+              VkTextureData newTex{};
+              std::string texNameWithPath = assetDirectory + '/' + texName;
+              if (!Texture::loadTexture(renderData, newTex, texNameWithPath)) {
+                Logger::log(1, "%s error: could not load texture file '%s', skipping\n", __FUNCTION__, texNameWithPath.c_str());
+                Texture::cleanup(renderData, newTex);
+                continue;
+              }
+
+              textures.insert({texName, newTex});
+            }
+          }
+        }
+      }
+    }
+
+    aiColor4D baseColor(0.0f, 0.0f, 0.0f, 1.0f);
+    if (material->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == aiReturn_SUCCESS && !texturesFound) {
+      mBaseColor = glm::vec4(baseColor.r, baseColor.g, baseColor.b, baseColor.a);
+      mMesh.usesPBRColors = true;
+    }
+  }
+
   for (unsigned int i = 0; i < mVertexCount; ++i) {
     VkVertex vertex;
     vertex.position.x = mesh->mVertices[i].x;
@@ -37,7 +89,11 @@ bool AssimpMesh::processMesh(VkRenderData &renderData, aiMesh* mesh, const aiSce
       vertex.color.b = mesh->mColors[0][i].b;
       vertex.color.a = mesh->mColors[0][i].a;
     } else {
-      vertex.color = glm::vec4(1.0f, 1.0, 1.0, 1.0f);
+      if (mMesh.usesPBRColors) {
+        vertex.color = mBaseColor;
+      } else {
+        vertex.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+      }
     }
 
     if (mesh->HasNormals()) {
@@ -64,50 +120,6 @@ bool AssimpMesh::processMesh(VkRenderData &renderData, aiMesh* mesh, const aiSce
     mMesh.indices.push_back(face.mIndices[0]);
     mMesh.indices.push_back(face.mIndices[1]);
     mMesh.indices.push_back(face.mIndices[2]);
-  }
-
-  aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-  if (material) {
-    aiString materialName = material->GetName();
-    Logger::log(1, "%s: - material found, name '%s'\n", __FUNCTION__, materialName.C_Str());
-
-    if (mesh->mMaterialIndex >= 0) {
-      // scan only for diifuse and scalar textures for a start
-      std::vector<aiTextureType> supportedTexTypes = { aiTextureType_DIFFUSE, aiTextureType_SPECULAR };
-      for (const auto& texType : supportedTexTypes) {
-        unsigned int textureCount = material->GetTextureCount(texType);
-        if (textureCount > 0) {
-          Logger::log(1, "%s: -- material '%s' has %i images of type %i\n", __FUNCTION__, materialName.C_Str(), textureCount, texType);
-          for (unsigned int i = 0; i < textureCount; ++i) {
-            aiString textureName;
-            material->GetTexture(texType, i, &textureName);
-            Logger::log(1, "%s: --- image %i has name '%s'\n", __FUNCTION__, i, textureName.C_Str());
-
-            std::string texName = textureName.C_Str();
-            mMesh.textures.insert({texType, texName});
-
-            /* skip already loaded textures */
-            if (textures.count(texName) > 0) {
-              Logger::log(1, "%s: texture '%s' already loaded, skipping\n", __FUNCTION__, texName.c_str());
-              continue;
-            }
-
-            // do not try to load internal textures
-            if (!texName.empty() && texName.find("*") != 0) {
-              VkTextureData newTex{};
-              std::string texNameWithPath = assetDirectory + '/' + texName;
-              if (!Texture::loadTexture(renderData, newTex, texNameWithPath)) {
-                Logger::log(1, "%s error: could not load texture file '%s', skipping\n", __FUNCTION__, texNameWithPath.c_str());
-                Texture::cleanup(renderData, newTex);
-                continue;
-              }
-
-              textures.insert({texName, newTex});
-            }
-          }
-        }
-      }
-    }
   }
 
   if (mesh->HasBones()) {

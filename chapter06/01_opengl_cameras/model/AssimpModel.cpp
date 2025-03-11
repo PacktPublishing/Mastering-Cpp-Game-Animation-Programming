@@ -59,6 +59,14 @@ bool AssimpModel::loadModel(std::string modelFilename, unsigned int extraImportF
     Logger::log(1, "%s: scene has %i embedded textures\n", __FUNCTION__, numTextures);
   }
 
+  /* add a white texture in case there is no diffuse tex but colors */
+  mWhiteTexture = std::make_shared<Texture>();
+  std::string whiteTexName = "textures/white.png";
+  if (!mWhiteTexture->loadTexture(whiteTexName)) {
+    Logger::log(1, "%s error: could not load white default texture '%s'\n", __FUNCTION__, whiteTexName.c_str());
+    return false;
+  }
+
   /* add a placeholder texture in case there is no diffuse tex */
   mPlaceholderTexture = std::make_shared<Texture>();
   std::string placeholderTexName = "textures/missing_tex.png";
@@ -225,7 +233,11 @@ void AssimpModel::draw() {
     if (diffuseTex) {
       diffuseTex->bind();
     } else {
-      mPlaceholderTexture->bind();
+      if (mesh.usesPBRColors) {
+        mWhiteTexture->bind();
+      } else {
+        mPlaceholderTexture->bind();
+      }
     }
 
     mVertexBuffers.at(i).bindAndDrawIndirect(GL_TRIANGLES, mesh.indices.size());
@@ -233,7 +245,11 @@ void AssimpModel::draw() {
     if (diffuseTex) {
       diffuseTex->unbind();
     } else {
-      mPlaceholderTexture->unbind();
+      if (mesh.usesPBRColors) {
+        mWhiteTexture->unbind();
+      } else {
+        mPlaceholderTexture->unbind();
+      }
     }
   }
 }
@@ -256,7 +272,11 @@ void AssimpModel::drawInstanced(int instanceCount) {
     if (diffuseTex) {
       diffuseTex->bind();
     } else {
-      mPlaceholderTexture->bind();
+      if (mesh.usesPBRColors) {
+        mWhiteTexture->bind();
+      } else {
+        mPlaceholderTexture->bind();
+      }
     }
 
     mVertexBuffers.at(i).bindAndDrawIndirectInstanced(GL_TRIANGLES, mesh.indices.size(), instanceCount);
@@ -264,7 +284,11 @@ void AssimpModel::drawInstanced(int instanceCount) {
     if (diffuseTex) {
       diffuseTex->unbind();
     } else {
-      mPlaceholderTexture->unbind();
+      if (mesh.usesPBRColors) {
+        mWhiteTexture->unbind();
+      } else {
+        mPlaceholderTexture->unbind();
+      }
     }
   }
 }
@@ -285,6 +309,10 @@ void AssimpModel::cleanup() {
   /* empty for null model */
   if (mPlaceholderTexture) {
     mPlaceholderTexture->cleanup();
+  }
+
+  if (mWhiteTexture) {
+    mWhiteTexture->cleanup();
   }
 }
 
