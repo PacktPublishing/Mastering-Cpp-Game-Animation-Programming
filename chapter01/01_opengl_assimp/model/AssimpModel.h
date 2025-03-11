@@ -48,6 +48,7 @@ private:
 
     unsigned int mTriangleCount = 0;
     unsigned int mVertexCount = 0;
+    bool mModelUsesBPRColors = false;
 
     /* store the root node for direct access */
     std::shared_ptr<AssimpNode> mRootNode = nullptr;
@@ -67,6 +68,7 @@ private:
     // map textures to external or internal texture names
     std::unordered_map<std::string, std::shared_ptr<Texture>> mTextures{};
     std::shared_ptr<Texture> mPlaceholderTexture = nullptr;
+    std::shared_ptr<Texture> mWhiteTexture = nullptr;
 
     glm::mat4 mRootTransformMatrix = glm::mat4(1.0f);
 

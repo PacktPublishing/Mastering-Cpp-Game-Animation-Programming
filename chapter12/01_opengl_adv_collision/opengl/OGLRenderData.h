@@ -43,6 +43,7 @@ struct OGLMesh {
   std::vector<OGLVertex> vertices{};
   std::vector<uint32_t> indices{};
   std::unordered_map<aiTextureType, std::string> textures{};
+  bool usesPBRColors = false;
   /* store optional morph meshes directly in renderer mesh */
   std::vector<OGLMorphMesh> morphMeshes{};
 };

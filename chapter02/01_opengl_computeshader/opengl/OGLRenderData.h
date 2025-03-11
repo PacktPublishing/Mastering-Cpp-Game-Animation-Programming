@@ -27,6 +27,7 @@ struct OGLMesh {
   std::vector<OGLVertex> vertices{};
   std::vector<uint32_t> indices{};
   std::unordered_map<aiTextureType, std::string> textures{};
+  bool usesPBRColors = false;
 };
 
 /* data format to be uploaded to compute shader */

@@ -30,6 +30,8 @@ class AssimpMesh {
     unsigned int mTriangleCount = 0;
     unsigned int mVertexCount = 0;
 
+    glm::vec4 mBaseColor = glm::vec4(1.0f);
+
     OGLMesh mMesh{};
     std::unordered_map<std::string, std::shared_ptr<Texture>> mTextures{};
     std::vector<std::shared_ptr<AssimpBone>> mBoneList{};

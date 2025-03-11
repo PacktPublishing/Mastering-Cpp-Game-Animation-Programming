@@ -79,6 +79,7 @@ private:
     // map textures to external or internal texture names
     std::unordered_map<std::string, std::shared_ptr<Texture>> mTextures{};
     std::shared_ptr<Texture> mPlaceholderTexture = nullptr;
+    std::shared_ptr<Texture> mWhiteTexture = nullptr;
 
     glm::mat4 mRootTransformMatrix = glm::mat4(1.0f);
 
