@@ -61,7 +61,7 @@ cameras:
     3rd-person-view-distance: 5
     3rd-person-height-offset: 0
   - camera-name: FollowCam
-    position: [3.76401448, 5.73458576, -5.39343214]
+    position: [13.76401448, 5.73458576, -5.39343214]
     view-azimuth: 340.833191
     view-elevation: -6.36617279
     camera-type: 4
@@ -69,7 +69,7 @@ cameras:
     field-of-view: 90
     follow-cam-height-offset: 2
   - camera-name: FirstPersonCam
-    position: [149.782974, -0.0801852494, 3.78474951]
+    position: [17.328701, 5, 2.16456723]
     view-azimuth: 225.700012
     view-elevation: -6.60000229
     camera-type: 1
@@ -835,6 +835,7 @@ instances:
     path-target-instance: 10
     target-of-cameras:
       - ThirdPersonCam
+      - FirstPersonCam
   - model-file: Woman.gltf
     position: [8.61375904, 0, 58.637207]
     rotation: [0, -19.6060982, 0]
