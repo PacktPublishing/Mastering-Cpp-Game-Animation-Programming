@@ -2920,14 +2920,17 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
 
     InstanceSettings settings;
     if (numberOfInstances > 0) {
+      mCurrentModel = mCurrentInstance->getModel();
+      mModelHasFaceAnims = mCurrentModel->hasAnimMeshes();
+
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
+        mModelHasFaceAnims = mCurrentModel->hasAnimMeshes();
+
         /* overwrite saved settings on instance change */
         mSavedInstanceSettings = settings;
-
-        std::shared_ptr<AssimpModel> currentModel = mCurrentInstance->getModel();
-        mModelHasFaceAnims = currentModel->hasAnimMeshes();
       }
     }
 
@@ -3162,11 +3165,11 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
       ImGui::EndDisabled();
     }
 
+    ImGui::Text("Movement State:     %s", modInstCamData.micMoveStateMap.at(settings.isMoveState).c_str());
+
     if (!mModelHasFaceAnims) {
       ImGui::BeginDisabled();
     }
-
-    ImGui::Text("Movement State:     %s", modInstCamData.micMoveStateMap.at(settings.isMoveState).c_str());
 
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Face Anim Clip:   ");

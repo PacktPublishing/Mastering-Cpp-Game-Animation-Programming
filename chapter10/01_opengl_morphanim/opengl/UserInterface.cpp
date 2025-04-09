@@ -2047,14 +2047,17 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
 
     InstanceSettings settings;
     if (numberOfInstances > 0) {
+      mCurrentModel = mCurrentInstance->getModel();
+      mModelHasFaceAnims = mCurrentModel->hasAnimMeshes();
+
       settings = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)->getInstanceSettings();
       if (mCurrentInstance != modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance)) {
         mCurrentInstance = modInstCamData.micAssimpInstances.at(modInstCamData.micSelectedInstance);
+        mCurrentModel = mCurrentInstance->getModel();
+        mModelHasFaceAnims = mCurrentModel->hasAnimMeshes();
+
         /* overwrite saved settings on instance change */
         mSavedInstanceSettings = settings;
-
-        std::shared_ptr<AssimpModel> currentModel = mCurrentInstance->getModel();
-        mModelHasFaceAnims = currentModel->hasAnimMeshes();
       }
     }
 
@@ -2314,7 +2317,6 @@ void UserInterface::createSettingsWindow(OGLRenderData& renderData, ModelInstanc
     ImGui::Text("MorphAnim Weight:");
     ImGui::SameLine();
     ImGui::SliderFloat("##MorphAnimWeight", &settings.isFaceAnimWeight, 0.0f, 1.0f, "%.2f", flags);
-
 
     if (!mModelHasFaceAnims) {
       ImGui::EndDisabled();
