@@ -581,7 +581,11 @@ void UserInterface::createFrame(OGLRenderData &renderData, ModelAndInstanceData 
 
     if (ImGui::Button("Reset Instance Values")) {
       InstanceSettings defaultSettings{};
+
+      /* save and restore index position */
+      int instanceIndex = settings.isInstanceIndexPosition;
       settings = defaultSettings;
+      settings.isInstanceIndexPosition = instanceIndex;
     }
 
     if (numberOfInstances == 0 || nullInstanceSelected) {
