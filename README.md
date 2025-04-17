@@ -1,6 +1,6 @@
 <h1 align="center">
 Mastering C++ Game Animation Programming, First Edition</h1>
-<p align="center">This is the code repository for <a href ="https://www.packtpub.com/en-us/product/mastering-c-game-animation-programming-first-edition/9781835881927"> Mastering C++ Game Animation Programming, First Edition</a>, published by Packt.
+<p align="center">This is the code repository for <a href ="https://www.packtpub.com/en-us/product/mastering-c-game-animation-programming-9781835881934"> Mastering C++ Game Animation Programming, First Edition</a>, published by Packt.
 </p>
 
 <h2 align="center">
@@ -21,7 +21,7 @@ Michael Dunsky</p>
 </p>
 <details open> 
   <summary><h2>About the book</summary>
-<a href="https://www.packtpub.com/product/unity-cookbook-fifth-edition/9781805123026">
+<a href="https://www.packtpub.com/en-us/product/mastering-c-game-animation-programming-9781835881934">
 <img src="https://content.packt.com/B22428/cover_image_small.jpg" alt="Unity Cookbook, Fifth Edition" height="256px" align="right">
 </a>
 
