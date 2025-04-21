@@ -1,4 +1,3 @@
-#include <memory>
 #include <string>
 
 #include "Window.h"
@@ -14,8 +13,6 @@ int main(int argc, char *argv[]) {
   }
 
   window.mainLoop();
-
-  window.cleanup();
 
   return 0;
 }
