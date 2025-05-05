@@ -1287,7 +1287,14 @@ void UserInterface::createSettingsWindow(VkRenderData& renderData, ModelInstance
         mCurrentInstance,
         settings, mSavedInstanceSettings);
       InstanceSettings defaultSettings{};
+
+      /* save and restore index positions */
+      int instanceIndex = settings.isInstanceIndexPosition;
+      int modelInstanceIndex = settings.isInstancePerModelIndexPosition;
       settings = defaultSettings;
+      settings.isInstanceIndexPosition = instanceIndex;
+      settings.isInstancePerModelIndexPosition = modelInstanceIndex;
+
       mSavedInstanceSettings = settings;
       modInstCamData.micSetConfigDirtyCallbackFunction(true);
     }

@@ -679,7 +679,12 @@ void UserInterface::createFrame(VkRenderData &renderData, ModelAndInstanceData &
         modInstData.miAssimpInstances.at(modInstData.miSelectedInstance),
         settings, mSavedInstanceSettings);
       InstanceSettings defaultSettings{};
+
+      /* save and restore index positions */
+      int instanceIndex = settings.isInstanceIndexPosition;
       settings = defaultSettings;
+      settings.isInstanceIndexPosition = instanceIndex;
+
       mSavedInstanceSettings = settings;
     }
 
