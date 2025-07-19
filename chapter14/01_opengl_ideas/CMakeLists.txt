@@ -156,7 +156,7 @@ if(WIN32 AND NOT MINGW)
     endif()
 
     # set variables that will be used later
-    set(GLM_INCLUDE_DIRS ${glm_SOURCE_DIR})
+    set(GLM_INCLUDE_DIR ${glm_SOURCE_DIR})
   endif()
 endif()
 
