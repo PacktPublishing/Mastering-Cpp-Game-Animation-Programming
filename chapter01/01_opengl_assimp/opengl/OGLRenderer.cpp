@@ -73,6 +73,10 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glLineWidth(3.0);
+
+  /* disable sRGB framebuffer */
+  glDisable(GL_FRAMEBUFFER_SRGB);
+
   Logger::log(1, "%s: rendering defaults set\n", __FUNCTION__);
 
   /* SSBO init */
@@ -376,7 +380,6 @@ bool OGLRenderer::draw(float deltaTime) {
   glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
   glClearDepth(1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_FRAMEBUFFER_SRGB);
 
   mMatrixGenerateTimer.start();
   mCamera.updateCamera(mRenderData, deltaTime);
@@ -448,10 +451,7 @@ bool OGLRenderer::draw(float deltaTime) {
   mFramebuffer.unbind();
 
   /* blit color buffer to screen */
-  /* XXX: enable sRGB ONLY for the final framebuffer draw */
-  glEnable(GL_FRAMEBUFFER_SRGB);
   mFramebuffer.drawToScreen();
-  glDisable(GL_FRAMEBUFFER_SRGB);
 
   mUIGenerateTimer.start();
   mUserInterface.hideMouse(mMouseLock);

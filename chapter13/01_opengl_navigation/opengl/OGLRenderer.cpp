@@ -163,6 +163,10 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glLineWidth(3.0);
+
+  /* disable sRGB framebuffer */
+  glDisable(GL_FRAMEBUFFER_SRGB);
+
   Logger::log(1, "%s: rendering defaults set\n", __FUNCTION__);
 
   /* SSBO init  */
@@ -4153,10 +4157,7 @@ bool OGLRenderer::draw(float deltaTime) {
   mFramebuffer.unbind();
 
   /* blit color buffer to screen */
-  /* XXX: enable sRGB ONLY for the final framebuffer draw */
-  glEnable(GL_FRAMEBUFFER_SRGB);
   mFramebuffer.drawToScreen();
-  glDisable(GL_FRAMEBUFFER_SRGB);
 
   /* create user interface */
   mUIGenerateTimer.start();

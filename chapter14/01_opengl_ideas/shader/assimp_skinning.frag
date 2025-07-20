@@ -15,6 +15,16 @@ layout (std140, binding = 0) uniform Matrices {
   float fogDensity;
 };
 
+float toSRGB(float x) {
+if (x <= 0.0031308)
+        return 12.92 * x;
+    else
+        return 1.055 * pow(x, (1.0/2.4)) - 0.055;
+}
+vec3 sRGB(vec3 c) {
+    return vec3(toSRGB(c.x), toSRGB(c.y), toSRGB(c.z));
+}
+
 void main() {
   float ambientStrength = 0.1;
   vec3 ambient = ambientStrength * max(vec3(lightColor), vec3(0.05, 0.05, 0.05));
@@ -30,4 +40,5 @@ void main() {
   vec4 fogColor = 0.25 * vec4(vec3(lightColor), 1.0);
 
   FragColor = mix(vec4(min(ambient + diffuse, vec3(1.0)), 1.0) * texture(tex, texCoord) * color, fogColor * color, fogAmount);
+  FragColor.rgb = sRGB(FragColor.rgb);
 }

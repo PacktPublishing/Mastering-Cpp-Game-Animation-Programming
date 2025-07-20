@@ -1199,10 +1199,9 @@ bool VkRenderer::createSwapchain() {
   vkb::SwapchainBuilder swapChainBuild{mRenderData.rdVkbDevice};
   VkSurfaceFormatKHR surfaceFormat;
 
-  /* set surface to sRGB */
+  /* set surface to non-sRGB */
   surfaceFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-  //surfaceFormat.format = VK_FORMAT_B8G8R8A8_UNORM;
-  surfaceFormat.format = VK_FORMAT_B8G8R8A8_SRGB;
+  surfaceFormat.format = VK_FORMAT_B8G8R8A8_UNORM;
 
   /* VK_PRESENT_MODE_FIFO_KHR enables vsync */
   auto  swapChainBuildRet = swapChainBuild
