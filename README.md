@@ -61,7 +61,7 @@ All of the code is organized into folders.
 
 | Chapter | Software required | OS required |
 | -------- | ------------------------------------ | ----------------------------------- |
-| 1-15 | Visual Studio 2022 or Eclipse 2023-06 (or newer) | Windows 10 (or newer), or Linux (i.e. Ubuntu 22.04, Debian 12, or newer) |
+| 1-14 | Visual Studio 2022 or Eclipse 2023-06 (or newer) | Windows 10 (or newer), or Linux (i.e. Ubuntu 22.04, Debian 12, or newer) |
 
 ## Get to know the Author
 
