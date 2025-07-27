@@ -3529,8 +3529,8 @@ void VkRenderer::deleteInstance(std::shared_ptr<AssimpInstance> instance, bool w
 
   int prevSelectedInstanceId = mModelInstCamData.micSelectedInstance;
 
-  /* reset to last element if I was last */
-  if (mModelInstCamData.micSelectedInstance > 1) {
+  /* reset to previous instance */
+  if (mModelInstCamData.micSelectedInstance > 0) {
     mModelInstCamData.micSelectedInstance -= 1;
   }
 
@@ -6765,20 +6765,14 @@ bool VkRenderer::draw(float deltaTime) {
       }
 
       /* remove instances that fell out of the level boundaries */
-      std::vector<int> outOfLevelInstances{};
       for (size_t i = 0; i < numberOfInstances; ++i) {
         InstanceSettings instSettings = instances.at(i)->getInstanceSettings();
-        if (instSettings.isWorldPosition.y < mRenderData.rdWorldStartPos.y - 50.0f) {
-          outOfLevelInstances.emplace_back(instSettings.isInstanceIndexPosition);
-        }
-      }
 
-      if (!outOfLevelInstances.empty()) {
-        for (int instanceId : outOfLevelInstances) {
+        if (instSettings.isWorldPosition.y < mRenderData.rdWorldStartPos.y - 50.0f) {
+          int instanceId = instSettings.isInstanceIndexPosition;
           Logger::log(1, "%s warning: instance id %i fell out of level boundaries, deleting\n", __FUNCTION__, instanceId);
           deleteInstance(getInstanceById(instanceId));
         }
-        outOfLevelInstances.clear();
       }
     }
   }
