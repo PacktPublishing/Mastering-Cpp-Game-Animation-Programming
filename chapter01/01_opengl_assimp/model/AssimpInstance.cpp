@@ -18,6 +18,9 @@ AssimpInstance::AssimpInstance(std::shared_ptr<AssimpModel> model, glm::vec3 pos
   mBoneMatrices.resize(mAssimpModel->getBoneList().size());
   std::fill(mBoneMatrices.begin(), mBoneMatrices.end(), glm::mat4(1.0f));
 
+  /* save model root matrix */
+  mModelRootMatrix = mAssimpModel->getRootTranformationMatrix();
+
   updateModelRootMatrix();
 }
 
@@ -41,6 +44,7 @@ void AssimpInstance::updateModelRootMatrix() {
   mLocalTranslationMatrix = glm::translate(glm::mat4(1.0f), mInstanceSettings.isWorldPosition);
 
   mLocalTransformMatrix = mLocalTranslationMatrix * mLocalRotationMatrix * mLocalSwapAxisMatrix * mLocalScaleMatrix;
+  mInstanceRootMatrix = mLocalTransformMatrix * mModelRootMatrix;
 }
 
 void AssimpInstance::updateAnimation(float deltaTime) {
@@ -82,7 +86,7 @@ glm::vec3 AssimpInstance::getWorldPosition() {
 }
 
 glm::mat4 AssimpInstance::getWorldTransformMatrix() {
-  return mLocalTransformMatrix;
+  return mInstanceRootMatrix;
 }
 
 void AssimpInstance::setTranslation(glm::vec3 position) {
