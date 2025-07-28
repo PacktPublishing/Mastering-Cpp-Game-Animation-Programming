@@ -297,18 +297,20 @@ bool Texture::uploadToGPU(VkRenderData& renderData, VkTextureData& texData, VkTe
       Logger::log(1, "%s: created level %i with width %i and height %i\n", __FUNCTION__, i, mipWidth, mipHeight);
     }
 
-    VkImageMemoryBarrier lastBarrier{};
-    lastBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    lastBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    lastBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    lastBarrier.image = texData.image;
-    lastBarrier.subresourceRange = blitRange;
-    lastBarrier.subresourceRange.baseMipLevel = mipmapLevels - 1;
-    lastBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    lastBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    if (mipmapLevels > 1) {
+      VkImageMemoryBarrier lastBarrier{};
+      lastBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+      lastBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+      lastBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+      lastBarrier.image = texData.image;
+      lastBarrier.subresourceRange = blitRange;
+      lastBarrier.subresourceRange.baseMipLevel = mipmapLevels - 1;
+      lastBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+      lastBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-    vkCmdPipelineBarrier(uploadCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                         0, 0, nullptr, 0, nullptr, 1, &lastBarrier);
+      vkCmdPipelineBarrier(uploadCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                           0, 0, nullptr, 0, nullptr, 1, &lastBarrier);
+    }
   }
 
   bool commandResult = CommandBuffer::submitSingleShotBuffer(renderData, renderData.rdCommandPool, uploadCommandBuffer, renderData.rdGraphicsQueue);
