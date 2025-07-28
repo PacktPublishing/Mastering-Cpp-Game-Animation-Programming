@@ -2,8 +2,6 @@
 #include "Logger.h"
 
 bool Framebuffer::init(VkRenderData &renderData) {
-  renderData.rdSwapchainImages = renderData.rdVkbSwapchain.get_images().value();
-  renderData.rdSwapchainImageViews = renderData.rdVkbSwapchain.get_image_views().value();
 
   renderData.rdFramebuffers.resize(renderData.rdSwapchainImageViews.size());
 

@@ -490,6 +490,8 @@ bool VkRenderer::createSwapchain() {
 
   vkb::destroy_swapchain(mRenderData.rdVkbSwapchain);
   mRenderData.rdVkbSwapchain = swapChainBuildRet.value();
+  mRenderData.rdSwapchainImages = swapChainBuildRet.value().get_images().value();
+  mRenderData.rdSwapchainImageViews = swapChainBuildRet.value().get_image_views().value();
 
   return true;
 }
