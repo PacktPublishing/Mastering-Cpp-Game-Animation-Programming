@@ -16,6 +16,7 @@ class Window {
     GLFWwindow* getWindow();
     std::string getWindowTitle();
     void setWindowTitle(std::string newTitle);
+    ~Window();
 
   private:
     GLFWwindow *mWindow = nullptr;
