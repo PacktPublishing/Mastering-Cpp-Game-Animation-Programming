@@ -7284,7 +7284,8 @@ bool VkRenderer::draw(float deltaTime) {
   /* draw skybox and levels first */
   vkCmdBeginRenderPass(mRenderData.rdCommandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-  if (mRenderData.rdDrawSkybox) {
+  /* draw skybox only in perspective projection */
+  if (mRenderData.rdDrawSkybox && camSettings.csCamProjection == cameraProjection::perspective) {
     vkCmdBindPipeline(mRenderData.rdCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
       mRenderData.rdSkyboxPipeline);
 
