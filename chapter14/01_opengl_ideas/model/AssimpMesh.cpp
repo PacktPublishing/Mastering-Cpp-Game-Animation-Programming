@@ -41,9 +41,14 @@ bool AssimpMesh::processMesh(aiMesh* mesh, const aiScene* scene, std::string ass
           for (unsigned int i = 0; i < textureCount; ++i) {
             aiString textureName;
             material->GetTexture(texType, i, &textureName);
-            Logger::log(1, "%s: --- image %i has name '%s'\n", __FUNCTION__, i, textureName.C_Str());
 
             std::string texName = textureName.C_Str();
+
+            // Windows does understand forward slashes but Linux no backslashes
+            std::replace(texName.begin(), texName.end(), '\\', '/');
+
+            Logger::log(1, "%s: --- image %i has name '%s'\n", __FUNCTION__, i, texName.c_str());
+
             mMesh.textures.insert({texType, texName});
             texturesFound = true;;
 
