@@ -78,5 +78,32 @@ The following section contains updates within the text of the book.
 
 ### Chapter 1
 
+#### 'Open Asset Importer Library' Git version fix
+
+Unfortinately, the `master` branch of the [Assimmp GitHub Repository](https://github.com/assimp/assimp) includes now changes that require an installed DirecX 9 SDK, even for the initial `CMake` configuration run.
+Switching off the tools by adjusting `ASSIMP_BUILD_ASSIMP_TOOLS` to `OFF` in the new file `CMakePresets.json` solves the SDK error, but configuring `CMake` via UI is no longer possible with the new file in place.
+
+To fix the problem, checking out a tagged/relesed version is required. As a 'special hurdle', checking out a tag can NOT be done via a menu in Visual Studio 2022, one has to use the command line:
+* Right-click the `assimp` project in the `Solution Explorer - Folder View` window
+* Select `Open in Terminal` to open a 'Developer PowerShell'
+* In the PowerShell window, checkout the latest release (as of today):
+```
+git checkout v6.0.2
+```
+
+Then, right-click `CMakeLists.txt`, select `Delete Cache and Reconfigure` to re-run `CMake`.
+
+If the cache deletion option is not available, you have to close Visual Studio and remove the following files and folders
+from the `assimp` project folder on disk if they exists (use right-click on project, then `Open Folder in File Explorer` to open an Explorer window):
+* `.cmake`
+* `.vs`
+* `out`
+* `build.ninja`
+* `VSInheritedEnvironments.txt`
+
+After restarting Visual Studio, the initial `CMake` run should succeed and you can continue configuring the asset importer library.
+
+#### Building all Examples at once
+
 Building the code by using the top-level `CMakeLists.txt` file will fail for the code in Chapter 14 if the two libraries `SDL` and `SDL_mixer` are not installed.
 Please follow the instructions in section **Installing SDL and SDL_mixer on Windows** on page **459** and/or **Installing SDL and SDL_mixer on Linux** on page **460** before building the code for all chapters.
