@@ -143,6 +143,7 @@ struct VkRenderData {
 
   VkSemaphore rdPresentSemaphore = VK_NULL_HANDLE;
   VkSemaphore rdRenderSemaphore = VK_NULL_HANDLE;
+  VkFence rdPresentFence = VK_NULL_HANDLE;
   VkFence rdRenderFence = VK_NULL_HANDLE;
 
   VkDescriptorSetLayout rdAssimpDescriptorLayout = VK_NULL_HANDLE;

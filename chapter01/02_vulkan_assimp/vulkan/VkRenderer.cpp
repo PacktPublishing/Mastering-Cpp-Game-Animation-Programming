@@ -139,6 +139,8 @@ bool VkRenderer::deviceInit() {
   auto instRet = instBuild
     .use_default_debug_messenger()
     .request_validation_layers()
+    .enable_extension(VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME)
+    .enable_extension(VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME)
     .require_api_version(1, 1, 0)
     .build();
 
@@ -158,11 +160,17 @@ bool VkRenderer::deviceInit() {
   VkPhysicalDeviceFeatures requiredFeatures{};
   requiredFeatures.samplerAnisotropy = VK_TRUE;
 
+  VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT swapchainMaintenance1{};
+  swapchainMaintenance1.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT;
+  swapchainMaintenance1.swapchainMaintenance1 = true;
+
   /* just get the first available device */
   vkb::PhysicalDeviceSelector physicalDevSel{mRenderData.rdVkbInstance};
   auto firstPysicalDevSelRet = physicalDevSel
     .set_surface(mSurface)
     .set_required_features(requiredFeatures)
+    .add_required_extension(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME)
+    .add_required_extension_features(swapchainMaintenance1)
     .select();
 
   if (!firstPysicalDevSelRet) {
@@ -193,8 +201,10 @@ bool VkRenderer::deviceInit() {
   mMinSSBOOffsetAlignment = std::max(minSSBOOffsetAlignment, sizeof(glm::mat4));
   Logger::log(1, "%s: SSBO offset has been adjusted to %i bytes\n", __FUNCTION__, mMinSSBOOffsetAlignment);
 
+
   vkb::DeviceBuilder devBuilder{mRenderData.rdVkbPhysicalDevice};
-  auto devBuilderRet = devBuilder.build();
+  auto devBuilderRet = devBuilder
+  .build();
   if (!devBuilderRet) {
     Logger::log(1, "%s error: could not get devices\n", __FUNCTION__);
     return false;
@@ -951,7 +961,12 @@ bool VkRenderer::draw(float deltaTime) {
 
   handleMovementKeys();
 
-  VkResult result = vkWaitForFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence, VK_TRUE, UINT64_MAX);
+  std::vector<VkFence> waitFences = {
+    mRenderData.rdRenderFence,
+    mRenderData.rdPresentFence
+  };
+
+  VkResult result = vkWaitForFences(mRenderData.rdVkbDevice.device, static_cast<uint32_t>(waitFences.size()), waitFences.data(), VK_TRUE, UINT64_MAX);
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error: waiting for fence failed (error: %i)\n", __FUNCTION__, result);
     return false;
@@ -974,7 +989,7 @@ bool VkRenderer::draw(float deltaTime) {
     }
   }
 
-  result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence);
+  result = vkResetFences(mRenderData.rdVkbDevice.device, static_cast<uint32_t>(waitFences.size()), waitFences.data());
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error:  fence reset failed (error: %i)\n", __FUNCTION__, result);
     return false;
@@ -1174,8 +1189,15 @@ bool VkRenderer::draw(float deltaTime) {
     return false;
   }
 
+  VkSwapchainPresentFenceInfoEXT presentFenceInfo{};
+  presentFenceInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT;
+  presentFenceInfo.swapchainCount = 1;
+  presentFenceInfo.pFences = &mRenderData.rdPresentFence;
+
   VkPresentInfoKHR presentInfo{};
   presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+  presentInfo.pNext = &presentFenceInfo;
+
   presentInfo.waitSemaphoreCount = 1;
   presentInfo.pWaitSemaphores = &mRenderData.rdRenderSemaphore;
 
