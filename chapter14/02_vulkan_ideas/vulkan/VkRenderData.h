@@ -366,9 +366,9 @@ struct VkRenderData {
   VkSemaphore rdGraphicSemaphore = VK_NULL_HANDLE;
   VkSemaphore rdComputeSemaphore = VK_NULL_HANDLE;
   VkSemaphore rdCollisionSemaphore = VK_NULL_HANDLE;
+  VkFence rdPresentFence = VK_NULL_HANDLE;
   VkFence rdRenderFence = VK_NULL_HANDLE;
   VkFence rdComputeFence = VK_NULL_HANDLE;
-  VkFence rdCollisionFence = VK_NULL_HANDLE;
 
   VkDescriptorSetLayout rdAssimpDescriptorLayout = VK_NULL_HANDLE;
   VkDescriptorSetLayout rdAssimpSkinningDescriptorLayout = VK_NULL_HANDLE;

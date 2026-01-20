@@ -15,6 +15,7 @@ bool SyncObjects::init(VkRenderData &renderData) {
       vkCreateSemaphore(renderData.rdVkbDevice.device, &semaphoreInfo, nullptr, &renderData.rdRenderSemaphore) != VK_SUCCESS ||
       vkCreateSemaphore(renderData.rdVkbDevice.device, &semaphoreInfo, nullptr, &renderData.rdComputeSemaphore) != VK_SUCCESS ||
       vkCreateSemaphore(renderData.rdVkbDevice.device, &semaphoreInfo, nullptr, &renderData.rdGraphicSemaphore) != VK_SUCCESS ||
+      vkCreateFence(renderData.rdVkbDevice.device, &fenceInfo, nullptr, &renderData.rdPresentFence) != VK_SUCCESS ||
       vkCreateFence(renderData.rdVkbDevice.device, &fenceInfo, nullptr, &renderData.rdRenderFence) != VK_SUCCESS ||
       vkCreateFence(renderData.rdVkbDevice.device, &fenceInfo, nullptr, &renderData.rdComputeFence) != VK_SUCCESS) {
     Logger::log(1, "%s error: failed to init sync objects\n", __FUNCTION__);
@@ -28,6 +29,7 @@ void SyncObjects::cleanup(VkRenderData &renderData) {
   vkDestroySemaphore(renderData.rdVkbDevice.device, renderData.rdRenderSemaphore, nullptr);
   vkDestroySemaphore(renderData.rdVkbDevice.device, renderData.rdComputeSemaphore, nullptr);
   vkDestroySemaphore(renderData.rdVkbDevice.device, renderData.rdGraphicSemaphore, nullptr);
+  vkDestroyFence(renderData.rdVkbDevice.device, renderData.rdPresentFence, nullptr);
   vkDestroyFence(renderData.rdVkbDevice.device, renderData.rdRenderFence, nullptr);
   vkDestroyFence(renderData.rdVkbDevice.device, renderData.rdComputeFence, nullptr);
 }
