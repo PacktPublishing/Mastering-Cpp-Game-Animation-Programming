@@ -152,6 +152,8 @@ bool VkRenderer::deviceInit() {
   auto instRet = instBuild
     .use_default_debug_messenger()
     .request_validation_layers()
+    .enable_extension(VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME) // required to use VK_EXT_swapchain_maintenance1
+    .enable_extension(VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME) // required to use VK_EXT_surface_maintenance1
     .require_api_version(1, 1, 0)
     .build();
 
@@ -167,37 +169,30 @@ bool VkRenderer::deviceInit() {
     return false;
   }
 
+  /* We need VK_EXT_swapchain_maintenance1 for a present fence */
+  VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT swapchainMaintenance1{};
+  swapchainMaintenance1.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT;
+  swapchainMaintenance1.swapchainMaintenance1 = VK_TRUE;
+
   /* force anisotropy */
-  VkPhysicalDeviceFeatures requiredFeatures{};
-  requiredFeatures.samplerAnisotropy = VK_TRUE;
+  VkPhysicalDeviceFeatures vk10features{};
+  vk10features.samplerAnisotropy = VK_TRUE;
 
   /* just get the first available device */
   vkb::PhysicalDeviceSelector physicalDevSel{mRenderData.rdVkbInstance};
-  auto firstPysicalDevSelRet = physicalDevSel
-    .set_surface(mSurface)
-    .set_required_features(requiredFeatures)
-    .select();
+  auto physicalDevSelRet = physicalDevSel
+  .set_surface(mSurface)
+  .set_required_features(vk10features)
+  .add_required_extension(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME)
+  .add_required_extension_features(swapchainMaintenance1)
+  .select();
 
-  if (!firstPysicalDevSelRet) {
+  if (!physicalDevSelRet) {
     Logger::log(1, "%s error: could not get physical devices\n", __FUNCTION__);
     return false;
   }
 
-  /* a 2nd call is required to enable all the supported features, like wideLines */
-  VkPhysicalDeviceFeatures physFeatures;
-  vkGetPhysicalDeviceFeatures(firstPysicalDevSelRet.value(), &physFeatures);
-
-  auto secondPhysicalDevSelRet = physicalDevSel
-    .set_surface(mSurface)
-    .set_required_features(physFeatures)
-    .select();
-
-  if (!secondPhysicalDevSelRet) {
-    Logger::log(1, "%s error: could not get physical devices\n", __FUNCTION__);
-    return false;
-  }
-
-  mRenderData.rdVkbPhysicalDevice = secondPhysicalDevSelRet.value();
+  mRenderData.rdVkbPhysicalDevice = physicalDevSelRet.value();
   Logger::log(1, "%s: found physical device '%s'\n", __FUNCTION__, mRenderData.rdVkbPhysicalDevice.name.c_str());
 
   /* required for dynamic buffer with world position matrices */
@@ -1349,8 +1344,13 @@ bool VkRenderer::draw(float deltaTime) {
   mRenderData.rdMatrixGenerateTime = 0.0f;
   mRenderData.rdUIGenerateTime = 0.0f;
 
-  /* wait for both fences before getting the new framebuffer image */
-  std::vector<VkFence> waitFences = { mRenderData.rdComputeFence, mRenderData.rdRenderFence };
+  /* wait for all fences before getting the new framebuffer image */
+  std::vector<VkFence> waitFences = {
+    mRenderData.rdComputeFence,
+    mRenderData.rdPresentFence,
+    mRenderData.rdRenderFence
+  };
+
   VkResult result = vkWaitForFences(mRenderData.rdVkbDevice.device,
     static_cast<uint32_t>(waitFences.size()), waitFences.data(), VK_TRUE, UINT64_MAX);
   if (result != VK_SUCCESS) {
@@ -1562,7 +1562,12 @@ bool VkRenderer::draw(float deltaTime) {
   }
 
   /* start with graphics rendering */
-  result = vkResetFences(mRenderData.rdVkbDevice.device, 1, &mRenderData.rdRenderFence);
+  std::vector<VkFence> resetFences = {
+    mRenderData.rdRenderFence,
+    mRenderData.rdPresentFence
+  };
+
+  result = vkResetFences(mRenderData.rdVkbDevice.device, static_cast<uint32_t>(resetFences.size()), resetFences.data());
   if (result != VK_SUCCESS) {
     Logger::log(1, "%s error:  fence reset failed (error: %i)\n", __FUNCTION__, result);
     return false;
@@ -1714,9 +1719,16 @@ bool VkRenderer::draw(float deltaTime) {
     return false;
   }
 
+  VkSwapchainPresentFenceInfoEXT presentFenceInfo{};
+  presentFenceInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT;
+  presentFenceInfo.swapchainCount = 1;
+  presentFenceInfo.pFences = &mRenderData.rdPresentFence;
+
   /* trigger swapchain image presentation */
   VkPresentInfoKHR presentInfo{};
   presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+  presentInfo.pNext = &presentFenceInfo;
+
   presentInfo.waitSemaphoreCount = 1;
   presentInfo.pWaitSemaphores = &mRenderData.rdRenderSemaphore;
 

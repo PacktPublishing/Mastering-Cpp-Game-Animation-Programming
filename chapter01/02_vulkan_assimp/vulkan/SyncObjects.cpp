@@ -13,6 +13,7 @@ bool SyncObjects::init(VkRenderData &renderData) {
 
   if (vkCreateSemaphore(renderData.rdVkbDevice.device, &semaphoreInfo, nullptr, &renderData.rdPresentSemaphore) != VK_SUCCESS ||
       vkCreateSemaphore(renderData.rdVkbDevice.device, &semaphoreInfo, nullptr, &renderData.rdRenderSemaphore) != VK_SUCCESS ||
+      vkCreateFence(renderData.rdVkbDevice.device, &fenceInfo, nullptr, &renderData.rdPresentFence) != VK_SUCCESS ||
       vkCreateFence(renderData.rdVkbDevice.device, &fenceInfo, nullptr, &renderData.rdRenderFence) != VK_SUCCESS) {
     Logger::log(1, "%s error: failed to init sync objects\n", __FUNCTION__);
     return false;
@@ -23,5 +24,6 @@ bool SyncObjects::init(VkRenderData &renderData) {
 void SyncObjects::cleanup(VkRenderData &renderData) {
   vkDestroySemaphore(renderData.rdVkbDevice.device, renderData.rdPresentSemaphore, nullptr);
   vkDestroySemaphore(renderData.rdVkbDevice.device, renderData.rdRenderSemaphore, nullptr);
+  vkDestroyFence(renderData.rdVkbDevice.device, renderData.rdPresentFence, nullptr);
   vkDestroyFence(renderData.rdVkbDevice.device, renderData.rdRenderFence, nullptr);
 }

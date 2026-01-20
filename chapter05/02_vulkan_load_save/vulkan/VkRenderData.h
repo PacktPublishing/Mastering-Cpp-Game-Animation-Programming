@@ -203,6 +203,7 @@ struct VkRenderData {
   VkSemaphore rdRenderSemaphore = VK_NULL_HANDLE;
   VkSemaphore rdGraphicSemaphore = VK_NULL_HANDLE;
   VkSemaphore rdComputeSemaphore = VK_NULL_HANDLE;
+  VkFence rdPresentFence = VK_NULL_HANDLE;
   VkFence rdRenderFence = VK_NULL_HANDLE;
   VkFence rdComputeFence = VK_NULL_HANDLE;
 
