@@ -5572,7 +5572,7 @@ bool VkRenderer::runIKComputeShaders(std::shared_ptr<AssimpModel> model, int num
   mDownloadFromUBOTimer.start();
   mIKModelMatrices = ShaderStorageBuffer::getSsboDataMat4(mRenderData, mIKBoneMatrixBuffer,
     modelOffset, numInstances * numberOfBones);
-  std::memcpy(mIKMatrices.data() + modelOffset, mIKModelMatrices.data(), numInstances * numberOfBones);
+  std::memcpy(mIKMatrices.data() + modelOffset, mIKModelMatrices.data(), numInstances * numberOfBones * sizeof(glm::mat4));
   mRenderData.rdDownloadFromUBOTime += mDownloadFromUBOTimer.stop();
 
   return true;
