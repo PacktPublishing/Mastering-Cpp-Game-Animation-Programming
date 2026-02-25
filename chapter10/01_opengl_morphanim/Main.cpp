@@ -1,4 +1,3 @@
-#include <memory>
 #include <string>
 
 #include "Window.h"
@@ -6,16 +5,14 @@
 
 int main(int argc, char *argv[]) {
 
-  std::unique_ptr<Window> w = std::make_unique<Window>();
+  Window window;
 
-  if (!w->init(1280, 720, "OpenGL Renderer - Morph Animations")) {
+  if (!window.init(1280, 720, "OpenGL Renderer - Morph Animations")) {
     Logger::log(1, "%s error: Window init error\n", __FUNCTION__);
     return -1;
   }
 
-  w->mainLoop();
-
-  w->cleanup();
+  window.mainLoop();
 
   return 0;
 }
