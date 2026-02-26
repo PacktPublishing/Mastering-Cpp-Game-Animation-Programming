@@ -82,11 +82,16 @@ The following section contains updates within the text of the book.
 
 Assimp v6.0.3 and later is using the `CMakePresets.json` file to configure the build targets. These versions also partially hardcode the library name, rendering the trick with removing the suffix useless. But at least building the static library has been simplified a lot.
 
-To build a static version of `assimp.lib`, choose `assimp_static` from the `Configuration` drop-down list. Then right-click `CMakeLists.txt` and coose `Build`.
+* To build a static version of `assimp.lib`, choose `assimp_static` from `Configuration` drop-down.
+* Next, change `ASSIMP_DOUBLE_PRECISION` in preset `assimp_static` inside `CMakePresets.json` from `ON` to `OFF`. You can choose `Manage Configuration` from `Configuration` drop-down to open the file.
+* Then right-click `CMakeLists.txt` and coose `Build`.
 
-After building the files, open the `lib` folder inside the `assimp` project folder (use right-click on project, then `Open Folder in File Explorer` to open an Explorer window). Rename the generated `assimp-vc143-mt.lib` to `assimp.lib` (via right-click or by pressing F2). You also need to copy the `zlibstatic.lib` file from folder `contrib/zlib` to the `lib` folder as this is no longer done autonmatically.
+After building the files, open the `lib` folder inside the `assimp` project folder (use right-click on project, then `Open Folder in File Explorer` to open an Explorer window). 
 
-Then copy the two folders `include` and `lib` from the project folder according to section `Copying the Asimp files` on page 10 of the book, either to folder `C:\Program Files\assimp` or to a custom folder (plus setting the `ASSIMP_ROOT` environment variable). The books's examples should find the Assimp library files now.
+* Rename the generated `assimp-vc143-mt.lib` to `assimp.lib` (via right-click or by pressing F2). You also need to copy the `zlibstatic.lib` file from folder `contrib/zlib` to the `lib` folder as this is no longer done autonmatically.
+* Then copy the two folders `include` and `lib` from the project folder according to section `Copying the Asimp files` on page 10 of the book, either to folder `C:\Program Files\assimp` or to a custom folder (plus setting the `ASSIMP_ROOT` environment variable).
+
+The books's examples should find the Assimp library files now.
 
 #### 'Assimp' Git fix for v6.0.2 and earlier
 
