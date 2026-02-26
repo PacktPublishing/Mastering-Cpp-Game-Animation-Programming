@@ -78,12 +78,21 @@ The following section contains updates within the text of the book.
 
 ### Chapter 1
 
-#### 'Open Asset Importer Library' Git version fix
+#### 'Assimp' Git version fix for v6.0.3 and later (including current main branch)
 
-Unfortinately, the `master` branch of the [Assimmp GitHub Repository](https://github.com/assimp/assimp) includes now changes that require an installed DirecX 9 SDK, even for the initial `CMake` configuration run.
-Switching off the tools by adjusting `ASSIMP_BUILD_ASSIMP_TOOLS` to `OFF` in the new file `CMakePresets.json` solves the SDK error, but configuring `CMake` via UI is no longer possible with the new file in place.
+Assimp v6.0.3 and later is using the `CMakePresets.json` file to configure the build targets. These versions also partially hardcode the library name, rendering the trick with removing the suffix useless. But at least building the static library has been simplified a lot.
 
-To fix the problem, checking out a tagged/relesed version is required. As a 'special hurdle', checking out a tag can NOT be done via a menu in Visual Studio 2022, one has to use the command line:
+To build a static version of `assimp.lib`, choose `assimp_static` from the `Configuration` drop-down list. Then right-click `CMakeLists.txt` and coose `Build`.
+
+After building the files, open the `lib` folder inside the `assimp` project folder (use right-click on project, then `Open Folder in File Explorer` to open an Explorer window). Rename the generated `assimp-vc143-mt.lib` to `assimp.lib` (via right-click or by pressing F2). You also need to copy the `zlibstatic.lib` file from folder `contrib/zlib` to the `lib` folder as this is no longer done autonmatically.
+
+Then copy the two folders `include` and `lib` from the project folder according to section `Copying the Asimp files` on page 10 of the book, either to folder `C:\Program Files\assimp` or to a custom folder (plus setting the `ASSIMP_ROOT` environment variable). The books's examples should find the Assimp library files now.
+
+#### 'Assimp' Git fix for v6.0.2 and earlier
+
+To compile an older version of Assimp, checking out a tagged/relesed version and re-running `CMake` is required.
+
+As a 'special hurdle', checking out a tag can NOT be done via a menu in Visual Studio 2022, one has to use the command line:
 * Right-click the `assimp` project in the `Solution Explorer - Folder View` window
 * Select `Open in Terminal` to open a 'Developer PowerShell'
 * In the PowerShell window, checkout the latest release (as of today):
@@ -93,15 +102,17 @@ git checkout v6.0.2
 
 Then, right-click `CMakeLists.txt`, select `Delete Cache and Reconfigure` to re-run `CMake`.
 
-If the cache deletion option is not available, you have to close Visual Studio and remove the following files and folders
+If the cache deletion option is not available, or `CMake` generation results in an error, close Visual Studio and remove the following files and folders
 from the `assimp` project folder on disk if they exists (use right-click on project, then `Open Folder in File Explorer` to open an Explorer window):
 * `.cmake`
 * `.vs`
 * `out`
 * `build.ninja`
+* `CMakeFiles`
+* `CMakeCache.txt`
 * `VSInheritedEnvironments.txt`
 
-After restarting Visual Studio, the initial `CMake` run should succeed and you can continue configuring the asset importer library.
+After restarting Visual Studio, the initial `CMake` run should succeed and you can continue configuring the asset importer library (pages 8-10 in the book).
 
 #### Building all Examples at once
 
