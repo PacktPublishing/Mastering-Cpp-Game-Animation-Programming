@@ -3221,6 +3221,38 @@ bool VkRenderer::draw(float deltaTime) {
     updateDescriptorSets();
   }
 
+  /* create coordinate lines */
+  mCoordArrowsLineIndexCount = 0;
+  mLineMesh->vertices.clear();
+  if (mRenderData.rdApplicationMode == appMode::edit) {
+    if (mModelInstCamData.micSelectedInstance > 0) {
+      InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance)->getInstanceSettings();
+
+      /* draw coordiante arrows at origin of selected instance */
+      switch(mRenderData.rdInstanceEditMode) {
+        case instanceEditMode::move:
+          mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
+          break;
+        case instanceEditMode::rotate:
+          mCoordArrowsMesh = mRotationArrowsModel.getVertexData();
+          break;
+        case instanceEditMode::scale:
+          mCoordArrowsMesh = mScaleArrowsModel.getVertexData();
+          break;
+      }
+
+      mCoordArrowsLineIndexCount += mCoordArrowsMesh.vertices.size();
+      std::for_each(mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end(),
+        [=](auto &n) {
+          n.color /= 2.0f;
+          n.position = glm::quat(glm::radians(instSettings.isWorldRotation)) * n.position;
+          n.position += instSettings.isWorldPosition;
+        });
+      mLineMesh->vertices.insert(mLineMesh->vertices.end(),
+        mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end());
+    }
+  }
+
   /* start with graphics rendering */
   std::vector<VkFence> resetFences = {
     mRenderData.rdRenderFence,
@@ -3371,38 +3403,6 @@ bool VkRenderer::draw(float deltaTime) {
   if (!CommandBuffer::end(mRenderData.rdCommandBuffer)) {
     Logger::log(1, "%s error: failed to end command buffer\n", __FUNCTION__);
     return false;
-  }
-
-  /* draw coordinate lines */
-  mCoordArrowsLineIndexCount = 0;
-  mLineMesh->vertices.clear();
-  if (mRenderData.rdApplicationMode == appMode::edit) {
-    if (mModelInstCamData.micSelectedInstance > 0) {
-      InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance)->getInstanceSettings();
-
-      /* draw coordiante arrows at origin of selected instance */
-      switch(mRenderData.rdInstanceEditMode) {
-        case instanceEditMode::move:
-          mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
-          break;
-        case instanceEditMode::rotate:
-          mCoordArrowsMesh = mRotationArrowsModel.getVertexData();
-          break;
-        case instanceEditMode::scale:
-          mCoordArrowsMesh = mScaleArrowsModel.getVertexData();
-          break;
-      }
-
-      mCoordArrowsLineIndexCount += mCoordArrowsMesh.vertices.size();
-      std::for_each(mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end(),
-                    [=](auto &n) {
-                      n.color /= 2.0f;
-                      n.position = glm::quat(glm::radians(instSettings.isWorldRotation)) * n.position;
-                      n.position += instSettings.isWorldPosition;
-                    });
-      mLineMesh->vertices.insert(mLineMesh->vertices.end(),
-                                 mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end());
-    }
   }
 
   if (!CommandBuffer::reset(mRenderData.rdLineCommandBuffer, 0)) {

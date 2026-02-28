@@ -4693,6 +4693,68 @@ bool VkRenderer::draw(float deltaTime) {
     updateDescriptorSets();
   }
 
+  /* create coordinate lines */
+  mLineIndexCount = 0;
+  mLineMesh->vertices.clear();
+  if (mRenderData.rdApplicationMode == appMode::edit) {
+    if (mModelInstCamData.micSelectedInstance > 0) {
+      InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance)->getInstanceSettings();
+
+      /* draw coordiante arrows at origin of selected instance */
+      switch(mRenderData.rdInstanceEditMode) {
+        case instanceEditMode::move:
+          mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
+          break;
+        case instanceEditMode::rotate:
+          mCoordArrowsMesh = mRotationArrowsModel.getVertexData();
+          break;
+        case instanceEditMode::scale:
+          mCoordArrowsMesh = mScaleArrowsModel.getVertexData();
+          break;
+      }
+
+      mLineIndexCount += mCoordArrowsMesh.vertices.size();
+      std::for_each(mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end(),
+        [=](auto &n) {
+          n.color /= 2.0f;
+          n.position = glm::quat(glm::radians(instSettings.isWorldRotation)) * n.position;
+          n.position += instSettings.isWorldPosition;
+        });
+      mLineMesh->vertices.insert(mLineMesh->vertices.end(),
+        mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end());
+    }
+  }
+
+  /* create AABB lines and bounding sphere of selected instance */
+  mCollisionDebugDrawTimer.start();
+  if (mRenderData.rdDrawCollisionAABBs == collisionDebugDraw::colliding || mRenderData.rdDrawCollisionAABBs == collisionDebugDraw::all) {
+    drawAABBs();
+  }
+
+  /* create colliding spheres */
+  mCollidingSphereCount = 0;
+  uint32_t sphereVertexCount = 0;
+
+  switch (mRenderData.rdDrawBoundingSpheres) {
+    case collisionDebugDraw::none:
+      break;
+    case collisionDebugDraw::colliding:
+      if (!mModelInstCamData.micInstanceCollisions.empty()) {
+        createCollidingBoundingSpheres();
+        sphereVertexCount = mCollidingSphereMesh.vertices.size();
+      }
+      break;
+    case collisionDebugDraw::selected:
+      /* no bounding sphere collision will be done with this setting, so run the computer shaders just for the selected instance */
+      createSelectedBoundingSpheres();
+      sphereVertexCount = mSphereMesh.vertices.size();
+      break;
+    case collisionDebugDraw::all:
+      createAllBoundingSpheres();
+      sphereVertexCount = mSphereMesh.vertices.size();
+      break;
+  }
+
   /* start with graphics rendering */
   std::vector<VkFence> resetFences = {
     mRenderData.rdRenderFence,
@@ -4845,44 +4907,6 @@ bool VkRenderer::draw(float deltaTime) {
     return false;
   }
 
-  /* draw coordinate lines */
-  mLineIndexCount = 0;
-  mLineMesh->vertices.clear();
-  if (mRenderData.rdApplicationMode == appMode::edit) {
-    if (mModelInstCamData.micSelectedInstance > 0) {
-      InstanceSettings instSettings = mModelInstCamData.micAssimpInstances.at(mModelInstCamData.micSelectedInstance)->getInstanceSettings();
-
-      /* draw coordiante arrows at origin of selected instance */
-      switch(mRenderData.rdInstanceEditMode) {
-        case instanceEditMode::move:
-          mCoordArrowsMesh = mCoordArrowsModel.getVertexData();
-          break;
-        case instanceEditMode::rotate:
-          mCoordArrowsMesh = mRotationArrowsModel.getVertexData();
-          break;
-        case instanceEditMode::scale:
-          mCoordArrowsMesh = mScaleArrowsModel.getVertexData();
-          break;
-      }
-
-      mLineIndexCount += mCoordArrowsMesh.vertices.size();
-      std::for_each(mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end(),
-                    [=](auto &n) {
-                      n.color /= 2.0f;
-                      n.position = glm::quat(glm::radians(instSettings.isWorldRotation)) * n.position;
-                      n.position += instSettings.isWorldPosition;
-                    });
-      mLineMesh->vertices.insert(mLineMesh->vertices.end(),
-                                 mCoordArrowsMesh.vertices.begin(), mCoordArrowsMesh.vertices.end());
-    }
-  }
-
-  /* draw AABB lines and bounding sphere of selected instance */
-  mCollisionDebugDrawTimer.start();
-  if (mRenderData.rdDrawCollisionAABBs == collisionDebugDraw::colliding || mRenderData.rdDrawCollisionAABBs == collisionDebugDraw::all) {
-    drawAABBs();
-  }
-
   if (!CommandBuffer::reset(mRenderData.rdLineCommandBuffer, 0)) {
     Logger::log(1, "%s error: failed to reset line drawing command buffer\n", __FUNCTION__);
     return false;
@@ -4915,30 +4939,6 @@ bool VkRenderer::draw(float deltaTime) {
     vkCmdBindVertexBuffers(mRenderData.rdLineCommandBuffer, 0, 1, &mLineVertexBuffer.buffer, &offset);
     vkCmdSetLineWidth(mRenderData.rdLineCommandBuffer, 3.0f);
     vkCmdDraw(mRenderData.rdLineCommandBuffer, static_cast<uint32_t>(mLineMesh->vertices.size()), 1, 0, 0);
-  }
-
-  /* draw colliding spheres */
-  mCollidingSphereCount = 0;
-  uint32_t sphereVertexCount = 0;
-
-  switch (mRenderData.rdDrawBoundingSpheres) {
-    case collisionDebugDraw::none:
-      break;
-    case collisionDebugDraw::colliding:
-      if (!mModelInstCamData.micInstanceCollisions.empty()) {
-        createCollidingBoundingSpheres();
-        sphereVertexCount = mCollidingSphereMesh.vertices.size();
-      }
-      break;
-    case collisionDebugDraw::selected:
-      /* no bounding sphere collision will be done with this setting, so run the computer shaders just for the selected instance */
-      createSelectedBoundingSpheres();
-      sphereVertexCount = mSphereMesh.vertices.size();
-      break;
-    case collisionDebugDraw::all:
-      createAllBoundingSpheres();
-      sphereVertexCount = mSphereMesh.vertices.size();
-      break;
   }
 
   /* draw colliding spheres */
