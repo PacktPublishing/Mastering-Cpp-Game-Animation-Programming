@@ -29,7 +29,7 @@ set(FETCHCONTENT_QUIET OFF)
 FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui
-  GIT_TAG        v1.91.2
+  GIT_TAG        v1.91.4
   GIT_SHALLOW 1
 )
 
@@ -45,7 +45,7 @@ endif()
 FetchContent_Declare(
   filedialog
   GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog
-  GIT_TAG        v0.6.7
+  GIT_TAG        v0.6.8
   GIT_SHALLOW 1
 )
 
@@ -84,7 +84,7 @@ FetchContent_Declare(
   vk_bootstrap
   GIT_REPOSITORY https://github.com/charles-lunarg/vk-bootstrap
   # with Ubuntu, v1.3.296 and newer broke compile in PFN_vkCmdSetDepthClampRangeEXT
-  GIT_TAG        v1.3.295
+  GIT_TAG        v1.3.302
   GIT_SHALLOW 1
 )
 
@@ -103,7 +103,7 @@ if (NOT DEFINED ENV{VK_SDK_PATH})
   FetchContent_Declare(
     vma
     GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-    GIT_TAG        v3.1.0
+    GIT_TAG        v3.3.0
     GIT_SHALLOW 1
   )
 
@@ -125,7 +125,7 @@ if(WIN32 AND NOT MINGW)
   FetchContent_Declare(
     yaml-cpp
     GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
-    GIT_TAG 0.8.0
+    GIT_TAG yaml-cpp-0.9.0
     GIT_SHALLOW 1
   )
 
@@ -163,7 +163,7 @@ if(WIN32 AND NOT MINGW)
     FetchContent_Declare(
       glm
       GIT_REPOSITORY https://github.com/g-truc/glm
-      GIT_TAG        1.0.1
+      GIT_TAG        1.0.3
       GIT_SHALLOW 1
     )
 

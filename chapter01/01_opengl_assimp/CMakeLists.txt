@@ -28,7 +28,7 @@ set(FETCHCONTENT_QUIET OFF)
 FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui
-  GIT_TAG        v1.91.2
+  GIT_TAG        v1.91.4
   GIT_SHALLOW 1
 )
 
@@ -44,7 +44,7 @@ endif()
 FetchContent_Declare(
   filedialog
   GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog
-  GIT_TAG        v0.6.7
+  GIT_TAG        v0.6.8
   GIT_SHALLOW 1
 )
 
@@ -105,7 +105,7 @@ if(WIN32 AND NOT MINGW)
     FetchContent_Declare(
       glm
       GIT_REPOSITORY https://github.com/g-truc/glm
-      GIT_TAG        1.0.1
+      GIT_TAG        1.0.3
       GIT_SHALLOW 1
     )
 
