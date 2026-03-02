@@ -27,9 +27,13 @@ bool SelectionFramebuffer::init(VkRenderData &renderData) {
   return true;
 }
 
-float SelectionFramebuffer::getPixelValueFromPos(VkRenderData& renderData, unsigned int xPos, unsigned int yPos) {
+float SelectionFramebuffer::getPixelValueFromPos(VkRenderData& renderData, int xPos, int yPos) {
   /* random default value to detect errors */
   float pixelColor = -444.0f;
+
+  if (xPos < 0 || yPos < 0 || xPos >= renderData.rdWidth || yPos >= renderData.rdHeight) {
+    return pixelColor;
+  }
 
   VkImage readbackImage;
   VmaAllocation readbackImageAlloc;
