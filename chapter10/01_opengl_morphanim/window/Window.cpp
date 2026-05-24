@@ -131,3 +131,8 @@ void Window::setWindowTitle(std::string newTitle) {
   mWindowTitle = newTitle;
   glfwSetWindowTitle(mWindow, mWindowTitle.c_str());
 }
+
+Window::~Window() {
+  cleanup();
+  Logger::log(1, "%s: Window destructor\n", __FUNCTION__);
+}
