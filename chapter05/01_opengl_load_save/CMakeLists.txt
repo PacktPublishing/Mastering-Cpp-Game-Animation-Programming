@@ -1,14 +1,14 @@
-cmake_minimum_required(VERSION 3.19)
+set(PROJECT_NAME 01_opengl_load_save)
+message("==== ${PROJECT_NAME} ====")
+project(${PROJECT_NAME})
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/_bin/$<CONFIGURATION>/${PROJECT_NAME}")
 
-project(Main)
+get_filename_component(MY_PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
+get_filename_component(MY_PARENT_DIR_NAME ${MY_PARENT_DIR} NAME)
 
-# use custom file to find libraries
-if(WIN32)
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-endif()
+set(OpenGL_GL_PREFERENCE GLVND)
+find_package(OpenGL REQUIRED)
 
 # optimize for speed on Clang or GCC
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -21,124 +21,6 @@ if(CCACHE_FOUND)
   set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
 endif(CCACHE_FOUND)
 
-include(FetchContent)
-set(FETCHCONTENT_QUIET OFF)
-
-# get ImGui, no build needed (only the files)
-FetchContent_Declare(
-  imgui
-  GIT_REPOSITORY https://github.com/ocornut/imgui
-  GIT_TAG        v1.92.7
-  GIT_SHALLOW 1
-)
-
-FetchContent_MakeAvailable(imgui)
-
-FetchContent_GetProperties(imgui)
-if(NOT imgui_POPULATED)
-  FetchContent_Populate(imgui)
-  add_subdirectory(${imgui_SOURCE_DIR} EXCLUDE_FROM_ALL)
-endif()
-
-# get ImGuiFileDialog, also files only
-FetchContent_Declare(
-  filedialog
-  GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog
-  GIT_TAG        v0.6.8
-  GIT_SHALLOW 1
-)
-
-# ugly hack to have ImGui available when the file dialog source getch fetched
-get_property(current_compile_options DIRECTORY PROPERTY COMPILE_OPTIONS)
-set_property(DIRECTORY PROPERTY COMPILE_OPTIONS -I ${imgui_SOURCE_DIR})
-FetchContent_MakeAvailable(filedialog)
-set_property(DIRECTORY PROPERTY COMPILE_OPTIONS ${current_compile_options})
-unset(current_compile_options)
-
-FetchContent_GetProperties(filedialog)
-if(NOT imgui_POPULATED)
-  FetchContent_Populate(filedialog)
-  add_subdirectory(${filedialog_SOURCE_DIR} EXCLUDE_FROM_ALL)
-endif()
-
-# get STB image reader
-FetchContent_Declare(
-  stbi
-  GIT_REPOSITORY https://github.com/nothings/stb
-  GIT_TAG        master
-  GIT_SHALLOW 1
-)
-
-FetchContent_MakeAvailable(stbi)
-
-FetchContent_GetProperties(stbi)
-if(NOT stbi_POPULATED)
-  FetchContent_Populate(stbi)
-  add_subdirectory(${stbi_SOURCE_DIR} EXCLUDE_FROM_ALL)
-endif()
-
-# get YAML-CPP, GLFW3 and GLM via FetchContent on Windows systems
-if(WIN32 AND NOT MINGW)
-  # yaml-cpp
-  FetchContent_Declare(
-    yaml-cpp
-    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
-    GIT_TAG yaml-cpp-0.9.0
-    GIT_SHALLOW 1
-  )
-
-  FetchContent_MakeAvailable(yaml-cpp)
-
-  FetchContent_GetProperties(yaml-cpp)
-  if(NOT yaml-cpp_POPULATED)
-    FetchContent_Populate(yaml-cpp)
-    add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
-  endif()
-
-  # get and build GLFW3
-  FetchContent_Declare(
-    glfw3
-    GIT_REPOSITORY https://github.com/glfw/glfw
-    GIT_TAG        3.4
-    GIT_SHALLOW 1
-  )
-
-  FetchContent_MakeAvailable(glfw3)
-
-  FetchContent_GetProperties(glfw3)
-  if(NOT glfw3_POPULATED)
-    FetchContent_Populate(glfw3)
-    add_subdirectory(${glfw3_SOURCE_DIR} ${glfw3_BINARY_DIR} EXCLUDE_FROM_ALL)
-  endif()
-
-  # set variables that will be used later
-  set(GLFW3_INCLUDE_DIR ${glfw3_SOURCE_DIR}/include)
-  set(GLFW3_LIBRARY "${glfw3_BINARY_DIR}/src/$<CONFIGURATION>/glfw3.lib")
-
-  # Skip downloading if Vulkan SDK has been found
-  if (NOT DEFINED ENV{VK_SDK_PATH})
-    # get GLM
-    FetchContent_Declare(
-      glm
-      GIT_REPOSITORY https://github.com/g-truc/glm
-      GIT_TAG        1.0.3
-      GIT_SHALLOW 1
-    )
-
-    # GLM is header only, but needs to be populated for the download
-    FetchContent_MakeAvailable(glm)
-
-    FetchContent_GetProperties(glm)
-    if(NOT glm_POPULATED)
-      FetchContent_Populate(glm)
-      add_subdirectory(${glm_SOURCE_DIR} EXCLUDE_FROM_ALL)
-    endif()
-
-    # set variables that will be used later
-    set(GLM_INCLUDE_DIR ${glm_SOURCE_DIR})
-  endif()
-endif()
-
 file(GLOB SOURCES
   Main.cpp
   src/glad.c
@@ -146,124 +28,103 @@ file(GLOB SOURCES
   tools/*.cpp
   opengl/*.cpp
   model/*.cpp
-  ${imgui_SOURCE_DIR}/*.cpp
-  # .cpp files for backends
-  ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
-  ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
-  ${filedialog_SOURCE_DIR}/*.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC include src window tools opengl model)
 
-# non-standard include dirs
-target_include_directories(${PROJECT_NAME} PRIVATE ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends ${filedialog_SOURCE_DIR} ${stbi_SOURCE_DIR})
-
-set(OpenGL_GL_PREFERENCE GLVND)
-find_package(OpenGL REQUIRED)
-
-find_package(glfw3 3.3 REQUIRED)
-find_package(glm REQUIRED)
-find_package(assimp REQUIRED)
-find_package(yaml-cpp REQUIRED)
-
-include_directories(${GLFW3_INCLUDE_DIR} ${GLM_INCLUDE_DIRS} ${ASSIMP_INCLUDE_DIR} ${YAML_CPP_INCLUDE_DIR})
-
-
 # copy shader files
+set(MY_SHADERS_NAME "Shaders_${PROJECT_NAME}")
 file(GLOB GLSL_SOURCE_FILES
   shader/*.frag
   shader/*.vert
 )
 
 add_custom_target(
-  Shaders
+  ${MY_SHADERS_NAME}
   DEPENDS ${GLSL_SOURCE_FILES}
 )
-add_dependencies(${PROJECT_NAME} Shaders)
+add_dependencies(${PROJECT_NAME} ${MY_SHADERS_NAME})
 
-add_custom_command(TARGET Shaders POST_BUILD
+add_custom_command(TARGET ${MY_SHADERS_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   "$<TARGET_PROPERTY:${PROJECT_NAME},SOURCE_DIR>/shader"
-  "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/shader"
+  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shader"
 )
 
 # copy textures
+set(MY_TEXTURES_NAME "Textures_${PROJECT_NAME}")
 file(GLOB TEX_SOURCE_FILES
   textures/*
 )
 
 add_custom_target(
-  Textures
+  ${MY_TEXTURES_NAME}
   DEPENDS ${TEX_SOURCE_FILES}
 )
-add_dependencies(${PROJECT_NAME} Textures)
+add_dependencies(${PROJECT_NAME} ${MY_TEXTURES_NAME})
 
-add_custom_command(TARGET Textures POST_BUILD
+add_custom_command(TARGET ${MY_TEXTURES_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   "$<TARGET_PROPERTY:${PROJECT_NAME},SOURCE_DIR>/textures"
-  "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/textures"
+  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/textures"
 )
 
 # copy assets
+set(MY_ASSETS_NAME "Assets_${PROJECT_NAME}")
 file(GLOB ASSET_FILES
   assets/*
 )
 
 add_custom_target(
-  Assets
+  ${MY_ASSETS_NAME}
   DEPENDS ${ASSET_FILES}
 )
 
-add_dependencies(${PROJECT_NAME} Assets)
+add_dependencies(${PROJECT_NAME} ${MY_ASSETS_NAME})
 
-add_custom_command(TARGET Assets POST_BUILD
+add_custom_command(TARGET ${MY_ASSETS_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   "$<TARGET_PROPERTY:${PROJECT_NAME},SOURCE_DIR>/assets"
-  "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/assets"
+  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets"
 )
 
 # copy config files
+set(MY_CONFIG_FILE_NAME "ConfigFile_${PROJECT_NAME}")
 file(GLOB CONFIG_FILE
   config/*
 )
 
 add_custom_target(
-  ConfigFile
+  ${MY_CONFIG_FILE_NAME}
   DEPENDS ${CONFIG_FILE}
 )
 
-add_dependencies(${PROJECT_NAME} ConfigFile)
+add_dependencies(${PROJECT_NAME} ${MY_CONFIG_FILE_NAME})
 
-add_custom_command(TARGET ConfigFile POST_BUILD
+add_custom_command(TARGET ${MY_CONFIG_FILE_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   "$<TARGET_PROPERTY:${PROJECT_NAME},SOURCE_DIR>/config"
-  "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/config"
+  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/config"
 )
 
 # copy imgui.ini
+set(MY_IMGUI_INI_NAME "ImGuiIniFile_${PROJECT_NAME}")
 file(GLOB IMGUI_INI imgui.ini)
 
 add_custom_target(
-  ImGuiIniFile
+  ${MY_IMGUI_INI_NAME}
   DEPENDS ${IMGUI_INI}
 )
 
-add_dependencies(${PROJECT_NAME} ImGuiIniFile)
+add_dependencies(${PROJECT_NAME} ${MY_IMGUI_INI_NAME})
 
-add_custom_command(TARGET ImGuiIniFile POST_BUILD
+add_custom_command(TARGET ${MY_IMGUI_INI_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy
   "$<TARGET_PROPERTY:${PROJECT_NAME},SOURCE_DIR>/imgui.ini"
-  "$<TARGET_PROPERTY:${PROJECT_NAME},BINARY_DIR>/$<CONFIGURATION>/imgui.ini"
+  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/imgui.ini"
 )
-
-# FindAssimp.cmake sets ASSIMP_LIBRARY and ASSIMP_ZLIB_LIBRARY/FindGLFW3 set GLF3_LIBRARY under Windows, reuse the value for Linux
-if(UNIX)
-  set(ASSIMP_LIBRARY assimp)
-  set(ASSIMP_ZLIB_LIBRARY z)
-  set(GLFW3_LIBRARY glfw)
-endif()
 
 # enable experimental GLM functions globally
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
@@ -271,9 +132,52 @@ add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 # allow ImGuiFileDialog dialogs to be closed with ESC
 add_definitions(-DUSE_DIALOG_EXIT_WITH_KEY -DIGFD_EXIT_KEY=ImGuiKey_Escape)
 
+target_link_libraries(${PROJECT_NAME} PRIVATE
+	glfw
+	OpenGL::GL
+	assimp
+	ImGuiFileDialog
+	imgui
+	stb
+	glm
+	yaml-cpp::yaml-cpp
+)
+
 if(MSVC)
-  target_link_libraries(${PROJECT_NAME} PRIVATE glfw ${ASSIMP_LIBRARY} ${ASSIMP_ZLIB_LIBRARY} OpenGL::GL yaml-cpp::yaml-cpp)
+	# do nothing
 else()
   # Clang and GCC may need libstd++ and libmath
-  target_link_libraries(${PROJECT_NAME} PRIVATE ${GLFW3_LIBRARY} ${ASSIMP_LIBRARY} ${ASSIMP_ZLIB_LIBRARY} OpenGL::GL yaml-cpp stdc++ m)
+  target_link_libraries(${PROJECT_NAME} PRIVATE yaml-cpp stdc++ m z)
+endif()
+
+if (MSVC OR CMAKE_C_SIMULATE_ID STREQUAL "MSVC")
+	# copy assimp dll
+	set(MY_ASSIMP_DLL_NAME "assimp-vc143-mt.dll")
+	set(MY_ASSIMP_DLL "external/assimp/_build/vs2022-x64-windows/bin/$<CONFIGURATION>/${MY_ASSIMP_DLL_NAME}")
+	set(MY_ASSIMP_NAME "assimpdll_${PROJECT_NAME}")
+
+	add_custom_target(
+	  ${MY_ASSIMP_NAME}
+	  DEPENDS ${MY_ASSIMP_DLL}
+	)
+	add_dependencies(${PROJECT_NAME} ${MY_ASSIMP_NAME})
+	add_custom_command(TARGET ${MY_ASSIMP_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy
+		"${CMAKE_SOURCE_DIR}/${MY_ASSIMP_DLL}"
+		"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${MY_ASSIMP_DLL_NAME}"
+	)
+endif()
+
+if(CMAKE_GENERATOR MATCHES "Visual Studio")
+	set(MY_VS_FOLDER "${MY_PARENT_DIR_NAME}/${PROJECT_NAME}")
+	set_target_properties (${PROJECT_NAME}  	  PROPERTIES FOLDER ${MY_VS_FOLDER})
+	set_target_properties (${MY_ASSETS_NAME}      PROPERTIES FOLDER ${MY_VS_FOLDER})
+	set_target_properties (${MY_SHADERS_NAME} 	  PROPERTIES FOLDER ${MY_VS_FOLDER})
+	set_target_properties (${MY_TEXTURES_NAME}    PROPERTIES FOLDER ${MY_VS_FOLDER})
+	set_target_properties (${MY_IMGUI_INI_NAME}   PROPERTIES FOLDER ${MY_VS_FOLDER})
+	set_target_properties (${MY_CONFIG_FILE_NAME} PROPERTIES FOLDER ${MY_VS_FOLDER})
+	set_target_properties (${MY_ASSIMP_NAME}  	  PROPERTIES FOLDER ${MY_VS_FOLDER})
+
+	# set working dir
+	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 endif()

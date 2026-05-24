@@ -123,3 +123,56 @@ After restarting Visual Studio, the initial `CMake` run should succeed and you c
 
 Building the code by using the top-level `CMakeLists.txt` file will fail for the code in Chapter 14 if the two libraries `SDL` and `SDL_mixer` are not installed.
 Please follow the instructions in section **Installing SDL and SDL_mixer on Windows** on page **459** and/or **Installing SDL and SDL_mixer on Linux** on page **460** before building the code for all chapters.
+
+## How to Build
+
+### Build on Windows
+```
+setup_external.bat
+gen_vs2022.bat
+```
+* Open Visual Studio project in _build/vs2022-x64-windows
+
+### Build on Linux (Ubuntu 24.04)
+```
+sh install_ubuntu_packages.sh
+sh setup_external.sh
+sh build_ninja_linux.sh
+```
+
+#### Check Your Ubuntu whether support OpenGL 4.6
+> When you found **glfwCreateWindow** return nullptr, "init error: Could not create window"
+```bash
+$ apt install mesa-utils
+$ glxinfo | grep -E "OpenGL version|Max core profile version"
+```
+
+> When you OpenGL 4.6 well in Windows deive, but not work on Ubuntu Vmware
+```bash
+# vim ~/.bashrc
+# add these two lines
+export MESA_GL_VERSION_OVERRIDE=4.6
+export MESA_GLSL_VERSION_OVERRIDE=460
+
+# Apply the changes to your current terminal
+$ source ~/.bashrc
+
+# then check opengl version again
+$ glxinfo | grep -i "OpenGL version"
+```
+
+### Build on Mac
+```
+# install Xcode Command Line Tools
+$ xcode-select --install
+
+# install Homebrew
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+```
+sh install_homebrew_packages.sh
+sh setup_external.sh
+sh gen_xcode.sh
+```
+* Open project in _build/xcode-mac
